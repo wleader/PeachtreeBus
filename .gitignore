@@ -1,0 +1,12 @@
+
+.vs/*
+**/bin/Debug/**/*
+**/obj/Debug/**/*
+**/obj/*.csproj.nuget.dgspec.json
+**/obj/*.csproj.nuget.g.props
+**/obj/*.csproj.nuget.g.targets
+**/obj/project.assets.json
+**/obj/project.nuget.cache
+**/*.sqlproj.user
+**/*.csproj.user
+
