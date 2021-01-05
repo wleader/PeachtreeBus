@@ -18,22 +18,24 @@ namespace PeachtreeBus.Example.Handlers
 
             if (message.Operation == "+")
             {
-                context.Send(new SampleDistributedTaskResponse
+                var response = new SampleDistributedTaskResponse
                 {
                     SagaId = message.SagaId,
                     A = message.A,
                     B = message.B,
                     Operation = message.Operation,
                     Result = message.A + message.B
-                });
+                };
+                context.Send(response);
+
+                _log.Info($"Distrbuted Task Result {response.A} { response.Operation} {response.B} =  {response.Result}");
             }
             else
             {
                 throw new ApplicationException($"I only know how to add!. I don't know how to {message.Operation}.");
             }
 
-            _log.Info("Simulating Work Time.");
-            return Task.Delay(3000);
+            return Task.CompletedTask;
         }
     }
 }

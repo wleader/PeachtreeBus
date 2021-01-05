@@ -41,6 +41,11 @@ namespace PeachtreeBus
         /// </summary>
         public string SagaKey { get; set; }
 
+        /// <summary>
+        /// Contains a list of messages that have been sent from message handlers.
+        /// Holding the messages in a list, allows the context to be inspected easily
+        /// from unit tests on the handlers.
+        /// </summary>
         public IList<ContextSentMessage> SentMessages { get; private set; }
         
         public MessageContext()
@@ -48,6 +53,13 @@ namespace PeachtreeBus
             SentMessages = new List<ContextSentMessage>();
         }
 
+        /// <summary>
+        /// A convience function for sending a message from a handler. Adds the message to the SentMessages.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="message"></param>
+        /// <param name="queueId"></param>
+        /// <param name="notBefore"></param>
         public void Send<T>(T message, int? queueId = null, DateTime? notBefore = null)
         {
             SentMessages.Add(new ContextSentMessage

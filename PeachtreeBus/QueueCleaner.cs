@@ -44,7 +44,6 @@ namespace Jukebox2.Bus
             // Need to findout what happens when the Data Access looses its connection.
             // might need some reconnection functionality?
 
-            _dataAccess.ClearChangeTracker();
             _dataAccess.BeginTransaction();
             try
             {

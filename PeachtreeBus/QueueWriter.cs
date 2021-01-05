@@ -53,8 +53,7 @@ namespace PeachtreeBus
             };
 
             // store the message in the queue.
-            _dataAccess.Add(qm);
-            _dataAccess.Save();
+            _dataAccess.Insert(qm);
         }
 
     }

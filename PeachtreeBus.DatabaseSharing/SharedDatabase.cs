@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Data.Common;
+﻿using System;
+using System.Data.SqlClient;
 
 namespace PeachtreeBus.DatabaseSharing
 {
@@ -23,8 +21,7 @@ namespace PeachtreeBus.DatabaseSharing
         /// Starts a transaction. Only one transaction should be started.
         /// Causes the TransactionStarted event.
         /// </summary>
-        /// <param name="context"></param>
-        void BeginTransaction(DbContext context);
+        void BeginTransaction();
 
         /// <summary>
         /// Commits a transaction.
@@ -55,9 +52,9 @@ namespace PeachtreeBus.DatabaseSharing
         /// <summary>
         /// The current Transaction (Null when there is no transaction.
         /// </summary>
-        IDbContextTransaction Transaction { get; }
+        SqlTransaction Transaction { get; }
 
-        DbConnection Connection { get; }
+        SqlConnection Connection { get; }
 
         /// <summary>
         /// An event to signal a new transaction so that other DbContext instances can synchronize transaction usage.
@@ -88,11 +85,11 @@ namespace PeachtreeBus.DatabaseSharing
         public event EventHandler TransactionConsumed;
 
         /// <inheritdoc/>
-        public IDbContextTransaction Transaction { get; private set; }
+        public SqlTransaction Transaction { get; private set; }
 
-        public DbConnection Connection { get; private set; }
+        public SqlConnection Connection { get; private set; }
 
-        public SharedDatabase(DbConnection connection)
+        public SharedDatabase(SqlConnection connection)
         {
             Connection = connection;
             Transaction = null;
@@ -100,12 +97,12 @@ namespace PeachtreeBus.DatabaseSharing
 
 
         /// <inheritdoc/>
-        public void BeginTransaction(DbContext context)
+        public void BeginTransaction()
         {
             lock (_lock)
             {
                 if (Transaction != null) throw new ApplicationException("There is already a transaction. Use CreateSavePoint instead of nested transactions.");
-                Transaction = context.Database.BeginTransaction();
+                Transaction = Connection.BeginTransaction();
             }
             TransactionStarted?.Invoke(this, null);
         }
@@ -128,7 +125,8 @@ namespace PeachtreeBus.DatabaseSharing
             lock (_lock)
             {
                 if (Transaction == null) throw new ApplicationException("There is no transaction to create a save point in.");
-                Transaction.CreateSavepoint(name);
+
+                Transaction.Save(name);
             }
         }
 
@@ -138,7 +136,7 @@ namespace PeachtreeBus.DatabaseSharing
             lock (_lock)
             {
                 if (Transaction == null) throw new ApplicationException("There is no transaction to roll back to a save point.");
-                Transaction.RollbackToSavepoint(name);
+                Transaction.Rollback(name);
             }
         }
 

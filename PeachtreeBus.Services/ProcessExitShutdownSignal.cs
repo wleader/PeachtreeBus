@@ -2,6 +2,11 @@
 
 namespace PeachtreeBus.Services
 {
+
+    /// <summary>
+    /// An Implementation of IProvideShutdownSignal that uses
+    /// The Current AppDomain's ProcessExit event.
+    /// </summary>
     public class ProcessExitShutdownSignal : IProvideShutdownSignal
     {
         public bool ShouldShutdown { get; private set; }

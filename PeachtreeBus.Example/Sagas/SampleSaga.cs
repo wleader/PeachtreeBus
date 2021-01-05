@@ -46,7 +46,7 @@ namespace PeachtreeBus.Example.Sagas
 
         public Task Handle(MessageContext context, SampleSagaStart message)
         {
-            _log.Info("Distributing Tasks.");
+            _log.Info($"Distributing Tasks for SagaId {message.SagaId}");
 
             Data.SagaId = message.SagaId;
             Data.PendingTasks = 10;

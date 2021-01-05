@@ -43,7 +43,9 @@ namespace PeachtreeBus.DatabaseSharing
         /// <inheritdoc/>
         public SqlConnection GetConnection()
         {
-            return new SqlConnection(_provideConnectionString.GetDbConnectionString());
+            var result = new SqlConnection(_provideConnectionString.GetDbConnectionString());
+            result.Open();
+            return result;
         }
 
     }

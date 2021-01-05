@@ -81,8 +81,6 @@ namespace PeachtreeBus
         /// <inheritdoc/>
         public MessageContext GetNextMessage(int queueId)
         {
-            _dataAccess.ClearChangeTracker();
-            
             // get a message.
             // if it retuned null there is no message to pocess currently.
             var queueMessage = _dataAccess.GetOneQueueMessage(queueId);
@@ -131,7 +129,7 @@ namespace PeachtreeBus
         public void CompleteMessage(MessageContext messageContext)
         {
             messageContext.MessageData.Completed = DateTime.UtcNow;
-            _dataAccess.Save();
+            _dataAccess.Update(messageContext.MessageData);
         }
 
         /// <inheritdoc/>
@@ -150,7 +148,8 @@ namespace PeachtreeBus
             {
                 _log.Error($"Message {messageContext.MessageData.MessageId} will be retried at {messageContext.MessageData.NotBefore}.");
             }
-            _dataAccess.Save();
+
+            _dataAccess.Update(messageContext.MessageData);
         }
 
         /// <inheritdoc/>
@@ -218,14 +217,14 @@ namespace PeachtreeBus
                     Key = context.SagaKey,
                     Data = serializedData
                 };
-                _dataAccess.Add(context.SagaData);
+                _dataAccess.Insert(context.SagaData);
             }
             else
             {
                 // update the existing row.
                 context.SagaData.Data = serializedData;
+                _dataAccess.Update(context.SagaData);
             }
-            _dataAccess.Save();
         }
     }
 }
