@@ -41,13 +41,12 @@ namespace PeachtreeBus.SimpleInjector
         public static Task StartPeachtreeBusIntervalTasks(this Container container)
         {
             var tasks = new List<Task>();
-            var scopeManager = container.GetInstance<IScopeManager>();
             var taskTypes = container.FindTypesThatImplement<IRunOnIntervalTask>();
             foreach (var intervalTask in taskTypes)
             {
-                scopeManager.Begin();
-                var runner = container.GetInstance<IIntervalRunner>();
-                var task = (IRunOnIntervalTask)container.GetInstance(intervalTask);
+                var scope = container.GetInstance<IScopeManager>();
+                var runner = scope.GetInstance<IIntervalRunner>();
+                var task = (IRunOnIntervalTask)scope.GetInstance(intervalTask);
                 tasks.Add(runner.Run(task));
             }
             return Task.WhenAll(tasks);

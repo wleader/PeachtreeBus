@@ -3,6 +3,7 @@ using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PeachtreeBus.SimpleInjector
@@ -14,31 +15,33 @@ namespace PeachtreeBus.SimpleInjector
     /// </summary>
     public class ScopeManager : IScopeManager
     {
-        private readonly Container _container;
-        private readonly List<Scope> scopes = new List<Scope>();
+        public static readonly IList<Scope> AllScopes = new List<Scope>();
+
+        private readonly Scope _scope;
 
         public ScopeManager(Container container)
         {
-            _container = container;
-        }
-
-        public void Begin()
-        {
-            lock(scopes)
+            _scope = AsyncScopedLifestyle.BeginScope(container);
+            lock(AllScopes)
             {
-                scopes.Add(AsyncScopedLifestyle.BeginScope(_container) );
+                AllScopes.Add(_scope);
             }
         }
 
-        public void DisposeAll()
+        public IEnumerable<T> GetAllInstances<T>() where T : class
         {
-            lock(scopes)
-            {
-                foreach(var s in scopes)
-                {
-                    s.DisposeAsync().GetAwaiter().GetResult();
-                }
-            }
+            var instances = _scope.Container.GetAllInstances<T>();
+            return instances.Select(i => (T)_scope.GetInstance(i.GetType()));
+        }
+
+        public T GetInstance<T>() where T : class
+        {
+            return _scope.GetInstance<T>();
+        }
+
+        public object GetInstance(Type t)
+        {
+            return _scope.GetInstance(t);
         }
     }
 
@@ -49,10 +52,15 @@ namespace PeachtreeBus.SimpleInjector
         /// Releases all scoped cached objects.
         /// </summary>
         /// <param name="container"></param>
-        public static void DisposeAllScopes(this Container container)
+        public static void DisposeAllScopes(this Container _)
         {
-            var scopeManager = container.GetInstance<IScopeManager>();
-            scopeManager.DisposeAll();
+            lock (ScopeManager.AllScopes)
+            {
+                foreach (var sm in ScopeManager.AllScopes)
+                {
+                    sm.Dispose();
+                }
+            }
         }
     }
 }

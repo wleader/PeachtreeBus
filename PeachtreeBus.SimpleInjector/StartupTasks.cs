@@ -45,15 +45,14 @@ namespace PeachtreeBus.SimpleInjector
         {
             var tasks = new List<Task>();
             var startupTaskTypes = container.FindTypesThatImplement<IRunOnStartup>();
-            var scopeManager = container.GetInstance<IScopeManager>();
+            
             foreach (var t in startupTaskTypes)
             {
-                scopeManager.Begin();
-                var startupTask = (IRunOnStartup)container.GetInstance(t);
+                var scope = container.GetInstance<IScopeManager>();
+                var startupTask = (IRunOnStartup)scope.GetInstance(t);
                 tasks.Add(startupTask.Run());
             }
             Task.WhenAll(tasks).GetAwaiter().GetResult();
-            scopeManager.DisposeAll();
         }
     }
 }

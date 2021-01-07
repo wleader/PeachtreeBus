@@ -8,15 +8,15 @@ namespace PeachtreeBus.SimpleInjector
     /// </summary>
     public class FindMessageHandlers : IFindMessageHandlers
     {
-        private readonly Container _container;
-        public FindMessageHandlers(Container container)
+        private readonly IScopeManager _scope;
+        public FindMessageHandlers(IScopeManager scope)
         {
-            _container = container;
+            _scope = scope;
         }
 
         public IEnumerable<IHandleMessage<T>> FindHandlers<T>() where T : IMessage
         {
-            return _container.GetAllInstances<IHandleMessage<T>>();
+            return _scope.GetAllInstances<IHandleMessage<T>>();
         }
     }
 }

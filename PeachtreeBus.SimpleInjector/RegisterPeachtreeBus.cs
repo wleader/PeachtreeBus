@@ -18,7 +18,7 @@ namespace PeachtreeBus.SimpleInjector
         /// <returns></returns>
         public static Container RegisterPeachtreeBus(this Container container)
         {
-            container.RegisterSingleton(typeof(IFindMessageHandlers), () => new FindMessageHandlers(container));
+            container.Register(typeof(IFindMessageHandlers), typeof(FindMessageHandlers), Lifestyle.Scoped);
             container.Register(typeof(IMessageProcessor), typeof(MessageProcessor), Lifestyle.Scoped);
             container.Register(typeof(IQueueReader), typeof(QueueReader), Lifestyle.Scoped);
             container.Register(typeof(IQueueWriter), typeof(QueueWriter), Lifestyle.Scoped);
@@ -26,7 +26,7 @@ namespace PeachtreeBus.SimpleInjector
             container.Register(typeof(ISharedDatabase), typeof(SharedDatabase), Lifestyle.Scoped);
             container.Register(typeof(SqlConnection), () => container.GetInstance<ISqlConnectionFactory>().GetConnection(), Lifestyle.Scoped);
             container.Register(typeof(ISqlConnectionFactory), typeof(SqlConnectionFactory), Lifestyle.Scoped);
-            container.RegisterSingleton(typeof(IScopeManager), typeof(ScopeManager));
+            container.Register(typeof(IScopeManager), typeof(ScopeManager), Lifestyle.Scoped);
             container.Register(typeof(IIntervalRunner), typeof(IntervalRunner), Lifestyle.Scoped);
 
             return container;

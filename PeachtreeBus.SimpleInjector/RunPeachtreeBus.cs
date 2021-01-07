@@ -16,11 +16,10 @@ namespace PeachtreeBus.SimpleInjector
         public static Task StartPeachtreeBusMessageProcessor (this Container container, int queueId, int concurrency)
         {
             var tasks = new List<Task>();
-            var scopeManager = container.GetInstance<IScopeManager>();
             for (var i = 0; i < concurrency; i++)
             {
-                scopeManager.Begin();
-                tasks.Add(container.GetInstance<IMessageProcessor>().Run(queueId));
+                var scope = container.GetInstance<IScopeManager>();
+                tasks.Add(scope.GetInstance<IMessageProcessor>().Run(queueId));
             }
             return Task.WhenAll(tasks);
         }
