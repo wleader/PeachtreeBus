@@ -1,11 +1,9 @@
-﻿using SimpleInjector;
-using SimpleInjector.Lifestyles;
-using PeachtreeBus.SimpleInjector;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using PeachtreeBus.DatabaseSharing;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using PeachtreeBus.Services;
+using PeachtreeBus.SimpleInjector;
+using SimpleInjector;
+using SimpleInjector.Lifestyles;
 
 namespace PeachtreeBus.Example
 {
@@ -43,9 +41,6 @@ namespace PeachtreeBus.Example
             _container.RegisterSingleton(typeof(ILog<>), typeof(ConsoleLog<>));
             // read the DB connection string from an appsettings.json.
             _container.RegisterSingleton(typeof(IProvideDbConnectionString), typeof(AppSettingsDatabaseConfig));
-            // register a host for IRunOnIntervalTasks
-
-
             // register an IConfiguration read from appsettings.json.
             _container.RegisterSingleton(typeof(IConfiguration), () =>
             {
