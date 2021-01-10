@@ -21,7 +21,7 @@ namespace PeachtreeBus
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        MessageContext GetNextMessage(int queueId);
+        MessageContext GetNextMessage(string queueName);
 
         /// <summary>
         /// Marks a message as successfully processed.
@@ -79,11 +79,11 @@ namespace PeachtreeBus
         }
 
         /// <inheritdoc/>
-        public MessageContext GetNextMessage(int queueId)
+        public MessageContext GetNextMessage(string queueName)
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.
-            var queueMessage = _dataAccess.GetOneQueueMessage(queueId);
+            var queueMessage = _dataAccess.GetOneQueueMessage(queueName);
             if (queueMessage == null) return null;
 
 
@@ -121,7 +121,7 @@ namespace PeachtreeBus
                 MessageData = queueMessage,
                 Headers = headers,
                 Message = message,
-                SourceQueue = queueId
+                SourceQueue = queueName
             };
         }
 
@@ -129,7 +129,7 @@ namespace PeachtreeBus
         public void CompleteMessage(MessageContext messageContext)
         {
             messageContext.MessageData.Completed = DateTime.UtcNow;
-            _dataAccess.Update(messageContext.MessageData);
+            _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
         }
 
         /// <inheritdoc/>
@@ -149,7 +149,7 @@ namespace PeachtreeBus
                 _log.Error($"Message {messageContext.MessageData.MessageId} will be retried at {messageContext.MessageData.NotBefore}.");
             }
 
-            _dataAccess.Update(messageContext.MessageData);
+            _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
         }
 
         /// <inheritdoc/>
@@ -157,10 +157,11 @@ namespace PeachtreeBus
         {
             // work out the class name of the saga.
             var sagaType = saga.GetType();
-            var sagaClassName = sagaType.FullName + ", " + sagaType.Assembly.GetName().Name;
+            var nameProperty = sagaType.GetProperty("SagaName");
+            var sagaName = (string)nameProperty.GetValue(saga);
 
             // fetch the data from the DB.
-            messageContext.SagaData = _dataAccess.GetSagaData(sagaClassName, messageContext.SagaKey);
+            messageContext.SagaData = _dataAccess.GetSagaData(sagaName, messageContext.SagaKey);
 
             // determine the type to deserialze to or create.
             var dataProperty = sagaType.GetProperty("Data");
@@ -189,14 +190,15 @@ namespace PeachtreeBus
         public void PersistSagaData(object saga, MessageContext context)
         {
             var sagaType = saga.GetType();
-            var sagaClass = sagaType.FullName + ", " + sagaType.Assembly.GetName().Name;
+            var nameProperty = sagaType.GetProperty("SagaName");
+            var sagaName = (string)nameProperty.GetValue(saga);
 
             // if the saga is complete, we can delete the data.
             var completeProperty = sagaType.GetProperty("SagaComplete");
             bool IsComplete = completeProperty.GetValue(saga) is bool completeValue && completeValue;
             if (IsComplete)
             {
-                _dataAccess.DeleteSagaData(sagaClass, context.SagaKey);
+                _dataAccess.DeleteSagaData(sagaName, context.SagaKey);
                 return;
             }
 
@@ -206,6 +208,8 @@ namespace PeachtreeBus
             if (dataObject == null) dataObject = Activator.CreateInstance(dataProperty.PropertyType);
             var serializedData = JsonSerializer.Serialize(dataObject, dataProperty.PropertyType);
 
+
+
             if (context.SagaData == null)
             {
                 // we have never persisted saga data for this instance (Message was a saga start message).
@@ -213,17 +217,16 @@ namespace PeachtreeBus
                 context.SagaData = new SagaData
                 {
                     SagaId = Guid.NewGuid(),
-                    Class = sagaClass,
                     Key = context.SagaKey,
                     Data = serializedData
                 };
-                _dataAccess.Insert(context.SagaData);
+                _dataAccess.Insert(context.SagaData, sagaName);
             }
             else
             {
                 // update the existing row.
                 context.SagaData.Data = serializedData;
-                _dataAccess.Update(context.SagaData);
+                _dataAccess.Update(context.SagaData, sagaName);
             }
         }
     }

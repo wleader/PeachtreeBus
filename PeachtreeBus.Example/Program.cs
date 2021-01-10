@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Example.Data;
 using PeachtreeBus.Services;
 using PeachtreeBus.SimpleInjector;
 using SimpleInjector;
@@ -33,6 +34,14 @@ namespace PeachtreeBus.Example
 
             // Register tasks that should be run once at startup.
             _container.RegisterPeachtreeBusStartupTasks();
+            
+            // Tell the code which queues we want this process to be responsible for cleaning up.
+            // Cleaning involves moving completed and failed messages out of the queue table into
+            // respective completed and error tables.
+            _container.RegisterSingleton(typeof(IConfigureQueueCleaner), () => new ConfigureQueueCleaner("SampleQueue"));
+
+            // register the data access used by the sample application.
+            _container.Register(typeof(IExampleDataAccess), typeof(ExampleDataAccess), Lifestyle.Scoped);
 
             // Register some services that are needed. 
             // signal shutdown when the process is exiting.
@@ -57,9 +66,8 @@ namespace PeachtreeBus.Example
             
             // decide how many message processors to run, this could be Environment.ProcessorCount, or some function thereof.
             var concurrency = 2;
-            const int queueId = 1; // it is possible to have different queues. For this process we'll just use 1.
-
-            _container.StartPeachtreeBus(queueId, concurrency).GetAwaiter().GetResult();
+            
+            _container.StartPeachtreeBus("SampleQueue", concurrency).GetAwaiter().GetResult();
         }
     }
 }

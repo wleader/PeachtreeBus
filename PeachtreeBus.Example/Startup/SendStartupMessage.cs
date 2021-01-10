@@ -18,10 +18,10 @@ namespace PeachtreeBus.Example.Startup
 
         public Task Run()
         {
-            const int QueueId = 1; // it is possible to have different queues. For this process we'll just use 1.
+            const string QueueName = "SampleQueue";
 
             _dataAccess.BeginTransaction();
-            _queueWriter.WriteMessage(QueueId, new SampleSagaStart { SagaId = new Random().Next(100000) });
+            _queueWriter.WriteMessage(QueueName, new SampleSagaStart { SagaId = new Random().Next(100000) });
             _dataAccess.CommitTransaction();
 
             return Task.CompletedTask;

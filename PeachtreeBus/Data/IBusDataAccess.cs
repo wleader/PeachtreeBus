@@ -41,39 +41,39 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        QueueMessage GetOneQueueMessage(int queueId);
+        QueueMessage GetOneQueueMessage(string queueName);
 
         /// <summary>
         /// Inserts a new message into the database.
         /// </summary>
         /// <param name="message">The message to insert.</param>
-        void Insert(QueueMessage message);
+        void Insert(QueueMessage message, string queueName);
 
         /// <summary>
         /// Updates a message.
         /// Only updates message properties that are allowed to change.
         /// </summary>
         /// <param name="message"></param>
-        void Update(QueueMessage message);
+        void Update(QueueMessage message, string queueName);
 
         /// <summary>
         /// Inserts Saga Data into the database.
         /// </summary>
         /// <param name="data">The saga data to insert.</param>
-        void Insert(SagaData data);
+        void Insert(SagaData data, string sagaName);
 
         /// <summary>
         /// Updates the saga data in the database.
         /// </summary>
         /// <param name="data">The Data to update. Only updates properties that are allowed to change.</param>
-        void Update(SagaData data);
+        void Update(SagaData data, string sagaName);
 
         /// <summary>
         /// Moves completed messages from the QueueMessages table to the CompletedMessages table.
         /// Moves failed messages from the QueueMessagesTable to the ErrorMessages table.
         /// </summary>
         /// <returns>The number of rows cleaned.</returns>
-        long CleanQueueMessages();
+        long CleanQueueMessages(string queueName);
 
         /// <summary>
         /// Reads saga data from the database.
@@ -81,13 +81,13 @@ namespace PeachtreeBus.Data
         /// <param name="className">The saga's class name (used to locate the data.)</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
         /// <returns>Matching saga data.</returns>
-        SagaData GetSagaData(string className, string key);
+        SagaData GetSagaData(string sagaName, string key);
 
         /// <summary>
         /// Deletes data for completed sagas.
         /// </summary>
         /// <param name="className">The saga's class name (used to locate the data.)</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
-        void DeleteSagaData(string className, string key);
+        void DeleteSagaData(string sagaName, string key);
     }
 }

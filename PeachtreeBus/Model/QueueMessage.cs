@@ -18,14 +18,6 @@ namespace PeachtreeBus.Model
         public virtual Guid MessageId { get; set; }
 
         /// <summary>
-        /// At the moment, multiple queues are stored in the same table.
-        /// Specified which queue the message is realted to.
-        /// Could go away if each queue was a different table, but this is
-        /// good enought for now.
-        /// </summary>
-        public virtual int QueueId { get; set; }
-
-        /// <summary>
         /// Set to a time in the future to delay processing of the message.
         /// </summary>
         public virtual DateTime NotBefore { get; set; }

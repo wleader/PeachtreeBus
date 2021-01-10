@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Example.Messages;
+﻿using PeachtreeBus.Example.Data;
+using PeachtreeBus.Example.Messages;
 using System;
 using System.Threading.Tasks;
 
@@ -7,15 +8,17 @@ namespace PeachtreeBus.Example.Handlers
     public class SampleDistributedTaskHandler : IHandleMessage<SampleDistributedTaskRequest>
     {
         private readonly ILog _log;
-        public SampleDistributedTaskHandler(ILog<SampleDistributedTaskHandler> log)
+        private readonly IExampleDataAccess _dataAccess;
+
+        public SampleDistributedTaskHandler(ILog<SampleDistributedTaskHandler> log, IExampleDataAccess dataAccess)
         {
             _log = log;
+            _dataAccess = dataAccess;
         }
 
         public Task Handle(MessageContext context, SampleDistributedTaskRequest message)
         {
             _log.Info("Processing Distributed Task.");
-
             if (message.Operation == "+")
             {
                 var response = new SampleDistributedTaskResponse
@@ -28,7 +31,9 @@ namespace PeachtreeBus.Example.Handlers
                 };
                 context.Send(response);
 
-                _log.Info($"Distrbuted Task Result {response.A} { response.Operation} {response.B} =  {response.Result}");
+                var auditMessge = $"Distrbuted Task Result {response.A} { response.Operation} {response.B} =  {response.Result}";
+                _log.Info(auditMessge);
+                _dataAccess.Audit(auditMessge);
             }
             else
             {

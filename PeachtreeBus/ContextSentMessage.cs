@@ -20,7 +20,7 @@ namespace PeachtreeBus
         /// <summary>
         /// What Queue the message is destined for.
         /// </summary>
-        public int QueueId { get; set; }
+        public string QueueName { get; set; }
 
         /// <summary>
         /// The time to wait until to processs the message.

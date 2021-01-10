@@ -27,7 +27,7 @@ namespace PeachtreeBus
         /// <summary>
         /// Which Queue the message was read from.
         /// </summary>
-        public int SourceQueue { get; set; }
+        public string SourceQueue { get; set; }
 
         /// <summary>
         /// The Model of the saga data related to the message (Null when the message is not part of a saga)
@@ -60,13 +60,13 @@ namespace PeachtreeBus
         /// <param name="message"></param>
         /// <param name="queueId"></param>
         /// <param name="notBefore"></param>
-        public void Send<T>(T message, int? queueId = null, DateTime? notBefore = null)
+        public void Send<T>(T message, string queueName = null, DateTime? notBefore = null)
         {
             SentMessages.Add(new ContextSentMessage
             {
                 Type = typeof(T),
                 Message = message,
-                QueueId = queueId ?? SourceQueue,
+                QueueName = queueName ?? SourceQueue,
                 NotBefore = notBefore
             });
         }

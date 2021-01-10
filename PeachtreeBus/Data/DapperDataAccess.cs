@@ -1,6 +1,8 @@
 ﻿using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Model;
 using Dapper;
+using System.Linq;
+using System;
 
 namespace PeachtreeBus.Data
 {
@@ -12,24 +14,37 @@ namespace PeachtreeBus.Data
         private readonly ISharedDatabase _database;
         private readonly IDbSchema _schema;
 
+        const string SafeChars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        const string SchemaUnsafe = "The schema name contains not allowable characters.";
+        const string QueueNameUnsafe = "The queue name contains not allowable characters.";
+        const string SagaNameUnsafe = "The saga name contains not allowable characters.";
+
         public DapperDataAccess(ISharedDatabase database, IDbSchema schema)
         {
             _schema = schema;
             _database = database;
         }
 
-        public void Insert(QueueMessage message)
+        private bool IsUnsafe(string value)
         {
+            if (string.IsNullOrEmpty(value)) return true;
+            return value.ToLower().Any(c => !SafeChars.Contains(c));
+        }
+
+        public void Insert(QueueMessage message, string queueName)
+        {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+
             string statement =
-                "INSERT INTO [" + _schema.Schema + "].[QueueMessages] " +
-                "([MessageId], [QueueId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
+                "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_QueueMessages] " +
+                "([MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
                 " VALUES " +
-                "( @MessageId, @QueueId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
+                "( @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
                 "SELECT SCOPE_IDENTITY()";
 
             var p = new DynamicParameters();
             p.Add("@MessageId", message.MessageId);
-            p.Add("@QueueId", message.QueueId);
             p.Add("@NotBefore", message.NotBefore);
             p.Add("@Enqueued", message.Enqueued);
             p.Add("@Completed", message.Completed);
@@ -41,17 +56,19 @@ namespace PeachtreeBus.Data
            message.Id = _database.Connection.QueryFirst<long>(statement, p, _database.Transaction);
         }
 
-        public void Insert(SagaData data)
+        public void Insert(SagaData data, string sagaName)
         {
-            string statement = " INSERT INTO[" + _schema.Schema + "].[SagaData] " +
-                "([SagaId], [Class], [Key], [Data])" +
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
+
+            string statement = " INSERT INTO[" + _schema.Schema + "].[" + sagaName + "_SagaData] " +
+                "([SagaId], [Key], [Data])" +
                 " VALUES " +
-                "(@SagaId, @Class, @Key, @Data); "+
+                "(@SagaId, @Key, @Data); "+
                 "SELECT SCOPE_IDENTITY()";
 
             var p = new DynamicParameters();
             p.Add("@SagaId", data.SagaId);
-            p.Add("@Class", data.Class);
             p.Add("@Key", data.Key);
             p.Add("@Data", data.Data);
            
@@ -63,15 +80,18 @@ namespace PeachtreeBus.Data
             _database.BeginTransaction();
         }
 
-        public long CleanQueueMessages()
+        public long CleanQueueMessages(string queueName)
         {
-            const string MessageFields = "[Id], [MessageId], [QueueId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
 
-            string statement = "INSERT INTO [" + _schema.Schema + "].[ErrorMessages] SELECT "
-                + MessageFields + " FROM [" + _schema.Schema + "].QueueMessages WITH (UPDLOCK, READPAST, ROWLOCK) WHERE Failed IS NOT NULL; " +
-                 "INSERT INTO [" + _schema.Schema + "].[CompletedMessages] SELECT "
-                + MessageFields + " FROM [" + _schema.Schema + "].QueueMessages WITH (UPDLOCK, READPAST, ROWLOCK) WHERE Completed IS NOT NULL; " +
-                "DELETE FROM [" + _schema.Schema + "].QueueMessages WHERE Failed IS NOT NULL OR Completed IS NOT NULL; " +
+            const string MessageFields = "[Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
+
+            string statement = "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_ErrorMessages] SELECT "
+                + MessageFields + " FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WITH (UPDLOCK, READPAST, ROWLOCK) WHERE Failed IS NOT NULL; " +
+                 "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_CompletedMessages] SELECT "
+                + MessageFields + " FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WITH (UPDLOCK, READPAST, ROWLOCK) WHERE Completed IS NOT NULL; " +
+                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WHERE Failed IS NOT NULL OR Completed IS NOT NULL; " +
                 "SELECT @@ROWCOUNT";
 
             return _database.Connection.QueryFirst<long>(statement, transaction: _database.Transaction);
@@ -87,18 +107,24 @@ namespace PeachtreeBus.Data
             _database.CreateSavepoint(name);
         }
 
-        public void DeleteSagaData(string className, string key)
+        public void DeleteSagaData(string sagaName, string key)
         {
-            string statement = "DELETE FROM [" + _schema.Schema + "].[SagaData] WHERE [Class] = @Class and [Key] = @Key";
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
+
+            string statement = "DELETE FROM [" + _schema.Schema + "].[" + sagaName + "_SagaData] WHERE [Key] = @Key";
             var p = new DynamicParameters();
-            p.Add("@Class", className);
             p.Add("@Key", key);
 
             _database.Connection.Execute(statement, p, _database.Transaction);
         }
 
-        public QueueMessage GetOneQueueMessage(int queueId)
+        public QueueMessage GetOneQueueMessage(string queueName)
         {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+
+
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.
             // ROWLOCK hint to tell the server to lock at the row level instead of the default page lock.
@@ -109,13 +135,15 @@ namespace PeachtreeBus.Data
             var query = 
                 "SELECT TOP 1 * FROM[" +
                 _schema.Schema +
-                "].QueueMessages WITH(UPDLOCK, READPAST, ROWLOCK) WHERE NotBefore < SYSUTCDATETIME() AND Completed IS NULL AND Failed IS NULL and QueueId = @queueId";
+                "].[" + queueName + "_QueueMessages] WITH(UPDLOCK, READPAST, ROWLOCK) WHERE NotBefore < SYSUTCDATETIME() AND Completed IS NULL AND Failed IS NULL";
 
-            return _database.Connection.QueryFirstOrDefault<QueueMessage>(query, new { queueId }, transaction: _database.Transaction);
+            return _database.Connection.QueryFirstOrDefault<QueueMessage>(query, transaction: _database.Transaction);
         }
 
-        public SagaData GetSagaData(string className, string key)
+        public SagaData GetSagaData(string sagaName, string key)
         {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
 
             // note that we use update locks. This is intentional as only one saga message should be processed at a time.
             // if by chance this row is locked by another thread or process, then the second message will not be able to
@@ -124,10 +152,9 @@ namespace PeachtreeBus.Data
 
             var query = "SELECT TOP 1 * FROM [" +
                 _schema.Schema +
-                "].SagaData WITH (UPDLOCK, ROWLOCK) WHERE [Class] = @Class and [Key] = @Key";
+                "].[" + sagaName + "_SagaData] WITH (UPDLOCK, ROWLOCK) WHERE [Key] = @Key";
 
             var p = new DynamicParameters();
-            p.Add("@Class", className);
             p.Add("@Key", key);
 
             return _database.Connection.QueryFirstOrDefault<SagaData>(query, p, _database.Transaction);
@@ -143,9 +170,12 @@ namespace PeachtreeBus.Data
             _database.RollbackTransaction();
         }
 
-        public void Update(QueueMessage message)
+        public void Update(QueueMessage message, string queueName)
         {
-            var statement = "UPDATE[" + _schema.Schema + "].[QueueMessages] SET " +
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+
+            var statement = "UPDATE[" + _schema.Schema + "].[" + queueName + "_QueueMessages] SET " +
                 "[NotBefore] = @NotBefore, " +
                 "[Completed] = @Completed, " +
                 "[Failed] = @Failed, " +
@@ -166,9 +196,12 @@ namespace PeachtreeBus.Data
             _database.Connection.Execute(statement, p, _database.Transaction);
         }
 
-        public void Update(SagaData data)
+        public void Update(SagaData data, string sagaName)
         {
-            var statement = "UPDATE [" + _schema.Schema + "].[SagaData] SET " +
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
+
+            var statement = "UPDATE [" + _schema.Schema + "].[" + sagaName + "_SagaData] SET " +
                 "[Data] = @Data " +
                 "WHERE [Id] = @Id";
 

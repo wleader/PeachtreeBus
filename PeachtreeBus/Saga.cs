@@ -8,6 +8,12 @@
     public abstract class Saga<TSagaData> where TSagaData : new()
     {
         /// <summary>
+        /// Each saga must have a unique name in the system.
+        /// This is used to build the table name for the saga data.
+        /// </summary>
+        public abstract string SagaName { get; }
+
+        /// <summary>
         /// Holds Arbitrary data that will be persisted between saga message handlers.
         /// </summary>
         public TSagaData Data { get; set; }

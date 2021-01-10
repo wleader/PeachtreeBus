@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Example.Messages;
+﻿using PeachtreeBus.Example.Data;
+using PeachtreeBus.Example.Messages;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,11 +19,15 @@ namespace PeachtreeBus.Example.Sagas
         IHandleMessage<SampleDistributedTaskResponse>
     {
         private readonly ILog _log;
+        private readonly IExampleDataAccess _dataAccess;
 
-        public SampleSaga(ILog<SampleSaga> log)
+        public SampleSaga(ILog<SampleSaga> log, IExampleDataAccess dataAccess)
         {
             _log = log;
+            _dataAccess = dataAccess;
         }
+
+        public override string SagaName => "SampleSaga";
 
         public override void ConfigureMessageKeys(SagaMessageMap mapper)
         {
@@ -46,6 +51,7 @@ namespace PeachtreeBus.Example.Sagas
 
         public Task Handle(MessageContext context, SampleSagaStart message)
         {
+            _dataAccess.Audit("Starting Saga.");
             _log.Info($"Distributing Tasks for SagaId {message.SagaId}");
 
             Data.SagaId = message.SagaId;

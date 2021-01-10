@@ -13,13 +13,13 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="queueId">The queue the message processor will read from.</param>
         /// <param name="concurrency">The number of copies of the processor to create.</param>
         /// <returns>A task that ends when the message processors have all shut down.</returns>
-        public static Task StartPeachtreeBusMessageProcessor (this Container container, int queueId, int concurrency)
+        public static Task StartPeachtreeBusMessageProcessor (this Container container, string queueName, int concurrency)
         {
             var tasks = new List<Task>();
             for (var i = 0; i < concurrency; i++)
             {
                 var scope = container.GetInstance<IScopeManager>();
-                tasks.Add(scope.GetInstance<IMessageProcessor>().Run(queueId));
+                tasks.Add(scope.GetInstance<IMessageProcessor>().Run(queueName));
             }
             return Task.WhenAll(tasks);
         }
@@ -31,9 +31,9 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="queueId">The queue the message processors will read from.</param>
         /// <param name="concurrency">the number of message processors to create.</param>
         /// <returns>A task that ends when all the messages processors and interval task have shut down.</returns>
-        public static Task StartPeachtreeBus(this Container container, int queueId, int concurrency)
+        public static Task StartPeachtreeBus(this Container container, string queueName, int concurrency)
         {
-            return Task.WhenAll(StartPeachtreeBusMessageProcessor(container, queueId, concurrency),
+            return Task.WhenAll(StartPeachtreeBusMessageProcessor(container, queueName, concurrency),
                 StartPeachtreeBusIntervalTasks(container));
         }
 

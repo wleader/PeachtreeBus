@@ -11,7 +11,7 @@ namespace PeachtreeBus
     /// </summary>
     public interface IMessageProcessor
     {
-        Task Run(int queueId);
+        Task Run(string queueName);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ namespace PeachtreeBus
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        public async Task Run(int queueId)
+        public async Task Run(string queueName)
         {
             _log.Info($"Starting Message Processor");
 
@@ -56,7 +56,7 @@ namespace PeachtreeBus
                 try
                 {
                     _transactionContext.BeginTransaction();
-                    if (await DoWork(queueId))
+                    if (await DoWork(queueName))
                     {
                         _transactionContext.CommitTransaction();
                     }
@@ -83,12 +83,12 @@ namespace PeachtreeBus
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        private async Task<bool> DoWork(int queueId)
+        private async Task<bool> DoWork(string queueName)
         {
             const string savepointName = "BeforeMessageHandler";
 
             // get a message.
-            var messageContext = _queueReader.GetNextMessage(queueId);
+            var messageContext = _queueReader.GetNextMessage(queueName);
 
             // there are no messages, so we are done. Return false so the transaction will roll back,  will sleep for a while.
             if (messageContext == null)
@@ -155,7 +155,7 @@ namespace PeachtreeBus
 
                 foreach(var csm in messageContext.SentMessages)
                 {
-                    _queueWriter.WriteMessage(csm.QueueId, csm.Type, csm.Message, csm.NotBefore);
+                    _queueWriter.WriteMessage(csm.QueueName, csm.Type, csm.Message, csm.NotBefore);
                 }
 
                 // if nothing threw an exception, we can mark the message as processed.

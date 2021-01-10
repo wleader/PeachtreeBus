@@ -19,11 +19,6 @@ namespace PeachtreeBus.Model
         public virtual Guid SagaId { get; set; }
 
         /// <summary>
-        /// What Saga Class this data is related to.
-        /// </summary>
-        public virtual string Class { get; set; }
-
-        /// <summary>
         /// What instance of the Saga class is the data related to.
         /// </summary>
         public virtual string Key { get; set; }
