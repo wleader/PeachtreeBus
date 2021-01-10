@@ -10,3 +10,5 @@
 **/*.sqlproj.user
 **/*.csproj.user
 
+*.jfm
+*.dbmdl
