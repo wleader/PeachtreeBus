@@ -1,0 +1,6 @@
+﻿CREATE TABLE [ExampleApp].[AuditLog]
+(
+	[Id] INT NOT NULL IDENTITY PRIMARY KEY,
+	[Occured] DATETIME2 NOT NULL,
+	[Message] NVARCHAR(MAX) NOT NULL
+)
