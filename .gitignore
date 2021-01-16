@@ -2,6 +2,8 @@
 .vs/*
 **/bin/Debug/**/*
 **/obj/Debug/**/*
+**/bin/Release/**/*
+**/obj/Release/**/*
 **/obj/*.csproj.nuget.dgspec.json
 **/obj/*.csproj.nuget.g.props
 **/obj/*.csproj.nuget.g.targets
