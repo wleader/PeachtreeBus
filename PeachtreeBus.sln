@@ -6,6 +6,8 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{FCEB713C-B3A8-40B7-8265-9DE8E4E2ADDE}"
 	ProjectSection(SolutionItems) = preProject
 		Licence.txt = Licence.txt
+		PeachtreeBus.nuspec = PeachtreeBus.nuspec
+		PeachtreeBus.SimpleInjector.nuspec = PeachtreeBus.SimpleInjector.nuspec
 	EndProjectSection
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PeachtreeBus.Database", "PeachtreeBus.Database\PeachtreeBus.Database.sqlproj", "{F702DCFC-9C33-425E-AE7D-84F340A75EC8}"

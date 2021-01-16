@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>PeachtreeBus.SimpleInjector</id>
+        <version>0.9.0</version>
+        <authors>William Leader</authors>
+        <owners>wleader</owners>
+        <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
+        <license type="expression">MIT</license>
+        <icon>icon.png</icon>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <releaseNotes>Initial Release</releaseNotes>
+        <description>
+        PeachtreeBus.SimpleInjector is a package that contains classes and extensions for integrating PeachtreeBus with SimpleInjector.
+        </description>
+        <copyright>Copyright 2021 William Leader</copyright>
+        <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
+        <dependencies>
+            <group targetFramework="netstandard2.1">
+            <dependency id="PeachtreeBus" version="0.9.0" />
+            <dependency id="SimpleInjector" version="5.2.0" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <!-- A readme.txt to display when the package is installed -->
+        <!-- <file src="readme.txt" target="" /> -->
+        <file src="icon.png" target="icon.png" />
+        <file src=".\PeachtreeBus.SimpleInjector\bin\Release\netstandard2.1\PeachtreeBus.SimpleInjector.dll" target="lib\netstandard2.1\PeachtreeBus.SimpleInjector.dll" />
+        <file src=".\PeachtreeBus.SimpleInjector\bin\Release\netstandard2.1\PeachtreeBus.SimpleInjector.pdb" target="lib\netstandard2.1\PeachtreeBus.SimpleInjector.pdb" />
+    </files>
+</package>
