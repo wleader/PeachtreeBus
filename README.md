@@ -30,3 +30,7 @@ But yeah, a library really shouldn't be trying to tell you want container to use
 ***
 
 So yeah, I wanted a message bus libary that wasn't everything to everyone, that used SQL Transport and used familiar testable patterns, respected my container, and was something I could afford for personal projects... I wasn't finding that so I had to make one. :D
+
+***
+
+Project Logo by [LilyFie](https://lilyfie.com/)
