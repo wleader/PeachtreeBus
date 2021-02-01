@@ -3,6 +3,7 @@ using PeachtreeBus.DatabaseSharing;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.Example.Data
 {
@@ -11,7 +12,7 @@ namespace PeachtreeBus.Example.Data
     /// </summary>
     public interface IExampleDataAccess
     {
-        void Audit(string message);
+        Task Audit(string message);
     }
 
     /// <summary>
@@ -28,12 +29,12 @@ namespace PeachtreeBus.Example.Data
             _database = database;
         }
 
-        public void Audit(string message)
+        public async Task Audit(string message)
         {
             const string statement = "INSERT INTO[ExampleApp].[AuditLog] ([Occured],[Message]) VALUES(SYSUTCDATETIME(),@Message)";
             var p = new DynamicParameters();
             p.Add("@Message", message);
-            _database.Connection.Execute(statement, p, _database.Transaction);
+            await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
     }
 }

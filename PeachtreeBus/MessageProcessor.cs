@@ -65,7 +65,7 @@ namespace PeachtreeBus
                         // there was no work to do.
                         // Rollback and go to sleep.
                         _transactionContext.RollbackTransaction();
-                        await Task.Delay(5000);
+                        await Task.Delay(100);
                     }
 
                 }
@@ -133,7 +133,33 @@ namespace PeachtreeBus
                     // determine if this handler is a saga.
                     var handlerType = handler.GetType();
 
-                    LoadSagaDataIfNeeded(handler, handlerType, messageContext, messageType);
+                    var handlerIsSaga = IsSubclassOfSaga(handlerType);
+                    if (handlerIsSaga)
+                    {
+                        messageContext.SagaKey = SagaMessageMapManager.GetKey(handler, messageContext.Message);
+
+                        await _queueReader.LoadSagaData(handler, messageContext);
+
+                        if (messageContext.SagaData == null)
+                        {
+                            if (messageContext.SagaLocked)
+                            {
+                                // the saga is locked. delay the message and try again later.
+                                _log.Info($"The saga {handlerType} for key {messageContext.SagaKey} is locked. the current message will be delayed and retried later.");
+                                _transactionContext.RollbackToSavepoint(savepointName);
+                                _queueReader.DelayMessage(messageContext, 50);
+                                return true; 
+                            }
+                            else if (!IsSagaStartHandler(handlerType, messageType))
+                            {
+                                // the saga was not locked, and it doesn't exist, and this message doesn't start a saga.
+                                // we are processing a saga message but it is not a saga start message and we didnt read previous
+                                // saga data from the DB. This means we are processing a non-start messge before the saga is started.
+                                // we could continute but that might be bad. Its probably better to stop and draw attention to a probable bug in the saga or message order.
+                                throw new ApplicationException($"A Message of Type {messageType} is being processed, but the saga {handlerType} has not been started for key {messageContext.SagaKey}. An IHandleSagaStartMessage<> handler on the saga must be processed first to start the saga.");
+                            }
+                        }
+                    }
 
                     // find the right method on the handler.
                     var parameterTypes = new[] { typeof(MessageContext), messageType };
@@ -150,7 +176,7 @@ namespace PeachtreeBus
                         await castTask;
                     }
 
-                    SaveSagaDataIfNeeded(handler, handlerType, messageContext);
+                    if (handlerIsSaga) _queueReader.PersistSagaData(handler, messageContext);
                 }
 
                 foreach(var csm in messageContext.SentMessages)
@@ -177,32 +203,11 @@ namespace PeachtreeBus
 
         }
 
-        private void SaveSagaDataIfNeeded(object handler, Type handlerType, MessageContext messageContext)
+        private bool IsSagaStartHandler(Type handlerType, Type messageType)
         {
-            if (!IsSubclassOfSaga(handlerType)) return;
-            _queueReader.PersistSagaData(handler, messageContext);
-        }
-
-        private void LoadSagaDataIfNeeded(object handler, Type handlerType, MessageContext messageContext, Type messageType)
-        {
-            if (!IsSubclassOfSaga(handlerType)) return;
-
-            // its a saga, so get the key, and prepare the saga data.
-            messageContext.SagaKey = SagaMessageMapManager.GetKey(handler, messageContext.Message);
-            _queueReader.LoadSagaData(handler, messageContext);
-
-            // check and see if it is a start message.
             var handlerInterfaces = handlerType.GetInterfaces();
             var handleSagaStartMessageInterface = typeof(IHandleSagaStartMessage<>).MakeGenericType(messageType);
-            var isStartMessage = handlerInterfaces.Any(i => i == handleSagaStartMessageInterface);
-
-            if (!isStartMessage && messageContext.SagaData == null)
-            {
-                // we are processing a saga message but it is not a saga start message and we didnt read previous
-                // saga data from the DB. This means we are processing a non-start messge before the saga is started.
-                // we could continute but that might be bad. Its probably better to stop and draw attention to a probable bug in the saga or message order.
-                throw new ApplicationException($"A Message of Type {messageType} is being processed, but the saga {handlerType} has not been started for key {messageContext.SagaKey}. An IHandleSagaStartMessage<> handler on the saga must be processed first to start the saga.");
-            }
+            return handlerInterfaces.Any(i => i == handleSagaStartMessageInterface);
         }
 
         /// <summary>

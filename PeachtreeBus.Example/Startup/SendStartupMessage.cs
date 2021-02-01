@@ -22,6 +22,7 @@ namespace PeachtreeBus.Example.Startup
 
             _dataAccess.BeginTransaction();
             _queueWriter.WriteMessage(QueueName, new SampleSagaStart { SagaId = new Random().Next(100000) });
+            _queueWriter.WriteMessage(QueueName, new SampleSagaStart { SagaId = new Random().Next(100000) });
             _dataAccess.CommitTransaction();
 
             return Task.CompletedTask;

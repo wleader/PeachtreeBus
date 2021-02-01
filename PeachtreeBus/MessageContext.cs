@@ -32,8 +32,14 @@ namespace PeachtreeBus
         /// <summary>
         /// The Model of the saga data related to the message (Null when the message is not part of a saga)
         /// Will be null if the saga is starting and has never persisted to the DB before.
+        /// Will be null if the row is locked.
         /// </summary>
         public SagaData SagaData { get; set; }
+
+        /// <summary>
+        /// Indicates if the reason SagaData is null is because the row was locked.
+        /// </summary>
+        public bool SagaLocked { get; set; }
 
         /// <summary>
         /// The Saga instance Key for the messge.

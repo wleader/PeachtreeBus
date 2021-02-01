@@ -38,7 +38,7 @@ namespace PeachtreeBus.SimpleInjector
         /// </summary>
         /// <param name="container"></param>
         /// <returns>A task that completes when the interval runners have all shut down.</returns>
-        public static Task StartPeachtreeBusIntervalTasks(this Container container)
+        public static IList<Task> StartPeachtreeBusIntervalTasks(this Container container)
         {
             var tasks = new List<Task>();
             var taskTypes = container.FindTypesThatImplement<IRunOnIntervalTask>();
@@ -49,7 +49,7 @@ namespace PeachtreeBus.SimpleInjector
                 var task = (IRunOnIntervalTask)scope.GetInstance(intervalTask);
                 tasks.Add(runner.Run(task));
             }
-            return Task.WhenAll(tasks);
+            return tasks;
         }
     }
 }

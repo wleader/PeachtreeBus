@@ -2,6 +2,7 @@
 using PeachtreeBus.Model;
 using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus
 {
@@ -30,6 +31,13 @@ namespace PeachtreeBus
         void CompleteMessage(MessageContext messageContext);
 
         /// <summary>
+        /// Sets a message to be processed later.
+        /// </summary>
+        /// <param name="messageContext"></param>
+        /// <param name="seconds"></param>
+        void DelayMessage(MessageContext messageContext, int seconds);
+
+        /// <summary>
         /// Increases the retry count on the message.
         /// Records the exception details.
         /// Marks the message failed if it exceeded the retry count.
@@ -44,7 +52,7 @@ namespace PeachtreeBus
         /// </summary>
         /// <param name="saga">The saga to load data for.</param>
         /// <param name="context">The mesage context. SagaKey must be set.</param>
-        void LoadSagaData(object saga, MessageContext context);
+        Task LoadSagaData(object saga, MessageContext context);
 
         /// <summary>
         /// Stores the saga data in the database after a message is processed.
@@ -153,15 +161,24 @@ namespace PeachtreeBus
         }
 
         /// <inheritdoc/>
-        public void LoadSagaData(object saga, MessageContext messageContext)
+        public async Task LoadSagaData(object saga, MessageContext messageContext)
         {
             // work out the class name of the saga.
             var sagaType = saga.GetType();
             var nameProperty = sagaType.GetProperty("SagaName");
             var sagaName = (string)nameProperty.GetValue(saga);
 
+            // this is a bit confusing because it returns true if another connection to the database locked it.
+            // but it will lock it for us if it can. 
+            messageContext.SagaLocked = await _dataAccess.IsSagaLocked(sagaName, messageContext.SagaKey);
+            if (messageContext.SagaLocked) return;
+
             // fetch the data from the DB.
             messageContext.SagaData = _dataAccess.GetSagaData(sagaName, messageContext.SagaKey);
+            
+            // Hypothetically locked could be false, and sagadata could be null if the saga hasn't been started.
+            // and if two saga starts are processed at the same time, a second insert will occur and 
+            // that will fail with a duplicate key constraint.
 
             // determine the type to deserialze to or create.
             var dataProperty = sagaType.GetProperty("Data");
@@ -198,7 +215,11 @@ namespace PeachtreeBus
             bool IsComplete = completeProperty.GetValue(saga) is bool completeValue && completeValue;
             if (IsComplete)
             {
-                _dataAccess.DeleteSagaData(sagaName, context.SagaKey);
+                var rowsDeleted = _dataAccess.DeleteSagaData(sagaName, context.SagaKey);
+                if (rowsDeleted != 1)
+                {
+                    throw new ApplicationException("Too many Saga Data rows deleted.");
+                }
                 return;
             }
 
@@ -220,6 +241,9 @@ namespace PeachtreeBus
                     Key = context.SagaKey,
                     Data = serializedData
                 };
+
+                // if two start messages are processed at the same time, two inserts could occur on different threads.
+                // if that happens, the second insert is expected to throw a duplicate key constraint violation.
                 _dataAccess.Insert(context.SagaData, sagaName);
             }
             else
@@ -228,6 +252,12 @@ namespace PeachtreeBus
                 context.SagaData.Data = serializedData;
                 _dataAccess.Update(context.SagaData, sagaName);
             }
+        }
+
+        public void DelayMessage(MessageContext messageContext, int ms)
+        {
+            messageContext.MessageData.NotBefore = DateTime.UtcNow.AddMilliseconds(ms);
+            _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
         }
     }
 }

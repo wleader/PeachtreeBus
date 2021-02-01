@@ -3,6 +3,7 @@ using PeachtreeBus.Model;
 using Dapper;
 using System.Linq;
 using System;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.Data
 {
@@ -107,16 +108,17 @@ namespace PeachtreeBus.Data
             _database.CreateSavepoint(name);
         }
 
-        public void DeleteSagaData(string sagaName, string key)
+        public long DeleteSagaData(string sagaName, string key)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
 
-            string statement = "DELETE FROM [" + _schema.Schema + "].[" + sagaName + "_SagaData] WHERE [Key] = @Key";
+            string statement = "DELETE FROM [" + _schema.Schema + "].[" + sagaName + "_SagaData] WHERE [Key] = @Key; " +
+                "SELECT @@ROWCOUNT";
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            _database.Connection.Execute(statement, p, _database.Transaction);
+            return _database.Connection.QueryFirst<long>(statement, p, _database.Transaction);
         }
 
         public QueueMessage GetOneQueueMessage(string queueName)
@@ -152,7 +154,7 @@ namespace PeachtreeBus.Data
 
             var query = "SELECT TOP 1 * FROM [" +
                 _schema.Schema +
-                "].[" + sagaName + "_SagaData] WITH (UPDLOCK, ROWLOCK) WHERE [Key] = @Key";
+                "].[" + sagaName + "_SagaData] WITH (UPDLOCK, READPAST, ROWLOCK) WHERE [Key] = @Key";
 
             var p = new DynamicParameters();
             p.Add("@Key", key);
@@ -210,6 +212,34 @@ namespace PeachtreeBus.Data
             p.Add("@Data", data.Data);
             
             _database.Connection.Execute(statement, p, _database.Transaction);
+        }
+
+        public async Task<bool> IsSagaLocked(string sagaName, string key)
+        {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
+
+            var statement = "SELECT [SagaId] FROM [" + _schema.Schema + "].[" + sagaName +
+                "_SagaData] WITH (NOWAIT) WHERE [Key] = @Key AND [SagaId] NOT IN ( SELECT [SagaId] From [" +
+                 _schema.Schema + "].[" + sagaName + "_SagaData] WITH ( READPAST, UPDLOCK, ROWLOCK) WHERE [Key] = @Key )";
+
+            var p = new DynamicParameters();
+            p.Add("@Key", key);
+
+            try
+            {
+                var selected = await _database.Connection.QueryFirstOrDefaultAsync<Guid?>(statement, p, _database.Transaction);
+                return selected != null;
+            }
+            catch(System.Data.SqlClient.SqlException ex)
+            {
+                // Lock request time out period exceeded. 1222.
+                // its safe to assume that its locked, and move on to another message.
+                if (ex.Number == 1222) return true; 
+
+                // else we don't know what happened. Throw as normal.
+                throw;
+            }
         }
     }
 }

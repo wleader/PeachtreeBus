@@ -5,6 +5,8 @@ using PeachtreeBus.Services;
 using PeachtreeBus.SimpleInjector;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.Example
 {
@@ -66,8 +68,8 @@ namespace PeachtreeBus.Example
             
             // decide how many message processors to run, this could be Environment.ProcessorCount, or some function thereof.
             var concurrency = 2;
-            
-            _container.StartPeachtreeBus("SampleQueue", concurrency).GetAwaiter().GetResult();
+
+            Task.WaitAll(_container.StartPeachtreeBus("SampleQueue", concurrency).ToArray());
         }
     }
 }

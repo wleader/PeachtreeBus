@@ -21,7 +21,7 @@
         /// <summary>
         /// Saga Handler code will set this to true to inform the bus that the saga is compelte, and persisted data may be discarded.
         /// </summary>
-        public bool SagaComplete { get; set; }
+        public bool SagaComplete { get; set; } = false;
 
         /// <summary>
         /// Each message that a sage will handle must be convertable to a saga key.

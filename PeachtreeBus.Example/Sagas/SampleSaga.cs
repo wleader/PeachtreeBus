@@ -35,7 +35,7 @@ namespace PeachtreeBus.Example.Sagas
             mapper.Add<SampleDistributedTaskResponse>(m => m.SagaId.ToString());
         }
 
-        public Task Handle(MessageContext context, SampleDistributedTaskResponse message)
+        public async Task Handle(MessageContext context, SampleDistributedTaskResponse message)
         {
             _log.Info($"Distributed Task Complete: {message.A} {message.Operation} {message.B} = {message.Result}");
             Data.PendingTasks--;
@@ -46,18 +46,19 @@ namespace PeachtreeBus.Example.Sagas
                 context.Send(new SampleSagaComplete { SagaId = Data.SagaId });
                 SagaComplete = true;
             }
-            return Task.CompletedTask;
+
+            await _dataAccess.Audit($"Pending Tasks {Data.PendingTasks}");
         }
 
-        public Task Handle(MessageContext context, SampleSagaStart message)
+        public async Task Handle(MessageContext context, SampleSagaStart message)
         {
-            _dataAccess.Audit("Starting Saga.");
+            await _dataAccess.Audit("Starting Saga.");
             _log.Info($"Distributing Tasks for SagaId {message.SagaId}");
 
             Data.SagaId = message.SagaId;
-            Data.PendingTasks = 10;
+            Data.PendingTasks = 100;
 
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < Data.PendingTasks; i++)
             {
                 context.Send(new SampleDistributedTaskRequest
                 {
@@ -67,8 +68,6 @@ namespace PeachtreeBus.Example.Sagas
                     Operation = "+"
                 });
             }
-
-            return Task.CompletedTask;
         }
     }
 }

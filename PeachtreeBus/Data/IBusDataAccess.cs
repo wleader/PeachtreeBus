@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Model;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.Data
 {
@@ -78,7 +79,7 @@ namespace PeachtreeBus.Data
         /// <summary>
         /// Reads saga data from the database.
         /// </summary>
-        /// <param name="className">The saga's class name (used to locate the data.)</param>
+        /// <param name="className">The saga's class name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
         /// <returns>Matching saga data.</returns>
         SagaData GetSagaData(string sagaName, string key);
@@ -86,8 +87,16 @@ namespace PeachtreeBus.Data
         /// <summary>
         /// Deletes data for completed sagas.
         /// </summary>
-        /// <param name="className">The saga's class name (used to locate the data.)</param>
+        /// <param name="className">The saga's class name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
-        void DeleteSagaData(string sagaName, string key);
+        long DeleteSagaData(string sagaName, string key);
+
+        /// <summary>
+        /// Reports if a saga is locked by another thread/process
+        /// </summary>
+        /// <param name="sagaName">The saga's class name.</param>
+        /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
+        /// <returns>True if the row exists and is locked.</returns>
+        Task<bool> IsSagaLocked(string sagaName, string key);
     }
 }

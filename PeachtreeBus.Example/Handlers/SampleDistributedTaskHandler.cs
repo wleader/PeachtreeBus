@@ -16,7 +16,7 @@ namespace PeachtreeBus.Example.Handlers
             _dataAccess = dataAccess;
         }
 
-        public Task Handle(MessageContext context, SampleDistributedTaskRequest message)
+        public async Task Handle(MessageContext context, SampleDistributedTaskRequest message)
         {
             _log.Info("Processing Distributed Task.");
             if (message.Operation == "+")
@@ -33,14 +33,14 @@ namespace PeachtreeBus.Example.Handlers
 
                 var auditMessge = $"Distrbuted Task Result {response.A} { response.Operation} {response.B} =  {response.Result}";
                 _log.Info(auditMessge);
-                _dataAccess.Audit(auditMessge);
+                await _dataAccess.Audit(auditMessge);
             }
             else
             {
                 throw new ApplicationException($"I only know how to add!. I don't know how to {message.Operation}.");
             }
-
-            return Task.CompletedTask;
+                        
+            return;
         }
     }
 }
