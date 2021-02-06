@@ -88,7 +88,7 @@ namespace PeachtreeBus
             const string savepointName = "BeforeMessageHandler";
 
             // get a message.
-            var messageContext = _queueReader.GetNextMessage(queueName);
+            var messageContext = await _queueReader.GetNextMessage(queueName);
 
             // there are no messages, so we are done. Return false so the transaction will roll back,  will sleep for a while.
             if (messageContext == null)
@@ -98,8 +98,10 @@ namespace PeachtreeBus
 
             // we found a message to process.
             _log.Debug($"Processing {messageContext.MessageData.MessageId}");
+            var started = DateTime.UtcNow;
             try
             {
+                Counters.PeachtreeBusCounters.StartMessage();
 
                 // creat a save point. If anything goes wrong we can roll back to here,
                 // increment the retry count and try again later.
@@ -137,28 +139,29 @@ namespace PeachtreeBus
                     if (handlerIsSaga)
                     {
                         messageContext.SagaKey = SagaMessageMapManager.GetKey(handler, messageContext.Message);
+                        _log.Debug($"Active Saga {messageContext.SagaKey}");
 
                         await _queueReader.LoadSagaData(handler, messageContext);
 
-                        if (messageContext.SagaData == null)
+                        if (messageContext.SagaData != null && messageContext.SagaData.Blocked)
                         {
-                            if (messageContext.SagaLocked)
-                            {
-                                // the saga is locked. delay the message and try again later.
-                                _log.Info($"The saga {handlerType} for key {messageContext.SagaKey} is locked. the current message will be delayed and retried later.");
-                                _transactionContext.RollbackToSavepoint(savepointName);
-                                _queueReader.DelayMessage(messageContext, 50);
-                                return true; 
-                            }
-                            else if (!IsSagaStartHandler(handlerType, messageType))
-                            {
-                                // the saga was not locked, and it doesn't exist, and this message doesn't start a saga.
-                                // we are processing a saga message but it is not a saga start message and we didnt read previous
-                                // saga data from the DB. This means we are processing a non-start messge before the saga is started.
-                                // we could continute but that might be bad. Its probably better to stop and draw attention to a probable bug in the saga or message order.
-                                throw new ApplicationException($"A Message of Type {messageType} is being processed, but the saga {handlerType} has not been started for key {messageContext.SagaKey}. An IHandleSagaStartMessage<> handler on the saga must be processed first to start the saga.");
-                            }
+                            // the saga is blocked. delay the message and try again later.
+                            _log.Info($"The saga {handlerType} for key {messageContext.SagaKey} is blocked. The current message will be delayed and retried.");
+                            _transactionContext.RollbackToSavepoint(savepointName);
+                            await _queueReader.DelayMessage(messageContext, 250);
+                            Counters.PeachtreeBusCounters.SagaBlocked();
+                            return true;
                         }
+
+                        if (messageContext.SagaData == null && !IsSagaStartHandler(handlerType, messageType))
+                        {
+                            // the saga was not locked, and it doesn't exist, and this message doesn't start a saga.
+                            // we are processing a saga message but it is not a saga start message and we didnt read previous
+                            // saga data from the DB. This means we are processing a non-start messge before the saga is started.
+                            // we could continute but that might be bad. Its probably better to stop and draw attention to a probable bug in the saga or message order.
+                            throw new ApplicationException($"A Message of Type {messageType} is being processed, but the saga {handlerType} has not been started for key {messageContext.SagaKey}. An IHandleSagaStartMessage<> handler on the saga must be processed first to start the saga.");
+                        }
+                        
                     }
 
                     // find the right method on the handler.
@@ -176,16 +179,20 @@ namespace PeachtreeBus
                         await castTask;
                     }
 
-                    if (handlerIsSaga) _queueReader.PersistSagaData(handler, messageContext);
+                    if (handlerIsSaga)
+                    {
+                        await _queueReader.PersistSagaData(handler, messageContext);
+                        _log.Debug($"Inactive Saga {messageContext.SagaKey}");
+                    }
                 }
 
                 foreach(var csm in messageContext.SentMessages)
                 {
-                    _queueWriter.WriteMessage(csm.QueueName, csm.Type, csm.Message, csm.NotBefore);
+                    await _queueWriter.WriteMessage(csm.QueueName, csm.Type, csm.Message, csm.NotBefore);
                 }
 
                 // if nothing threw an exception, we can mark the message as processed.
-                _queueReader.CompleteMessage(messageContext);
+                await _queueReader.CompleteMessage(messageContext);
                 // return true so the transaction commits and the main loop looks for another mesage right away.
                 return true;
             }
@@ -196,9 +203,13 @@ namespace PeachtreeBus
                 _log.Warn($"There was an execption processing the message. {ex}");
                 _transactionContext.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
-                _queueReader.FailMessage(messageContext, ex);
+                await _queueReader.FailMessage(messageContext, ex);
                 // return true so the transaction commits and the main loop looks for another mesage right away.
                 return true;
+            }
+            finally
+            {
+                Counters.PeachtreeBusCounters.FinishMessage(started);
             }
 
         }

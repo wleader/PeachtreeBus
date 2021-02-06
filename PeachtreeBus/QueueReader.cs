@@ -22,20 +22,20 @@ namespace PeachtreeBus
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        MessageContext GetNextMessage(string queueName);
+        Task<MessageContext> GetNextMessage(string queueName);
 
         /// <summary>
         /// Marks a message as successfully processed.
         /// </summary>
         /// <param name="messageContext"></param>
-        void CompleteMessage(MessageContext messageContext);
+        Task CompleteMessage(MessageContext messageContext);
 
         /// <summary>
         /// Sets a message to be processed later.
         /// </summary>
         /// <param name="messageContext"></param>
         /// <param name="seconds"></param>
-        void DelayMessage(MessageContext messageContext, int seconds);
+        Task DelayMessage(MessageContext messageContext, int seconds);
 
         /// <summary>
         /// Increases the retry count on the message.
@@ -44,7 +44,7 @@ namespace PeachtreeBus
         /// </summary>
         /// <param name="messageContext"></param>
         /// <param name="exception"></param>
-        void FailMessage(MessageContext messageContext, Exception exception);
+        Task FailMessage(MessageContext messageContext, Exception exception);
 
         /// <summary>
         /// Reads and deserialized saga data into the Message Context.
@@ -60,7 +60,7 @@ namespace PeachtreeBus
         /// </summary>
         /// <param name="saga"></param>
         /// <param name="context"></param>
-        void PersistSagaData(object saga, MessageContext context);
+        Task PersistSagaData(object saga, MessageContext context);
      }
 
 
@@ -87,11 +87,11 @@ namespace PeachtreeBus
         }
 
         /// <inheritdoc/>
-        public MessageContext GetNextMessage(string queueName)
+        public async Task<MessageContext> GetNextMessage(string queueName)
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.
-            var queueMessage = _dataAccess.GetOneQueueMessage(queueName);
+            var queueMessage = await _dataAccess.GetOneQueueMessage(queueName);
             if (queueMessage == null) return null;
 
 
@@ -134,14 +134,15 @@ namespace PeachtreeBus
         }
 
         /// <inheritdoc/>
-        public void CompleteMessage(MessageContext messageContext)
+        public Task CompleteMessage(MessageContext messageContext)
         {
             messageContext.MessageData.Completed = DateTime.UtcNow;
-            _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
+            Counters.PeachtreeBusCounters.CompleteMessage();
+            return _dataAccess.CompleteMessage(messageContext.MessageData, messageContext.SourceQueue);
         }
 
         /// <inheritdoc/>
-        public void FailMessage(MessageContext messageContext, Exception exception)
+        public Task FailMessage(MessageContext messageContext, Exception exception)
         {
             messageContext.MessageData.Retries++;
             messageContext.MessageData.NotBefore = DateTime.UtcNow.AddSeconds(5 * messageContext.MessageData.Retries); // Wait longer between retries.
@@ -151,13 +152,15 @@ namespace PeachtreeBus
             {
                 _log.Error($"Message {messageContext.MessageData.MessageId} exceeded max retries ({MaxRetries}) and has failed.");
                 messageContext.MessageData.Failed = DateTime.UtcNow;
+                Counters.PeachtreeBusCounters.ErrorMessage();
+                return _dataAccess.FailMessage(messageContext.MessageData, messageContext.SourceQueue);
             }
             else
             {
                 _log.Error($"Message {messageContext.MessageData.MessageId} will be retried at {messageContext.MessageData.NotBefore}.");
+                Counters.PeachtreeBusCounters.RetryMessage();
+                return _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
             }
-
-            _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
         }
 
         /// <inheritdoc/>
@@ -168,14 +171,10 @@ namespace PeachtreeBus
             var nameProperty = sagaType.GetProperty("SagaName");
             var sagaName = (string)nameProperty.GetValue(saga);
 
-            // this is a bit confusing because it returns true if another connection to the database locked it.
-            // but it will lock it for us if it can. 
-            messageContext.SagaLocked = await _dataAccess.IsSagaLocked(sagaName, messageContext.SagaKey);
-            if (messageContext.SagaLocked) return;
-
             // fetch the data from the DB.
-            messageContext.SagaData = _dataAccess.GetSagaData(sagaName, messageContext.SagaKey);
-            
+            messageContext.SagaData = await _dataAccess.GetSagaData(sagaName, messageContext.SagaKey);
+            if (messageContext.SagaData != null && messageContext.SagaData.Blocked) return;
+
             // Hypothetically locked could be false, and sagadata could be null if the saga hasn't been started.
             // and if two saga starts are processed at the same time, a second insert will occur and 
             // that will fail with a duplicate key constraint.
@@ -204,7 +203,7 @@ namespace PeachtreeBus
 
 
         /// <inheritdoc/>
-        public void PersistSagaData(object saga, MessageContext context)
+        public Task PersistSagaData(object saga, MessageContext context)
         {
             var sagaType = saga.GetType();
             var nameProperty = sagaType.GetProperty("SagaName");
@@ -215,12 +214,7 @@ namespace PeachtreeBus
             bool IsComplete = completeProperty.GetValue(saga) is bool completeValue && completeValue;
             if (IsComplete)
             {
-                var rowsDeleted = _dataAccess.DeleteSagaData(sagaName, context.SagaKey);
-                if (rowsDeleted != 1)
-                {
-                    throw new ApplicationException("Too many Saga Data rows deleted.");
-                }
-                return;
+                return _dataAccess.DeleteSagaData(sagaName, context.SagaKey);
             }
 
             // the saga is not complete, serialize it.
@@ -228,8 +222,6 @@ namespace PeachtreeBus
             var dataObject = dataProperty.GetValue(saga);
             if (dataObject == null) dataObject = Activator.CreateInstance(dataProperty.PropertyType);
             var serializedData = JsonSerializer.Serialize(dataObject, dataProperty.PropertyType);
-
-
 
             if (context.SagaData == null)
             {
@@ -244,20 +236,21 @@ namespace PeachtreeBus
 
                 // if two start messages are processed at the same time, two inserts could occur on different threads.
                 // if that happens, the second insert is expected to throw a duplicate key constraint violation.
-                _dataAccess.Insert(context.SagaData, sagaName);
+                return _dataAccess.Insert(context.SagaData, sagaName);
             }
             else
             {
                 // update the existing row.
                 context.SagaData.Data = serializedData;
-                _dataAccess.Update(context.SagaData, sagaName);
+                return _dataAccess.Update(context.SagaData, sagaName);
             }
         }
 
-        public void DelayMessage(MessageContext messageContext, int ms)
+        public Task DelayMessage(MessageContext messageContext, int ms)
         {
             messageContext.MessageData.NotBefore = DateTime.UtcNow.AddMilliseconds(ms);
-            _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
+            Counters.PeachtreeBusCounters.DelayMessage();
+            return _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
         }
     }
 }

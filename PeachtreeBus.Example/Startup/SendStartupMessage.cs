@@ -16,16 +16,20 @@ namespace PeachtreeBus.Example.Startup
             _dataAccess = busDataAccess;
         }
 
-        public Task Run()
+        public async Task Run()
         {
+
             const string QueueName = "SampleQueue";
-
-            _dataAccess.BeginTransaction();
-            _queueWriter.WriteMessage(QueueName, new SampleSagaStart { SagaId = new Random().Next(100000) });
-            _queueWriter.WriteMessage(QueueName, new SampleSagaStart { SagaId = new Random().Next(100000) });
-            _dataAccess.CommitTransaction();
-
-            return Task.CompletedTask;
+            
+            for (var i = 0; i < 10; i++)
+            {
+                _dataAccess.BeginTransaction();
+                for (var j = 0; j < 10; j++)
+                {
+                    await _queueWriter.WriteMessage(QueueName, new SampleSagaStart { AppId = Guid.NewGuid() });
+                }
+                _dataAccess.CommitTransaction();
+            }
         }
     }
 }

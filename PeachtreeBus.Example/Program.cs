@@ -37,11 +37,6 @@ namespace PeachtreeBus.Example
             // Register tasks that should be run once at startup.
             _container.RegisterPeachtreeBusStartupTasks();
             
-            // Tell the code which queues we want this process to be responsible for cleaning up.
-            // Cleaning involves moving completed and failed messages out of the queue table into
-            // respective completed and error tables.
-            _container.RegisterSingleton(typeof(IConfigureQueueCleaner), () => new ConfigureQueueCleaner("SampleQueue"));
-
             // register the data access used by the sample application.
             _container.Register(typeof(IExampleDataAccess), typeof(ExampleDataAccess), Lifestyle.Scoped);
 
@@ -62,14 +57,21 @@ namespace PeachtreeBus.Example
 
             // sanity check.
             _container.Verify();
-            
+
+            //System.Console.WriteLine("Maximum Concurrency: " + System.Threading.Tasks.TaskScheduler.Default.MaximumConcurrencyLevel.ToString());
+            System.Threading.ThreadPool.GetMaxThreads(out var workerThreads, out var completionPortThreads);
+            System.Console.WriteLine($"Max Worker Threads {workerThreads}. Max Completion Port Threads {completionPortThreads}.");
+
+            // this is probably a bad idea?
+            //System.Threading.ThreadPool.SetMaxThreads(250, 250);
+
             // run startup tasks.
-            _container.RunPeachtreeBusStartupTasks();
+            Task.WaitAll(_container.PeachtreeBusStartupTasks().ToArray());
             
             // decide how many message processors to run, this could be Environment.ProcessorCount, or some function thereof.
-            var concurrency = 2;
+            var concurrency = 32;
 
-            Task.WaitAll(_container.StartPeachtreeBus("SampleQueue", concurrency).ToArray());
+            Task.WaitAll(_container.PeachtreeBusTasks("SampleQueue", concurrency).ToArray());
         }
     }
 }

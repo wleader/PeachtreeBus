@@ -1,6 +1,7 @@
 ﻿using PeachtreeBus.Data;
 using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus
 {
@@ -9,8 +10,8 @@ namespace PeachtreeBus
     /// </summary>
     public interface IQueueWriter
     {
-        void WriteMessage<T>(string queueName, T message, DateTime? NotBefore = null);
-        void WriteMessage(string queueName, Type type, object message, DateTime? NotBefore = null);
+        Task WriteMessage<T>(string queueName, T message, DateTime? NotBefore = null);
+        Task WriteMessage(string queueName, Type type, object message, DateTime? NotBefore = null);
     }
 
     /// <summary>
@@ -25,12 +26,12 @@ namespace PeachtreeBus
             _dataAccess = dataAccess;
         }
 
-        public void WriteMessage<T>(string queueName, T message, DateTime? NotBefore = null)
+        public Task WriteMessage<T>(string queueName, T message, DateTime? NotBefore = null)
         {
-            WriteMessage(queueName, typeof(T), message, NotBefore);
+            return WriteMessage(queueName, typeof(T), message, NotBefore);
         }
 
-        public void WriteMessage(string queueName, Type type, object message, DateTime? NotBefore = null)
+        public Task WriteMessage(string queueName, Type type, object message, DateTime? NotBefore = null)
         { 
             // note the type in the headers so it can be deserialized.
             var headers = new Headers
@@ -51,8 +52,10 @@ namespace PeachtreeBus
                 Body = JsonSerializer.Serialize(message, type)
             };
 
+            Counters.PeachtreeBusCounters.SentMessage();
+
             // store the message in the queue.
-            _dataAccess.Insert(qm, queueName);
+            return _dataAccess.EnqueueMessage(qm, queueName);
         }
 
     }

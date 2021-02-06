@@ -19,8 +19,7 @@ namespace PeachtreeBus.SimpleInjector
             for (var i = 0; i < concurrency; i++)
             {
                 var scope = container.GetInstance<IScopeManager>();
-                var mp = scope.GetInstance<IMessageProcessor>().Run(queueName);
-                tasks.Add(mp);
+                tasks.Add(scope.GetInstance<IMessageProcessor>().Run(queueName));
             }
             return tasks;
         }
@@ -32,7 +31,7 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="queueId">The queue the message processors will read from.</param>
         /// <param name="concurrency">the number of message processors to create.</param>
         /// <returns>A task that ends when all the messages processors and interval task have shut down.</returns>
-        public static IList<Task> StartPeachtreeBus(this Container container, string queueName, int concurrency)
+        public static IList<Task> PeachtreeBusTasks(this Container container, string queueName, int concurrency)
         {
             var tasks = new List<Task>();
             tasks.AddRange(StartPeachtreeBusMessageProcessor(container, queueName, concurrency));

@@ -16,31 +16,26 @@ namespace PeachtreeBus.Example.Handlers
             _dataAccess = dataAccess;
         }
 
-        public async Task Handle(MessageContext context, SampleDistributedTaskRequest message)
+        public Task Handle(MessageContext context, SampleDistributedTaskRequest message)
         {
             _log.Info("Processing Distributed Task.");
-            if (message.Operation == "+")
-            {
-                var response = new SampleDistributedTaskResponse
-                {
-                    SagaId = message.SagaId,
-                    A = message.A,
-                    B = message.B,
-                    Operation = message.Operation,
-                    Result = message.A + message.B
-                };
-                context.Send(response);
-
-                var auditMessge = $"Distrbuted Task Result {response.A} { response.Operation} {response.B} =  {response.Result}";
-                _log.Info(auditMessge);
-                await _dataAccess.Audit(auditMessge);
-            }
-            else
-            {
+            if (message.Operation != "+")
                 throw new ApplicationException($"I only know how to add!. I don't know how to {message.Operation}.");
-            }
-                        
-            return;
+
+            var response = new SampleDistributedTaskResponse
+            {
+                AppId = message.AppId,
+                A = message.A,
+                B = message.B,
+                Operation = message.Operation,
+                Result = message.A + message.B
+            };
+            context.Send(response);
+
+            var auditMessge = $"Distrbuted Task Result {response.A} { response.Operation} {response.B} =  {response.Result}";
+            _log.Info(auditMessge);
+            return _dataAccess.Audit(auditMessge);
+
         }
     }
 }

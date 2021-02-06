@@ -37,11 +37,6 @@ namespace PeachtreeBus
         public SagaData SagaData { get; set; }
 
         /// <summary>
-        /// Indicates if the reason SagaData is null is because the row was locked.
-        /// </summary>
-        public bool SagaLocked { get; set; }
-
-        /// <summary>
         /// The Saga instance Key for the messge.
         /// (Null when the message is not part of a saga.
         /// </summary>

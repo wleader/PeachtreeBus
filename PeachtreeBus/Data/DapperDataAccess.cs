@@ -32,7 +32,7 @@ namespace PeachtreeBus.Data
             return value.ToLower().Any(c => !SafeChars.Contains(c));
         }
 
-        public void Insert(QueueMessage message, string queueName)
+        public Task<long> EnqueueMessage(QueueMessage message, string queueName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
@@ -54,10 +54,63 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
-           message.Id = _database.Connection.QueryFirst<long>(statement, p, _database.Transaction);
+           return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
         }
 
-        public void Insert(SagaData data, string sagaName)
+        public Task CompleteMessage(QueueMessage message, string queueName)
+        {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+
+            string statement =
+                "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_CompletedMessages] " +
+                "([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
+                " VALUES " +
+                "( @Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
+                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WHERE [Id] = @Id;";
+
+            var p = new DynamicParameters();
+            p.Add("@Id", message.Id);
+            p.Add("@MessageId", message.MessageId);
+            p.Add("@NotBefore", message.NotBefore);
+            p.Add("@Enqueued", message.Enqueued);
+            p.Add("@Completed", message.Completed);
+            p.Add("@Failed", message.Failed);
+            p.Add("@Retries", message.Retries);
+            p.Add("@Headers", message.Headers);
+            p.Add("@Body", message.Body);
+
+            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+        }
+
+
+        public Task FailMessage(QueueMessage message, string queueName)
+        {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+
+            string statement =
+                "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_ErrorMessages] " +
+                "([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
+                " VALUES " +
+                "( @Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
+                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WHERE [Id] = @Id;";
+
+            var p = new DynamicParameters();
+            p.Add("@Id", message.Id);
+            p.Add("@MessageId", message.MessageId);
+            p.Add("@NotBefore", message.NotBefore);
+            p.Add("@Enqueued", message.Enqueued);
+            p.Add("@Completed", message.Completed);
+            p.Add("@Failed", message.Failed);
+            p.Add("@Retries", message.Retries);
+            p.Add("@Headers", message.Headers);
+            p.Add("@Body", message.Body);
+
+            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+        }
+
+        public Task<long> Insert(SagaData data, string sagaName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
@@ -73,29 +126,12 @@ namespace PeachtreeBus.Data
             p.Add("@Key", data.Key);
             p.Add("@Data", data.Data);
            
-            data.Id = _database.Connection.QueryFirst<long>(statement, p, _database.Transaction);
+            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
         }
 
         public void BeginTransaction()
         {
             _database.BeginTransaction();
-        }
-
-        public long CleanQueueMessages(string queueName)
-        {
-            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
-
-            const string MessageFields = "[Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
-
-            string statement = "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_ErrorMessages] SELECT "
-                + MessageFields + " FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WITH (UPDLOCK, READPAST, ROWLOCK) WHERE Failed IS NOT NULL; " +
-                 "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_CompletedMessages] SELECT "
-                + MessageFields + " FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WITH (UPDLOCK, READPAST, ROWLOCK) WHERE Completed IS NOT NULL; " +
-                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WHERE Failed IS NOT NULL OR Completed IS NOT NULL; " +
-                "SELECT @@ROWCOUNT";
-
-            return _database.Connection.QueryFirst<long>(statement, transaction: _database.Transaction);
         }
 
         public void CommitTransaction()
@@ -108,20 +144,19 @@ namespace PeachtreeBus.Data
             _database.CreateSavepoint(name);
         }
 
-        public long DeleteSagaData(string sagaName, string key)
+        public Task DeleteSagaData(string sagaName, string key)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
 
-            string statement = "DELETE FROM [" + _schema.Schema + "].[" + sagaName + "_SagaData] WHERE [Key] = @Key; " +
-                "SELECT @@ROWCOUNT";
+            string statement = "DELETE FROM [" + _schema.Schema + "].[" + sagaName + "_SagaData] WHERE [Key] = @Key";
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            return _database.Connection.QueryFirst<long>(statement, p, _database.Transaction);
+            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
 
-        public QueueMessage GetOneQueueMessage(string queueName)
+        public Task<QueueMessage> GetOneQueueMessage(string queueName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
@@ -139,27 +174,48 @@ namespace PeachtreeBus.Data
                 _schema.Schema +
                 "].[" + queueName + "_QueueMessages] WITH(UPDLOCK, READPAST, ROWLOCK) WHERE NotBefore < SYSUTCDATETIME() AND Completed IS NULL AND Failed IS NULL";
 
-            return _database.Connection.QueryFirstOrDefault<QueueMessage>(query, transaction: _database.Transaction);
+            return _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction);
         }
 
-        public SagaData GetSagaData(string sagaName, string key)
+        public async Task<SagaData> GetSagaData(string sagaName, string key)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
 
-            // note that we use update locks. This is intentional as only one saga message should be processed at a time.
-            // if by chance this row is locked by another thread or process, then the second message will not be able to
-            // read the data, and would fail and need to wait and retry again later when the saga is no longer locked.
-            // We Do Not use READPAST here because we want to wait until the saga unlocks, if there is another processes handling the message for this saga.
+            
+            var query =
+                "DECLARE @Id bigint, @SagaId uniqueidentifier, @Data nvarchar(max) " +
+                "BEGIN TRY " +
+                
+                // First Select into variables, and try to get an update lock.
+                // NOWAIT hint means it will go straight to CATCH if the row is locked.
+                "  SELECT " +
+                "    @Id = [Id], @SagaId = [SagaId], @Data = [Data] " +
+                "  FROM [" + _schema.Schema + "].[" + sagaName + "_SagaData] WITH (NOWAIT, UPDLOCK, ROWLOCK) " +
+                "  WHERE[Key] = @Key " +
 
-            var query = "SELECT TOP 1 * FROM [" +
-                _schema.Schema +
-                "].[" + sagaName + "_SagaData] WITH (UPDLOCK, READPAST, ROWLOCK) WHERE [Key] = @Key";
-
+                "  IF @@ROWCOUNT > 0 " +
+                     // A row was selected, so we got the data and locked it for ourselves
+                     // return the data and note that the saga is not blocked.
+                "    SELECT @Id as [Id], @SagaId as [SagaId], @Key as [Key], @Data as [Data], 0 as [Blocked] " +
+                "  ELSE " +
+                     // A row was not selected. but we can't be sure if it was because of a lock (NOWAIT is screwy)
+                     // So select the data without trying to get an update lock, either we will select the data, but blocked will be true,
+                     // or we will get no rows (because the row doesn't exist, which is ok if the saga is about to be started.)
+                "    SELECT [Id], [SagaId], [Key], [Data], 1 as [Blocked] " +
+                "    FROM [" + _schema.Schema + "].[" + sagaName + "_SagaData] WITH (NOWAIT) " +
+                "    WHERE [Key] = @Key " +
+                "END TRY " +
+                "BEGIN CATCH " +
+                   // If any of the above selects failed, we can assume the saga is locked and return a row with blocked true.
+                   // Which will signal the message processor to delay and retry.
+                "  SELECT -1 as [Id], CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000') as [SagaId], @Key as [Key], '' as [Data], 1 as [Blocked] " +
+                "END CATCH ";
+            
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            return _database.Connection.QueryFirstOrDefault<SagaData>(query, p, _database.Transaction);
+            return await _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction);
         }
 
         public void RollbackToSavepoint(string name)
@@ -172,7 +228,7 @@ namespace PeachtreeBus.Data
             _database.RollbackTransaction();
         }
 
-        public void Update(QueueMessage message, string queueName)
+        public Task Update(QueueMessage message, string queueName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
@@ -195,10 +251,10 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
-            _database.Connection.Execute(statement, p, _database.Transaction);
+            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
 
-        public void Update(SagaData data, string sagaName)
+        public Task Update(SagaData data, string sagaName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
@@ -211,35 +267,7 @@ namespace PeachtreeBus.Data
             p.Add("@Id", data.Id);
             p.Add("@Data", data.Data);
             
-            _database.Connection.Execute(statement, p, _database.Transaction);
-        }
-
-        public async Task<bool> IsSagaLocked(string sagaName, string key)
-        {
-            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
-
-            var statement = "SELECT [SagaId] FROM [" + _schema.Schema + "].[" + sagaName +
-                "_SagaData] WITH (NOWAIT) WHERE [Key] = @Key AND [SagaId] NOT IN ( SELECT [SagaId] From [" +
-                 _schema.Schema + "].[" + sagaName + "_SagaData] WITH ( READPAST, UPDLOCK, ROWLOCK) WHERE [Key] = @Key )";
-
-            var p = new DynamicParameters();
-            p.Add("@Key", key);
-
-            try
-            {
-                var selected = await _database.Connection.QueryFirstOrDefaultAsync<Guid?>(statement, p, _database.Transaction);
-                return selected != null;
-            }
-            catch(System.Data.SqlClient.SqlException ex)
-            {
-                // Lock request time out period exceeded. 1222.
-                // its safe to assume that its locked, and move on to another message.
-                if (ex.Number == 1222) return true; 
-
-                // else we don't know what happened. Throw as normal.
-                throw;
-            }
+            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
     }
 }

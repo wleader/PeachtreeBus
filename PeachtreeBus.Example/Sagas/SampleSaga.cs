@@ -1,8 +1,5 @@
 ﻿using PeachtreeBus.Example.Data;
 using PeachtreeBus.Example.Messages;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Example.Sagas
@@ -10,7 +7,6 @@ namespace PeachtreeBus.Example.Sagas
 
     public class SampleSagaData
     {
-        public int SagaId { get; set; }
         public int PendingTasks { get; set; }
     }
 
@@ -31,11 +27,11 @@ namespace PeachtreeBus.Example.Sagas
 
         public override void ConfigureMessageKeys(SagaMessageMap mapper)
         {
-            mapper.Add<SampleSagaStart>(m => m.SagaId.ToString());
-            mapper.Add<SampleDistributedTaskResponse>(m => m.SagaId.ToString());
+            mapper.Add<SampleSagaStart>(m => m.AppId.ToString());
+            mapper.Add<SampleDistributedTaskResponse>(m => m.AppId.ToString());
         }
 
-        public async Task Handle(MessageContext context, SampleDistributedTaskResponse message)
+        public Task Handle(MessageContext context, SampleDistributedTaskResponse message)
         {
             _log.Info($"Distributed Task Complete: {message.A} {message.Operation} {message.B} = {message.Result}");
             Data.PendingTasks--;
@@ -43,31 +39,40 @@ namespace PeachtreeBus.Example.Sagas
 
             if (Data.PendingTasks == 0)
             {
-                context.Send(new SampleSagaComplete { SagaId = Data.SagaId });
+                _log.Info($"Completing SagaId {message.AppId}");
+                context.Send(new SampleSagaComplete { AppId = message.AppId });
                 SagaComplete = true;
             }
-
-            await _dataAccess.Audit($"Pending Tasks {Data.PendingTasks}");
-        }
-
-        public async Task Handle(MessageContext context, SampleSagaStart message)
-        {
-            await _dataAccess.Audit("Starting Saga.");
-            _log.Info($"Distributing Tasks for SagaId {message.SagaId}");
-
-            Data.SagaId = message.SagaId;
-            Data.PendingTasks = 100;
-
-            for (var i = 0; i < Data.PendingTasks; i++)
+            else
             {
+                _log.Info($"Distributing more work for SagaId {message.AppId}");
                 context.Send(new SampleDistributedTaskRequest
                 {
-                    SagaId = message.SagaId,
-                    A = i * 3,
-                    B = i * 4,
+                    AppId = message.AppId,
+                    B = (Data.PendingTasks - 1) * 3,
+                    A = (Data.PendingTasks - 1) * 4,
                     Operation = "+"
                 });
             }
+
+            return _dataAccess.Audit($"Pending Tasks {Data.PendingTasks}");
+        }
+
+        public Task Handle(MessageContext context, SampleSagaStart message)
+        {
+            _log.Info($"Starting Tasks for SagaId {message.AppId}");
+
+            Data.PendingTasks = 100;
+
+            context.Send(new SampleDistributedTaskRequest
+            {
+                AppId = message.AppId,
+                A = (Data.PendingTasks - 1) * 3,
+                B = (Data.PendingTasks - 1) * 4,
+                Operation = "+"
+            });
+
+            return _dataAccess.Audit("Saga Started.");
         }
     }
 }

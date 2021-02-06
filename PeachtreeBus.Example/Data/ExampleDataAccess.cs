@@ -1,8 +1,5 @@
 ﻿using Dapper;
 using PeachtreeBus.DatabaseSharing;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Example.Data
@@ -29,12 +26,12 @@ namespace PeachtreeBus.Example.Data
             _database = database;
         }
 
-        public async Task Audit(string message)
+        public Task Audit(string message)
         {
             const string statement = "INSERT INTO[ExampleApp].[AuditLog] ([Occured],[Message]) VALUES(SYSUTCDATETIME(),@Message)";
             var p = new DynamicParameters();
             p.Add("@Message", message);
-            await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
     }
 }

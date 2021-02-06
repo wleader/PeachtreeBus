@@ -27,5 +27,7 @@ namespace PeachtreeBus.Model
         /// The serialized Saga Data.
         /// </summary>
         public virtual string Data { get; set; }
+
+        public virtual bool Blocked { get; set; }
     }
 }

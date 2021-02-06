@@ -41,7 +41,7 @@ namespace PeachtreeBus.SimpleInjector
         /// Creates intances of IRunOnStartup an runs them in parallel.
         /// </summary>
         /// <param name="container"></param>
-        public static void RunPeachtreeBusStartupTasks(this Container container)
+        public static IList<Task> PeachtreeBusStartupTasks(this Container container)
         {
             var tasks = new List<Task>();
             var startupTaskTypes = container.FindTypesThatImplement<IRunOnStartup>();
@@ -52,7 +52,7 @@ namespace PeachtreeBus.SimpleInjector
                 var startupTask = (IRunOnStartup)scope.GetInstance(t);
                 tasks.Add(startupTask.Run());
             }
-            Task.WhenAll(tasks).GetAwaiter().GetResult();
+            return tasks;
         }
     }
 }

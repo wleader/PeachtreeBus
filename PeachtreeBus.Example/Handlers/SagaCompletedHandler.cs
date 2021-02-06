@@ -15,10 +15,10 @@ namespace PeachtreeBus.Example.Handlers
             _dataAccess = dataAccess;
         }
 
-        public async Task Handle(MessageContext context, SampleSagaComplete message)
+        public Task Handle(MessageContext context, SampleSagaComplete message)
         {
             _log.Info("Distributed Saga Complete!");
-            await _dataAccess.Audit("Example Saga Completed.");
+            return _dataAccess.Audit("Example Saga Completed.");
         }
     }
 }
