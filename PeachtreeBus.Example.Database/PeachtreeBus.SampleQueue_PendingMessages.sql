@@ -2,7 +2,7 @@
 -- Messages in this table remain here temporarily after failure or completion before being moved,
 -- but for the most part this table contains unprocessed messages.
 
-CREATE TABLE [PeachtreeBus].[SampleQueue_QueueMessages]
+CREATE TABLE [PeachtreeBus].[SampleQueue_PendingMessages]
 (
 	[Id] BIGINT NOT NULL IDENTITY PRIMARY KEY, 
     [MessageId] UNIQUEIDENTIFIER NOT NULL, 

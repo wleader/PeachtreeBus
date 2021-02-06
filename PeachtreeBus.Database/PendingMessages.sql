@@ -1,7 +1,7 @@
 ﻿-- reference definition of a queue messages table.
 -- a specifically named version of this table will need to exist for each queue in use.
 
-CREATE TABLE [PeachtreeBus].[QueueName_QueueMessages]
+CREATE TABLE [PeachtreeBus].[QueueName_PendingMessages]
 (
 	[Id] BIGINT NOT NULL IDENTITY PRIMARY KEY, 
     [MessageId] UNIQUEIDENTIFIER NOT NULL, 

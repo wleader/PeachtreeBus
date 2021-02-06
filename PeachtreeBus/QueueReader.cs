@@ -91,7 +91,7 @@ namespace PeachtreeBus
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.
-            var queueMessage = await _dataAccess.GetOneQueueMessage(queueName);
+            var queueMessage = await _dataAccess.GetOnePendingMessage(queueName);
             if (queueMessage == null) return null;
 
 

@@ -42,7 +42,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        Task<QueueMessage> GetOneQueueMessage(string queueName);
+        Task<QueueMessage> GetOnePendingMessage(string queueName);
 
         /// <summary>
         /// Inserts a new message into the database.

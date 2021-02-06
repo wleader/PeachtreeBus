@@ -38,7 +38,7 @@ namespace PeachtreeBus.Data
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
 
             string statement =
-                "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_QueueMessages] " +
+                "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_PendingMessages] " +
                 "([MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
                 " VALUES " +
                 "( @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
@@ -67,7 +67,7 @@ namespace PeachtreeBus.Data
                 "([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
                 " VALUES " +
                 "( @Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
-                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WHERE [Id] = @Id;";
+                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_PendingMessages] WHERE [Id] = @Id;";
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -94,7 +94,7 @@ namespace PeachtreeBus.Data
                 "([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
                 " VALUES " +
                 "( @Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
-                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_QueueMessages] WHERE [Id] = @Id;";
+                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_PendingMessages] WHERE [Id] = @Id;";
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -156,7 +156,7 @@ namespace PeachtreeBus.Data
             return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
 
-        public Task<QueueMessage> GetOneQueueMessage(string queueName)
+        public Task<QueueMessage> GetOnePendingMessage(string queueName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
@@ -172,7 +172,7 @@ namespace PeachtreeBus.Data
             var query = 
                 "SELECT TOP 1 * FROM[" +
                 _schema.Schema +
-                "].[" + queueName + "_QueueMessages] WITH(UPDLOCK, READPAST, ROWLOCK) WHERE NotBefore < SYSUTCDATETIME() AND Completed IS NULL AND Failed IS NULL";
+                "].[" + queueName + "_PendingMessages] WITH(UPDLOCK, READPAST, ROWLOCK) WHERE NotBefore < SYSUTCDATETIME() AND Completed IS NULL AND Failed IS NULL";
 
             return _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction);
         }
@@ -233,7 +233,7 @@ namespace PeachtreeBus.Data
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
 
-            var statement = "UPDATE[" + _schema.Schema + "].[" + queueName + "_QueueMessages] SET " +
+            var statement = "UPDATE[" + _schema.Schema + "].[" + queueName + "_PendingMessages] SET " +
                 "[NotBefore] = @NotBefore, " +
                 "[Completed] = @Completed, " +
                 "[Failed] = @Failed, " +
