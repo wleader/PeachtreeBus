@@ -21,7 +21,7 @@ namespace PeachtreeBus
     {
         private static object LockObj = new object();
         private static PerfCounters _instance = null;
-        public static IPerfCounters Instance()
+        public static PerfCounters Instance()
         {
             lock(LockObj)
             {
@@ -122,6 +122,14 @@ namespace PeachtreeBus
         public void SentMessage()
         {
             _messagesSent.Increment();
+        }
+
+        public void Reset()
+        {
+            // this is really only here for testing purposes
+            // which is why it is not exposed on the interface.
+            _messagesErrorTotalCount = 0;
+            _messagesActiveCount = 0;
         }
     }
 }

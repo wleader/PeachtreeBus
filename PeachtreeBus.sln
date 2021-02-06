@@ -28,6 +28,8 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PeachtreeBus.Example.Databa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{04E0E03A-A271-4160-AA62-B213FF1C3A98}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peachtreebus.Tests", "Peachtreebus.Tests\Peachtreebus.Tests.csproj", "{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,10 @@ Global
 		{7F6A3911-A90A-4EA3-8B70-E0838191FACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F6A3911-A90A-4EA3-8B70-E0838191FACC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7F6A3911-A90A-4EA3-8B70-E0838191FACC}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
