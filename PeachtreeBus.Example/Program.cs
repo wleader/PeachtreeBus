@@ -29,11 +29,6 @@ namespace PeachtreeBus.Example
             // confgure the DB schema we will use.
             _container.UsePeachtreeBusDbSchema("PeachtreeBus");
 
-            // register tasks that should be run every so often without a message
-            // Peachtree bus uses this to clean up its message queues, but application code could 
-            // implement an IRunOnIntervalTask to piggy back on this.
-            _container.RegisterPeachtreeBusIntervalTasks();
-
             // Register tasks that should be run once at startup.
             _container.RegisterPeachtreeBusStartupTasks();
             
@@ -71,7 +66,7 @@ namespace PeachtreeBus.Example
             // decide how many message processors to run, this could be Environment.ProcessorCount, or some function thereof.
             var concurrency = 32;
 
-            Task.WaitAll(_container.PeachtreeBusTasks("SampleQueue", concurrency).ToArray());
+            Task.WaitAll(_container.PeachtreeBusMessageProcessorTasks("SampleQueue", concurrency).ToArray());
         }
     }
 }
