@@ -53,18 +53,11 @@ namespace PeachtreeBus.Example
             // sanity check.
             _container.Verify();
 
-            //System.Console.WriteLine("Maximum Concurrency: " + System.Threading.Tasks.TaskScheduler.Default.MaximumConcurrencyLevel.ToString());
-            System.Threading.ThreadPool.GetMaxThreads(out var workerThreads, out var completionPortThreads);
-            System.Console.WriteLine($"Max Worker Threads {workerThreads}. Max Completion Port Threads {completionPortThreads}.");
-
-            // this is probably a bad idea?
-            //System.Threading.ThreadPool.SetMaxThreads(250, 250);
-
             // run startup tasks.
             Task.WaitAll(_container.PeachtreeBusStartupTasks().ToArray());
             
             // decide how many message processors to run, this could be Environment.ProcessorCount, or some function thereof.
-            var concurrency = 32;
+            var concurrency = System.Environment.ProcessorCount * 2;
 
             Task.WaitAll(_container.PeachtreeBusMessageProcessorTasks("SampleQueue", concurrency).ToArray());
         }
