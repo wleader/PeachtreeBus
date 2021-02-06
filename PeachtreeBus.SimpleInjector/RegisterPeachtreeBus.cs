@@ -27,6 +27,7 @@ namespace PeachtreeBus.SimpleInjector
             container.Register(typeof(SqlConnection), () => container.GetInstance<ISqlConnectionFactory>().GetConnection(), Lifestyle.Scoped);
             container.Register(typeof(ISqlConnectionFactory), typeof(SqlConnectionFactory), Lifestyle.Scoped);
             container.Register(typeof(IScopeManager), typeof(ScopeManager), Lifestyle.Scoped);
+            container.RegisterSingleton(typeof(IPerfCounters), () => PerfCounters.Instance());
 
             return container;
         }

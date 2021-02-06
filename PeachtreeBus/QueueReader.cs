@@ -71,6 +71,7 @@ namespace PeachtreeBus
     {
         private readonly IBusDataAccess _dataAccess;
         private readonly ILog<QueueReader> _log;
+        private readonly IPerfCounters _counters;
 
         public byte MaxRetries { get; set; }
 
@@ -79,10 +80,13 @@ namespace PeachtreeBus
         /// </summary>
         /// <param name="dataAccess">The Data access.</param>
         /// <param name="log"></param>
-        public QueueReader(IBusDataAccess dataAccess, ILog<QueueReader> log)
+        public QueueReader(IBusDataAccess dataAccess,
+            ILog<QueueReader> log,
+            IPerfCounters counters)
         {
             _log = log;
             _dataAccess = dataAccess;
+            _counters = counters;
             MaxRetries = 5;
         }
 
@@ -137,7 +141,7 @@ namespace PeachtreeBus
         public Task CompleteMessage(MessageContext messageContext)
         {
             messageContext.MessageData.Completed = DateTime.UtcNow;
-            Counters.PeachtreeBusCounters.CompleteMessage();
+            _counters.CompleteMessage();
             return _dataAccess.CompleteMessage(messageContext.MessageData, messageContext.SourceQueue);
         }
 
@@ -152,13 +156,13 @@ namespace PeachtreeBus
             {
                 _log.Error($"Message {messageContext.MessageData.MessageId} exceeded max retries ({MaxRetries}) and has failed.");
                 messageContext.MessageData.Failed = DateTime.UtcNow;
-                Counters.PeachtreeBusCounters.ErrorMessage();
+                _counters.ErrorMessage();
                 return _dataAccess.FailMessage(messageContext.MessageData, messageContext.SourceQueue);
             }
             else
             {
                 _log.Error($"Message {messageContext.MessageData.MessageId} will be retried at {messageContext.MessageData.NotBefore}.");
-                Counters.PeachtreeBusCounters.RetryMessage();
+                _counters.RetryMessage();
                 return _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
             }
         }
@@ -249,7 +253,7 @@ namespace PeachtreeBus
         public Task DelayMessage(MessageContext messageContext, int ms)
         {
             messageContext.MessageData.NotBefore = DateTime.UtcNow.AddMilliseconds(ms);
-            Counters.PeachtreeBusCounters.DelayMessage();
+            _counters.DelayMessage();
             return _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
         }
     }

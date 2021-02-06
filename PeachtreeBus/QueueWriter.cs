@@ -20,10 +20,13 @@ namespace PeachtreeBus
     public class QueueWriter : IQueueWriter
     {
         private readonly IBusDataAccess _dataAccess;
+        private readonly IPerfCounters _counters;
 
-        public QueueWriter(IBusDataAccess dataAccess)
+        public QueueWriter(IBusDataAccess dataAccess,
+            IPerfCounters counters)
         {
             _dataAccess = dataAccess;
+            _counters = counters;
         }
 
         public Task WriteMessage<T>(string queueName, T message, DateTime? NotBefore = null)
@@ -52,7 +55,7 @@ namespace PeachtreeBus
                 Body = JsonSerializer.Serialize(message, type)
             };
 
-            Counters.PeachtreeBusCounters.SentMessage();
+            _counters.SentMessage();
 
             // store the message in the queue.
             return _dataAccess.EnqueueMessage(qm, queueName);

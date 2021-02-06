@@ -25,13 +25,15 @@ namespace PeachtreeBus
         private readonly IBusDataAccess _transactionContext;
         private readonly IFindMessageHandlers _findMessageHandlers;
         private readonly ILog<MessageProcessor> _log;
+        private readonly IPerfCounters _counters;
 
         public MessageProcessor(IProvideShutdownSignal provideShutdownSignal,
             IQueueReader queueReader,
             IQueueWriter queueWriter,
             IBusDataAccess transactionContext,
             IFindMessageHandlers findMessageHandlers,
-            ILog<MessageProcessor> log)
+            ILog<MessageProcessor> log,
+            IPerfCounters counters)
         {
             _log = log;
             _provideShutdownSignal = provideShutdownSignal;
@@ -39,6 +41,7 @@ namespace PeachtreeBus
             _queueWriter = queueWriter;
             _transactionContext = transactionContext;
             _findMessageHandlers = findMessageHandlers;
+            _counters = counters;
         }
 
         /// <summary>
@@ -101,7 +104,7 @@ namespace PeachtreeBus
             var started = DateTime.UtcNow;
             try
             {
-                Counters.PeachtreeBusCounters.StartMessage();
+                _counters.StartMessage();
 
                 // creat a save point. If anything goes wrong we can roll back to here,
                 // increment the retry count and try again later.
@@ -149,7 +152,7 @@ namespace PeachtreeBus
                             _log.Info($"The saga {handlerType} for key {messageContext.SagaKey} is blocked. The current message will be delayed and retried.");
                             _transactionContext.RollbackToSavepoint(savepointName);
                             await _queueReader.DelayMessage(messageContext, 250);
-                            Counters.PeachtreeBusCounters.SagaBlocked();
+                            _counters.SagaBlocked();
                             return true;
                         }
 
@@ -209,7 +212,7 @@ namespace PeachtreeBus
             }
             finally
             {
-                Counters.PeachtreeBusCounters.FinishMessage(started);
+                _counters.FinishMessage(started);
             }
 
         }
