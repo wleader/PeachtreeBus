@@ -137,7 +137,6 @@ namespace PeachtreeBus.Data
             return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
 
-
         public Task FailMessage(QueueMessage message, string queueName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
@@ -156,6 +155,33 @@ namespace PeachtreeBus.Data
             p.Add("@MessageId", message.MessageId);
             p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
             p.Add("@Enqueued", message.Enqueued.ToUniversalTime());
+            p.Add("@Completed", message.Completed?.ToUniversalTime());
+            p.Add("@Failed", message.Failed?.ToUniversalTime());
+            p.Add("@Retries", message.Retries);
+            p.Add("@Headers", message.Headers);
+            p.Add("@Body", message.Body);
+
+            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+        }
+
+        public Task Update(QueueMessage message, string queueName)
+        {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+            CheckUnspecifiedTimeKind(message);
+
+            var statement = "UPDATE[" + _schema.Schema + "].[" + queueName + "_PendingMessages] SET " +
+                "[NotBefore] = @NotBefore, " +
+                "[Completed] = @Completed, " +
+                "[Failed] = @Failed, " +
+                "[Retries] = @Retries, " +
+                "[Headers] = @Headers, " +
+                "[Body] = @Body " +
+                "WHERE [Id] = @Id";
+
+            var p = new DynamicParameters();
+            p.Add("@Id", message.Id);
+            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
             p.Add("@Completed", message.Completed?.ToUniversalTime());
             p.Add("@Failed", message.Failed?.ToUniversalTime());
             p.Add("@Retries", message.Retries);
@@ -262,32 +288,7 @@ namespace PeachtreeBus.Data
             _database.RollbackTransaction();
         }
 
-        public Task Update(QueueMessage message, string queueName)
-        {
-            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
-            CheckUnspecifiedTimeKind(message);
 
-            var statement = "UPDATE[" + _schema.Schema + "].[" + queueName + "_PendingMessages] SET " +
-                "[NotBefore] = @NotBefore, " +
-                "[Completed] = @Completed, " +
-                "[Failed] = @Failed, " +
-                "[Retries] = @Retries, " +
-                "[Headers] = @Headers, " +
-                "[Body] = @Body " +
-                "WHERE [Id] = @Id";
-
-            var p = new DynamicParameters();
-            p.Add("@Id", message.Id);
-            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
-            p.Add("@Completed", message.Completed?.ToUniversalTime());
-            p.Add("@Failed", message.Failed?.ToUniversalTime());
-            p.Add("@Retries", message.Retries);
-            p.Add("@Headers", message.Headers);
-            p.Add("@Body", message.Body);
-
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-        }
 
         public Task Update(SagaData data, string sagaName)
         {
