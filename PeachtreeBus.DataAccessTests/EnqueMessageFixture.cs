@@ -24,13 +24,13 @@ namespace PeachtreeBus.DataAccessTests
 
             var newMessage = CreateTestMessage();
 
-            Assert.AreEqual(0, CountRowsInTable("QueueName_PendingMessages"));
+            Assert.AreEqual(0, CountRowsInTable(PendingMessagesTable));
 
-            newMessage.Id = await dataAccess.EnqueueMessage(newMessage, "QueueName");
+            newMessage.Id = await dataAccess.EnqueueMessage(newMessage, DefaultQueue);
 
             Assert.IsTrue(newMessage.Id > 0);
 
-            var data = GetTableContent("QueueName_PendingMessages");
+            var data = GetTableContent(PendingMessagesTable);
             Assert.IsNotNull(data);
 
             var messages = data.ToMessages();
@@ -42,14 +42,14 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public void EnqueueMessage_ThrowsIfDateTimeKindUnspecified()
         {
-            var action = new Action<Model.QueueMessage>((m) => dataAccess.EnqueueMessage(m, "QueueName"));
+            var action = new Action<Model.QueueMessage>((m) => dataAccess.EnqueueMessage(m, DefaultQueue));
             ActionThrowsForMessagesWithUnspecifiedDateTimeKinds(action);
         }
 
         [TestMethod]
         public void EnqueueMessage_ThrowsIfSchemaContainsUnsafe()
         {
-            var action = new Action(() => dataAccess.EnqueueMessage(new Model.QueueMessage(), "QueueName"));
+            var action = new Action(() => dataAccess.EnqueueMessage(new Model.QueueMessage(), DefaultQueue));
             ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 

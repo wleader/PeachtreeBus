@@ -19,6 +19,11 @@ namespace PeachtreeBus.DataAccessTests
         protected Mock<IDbSchema> MockSchema;
 
         protected const string DefaultSchema = "PeachtreeBus";
+        protected const string DefaultQueue = "QueueName";
+        protected const string PendingMessagesTable = DefaultQueue + "_PendingMessages";
+        protected const string CompletedMessagesTable = DefaultQueue + "_CompletedMessages";
+        protected const string ErrorMessagesTable = DefaultQueue + "_ErrorMessages";
+        protected const string DefaultSagaTable = "SagaName_SagaData";
 
         protected void TestInitialize()
         {
@@ -48,10 +53,10 @@ namespace PeachtreeBus.DataAccessTests
         protected void TruncateAll()
         {
             string statment =
-                $"TRUNCATE TABLE [{DefaultSchema}].[QueueName_CompletedMessages]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[QueueName_ErrorMessages]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[QueueName_PendingMessages]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[SagaName_SagaData] ";
+                $"TRUNCATE TABLE [{DefaultSchema}].[{CompletedMessagesTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{ErrorMessagesTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{PendingMessagesTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{DefaultSagaTable}] ";
 
             using (var cmd = new SqlCommand(statment, SecondaryConnection))
             {
