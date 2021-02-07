@@ -210,21 +210,6 @@ namespace PeachtreeBus.Data
             return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
         }
 
-        public void BeginTransaction()
-        {
-            _database.BeginTransaction();
-        }
-
-        public void CommitTransaction()
-        {
-            _database.CommitTransaction();
-        }
-
-        public void CreateSavepoint(string name)
-        {
-            _database.CreateSavepoint(name);
-        }
-
         public Task DeleteSagaData(string sagaName, string key)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
@@ -278,6 +263,21 @@ namespace PeachtreeBus.Data
             return await _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction);
         }
 
+        public void BeginTransaction()
+        {
+            _database.BeginTransaction();
+        }
+
+        public void CommitTransaction()
+        {
+            _database.CommitTransaction();
+        }
+
+        public void CreateSavepoint(string name)
+        {
+            _database.CreateSavepoint(name);
+        }
+
         public void RollbackToSavepoint(string name)
         {
             _database.RollbackToSavepoint(name);
@@ -287,8 +287,6 @@ namespace PeachtreeBus.Data
         {
             _database.RollbackTransaction();
         }
-
-
 
         public Task Update(SagaData data, string sagaName)
         {
