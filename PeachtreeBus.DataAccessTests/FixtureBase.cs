@@ -18,7 +18,7 @@ namespace PeachtreeBus.DataAccessTests
         protected DapperDataAccess dataAccess;
         protected Mock<IDbSchema> MockSchema;
 
-        const string schema = "PeachtreeBus";
+        protected const string DefaultSchema = "PeachtreeBus";
 
         protected void TestInitialize()
         {
@@ -31,14 +31,14 @@ namespace PeachtreeBus.DataAccessTests
             var sharedDB = new SharedDatabase(PrimaryConnection);
 
             MockSchema = new Mock<IDbSchema>();
-            MockSchema.Setup(s => s.Schema).Returns(schema);
+            MockSchema.Setup(s => s.Schema).Returns(DefaultSchema);
 
             dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object);
         }
 
         protected int CountRowsInTable(string tablename)
         {
-            string statment = $"SELECT COUNT(*) FROM [{schema}].[{tablename}]";
+            string statment = $"SELECT COUNT(*) FROM [{DefaultSchema}].[{tablename}]";
             using (var cmd = new SqlCommand(statment, SecondaryConnection))
             {
                 return (int)cmd.ExecuteScalar();
@@ -48,10 +48,10 @@ namespace PeachtreeBus.DataAccessTests
         protected void TruncateAll()
         {
             string statment =
-                $"TRUNCATE TABLE [{schema}].[QueueName_CompletedMessages]; " +
-                $"TRUNCATE TABLE [{schema}].[QueueName_ErrorMessages]; " +
-                $"TRUNCATE TABLE [{schema}].[QueueName_PendingMessages]; " +
-                $"TRUNCATE TABLE [{schema}].[SagaName_SagaData] ";
+                $"TRUNCATE TABLE [{DefaultSchema}].[QueueName_CompletedMessages]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[QueueName_ErrorMessages]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[QueueName_PendingMessages]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[SagaName_SagaData] ";
 
             using (var cmd = new SqlCommand(statment, SecondaryConnection))
             {
@@ -62,7 +62,7 @@ namespace PeachtreeBus.DataAccessTests
         protected DataSet GetTableContent(string tablename)
         {
             var result = new DataSet();
-            string statement = $"SELECT * FROM [{schema}].[{tablename}]";
+            string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}]";
             using (var cmd = new SqlCommand(statement, SecondaryConnection))
             using (var adpater = new SqlDataAdapter(cmd))
             {
