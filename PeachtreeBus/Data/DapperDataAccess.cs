@@ -117,23 +117,23 @@ namespace PeachtreeBus.Data
             CheckUnspecifiedTimeKind(message);
 
             string statement =
-                "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_CompletedMessages] " +
-                "([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
-                " VALUES " +
-                "( @Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
-                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_PendingMessages] WHERE [Id] = @Id;";
+                "DECLARE @MessageId UNIQUEIDENTIFIER, @Enqueued DATETIME2, @Body NVARCHAR(MAX); " +
+                "SELECT @MessageId = [MessageId], @Enqueued = [Enqueued], @Body = [Body] " +
+                "  FROM [" + _schema.Schema + "].[" + queueName + "_PendingMessages] WHERE[Id] = @Id; " +
+                "INSERT INTO[" + _schema.Schema + "].[" + queueName + "_CompletedMessages] " +
+                "([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]) " +
+                "VALUES " +
+                "(@Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
+                "DELETE FROM[" + _schema.Schema + "].[" + queueName + "_PendingMessages] WHERE[Id] = @Id; ";
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
-            p.Add("@MessageId", message.MessageId);
             p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
-            p.Add("@Enqueued", message.Enqueued.ToUniversalTime());
             p.Add("@Completed", message.Completed?.ToUniversalTime());
             p.Add("@Failed", message.Failed?.ToUniversalTime());
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
-            p.Add("@Body", message.Body);
-
+            
             return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
 
@@ -144,23 +144,23 @@ namespace PeachtreeBus.Data
             CheckUnspecifiedTimeKind(message);
 
             string statement =
-                "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_ErrorMessages] " +
-                "([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])" +
-                " VALUES " +
-                "( @Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
-                "DELETE FROM [" + _schema.Schema + "].[" + queueName + "_PendingMessages] WHERE [Id] = @Id;";
+                "DECLARE @MessageId UNIQUEIDENTIFIER, @Enqueued DATETIME2, @Body NVARCHAR(MAX); " +
+                "SELECT @MessageId = [MessageId], @Enqueued = [Enqueued], @Body = [Body] " +
+                "  FROM [" + _schema.Schema + "].[" + queueName + "_PendingMessages] WHERE[Id] = @Id; " +
+                "INSERT INTO[" + _schema.Schema + "].[" + queueName + "_ErrorMessages] " +
+                "([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]) " +
+                "VALUES " +
+                "(@Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body); " +
+                "DELETE FROM[" + _schema.Schema + "].[" + queueName + "_PendingMessages] WHERE[Id] = @Id; ";
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
-            p.Add("@MessageId", message.MessageId);
             p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
-            p.Add("@Enqueued", message.Enqueued.ToUniversalTime());
             p.Add("@Completed", message.Completed?.ToUniversalTime());
             p.Add("@Failed", message.Failed?.ToUniversalTime());
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
-            p.Add("@Body", message.Body);
-
+            
             return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
 
@@ -175,8 +175,7 @@ namespace PeachtreeBus.Data
                 "[Completed] = @Completed, " +
                 "[Failed] = @Failed, " +
                 "[Retries] = @Retries, " +
-                "[Headers] = @Headers, " +
-                "[Body] = @Body " +
+                "[Headers] = @Headers " +
                 "WHERE [Id] = @Id";
 
             var p = new DynamicParameters();
@@ -186,7 +185,6 @@ namespace PeachtreeBus.Data
             p.Add("@Failed", message.Failed?.ToUniversalTime());
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
-            p.Add("@Body", message.Body);
 
             return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
