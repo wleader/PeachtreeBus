@@ -91,6 +91,18 @@ namespace PeachtreeBus.DataAccessTests
             return result;
         }
 
+        protected DataSet GetTableContentAndLock(string tablename)
+        {
+            var result = new DataSet();
+            string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}] WITH (UPDLOCK, READPAST)";
+            using (var cmd = new SqlCommand(statement, SecondaryConnection, transaction))
+            using (var adpater = new SqlDataAdapter(cmd))
+            {
+                adpater.Fill(result);
+            }
+            return result;
+        }
+
         protected void AssertMessageEquals(Model.QueueMessage expected, Model.QueueMessage actual)
         {
             if (expected == null && actual == null) return;
