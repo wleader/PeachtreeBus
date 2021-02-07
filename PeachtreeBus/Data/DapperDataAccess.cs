@@ -210,6 +210,22 @@ namespace PeachtreeBus.Data
             return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
         }
 
+        public Task Update(SagaData data, string sagaName)
+        {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
+
+            var statement = "UPDATE [" + _schema.Schema + "].[" + sagaName + "_SagaData] SET " +
+                "[Data] = @Data " +
+                "WHERE [Id] = @Id";
+
+            var p = new DynamicParameters();
+            p.Add("@Id", data.Id);
+            p.Add("@Data", data.Data);
+
+            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+        }
+
         public Task DeleteSagaData(string sagaName, string key)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
@@ -286,22 +302,6 @@ namespace PeachtreeBus.Data
         public void RollbackTransaction()
         {
             _database.RollbackTransaction();
-        }
-
-        public Task Update(SagaData data, string sagaName)
-        {
-            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
-
-            var statement = "UPDATE [" + _schema.Schema + "].[" + sagaName + "_SagaData] SET " +
-                "[Data] = @Data " +
-                "WHERE [Id] = @Id";
-
-            var p = new DynamicParameters();
-            p.Add("@Id", data.Id);
-            p.Add("@Data", data.Data);
-            
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
     }
 }
