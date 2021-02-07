@@ -84,7 +84,7 @@ namespace PeachtreeBus.DataAccessTests
 
         private static void DropDatabase(SqlConnection connection, string name)
         {
-            var command = new SqlCommand($"DROP DATABASE {testDbName}", connection);
+            var command = new SqlCommand($"alter database [{testDbName}] set single_user with rollback immediate; DROP DATABASE {testDbName}", connection);
             command.ExecuteNonQuery();
         }
 
