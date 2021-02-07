@@ -177,7 +177,7 @@ namespace PeachtreeBus.DataAccessTests
                 Enqueued = DateTime.UtcNow,
                 Headers = "Headers",
                 MessageId = Guid.NewGuid(),
-                NotBefore = DateTime.UtcNow.AddMinutes(1),
+                NotBefore = DateTime.UtcNow,
                 Retries = 0
             };
         }
