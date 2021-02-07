@@ -22,17 +22,7 @@ namespace PeachtreeBus.DataAccessTests
         {
             TruncateAll();
 
-            var newMessage = new Model.QueueMessage
-            {
-                Body = "Body",
-                Completed = null,
-                Failed = null,
-                Enqueued = DateTime.UtcNow,
-                Headers = "Headers",
-                MessageId = Guid.NewGuid(),
-                NotBefore = DateTime.UtcNow.AddMinutes(1),
-                Retries = 0
-            };
+            var newMessage = CreateTestMessage();
 
             Assert.AreEqual(0, CountRowsInTable("QueueName_PendingMessages"));
 
@@ -50,22 +40,10 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task EnqueueMessage_ThrowsIfEnqueuedKindUnspecified()
+        public void EnqueueMessage_ThrowsIfDateTimeKindUnspecified()
         {
-            var newMessage = new Model.QueueMessage
-            {
-                Body = "Body",
-                Completed = null,
-                Failed = null,
-                Enqueued = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified),
-                Headers = "Headers",
-                MessageId = Guid.NewGuid(),
-                NotBefore = DateTime.UtcNow.AddMinutes(1),
-                Retries = 0
-            };
-
-            await dataAccess.EnqueueMessage(newMessage, "QueueName");
+            var action = new Action<Model.QueueMessage>((m) => dataAccess.EnqueueMessage(m, "QueueName"));
+            ActionThrowsForMessagesWithUnspecifiedDateTimeKinds(action);
         }
 
         [TestMethod]

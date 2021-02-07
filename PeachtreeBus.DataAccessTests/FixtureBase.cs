@@ -158,5 +158,53 @@ namespace PeachtreeBus.DataAccessTests
             }
             Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for an unsafe Parameter.");
         }
+
+        protected Model.QueueMessage CreateTestMessage()
+        {
+            return new Model.QueueMessage
+            {
+                Body = "Body",
+                Completed = null,
+                Failed = null,
+                Enqueued = DateTime.UtcNow,
+                Headers = "Headers",
+                MessageId = Guid.NewGuid(),
+                NotBefore = DateTime.UtcNow.AddMinutes(1),
+                Retries = 0
+            };
+        }
+
+        protected void ActionThrowsForMessagesWithUnspecifiedDateTimeKinds(Action<Model.QueueMessage> action)
+        {
+            var poisonEnqueued = CreateTestMessage();
+            poisonEnqueued.Enqueued = DateTime.SpecifyKind(poisonEnqueued.Enqueued, DateTimeKind.Unspecified);
+            ActionThrowsForMessage(action, poisonEnqueued);
+            
+            var poisonNotBefore = CreateTestMessage();
+            poisonNotBefore.NotBefore = DateTime.SpecifyKind(poisonNotBefore.NotBefore, DateTimeKind.Unspecified);
+            ActionThrowsForMessage(action, poisonNotBefore);
+            
+            var poisonCompleted = CreateTestMessage();
+            poisonCompleted.Completed = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+            ActionThrowsForMessage(action, poisonCompleted);
+            
+            var poisonFailed = CreateTestMessage();
+            poisonFailed.Failed = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+            ActionThrowsForMessage(action, poisonFailed);
+        }
+
+        protected void ActionThrowsForMessage(Action<Model.QueueMessage> action, Model.QueueMessage message)
+        {
+            var exceptionThrown = false;
+            try
+            {
+                action.Invoke(message);
+            }
+            catch (ArgumentException)
+            {
+                exceptionThrown = true;
+            }
+            Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for poison message.");
+        }
     }
 }
