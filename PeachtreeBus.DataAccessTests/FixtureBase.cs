@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
+using System.Threading;
 
 namespace PeachtreeBus.DataAccessTests
 {
@@ -25,7 +26,7 @@ namespace PeachtreeBus.DataAccessTests
         protected const string ErrorMessagesTable = DefaultQueue + "_ErrorMessages";
         protected const string DefaultSagaTable = "SagaName_SagaData";
 
-        protected void TestInitialize()
+        public virtual void TestInitialize()
         {
             PrimaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
             PrimaryConnection.Open();
@@ -39,6 +40,22 @@ namespace PeachtreeBus.DataAccessTests
             MockSchema.Setup(s => s.Schema).Returns(DefaultSchema);
 
             dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object);
+
+            BeginSecondaryTransaction();
+            TruncateAll();
+            CommitSecondaryTransaction();
+        }
+
+        public virtual void TestCleanup()
+        {
+            if (transaction != null) transaction.Rollback();
+
+            BeginSecondaryTransaction();
+            TruncateAll();
+            CommitSecondaryTransaction();
+
+            PrimaryConnection.Close();
+            SecondaryConnection.Close();
         }
 
         protected SqlTransaction transaction = null;
@@ -52,6 +69,15 @@ namespace PeachtreeBus.DataAccessTests
             if (transaction != null)
             {
                 transaction.Rollback();
+                transaction = null;
+            }
+        }
+
+        protected void CommitSecondaryTransaction()
+        {
+            if (transaction != null)
+            {
+                transaction.Commit();
                 transaction = null;
             }
         }

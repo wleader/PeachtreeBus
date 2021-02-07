@@ -12,9 +12,15 @@ namespace PeachtreeBus.DataAccessTests
     public class EnqueMessageFixture : FixtureBase
     {
         [TestInitialize]
-        public new void TestInitialize()
+        public override void TestInitialize()
         {
             base.TestInitialize();
+        }
+
+        [TestCleanup]
+        public override void TestCleanup()
+        {
+            base.TestCleanup();
         }
 
         [TestMethod]
