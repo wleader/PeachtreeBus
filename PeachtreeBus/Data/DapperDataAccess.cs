@@ -4,14 +4,34 @@ using Dapper;
 using System.Linq;
 using System;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace PeachtreeBus.Data
 {
+    public class DateTimeHandler : SqlMapper.TypeHandler<DateTime>
+    {
+        
+        public override void SetValue(IDbDataParameter parameter, DateTime value)
+        {
+            parameter.Value = value;
+        }
+
+        public override DateTime Parse(object value)
+        {
+            return DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc);
+        }
+    }
+
     /// <summary>
     /// An implemenatin of IBusDataAccess that uses Dapper to accees the SQL database.
     /// </summary>
     public class DapperDataAccess : IBusDataAccess
     {
+        static DapperDataAccess()
+        {
+            SqlMapper.AddTypeHandler(new DateTimeHandler());
+        }
+
         private readonly ISharedDatabase _database;
         private readonly IDbSchema _schema;
 
@@ -32,10 +52,22 @@ namespace PeachtreeBus.Data
             return value.ToLower().Any(c => !SafeChars.Contains(c));
         }
 
+        private void CheckUnspecifiedTimeKind(QueueMessage message)
+        {
+            if (message.Enqueued.Kind == DateTimeKind.Unspecified ||
+                message.NotBefore.Kind == DateTimeKind.Unspecified ||
+                (message.Completed.HasValue && message.Completed.Value.Kind == DateTimeKind.Unspecified) ||
+                (message.Failed.HasValue && message.Failed.Value.Kind == DateTimeKind.Unspecified))
+            {
+                throw new ArgumentException("One of the time properties of the message has an unspecified DateTimeKind.");
+            }
+        }
+
         public Task<long> EnqueueMessage(QueueMessage message, string queueName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+            CheckUnspecifiedTimeKind(message);
 
             string statement =
                 "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_PendingMessages] " +
@@ -46,10 +78,10 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@MessageId", message.MessageId);
-            p.Add("@NotBefore", message.NotBefore);
-            p.Add("@Enqueued", message.Enqueued);
-            p.Add("@Completed", message.Completed);
-            p.Add("@Failed", message.Failed);
+            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
+            p.Add("@Enqueued", message.Enqueued.ToUniversalTime());
+            p.Add("@Completed", message.Completed?.ToUniversalTime());
+            p.Add("@Failed", message.Failed?.ToUniversalTime());
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
@@ -61,6 +93,7 @@ namespace PeachtreeBus.Data
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+            CheckUnspecifiedTimeKind(message);
 
             string statement =
                 "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_CompletedMessages] " +
@@ -72,10 +105,10 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
             p.Add("@MessageId", message.MessageId);
-            p.Add("@NotBefore", message.NotBefore);
-            p.Add("@Enqueued", message.Enqueued);
-            p.Add("@Completed", message.Completed);
-            p.Add("@Failed", message.Failed);
+            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
+            p.Add("@Enqueued", message.Enqueued.ToUniversalTime());
+            p.Add("@Completed", message.Completed?.ToUniversalTime());
+            p.Add("@Failed", message.Failed?.ToUniversalTime());
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
@@ -88,6 +121,7 @@ namespace PeachtreeBus.Data
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+            CheckUnspecifiedTimeKind(message);
 
             string statement =
                 "INSERT INTO [" + _schema.Schema + "].[" + queueName + "_ErrorMessages] " +
@@ -99,10 +133,10 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
             p.Add("@MessageId", message.MessageId);
-            p.Add("@NotBefore", message.NotBefore);
-            p.Add("@Enqueued", message.Enqueued);
-            p.Add("@Completed", message.Completed);
-            p.Add("@Failed", message.Failed);
+            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
+            p.Add("@Enqueued", message.Enqueued.ToUniversalTime());
+            p.Add("@Completed", message.Completed?.ToUniversalTime());
+            p.Add("@Failed", message.Failed?.ToUniversalTime());
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
@@ -232,6 +266,7 @@ namespace PeachtreeBus.Data
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+            CheckUnspecifiedTimeKind(message);
 
             var statement = "UPDATE[" + _schema.Schema + "].[" + queueName + "_PendingMessages] SET " +
                 "[NotBefore] = @NotBefore, " +
@@ -244,9 +279,9 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
-            p.Add("@NotBefore", message.NotBefore);
-            p.Add("@Completed", message.Completed);
-            p.Add("@Failed", message.Failed);
+            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
+            p.Add("@Completed", message.Completed?.ToUniversalTime());
+            p.Add("@Failed", message.Failed?.ToUniversalTime());
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
