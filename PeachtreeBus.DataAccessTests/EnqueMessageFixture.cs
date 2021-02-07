@@ -39,10 +39,10 @@ namespace PeachtreeBus.DataAccessTests
             newMessage.Id = await dataAccess.EnqueueMessage(newMessage, "QueueName");
 
             Assert.IsTrue(newMessage.Id > 0);
-            
+
             var data = GetTableContent("QueueName_PendingMessages");
-            Assert.IsNotNull(data); 
-            
+            Assert.IsNotNull(data);
+
             var messages = data.ToMessages();
             Assert.AreEqual(1, messages.Count);
 
@@ -66,6 +66,20 @@ namespace PeachtreeBus.DataAccessTests
             };
 
             await dataAccess.EnqueueMessage(newMessage, "QueueName");
+        }
+
+        [TestMethod]
+        public void EnqueueMessage_ThrowsIfSchemaContainsUnsafe()
+        {
+            var action = new Action(() => dataAccess.EnqueueMessage(new Model.QueueMessage(), "QueueName"));
+            ActionThrowsIfSchemaContainsPoisonChars(action);
+        }
+
+        [TestMethod]
+        public void EnqueueMessage_ThrowsIfQueueNameContainsUnsafe()
+        {
+            var action = new Action<string>((s) => dataAccess.EnqueueMessage(new Model.QueueMessage(), s));
+            ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

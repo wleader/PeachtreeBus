@@ -16,6 +16,7 @@ namespace PeachtreeBus.DataAccessTests
         protected SqlConnection PrimaryConnection;
         protected SqlConnection SecondaryConnection;
         protected DapperDataAccess dataAccess;
+        protected Mock<IDbSchema> MockSchema;
 
         const string schema = "PeachtreeBus";
 
@@ -29,10 +30,10 @@ namespace PeachtreeBus.DataAccessTests
 
             var sharedDB = new SharedDatabase(PrimaryConnection);
 
-            var mockDbSchema = new Mock<IDbSchema>();
-            mockDbSchema.Setup(s => s.Schema).Returns(schema);
+            MockSchema = new Mock<IDbSchema>();
+            MockSchema.Setup(s => s.Schema).Returns(schema);
 
-            dataAccess = new DapperDataAccess(sharedDB, mockDbSchema.Object);
+            dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object);
         }
 
         protected int CountRowsInTable(string tablename)
@@ -109,6 +110,53 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsTrue(actual.Millisecond > expected.Millisecond - 3, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
 
             Assert.AreEqual(expected.Kind, actual.Kind);
+        }
+
+        protected void ActionThrowsIfSchemaContainsPoisonChars(Action action)
+        {
+            var poison = new char[] { '\'', ';', '@', '-', '/', '*' };
+            foreach (var p in poison)
+            {
+                ActionThrowsIfShcemaContains(action, p.ToString());
+            }
+        }
+
+        protected void ActionThrowsIfShcemaContains(Action action, string poison)
+        {
+            var exceptionThrown = false;
+            MockSchema.Setup(s => s.Schema).Returns(poison);
+            try
+            {
+                action.Invoke();
+            }
+            catch (ArgumentException)
+            {
+                exceptionThrown = true;
+            }
+            Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for an unsafe schema name.");
+        }
+
+        protected void ActionThrowsIfParameterContainsPoisonChars(Action<string> action)
+        {
+            var poison = new char[] { '\'', ';', '@', '-', '/', '*' };
+            foreach (var p in poison)
+            {
+                ActionThrowsIfParameterContains(action, p.ToString());
+            }
+        }
+
+        protected void ActionThrowsIfParameterContains(Action<string> action, string poison)
+        {
+            var exceptionThrown = false;
+            try
+            {
+                action.Invoke(poison);
+            }
+            catch (ArgumentException)
+            {
+                exceptionThrown = true;
+            }
+            Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for an unsafe Parameter.");
         }
     }
 }
