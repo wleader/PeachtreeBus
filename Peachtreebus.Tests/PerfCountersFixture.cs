@@ -87,7 +87,7 @@ namespace Peachtreebus.Tests
         {
             var arguments = new Dictionary<string, string>
             {
-                {"EventCounterIntervalSec", "1"}
+                {"EventCounterIntervalSec", ".1"}
             };
 
             listener = new PeachtreeBusEventListener();
