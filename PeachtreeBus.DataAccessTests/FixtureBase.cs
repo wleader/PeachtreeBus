@@ -78,6 +78,9 @@ namespace PeachtreeBus.DataAccessTests
 
         protected void AssertMessageEquals(Model.QueueMessage expected, Model.QueueMessage actual)
         {
+            if (expected == null && actual == null) return;
+            Assert.IsNotNull(actual, "Actual is null, expected is not.");
+            Assert.IsNotNull(expected, "Expected is null, actual is not.");
             Assert.AreEqual(expected.Headers, actual.Headers);
             Assert.AreEqual(expected.MessageId, actual.MessageId);
             AssertSqlDbDateTime(expected.NotBefore, actual.NotBefore);
