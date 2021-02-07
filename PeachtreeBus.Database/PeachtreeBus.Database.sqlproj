@@ -60,8 +60,8 @@
   <ItemGroup>
     <Build Include="CompletedMessages.sql" />
     <Build Include="ErrorMessages.sql" />
-    <Build Include="QueueMessages.sql" />
     <Build Include="SagaData.sql" />
     <Build Include="Schema.sql" />
+    <Build Include="PendingMessages.sql" />
   </ItemGroup>
 </Project>
