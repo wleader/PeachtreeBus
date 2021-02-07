@@ -105,8 +105,8 @@ namespace PeachtreeBus.DataAccessTests
 
             // date times the get stored in SQL because of the way things are stored can
             // be off by a few ms, so just make sure its close
-            Assert.IsTrue(actual.Millisecond < expected.Millisecond + 2, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
-            Assert.IsTrue(actual.Millisecond > expected.Millisecond - 2, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
+            Assert.IsTrue(actual.Millisecond < expected.Millisecond + 3, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
+            Assert.IsTrue(actual.Millisecond > expected.Millisecond - 3, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
 
             Assert.AreEqual(expected.Kind, actual.Kind);
         }
