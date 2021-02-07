@@ -41,10 +41,25 @@ namespace PeachtreeBus.DataAccessTests
             dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object);
         }
 
+        protected SqlTransaction transaction = null;
+        protected void BeginSecondaryTransaction()
+        {
+            transaction = SecondaryConnection.BeginTransaction();
+        }
+
+        protected void RollbackSecondaryTransaction()
+        {
+            if (transaction != null)
+            {
+                transaction.Rollback();
+                transaction = null;
+            }
+        }
+
         protected int CountRowsInTable(string tablename)
         {
             string statment = $"SELECT COUNT(*) FROM [{DefaultSchema}].[{tablename}]";
-            using (var cmd = new SqlCommand(statment, SecondaryConnection))
+            using (var cmd = new SqlCommand(statment, SecondaryConnection,transaction))
             {
                 return (int)cmd.ExecuteScalar();
             }
@@ -58,7 +73,7 @@ namespace PeachtreeBus.DataAccessTests
                 $"TRUNCATE TABLE [{DefaultSchema}].[{PendingMessagesTable}]; " +
                 $"TRUNCATE TABLE [{DefaultSchema}].[{DefaultSagaTable}] ";
 
-            using (var cmd = new SqlCommand(statment, SecondaryConnection))
+            using (var cmd = new SqlCommand(statment, SecondaryConnection, transaction))
             {
                 cmd.ExecuteNonQuery();
             }
@@ -68,7 +83,7 @@ namespace PeachtreeBus.DataAccessTests
         {
             var result = new DataSet();
             string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}]";
-            using (var cmd = new SqlCommand(statement, SecondaryConnection))
+            using (var cmd = new SqlCommand(statement, SecondaryConnection, transaction))
             using (var adpater = new SqlDataAdapter(cmd))
             {
                 adpater.Fill(result);
