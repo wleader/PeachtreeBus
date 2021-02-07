@@ -89,6 +89,27 @@ namespace PeachtreeBus.Data
            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
         }
 
+        public Task<QueueMessage> GetOnePendingMessage(string queueName)
+        {
+            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
+            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
+
+
+            // UPDLOCK makes this row unavailable to other connections and transactions.
+            // READPAST to skip any rows that are locked by other connections and transactions.
+            // ROWLOCK hint to tell the server to lock at the row level instead of the default page lock.
+
+            // NotBefore so we don't get messages that are scheduled for the future.
+            // Completed and Failed are null means not previously processed and not previously exceeded retry count.
+
+            var query =
+                "SELECT TOP 1 * FROM[" +
+                _schema.Schema +
+                "].[" + queueName + "_PendingMessages] WITH(UPDLOCK, READPAST, ROWLOCK) WHERE NotBefore < SYSUTCDATETIME() AND Completed IS NULL AND Failed IS NULL";
+
+            return _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction);
+        }
+
         public Task CompleteMessage(QueueMessage message, string queueName)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
@@ -188,27 +209,6 @@ namespace PeachtreeBus.Data
             p.Add("@Key", key);
 
             return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-        }
-
-        public Task<QueueMessage> GetOnePendingMessage(string queueName)
-        {
-            if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName)) throw new ArgumentException(QueueNameUnsafe);
-
-
-            // UPDLOCK makes this row unavailable to other connections and transactions.
-            // READPAST to skip any rows that are locked by other connections and transactions.
-            // ROWLOCK hint to tell the server to lock at the row level instead of the default page lock.
-
-            // NotBefore so we don't get messages that are scheduled for the future.
-            // Completed and Failed are null means not previously processed and not previously exceeded retry count.
-
-            var query = 
-                "SELECT TOP 1 * FROM[" +
-                _schema.Schema +
-                "].[" + queueName + "_PendingMessages] WITH(UPDLOCK, READPAST, ROWLOCK) WHERE NotBefore < SYSUTCDATETIME() AND Completed IS NULL AND Failed IS NULL";
-
-            return _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction);
         }
 
         public async Task<SagaData> GetSagaData(string sagaName, string key)
