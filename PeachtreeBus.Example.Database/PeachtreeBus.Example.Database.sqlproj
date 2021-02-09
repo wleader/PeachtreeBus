@@ -60,10 +60,10 @@
   <ItemGroup>
     <Build Include="PeachtreeBus.SampleQueue_CompletedMessages.sql" />
     <Build Include="PeachtreeBus.SampleQueue_ErrorMessages.sql" />
-    <Build Include="PeachtreeBus.SampleQueue_QueueMessages.sql" />
     <Build Include="PeachtreeBus.SampleSaga_SagaData.sql" />
     <Build Include="PeachtreeBus.Schema.sql" />
     <Build Include="ExampleApp.Schema.sql" />
     <Build Include="ExampleApp.AuditLog.sql" />
+    <Build Include="PeachtreeBus.SampleQueue_PendingMessages.sql" />
   </ItemGroup>
 </Project>
