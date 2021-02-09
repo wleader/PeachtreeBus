@@ -24,7 +24,8 @@ namespace PeachtreeBus.DataAccessTests
         protected const string PendingMessagesTable = DefaultQueue + "_PendingMessages";
         protected const string CompletedMessagesTable = DefaultQueue + "_CompletedMessages";
         protected const string ErrorMessagesTable = DefaultQueue + "_ErrorMessages";
-        protected const string DefaultSagaTable = "SagaName_SagaData";
+        protected const string DefaultSagaName = "SagaName";
+        protected const string DefaultSagaTable = DefaultSagaName + "_SagaData";
 
         public virtual void TestInitialize()
         {
