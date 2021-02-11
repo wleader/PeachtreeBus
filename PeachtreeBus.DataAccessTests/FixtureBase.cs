@@ -130,6 +130,20 @@ namespace PeachtreeBus.DataAccessTests
             return result;
         }
 
+        protected void AssertSagaEquals(Model.SagaData expected, Model.SagaData actual)
+        {
+            if (expected == null && actual == null) return;
+            Assert.IsNotNull(actual, "Actual is null, expected is not.");
+            Assert.IsNotNull(expected, "Expected is null, actual is not.");
+            Assert.AreEqual(expected.Id, actual.Id);
+            Assert.AreEqual(expected.Data, actual.Data);
+            Assert.AreEqual(expected.SagaId, actual.SagaId);
+            Assert.AreEqual(expected.Key, actual.Key);
+            // don't check the blocked because its not really part of the
+            // entity. Test that as needed in tests.
+            //Assert.AreEqual(expected.Blocked, actual.Blocked);
+        }
+
         protected void AssertMessageEquals(Model.QueueMessage expected, Model.QueueMessage actual)
         {
             if (expected == null && actual == null) return;
@@ -236,6 +250,16 @@ namespace PeachtreeBus.DataAccessTests
             };
         }
 
+        protected Model.SagaData CreateTestSagaData()
+        {
+            return new Model.SagaData
+            {
+                Blocked = false,
+                Data = "Data",
+                SagaId = Guid.NewGuid(),
+                Key = "Key"
+            };
+        }
         protected void ActionThrowsForMessagesWithUnspecifiedDateTimeKinds(Action<Model.QueueMessage> action)
         {
             var poisonEnqueued = CreateTestMessage();
