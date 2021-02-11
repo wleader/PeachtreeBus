@@ -73,6 +73,30 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         [TestMethod]
+        public async Task GetOnePendingMessage_DoesNotReturnLocked()
+        {
+            // Add one message;
+            var testMessage = CreateTestMessage();
+            testMessage.Id = await dataAccess.EnqueueMessage(testMessage, DefaultQueue);
+            await Task.Delay(10); // wait for the rows to be ready
+
+            // lock the row
+            BeginSecondaryTransaction();
+            try
+            {
+                var pending = GetTableContentAndLock(PendingMessagesTable);
+
+                // check that the locked row can not be fetched.
+                var actual = await dataAccess.GetOnePendingMessage(DefaultQueue);
+                Assert.IsNull(actual);
+            }
+            finally
+            {
+                RollbackSecondaryTransaction();
+            }
+        }
+
+        [TestMethod]
         public async Task GetOnePendingMessage_DoesNotReturnCompletedMessage()
         {
             // Add one message;
