@@ -33,14 +33,14 @@ namespace PeachtreeBus.Data
         }
 
         private readonly ISharedDatabase _database;
-        private readonly IDbSchema _schema;
+        private readonly IDbSchemaConfiguration _schema;
 
         const string SafeChars = "abcdefghijklmnopqrstuvwxyz0123456789";
         const string SchemaUnsafe = "The schema name contains not allowable characters.";
         const string QueueNameUnsafe = "The queue name contains not allowable characters.";
         const string SagaNameUnsafe = "The saga name contains not allowable characters.";
 
-        public DapperDataAccess(ISharedDatabase database, IDbSchema schema)
+        public DapperDataAccess(ISharedDatabase database, IDbSchemaConfiguration schema)
         {
             _schema = schema;
             _database = database;

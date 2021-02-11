@@ -17,7 +17,7 @@ namespace PeachtreeBus.DataAccessTests
         protected SqlConnection PrimaryConnection;
         protected SqlConnection SecondaryConnection;
         protected DapperDataAccess dataAccess;
-        protected Mock<IDbSchema> MockSchema;
+        protected Mock<IDbSchemaConfiguration> MockSchema;
 
         protected const string DefaultSchema = "PeachtreeBus";
         protected const string DefaultQueue = "QueueName";
@@ -37,7 +37,7 @@ namespace PeachtreeBus.DataAccessTests
 
             var sharedDB = new SharedDatabase(PrimaryConnection);
 
-            MockSchema = new Mock<IDbSchema>();
+            MockSchema = new Mock<IDbSchemaConfiguration>();
             MockSchema.Setup(s => s.Schema).Returns(DefaultSchema);
 
             dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object);
