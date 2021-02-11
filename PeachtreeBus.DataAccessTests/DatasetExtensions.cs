@@ -9,27 +9,53 @@ namespace PeachtreeBus.DataAccessTests
     {
         public static List<Model.QueueMessage> ToMessages(this DataSet dataset)
         {
-            var result = new List<Model.QueueMessage>();
+            return dataset.ToType(ToMessage);
+        }
 
-            foreach(DataTable table in dataset.Tables)
+        public static List<Model.SagaData> ToSagas(this DataSet dataset)
+        {
+            return dataset.ToType(ToSaga);
+        }
+
+        private static List<T> ToType<T>(this DataSet dataset, Func<DataRow, T> convert)
+        {
+            var result = new List<T>();
+            foreach (DataTable table in dataset.Tables)
             {
-                foreach(DataRow row in table.Rows)
+                foreach (DataRow row in table.Rows)
                 {
-                    result.Add(new Model.QueueMessage
-                    {
-                        Body = (string)row["Body"],
-                        Completed = row.ToDateTimeNullable("Completed"),
-                        Enqueued = row.ToDateTime("Enqueued"),
-                        Failed = row.ToDateTimeNullable("Failed"),
-                        Headers = (string)row["Headers"],
-                        Id = (long)row["Id"],
-                        MessageId = (Guid)row["MessageId"],
-                        NotBefore = row.ToDateTime("NotBefore"),
-                        Retries = (byte)row["Retries"]
-                    }); ;
+                    result.Add(convert.Invoke(row));
                 }
             }
             return result;
+        }
+
+        public static Model.QueueMessage ToMessage(this DataRow row)
+        {
+            return new Model.QueueMessage
+            {
+                Body = (string)row["Body"],
+                Completed = row.ToDateTimeNullable("Completed"),
+                Enqueued = row.ToDateTime("Enqueued"),
+                Failed = row.ToDateTimeNullable("Failed"),
+                Headers = (string)row["Headers"],
+                Id = (long)row["Id"],
+                MessageId = (Guid)row["MessageId"],
+                NotBefore = row.ToDateTime("NotBefore"),
+                Retries = (byte)row["Retries"]
+            };
+        }
+
+        public static Model.SagaData ToSaga(this DataRow row)
+        {
+            return new Model.SagaData
+            {
+                Blocked = false, //table does not actually contain a blocked column.
+                Data = (string)row["Data"],
+                Id = (long)row["Id"],
+                Key = (string)row["Key"],
+                SagaId = (Guid)row["SagaId"]
+            };
         }
 
         public static DateTime? ToDateTimeNullable(this DataRow row, string columnName)
