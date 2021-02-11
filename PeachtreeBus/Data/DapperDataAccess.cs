@@ -236,7 +236,7 @@ namespace PeachtreeBus.Data
             return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
         }
 
-        public async Task<SagaData> GetSagaData(string sagaName, string key)
+        public Task<SagaData> GetSagaData(string sagaName, string key)
         {
             if (IsUnsafe(_schema.Schema)) throw new ArgumentException(SchemaUnsafe);
             if (IsUnsafe(sagaName)) throw new ArgumentException(SagaNameUnsafe);
@@ -274,7 +274,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            return await _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction);
+            return _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction);
         }
 
         public void BeginTransaction()
