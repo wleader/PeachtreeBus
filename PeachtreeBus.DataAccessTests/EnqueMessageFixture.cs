@@ -26,8 +26,6 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task EnqueueMessage_StoresTheMessage()
         {
-            TruncateAll();
-
             var newMessage = CreateTestMessage();
 
             Assert.AreEqual(0, CountRowsInTable(PendingMessagesTable));
