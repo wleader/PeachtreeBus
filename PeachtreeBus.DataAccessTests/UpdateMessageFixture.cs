@@ -70,28 +70,5 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(toUpdate.Retries, actualChanged.Retries);
 
         }
-
-
-        [TestMethod]
-        public void FailMessage_ThrowsIfDateTimeKindUnspecified()
-        {
-            var action = new Action<Model.QueueMessage>((m) => dataAccess.FailMessage(m, DefaultQueue));
-            ActionThrowsForMessagesWithUnspecifiedDateTimeKinds(action);
-        }
-
-        [TestMethod]
-        public void FailMessage_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Action(() => dataAccess.FailMessage(new Model.QueueMessage(), DefaultQueue));
-            ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        [TestMethod]
-        public void FailMessage_ThrowsIfQueueNameContainsUnsafe()
-        {
-            var action = new Action<string>((s) => dataAccess.FailMessage(new Model.QueueMessage(), s));
-            ActionThrowsIfParameterContainsPoisonChars(action);
-        }
-
     }
 }
