@@ -10,7 +10,6 @@ namespace PeachtreeBus
     /// </summary>
     public interface IQueueWriter
     {
-        Task WriteMessage<T>(string queueName, T message, DateTime? NotBefore = null);
         Task WriteMessage(string queueName, Type type, object message, DateTime? NotBefore = null);
     }
 
@@ -32,13 +31,11 @@ namespace PeachtreeBus
             _serializer = serializer;
         }
 
-        public Task WriteMessage<T>(string queueName, T message, DateTime? NotBefore = null)
-        {
-            return WriteMessage(queueName, typeof(T), message, NotBefore);
-        }
-
         public Task WriteMessage(string queueName, Type type, object message, DateTime? NotBefore = null)
-        { 
+        {
+            if (message == null) throw new ArgumentNullException(nameof(message), $"{nameof(message)} must not be null.");
+            if (string.IsNullOrEmpty(queueName)) throw new ArgumentException($"{nameof(queueName)} must not be null and not empty.");
+
             // note the type in the headers so it can be deserialized.
             var headers = new Headers
             {
@@ -65,4 +62,13 @@ namespace PeachtreeBus
         }
 
     }
+
+    public static class QueueWriterExtensions
+    {
+        public static Task WriteMessage<T>(this IQueueWriter writer, string queueName, T message, DateTime? NotBefore = null)
+        {
+            return writer.WriteMessage(queueName, typeof(T), message, NotBefore);
+        }
+    }
+
 }
