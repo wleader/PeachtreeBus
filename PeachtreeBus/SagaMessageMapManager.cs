@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace PeachtreeBus
 {
@@ -38,6 +37,9 @@ namespace PeachtreeBus
                     var configureMethod = sagaType.GetMethod("ConfigureMessageKeys", parameterTypes);
                     configureMethod.Invoke(saga, new object[] { mapper });
                     Maps.Add(sagaType, mapper);
+
+                    // todo, check that ConfigureMessageKeys mapped all message types that the saga has interfaces for, 
+                    // and only those message types.
                 }
             }
             // Get the saga key for the message using the map.
