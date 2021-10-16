@@ -252,7 +252,7 @@ namespace PeachtreeBus.Data
             if (string.IsNullOrEmpty(data.Data))
                 throw new ArgumentException($"{nameof(data)}.{nameof(data.Data)} must be not null and not empty.");
 
-            string statement = string.Format(_schemaConfig.Schema, sagaName);
+            string statement = string.Format(InsertSagaStatement, _schemaConfig.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@SagaId", data.SagaId);
