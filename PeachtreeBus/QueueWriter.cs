@@ -21,12 +21,15 @@ namespace PeachtreeBus
     {
         private readonly IBusDataAccess _dataAccess;
         private readonly IPerfCounters _counters;
+        private readonly ISerializer _serializer;
 
         public QueueWriter(IBusDataAccess dataAccess,
-            IPerfCounters counters)
+            IPerfCounters counters,
+            ISerializer serializer)
         {
             _dataAccess = dataAccess;
             _counters = counters;
+            _serializer = serializer;
         }
 
         public Task WriteMessage<T>(string queueName, T message, DateTime? NotBefore = null)
@@ -51,8 +54,8 @@ namespace PeachtreeBus
                 Completed = null,
                 Failed = null,
                 Retries = 0,
-                Headers = JsonSerializer.Serialize<Headers>(headers),
-                Body = JsonSerializer.Serialize(message, type)
+                Headers = _serializer.SerializeHeaders(headers),
+                Body = _serializer.SerializeMessage(message, type)
             };
 
             _counters.SentMessage();

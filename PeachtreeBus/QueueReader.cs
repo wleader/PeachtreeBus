@@ -1,7 +1,6 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.Model;
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus
@@ -72,6 +71,7 @@ namespace PeachtreeBus
         private readonly IBusDataAccess _dataAccess;
         private readonly ILog<QueueReader> _log;
         private readonly IPerfCounters _counters;
+        private readonly ISerializer _serializer;
 
         public byte MaxRetries { get; set; }
 
@@ -82,11 +82,13 @@ namespace PeachtreeBus
         /// <param name="log"></param>
         public QueueReader(IBusDataAccess dataAccess,
             ILog<QueueReader> log,
-            IPerfCounters counters)
+            IPerfCounters counters,
+            ISerializer serializer)
         {
             _log = log;
             _dataAccess = dataAccess;
             _counters = counters;
+            _serializer = serializer;
             MaxRetries = 5;
         }
 
@@ -103,7 +105,7 @@ namespace PeachtreeBus
             Headers headers;
             try
             {
-                headers = JsonSerializer.Deserialize<Headers>(queueMessage.Headers);
+                headers =  _serializer.DeserializeHeaders(queueMessage.Headers);
             }
             catch
             {
@@ -120,7 +122,7 @@ namespace PeachtreeBus
             object message = null;
             if (messageType != null)
             {
-                message = JsonSerializer.Deserialize(queueMessage.Body, messageType);
+                message = _serializer.DeserializeMessage(queueMessage.Body, messageType);
             }
             else
             {
@@ -151,7 +153,7 @@ namespace PeachtreeBus
             messageContext.MessageData.Retries++;
             messageContext.MessageData.NotBefore = DateTime.UtcNow.AddSeconds(5 * messageContext.MessageData.Retries); // Wait longer between retries.
             messageContext.Headers.ExceptionDetails = exception.ToString();
-            messageContext.MessageData.Headers = JsonSerializer.Serialize(messageContext.Headers);
+            messageContext.MessageData.Headers = _serializer.SerializeHeaders(messageContext.Headers);
             if (messageContext.MessageData.Retries >= MaxRetries)
             {
                 _log.Error($"Message {messageContext.MessageData.MessageId} exceeded max retries ({MaxRetries}) and has failed.");
@@ -198,7 +200,7 @@ namespace PeachtreeBus
                 // deserialize
                 // try catch needed? Probably better to throw and let the error handling deal with it.
                 // Someone may have to fix the saga data and retry the failed message though.
-                dataObject = JsonSerializer.Deserialize(messageContext.SagaData.Data, sagaDataType);
+                dataObject = _serializer.DeserializeSaga(messageContext.SagaData.Data, sagaDataType);
             }
 
             // assign the data to the saga.
@@ -225,7 +227,7 @@ namespace PeachtreeBus
             var dataProperty = sagaType.GetProperty("Data");
             var dataObject = dataProperty.GetValue(saga);
             if (dataObject == null) dataObject = Activator.CreateInstance(dataProperty.PropertyType);
-            var serializedData = JsonSerializer.Serialize(dataObject, dataProperty.PropertyType);
+            var serializedData = _serializer.SerializeSaga(dataObject, dataProperty.PropertyType);
 
             if (context.SagaData == null)
             {
