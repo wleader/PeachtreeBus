@@ -47,7 +47,12 @@ namespace PeachtreeBus.DataAccessTests
         public void EnqueueMessage_ThrowsIfDateTimeKindUnspecified()
         {
             var action = new Action<Model.QueueMessage>((m) => dataAccess.EnqueueMessage(m, DefaultQueue));
-            ActionThrowsForMessagesWithUnspecifiedDateTimeKinds(action);
+
+            // we check the not-before because not-before is the only time
+            // parameter used by Enqueue message.
+            var poisonNotBefore = CreateTestMessage();
+            poisonNotBefore.NotBefore = DateTime.SpecifyKind(poisonNotBefore.NotBefore, DateTimeKind.Unspecified);
+            ActionThrowsForMessage(action, poisonNotBefore);
         }
 
         [TestMethod]
