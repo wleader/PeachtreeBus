@@ -94,13 +94,17 @@ namespace PeachtreeBus.DataAccessTests
 
         protected void TruncateAll()
         {
-            string statment =
+            string statement =
                 $"TRUNCATE TABLE [{DefaultSchema}].[{CompletedMessagesTable}]; " +
                 $"TRUNCATE TABLE [{DefaultSchema}].[{ErrorMessagesTable}]; " +
                 $"TRUNCATE TABLE [{DefaultSchema}].[{PendingMessagesTable}]; " +
                 $"TRUNCATE TABLE [{DefaultSchema}].[{DefaultSagaTable}] ";
+            ExecuteNonQuery(statement);
+        }
 
-            using (var cmd = new SqlCommand(statment, SecondaryConnection, transaction))
+        protected void ExecuteNonQuery(string statement)
+        {
+            using (var cmd = new SqlCommand(statement, SecondaryConnection, transaction))
             {
                 cmd.ExecuteNonQuery();
             }
@@ -171,7 +175,7 @@ namespace PeachtreeBus.DataAccessTests
             // else both are null and match.
         }
 
-        protected void AssertSqlDbDateTime(DateTime expected, DateTime actual)
+        protected void AssertSqlDbDateTime(DateTime expected, DateTime actual, int msDrift = 100)
         {
             Assert.AreEqual(expected.Year, actual.Year);
             Assert.AreEqual(expected.Month, actual.Month);
@@ -182,8 +186,8 @@ namespace PeachtreeBus.DataAccessTests
 
             // date times the get stored in SQL because of the way things are stored can
             // be off by a few ms, so just make sure its close
-            Assert.IsTrue(actual.Millisecond < expected.Millisecond + 3, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
-            Assert.IsTrue(actual.Millisecond > expected.Millisecond - 3, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
+            Assert.IsTrue(actual.Millisecond < expected.Millisecond + msDrift, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
+            Assert.IsTrue(actual.Millisecond > expected.Millisecond - msDrift, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
 
             Assert.AreEqual(expected.Kind, actual.Kind);
         }

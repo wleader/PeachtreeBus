@@ -26,5 +26,12 @@ namespace Peachtreebus.Tests
             Assert.IsTrue(ReferenceEquals(message, context.SentMessages[0].Message));
             Assert.AreEqual(typeof(object), context.SentMessages[0].Type);
         }
+
+        [TestMethod]
+        public void Constructor_Initializes()
+        {
+            var context = new MessageContext();
+            Assert.IsNotNull(context.SentMessages);
+        }
     }
 }

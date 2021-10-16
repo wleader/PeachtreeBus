@@ -65,10 +65,11 @@ namespace PeachtreeBus.DataAccessTests
             // compare the changeable fields.
             Assert.AreEqual(toUpdate.Headers, actualChanged.Headers);
             AssertSqlDbDateTime(toUpdate.NotBefore, actualChanged.NotBefore);
-            AssertSqlDbDateTime(toUpdate.Completed, actualChanged.Completed);
-            AssertSqlDbDateTime(toUpdate.Failed, actualChanged.Failed);
             Assert.AreEqual(toUpdate.Retries, actualChanged.Retries);
 
+            // completed and failed will be null for pending messages.            
+            AssertSqlDbDateTime(null, actualChanged.Completed);
+            AssertSqlDbDateTime(null, actualChanged.Failed);
         }
     }
 }

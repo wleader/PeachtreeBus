@@ -101,9 +101,13 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add one message;
             var testMessage = CreateTestMessage();
-            testMessage.Completed = DateTime.Now;
             testMessage.Id = await dataAccess.EnqueueMessage(testMessage, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
+
+            // normally EnqueueMessage can't insert a completed message so we have to maniupulate things.
+            ExecuteNonQuery($"UPDATE [{DefaultSchema}].[{PendingMessagesTable}] SET [Completed] = SYSUTCDATETIME() WHERE [Id] = {testMessage.Id}");
+            await Task.Delay(10); // wait for the rows to be ready
+
             var actual = await dataAccess.GetOnePendingMessage(DefaultQueue);
             Assert.IsNull(actual);
         }
@@ -113,9 +117,14 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add one message;
             var testMessage = CreateTestMessage();
-            testMessage.Failed = DateTime.Now;
             testMessage.Id = await dataAccess.EnqueueMessage(testMessage, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
+
+            // normally EnqueueMessage can't insert a failed message so we have to maniupulate things.
+            ExecuteNonQuery($"UPDATE [{DefaultSchema}].[{PendingMessagesTable}] SET [Failed] = SYSUTCDATETIME() WHERE [Id] = {testMessage.Id}");
+            await Task.Delay(10); // wait for the rows to be ready
+
+
             var actual = await dataAccess.GetOnePendingMessage(DefaultQueue);
             Assert.IsNull(actual);
         }
