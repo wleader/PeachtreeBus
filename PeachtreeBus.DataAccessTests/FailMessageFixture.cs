@@ -92,14 +92,6 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(testMessage1.Body, actual.Body, "Body should not change.");
         }
 
-
-        [TestMethod]
-        public void FailMessage_ThrowsIfDateTimeKindUnspecified()
-        {
-            var action = new Action<Model.QueueMessage>((m) => dataAccess.FailMessage(m, DefaultQueue));
-            ActionThrowsForMessagesWithUnspecifiedDateTimeKinds(action);
-        }
-
         [TestMethod]
         public void FailMessage_ThrowsIfSchemaContainsUnsafe()
         {
