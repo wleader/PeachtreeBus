@@ -3,14 +3,19 @@ using PeachtreeBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
-using System.Linq;
 using System.Threading;
 
 namespace Peachtreebus.Tests
 {
+    /// <summary>
+    /// Proves the behavior of PerfCounters
+    /// </summary>
     [TestClass]
     public class PerfCountersFixture
     {
+        /// <summary>
+        /// Holds data read from the performance counters system
+        /// </summary>
         internal class EventData
         {
             public string Name;
@@ -48,6 +53,9 @@ namespace Peachtreebus.Tests
             }
         }
 
+        /// <summary>
+        /// recieves event data from teh performance counters system
+        /// </summary>
         internal class PeachtreeBusEventListener : EventListener
         {
             private bool enabled;
@@ -105,7 +113,9 @@ namespace Peachtreebus.Tests
             listener = null;
         }
 
-
+        /// <summary>
+        /// Proves the counters are setup at startup.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_IsSetupCorrectly()
         {
@@ -115,10 +125,14 @@ namespace Peachtreebus.Tests
             Assert.IsNull(instance.ConstructionException);
         }
 
+        /// <summary>
+        /// Proves StartMessage and FinishMessage behave.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_MessagesActive_IncrementsAndDecrements()
         {
             var instance = PerfCounters.Instance();
+            listener.WaitOne("messages-active");
 
             instance.StartMessage();
             var data = listener.WaitOne("messages-active");
@@ -145,12 +159,18 @@ namespace Peachtreebus.Tests
             Assert.AreEqual(0, data.Mean);
         }
 
+        /// <summary>
+        /// Proves messages attempted are counted.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_FinishMessage_CountsAttempts()
         {
             AssertCounts(p => { p.StartMessage(); p.FinishMessage(DateTime.Now); }, "messages-attempted");
         }
 
+        /// <summary>
+        /// Proves that message time is counted.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_FinishMessage_MeasuresTime()
         {
@@ -179,49 +199,70 @@ namespace Peachtreebus.Tests
             AssertRange(2000, 10, data.Mean, "data.Mean");
         }
 
+        /// <summary>
+        /// Proves completed messages are counted.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_CompleteMessage_Counts()
         {
             AssertCounts(p => p.CompleteMessage(), "messages-complete");
         }
 
+        /// <summary>
+        /// Proves sent messages are counted.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_SentMessage_Counts()
         {
             AssertCounts(p => p.SentMessage(), "messages-sent");
         }
 
+        /// <summary>
+        /// Proves that delayed messages are counted.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_DelayMessage_Counts()
         {
             AssertCounts(p => p.DelayMessage(), "messages-delayed");
         }
 
+        /// <summary>
+        /// proves error messages are counted.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_ErrorMessage_Counts()
         {
-            AssertCounts(p => p.ErrorMessage(), "messages-error");
+            AssertCounts(p => p.FailMessage(), "messages-failed");
         }
 
+        /// <summary>
+        /// Proves retried messages are counted.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_RetryMessage_Counts()
         {
             AssertCounts(p => p.RetryMessage(), "messages-retry");
         }
 
+        /// <summary>
+        /// proves blocked sagas are counted.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_SagaBlocked_Counts()
         {
             AssertCounts(p => p.SagaBlocked(), "saga-blocks");
         }
 
+        /// <summary>
+        /// Prove error messages are totaled.
+        /// </summary>
         [TestMethod]
         public void PerfCounters_ErrorMessage_Totals()
         {
             PerfCounters.Instance().Reset();
-            AssertCounts(p => p.ErrorMessage(), "messages-error");
+            AssertCounts(p => p.FailMessage(), "messages-failed");
 
-            var data = listener.WaitOne("messages-error-total");
+            var data = listener.WaitOne("messages-failed-total");
             Assert.AreEqual(8, data.Min);
             Assert.AreEqual(8, data.Max);
             Assert.AreEqual(8, data.Mean);
