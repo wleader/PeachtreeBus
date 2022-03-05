@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus</id>
-        <version>0.9.1</version>
+        <version>0.9.2</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
@@ -17,10 +17,10 @@
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="netstandard2.1">
-            <dependency id="Dapper" version="2.0.78" />
-            <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="5.0.0" />
-            <dependency id="System.Data.SqlClient" version="4.8.2" />
-            <dependency id="System.Text.Json" version="5.0.1" />
+            <dependency id="Dapper" version="2.0.123" />
+            <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="6.0.0" />
+            <dependency id="System.Data.SqlClient" version="4.8.3" />
+            <dependency id="System.Text.Json" version="6.0.2" />
             </group>
         </dependencies>
     </metadata>
