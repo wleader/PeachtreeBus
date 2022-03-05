@@ -11,7 +11,7 @@ namespace PeachtreeBus
         void SagaBlocked();
         void RetryMessage();
         void CompleteMessage();
-        void ErrorMessage();
+        void FailMessage();
         void DelayMessage();
         void SentMessage();
     }
@@ -19,7 +19,7 @@ namespace PeachtreeBus
     [EventSource(Name ="PeachtreeBus")]
     public class PerfCounters : EventSource, IPerfCounters
     {
-        private static object LockObj = new object();
+        private static readonly object LockObj = new object();
         private static PerfCounters _instance = null;
         public static PerfCounters Instance()
         {
@@ -30,13 +30,16 @@ namespace PeachtreeBus
             return _instance;
         }
 
+
         // the number of messages currently being processed.
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "<Pending>")]
         private readonly PollingCounter _messagesActive;
         private int _messagesActiveCount = 0;
 
         // the number of messages sent to the Error Queue.
         // since the processes started.
-        private readonly PollingCounter _messagesErrorTotal;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "<Pending>")]
+        private readonly PollingCounter _messagesFailedTotal;
         private long _messagesErrorTotalCount = 0;
 
         // the amount of time spent on a messages. (Max, Min, Mean)
@@ -54,7 +57,7 @@ namespace PeachtreeBus
         private readonly IncrementingEventCounter _messageRetries;
 
         // how many messages were sent to the error queue in the interval.
-        private readonly IncrementingEventCounter _messagesError;
+        private readonly IncrementingEventCounter _messagesFailed;
 
         // how mny messages were sent to the complete queue in the interval.
         private readonly IncrementingEventCounter _messagesComplete;
@@ -69,33 +72,46 @@ namespace PeachtreeBus
         private PerfCounters()
         {
             _messagesActive = new PollingCounter("messages-active", this, () => _messagesActiveCount);
-            _messagesErrorTotal = new PollingCounter("messages-error-total", this, () => _messagesErrorTotalCount);
+            _messagesFailedTotal = new PollingCounter("messages-failed-total", this, () => _messagesErrorTotalCount);
             _messageTime = new EventCounter("message-time", this);
             _messagesAttemtped = new IncrementingEventCounter("messages-attempted", this);
             _sagaBlocks = new IncrementingEventCounter("saga-blocks", this);
             _messageRetries = new IncrementingEventCounter("messages-retry", this);
-            _messagesError = new IncrementingEventCounter("messages-error", this);
+            _messagesFailed = new IncrementingEventCounter("messages-failed", this);
             _messagesComplete = new IncrementingEventCounter("messages-complete", this);
             _messagesSent = new IncrementingEventCounter("messages-sent", this);
             _messagesDelayed = new IncrementingEventCounter("messages-delayed", this);
         }
 
+        /// <summary>
+        /// counts a message that is completed
+        /// </summary>
         public void CompleteMessage()
         {
             _messagesComplete.Increment();
         }
 
+        /// <summary>
+        /// Counts a message that is delayed
+        /// </summary>
         public void DelayMessage()
         {
             _messagesDelayed.Increment();
         }
 
-        public void ErrorMessage()
+        /// <summary>
+        /// counts a message that has failed
+        /// </summary>
+        public void FailMessage()
         {
             Interlocked.Increment(ref _messagesErrorTotalCount);
-            _messagesError.Increment();
+            _messagesFailed.Increment();
         }
 
+        /// <summary>
+        /// Measures the time spent processing a message
+        /// </summary>
+        /// <param name="started"></param>
         public void FinishMessage(DateTime started)
         {
             Interlocked.Decrement(ref _messagesActiveCount);
@@ -104,26 +120,41 @@ namespace PeachtreeBus
             _messagesAttemtped.Increment();
         }
 
+        /// <summary>
+        /// Counts a message that will be retried.
+        /// </summary>
         public void RetryMessage()
         {
             _messageRetries.Increment();
         }
 
+        /// <summary>
+        /// Counts a saga that is blocked
+        /// </summary>
         public void SagaBlocked()
         {
             _sagaBlocks.Increment();
         }
 
+        /// <summary>
+        /// counts a message being started.
+        /// </summary>
         public void StartMessage()
         {
             Interlocked.Increment(ref _messagesActiveCount);
         }
 
+        /// <summary>
+        /// Counts messages sent.
+        /// </summary>
         public void SentMessage()
         {
             _messagesSent.Increment();
         }
 
+        /// <summary>
+        /// sets totals back to zero.
+        /// </summary>
         public void Reset()
         {
             // this is really only here for testing purposes
