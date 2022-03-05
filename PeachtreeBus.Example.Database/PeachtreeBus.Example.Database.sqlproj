@@ -58,12 +58,16 @@
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="PeachtreeBus.SampleQueue_CompletedMessages.sql" />
-    <Build Include="PeachtreeBus.SampleQueue_ErrorMessages.sql" />
+    <Build Include="PeachtreeBus.SampleQueue_Completed.sql" />
+    <Build Include="PeachtreeBus.SampleQueue_Failed.sql" />
     <Build Include="PeachtreeBus.SampleSaga_SagaData.sql" />
     <Build Include="PeachtreeBus.Schema.sql" />
     <Build Include="ExampleApp.Schema.sql" />
     <Build Include="ExampleApp.AuditLog.sql" />
-    <Build Include="PeachtreeBus.SampleQueue_PendingMessages.sql" />
+    <Build Include="PeachtreeBus.SampleQueue_Pending.sql" />
+    <Build Include="PeachtreeBus.Subscribed_Completed.sql" />
+    <Build Include="PeachtreeBus.Subscribed_Failed.sql" />
+    <Build Include="PeachtreeBus.Subscribed_Pending.sql" />
+    <Build Include="PeachtreeBus.Subscriptions.sql" />
   </ItemGroup>
 </Project>
