@@ -1,4 +1,5 @@
-﻿using SimpleInjector;
+﻿using PeachtreeBus.Queues;
+using SimpleInjector;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -29,9 +30,9 @@ namespace PeachtreeBus.SimpleInjector
         public static Container RegisterPeachtreeBusMessageHandlers(this Container container, Assembly[] assemblies)
         {
             // the interface for any message handler.
-            var messsageHandlerType = typeof(IHandleMessage<>);
+            var messsageHandlerType = typeof(IHandleQueueMessage<>);
             // find all of the messages.
-            var messageTypes = container.GetTypesToRegister(typeof(IMessage), assemblies);
+            var messageTypes = container.GetTypesToRegister(typeof(IQueueMessage), assemblies);
             foreach (var mt in messageTypes)
             {
                 // determine the generic interface for the IHandleMessage<mt>
@@ -50,5 +51,6 @@ namespace PeachtreeBus.SimpleInjector
 
             return container;
         }
+
     }
 }
