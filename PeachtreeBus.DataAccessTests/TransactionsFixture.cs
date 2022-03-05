@@ -2,12 +2,13 @@
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PeachtreeBus.DataAccessTests
 {
+    /// <summary>
+    /// Proves the behavior of DapperDataAccess CreateSavePoint, RollbackToSavepoint,
+    /// BeginTransaction, RollbackTransaction, and CommitTransaction
+    /// </summary>
     [TestClass]
     public class TransactionsFixture
     {
@@ -21,6 +22,9 @@ namespace PeachtreeBus.DataAccessTests
             dataAccess = new DapperDataAccess(MockSharedDatabase.Object, null);
         }
 
+        /// <summary>
+        /// Proves that BeginTransaction is passed through to the Shared Database object.
+        /// </summary>
         [TestMethod]
         public void StartTransaction_InvokesSharedDB()
         {
@@ -29,6 +33,9 @@ namespace PeachtreeBus.DataAccessTests
             MockSharedDatabase.Verify();
         }
 
+        /// <summary>
+        /// Proves that CommitTransaction is passed through to the Shared Database object.
+        /// </summary>
         [TestMethod]
         public void CommitTransaction_InvokesSharedDB()
         {
@@ -37,6 +44,9 @@ namespace PeachtreeBus.DataAccessTests
             MockSharedDatabase.Verify();
         }
 
+        /// <summary>
+        /// Proves that RollbackTransaction is passed through to the shared database object.
+        /// </summary>
         [TestMethod]
         public void RollbackTransaction_InvokesSharedDB()
         {
@@ -45,6 +55,9 @@ namespace PeachtreeBus.DataAccessTests
             MockSharedDatabase.Verify();
         }
 
+        /// <summary>
+        /// Proves that CreateSavepont is passed through to the shared database object.
+        /// </summary>
         [TestMethod]
         public void CreateSavepoint_InvokesSharedDB()
         {
@@ -53,6 +66,9 @@ namespace PeachtreeBus.DataAccessTests
             MockSharedDatabase.Verify();
         }
 
+        /// <summary>
+        /// Proves that RollbackToSavepoint is passed through to the shared database object.
+        /// </summary>
         [TestMethod]
         public void RollbackToSavepoint_InvokesSharedDB()
         {
