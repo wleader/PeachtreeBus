@@ -10,7 +10,7 @@ namespace PeachtreeBus.SimpleInjector
     {
 
         /// <summary>
-        /// Searches the Current App Domain's Assemblies for classes that implement IHandleMessage
+        /// Searches the Current App Domain's Assemblies for classes that implement IHandleQueueMessage
         /// and registers them with the container.
         /// </summary>
         /// <param name="container"></param>
@@ -21,7 +21,7 @@ namespace PeachtreeBus.SimpleInjector
         }
 
         /// <summary>
-        /// Searches the specified Assemblies for classes that implement IHandleMessage
+        /// Searches the specified Assemblies for classes that implement IHandleQueueMessage
         /// and registers them with the container.
         /// </summary>
         /// <param name="container"></param>
