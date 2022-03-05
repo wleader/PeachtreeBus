@@ -1,22 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace PeachtreeBus.DataAccessTests
 {
+    /// <summary>
+    /// A set of extension methods that makes working with the DataSets 
+    /// easier from the test code. (This allows us to have tests that
+    /// don't rely on an ORM package.
+    /// </summary>
     public static class DatasetExtensions
     {
+        /// <summary>
+        /// Conversts a dataset to QueueMessages
+        /// </summary>
+        /// <param name="dataset"></param>
+        /// <returns></returns>
         public static List<Model.QueueMessage> ToMessages(this DataSet dataset)
         {
             return dataset.ToType(ToMessage);
         }
 
+        // Converts a dataset to SagaDatas
         public static List<Model.SagaData> ToSagas(this DataSet dataset)
         {
             return dataset.ToType(ToSaga);
         }
 
+        /// <summary>
+        /// Converts a dataset to Subscriptions.
+        /// </summary>
+        /// <param name="dataSet"></param>
+        /// <returns></returns>
+        public static List<SubscriptionsRow> ToSubscriptions(this DataSet dataSet)
+        {
+            return dataSet.ToType(ToSubscriptionRow);
+        }
+
+        /// <summary>
+        /// Converts a DataSet to SubscribedMessages.
+        /// </summary>
+        /// <param name="dataSet"></param>
+        /// <returns></returns>
+        public static List<Model.SubscribedMessage> ToSubscribed(this DataSet dataSet)
+        {
+            return dataSet.ToType(ToSubscribedRow);
+        }
+
+        /// <summary>
+        /// Converts a set of DataRows using the supplied converter.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dataset"></param>
+        /// <param name="convert"></param>
+        /// <returns></returns>
         private static List<T> ToType<T>(this DataSet dataset, Func<DataRow, T> convert)
         {
             var result = new List<T>();
@@ -30,6 +67,11 @@ namespace PeachtreeBus.DataAccessTests
             return result;
         }
 
+        /// <summary>
+        /// Converts a DataRow to a QueueMessage
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
         public static Model.QueueMessage ToMessage(this DataRow row)
         {
             return new Model.QueueMessage
@@ -46,6 +88,11 @@ namespace PeachtreeBus.DataAccessTests
             };
         }
 
+        /// <summary>
+        /// Converts a DataRow to a SagaData
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
         public static Model.SagaData ToSaga(this DataRow row)
         {
             return new Model.SagaData
@@ -58,6 +105,52 @@ namespace PeachtreeBus.DataAccessTests
             };
         }
 
+        /// <summary>
+        /// Converts a DataRow to a Subsription.
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public static SubscriptionsRow ToSubscriptionRow(this DataRow row)
+        {
+            return new SubscriptionsRow
+            {
+                Id = (long)row["Id"],
+                SubscriberId = (Guid)row["SubscriberId"],
+                Category = (string)row["Category"],
+                ValidUntil = row.ToDateTime("ValidUntil")
+            };
+        }
+
+        /// <summary>
+        /// Converts a DataRow to a SubscribedMessage.
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public static Model.SubscribedMessage ToSubscribedRow (this DataRow row)
+        {
+            return new Model.SubscribedMessage
+            {
+                Body = (string)row["Body"],
+                Completed = row.ToDateTimeNullable("Completed"),
+                Enqueued = row.ToDateTime("Enqueued"),
+                Failed = row.ToDateTimeNullable("Failed"),
+                Headers = (string)row["Headers"],
+                Id = (long)row["Id"],
+                MessageId = (Guid)row["MessageId"],
+                NotBefore = row.ToDateTime("NotBefore"),
+                Retries = (byte)row["Retries"],
+                SubscriberId = (Guid)row["SubscriberId"],
+                ValidUntil = row.ToDateTime("ValidUntil")
+            };
+        }
+
+        /// <summary>
+        /// Converts a DataRow column to a nullable DateTime
+        /// Non-Nulls are interpreted as UTC
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="columnName"></param>
+        /// <returns></returns>
         public static DateTime? ToDateTimeNullable(this DataRow row, string columnName)
         {
             var val = row[columnName];
@@ -67,6 +160,13 @@ namespace PeachtreeBus.DataAccessTests
                 return row.ToDateTime(columnName);
         }
 
+        /// <summary>
+        /// Converts a DataRow Column into a DateTime
+        /// Times are always UTC.
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="columnName"></param>
+        /// <returns></returns>
         public static DateTime ToDateTime(this DataRow row, string columnName)
         {
             var val = (DateTime)row[columnName];
