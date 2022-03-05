@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.DataAccessTests
 {
     /// <summary>
-    /// Proves the behavior of IBusDataAcess.CleanQueueCompleted
+    /// Proves the behavior of DapperDataAcess.CleanQueueCompleted
     /// </summary>
     [TestClass]
     public class CleanCompletedQueueMessagesFixture : FixtureBase
