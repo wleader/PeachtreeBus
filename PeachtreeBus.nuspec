@@ -9,11 +9,11 @@
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>Initial Release</releaseNotes>
+        <releaseNotes>The Publish-Subscribe Release</releaseNotes>
         <description>
         PeachtreeBus is intended to be a light weight message bus system focused integration with SQL server for its transport and persistence, while playing nicely with applications built using Inversion of Control and Dependency Injection.
         </description>
-        <copyright>Copyright 2021 William Leader</copyright>
+        <copyright>Copyright 2022 William Leader</copyright>
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="netstandard2.1">

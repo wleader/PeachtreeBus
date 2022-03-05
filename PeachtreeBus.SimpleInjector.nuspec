@@ -9,11 +9,11 @@
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>Initial Release</releaseNotes>
+        <releaseNotes>The Publish-Subscribe Release</releaseNotes>
         <description>
         PeachtreeBus.SimpleInjector is a package that contains classes and extensions for integrating PeachtreeBus with SimpleInjector.
         </description>
-        <copyright>Copyright 2021 William Leader</copyright>
+        <copyright>Copyright 2022 William Leader</copyright>
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="netstandard2.1">
