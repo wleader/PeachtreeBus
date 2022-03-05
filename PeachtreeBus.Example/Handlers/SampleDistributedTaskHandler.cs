@@ -1,27 +1,42 @@
 ﻿using PeachtreeBus.Example.Data;
 using PeachtreeBus.Example.Messages;
+using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Example.Handlers
 {
-    public class SampleDistributedTaskHandler : IHandleMessage<SampleDistributedTaskRequest>
+    /// <summary>
+    /// An example handler for the SampleDistributedTaskRequest message
+    /// </summary>
+    public class SampleDistributedTaskHandler : IHandleQueueMessage<SampleDistributedTaskRequest>
     {
         private readonly ILog _log;
         private readonly IExampleDataAccess _dataAccess;
+        private readonly IQueueWriter _queueWriter;
 
-        public SampleDistributedTaskHandler(ILog<SampleDistributedTaskHandler> log, IExampleDataAccess dataAccess)
+        public SampleDistributedTaskHandler(
+            ILog<SampleDistributedTaskHandler> log,
+            IExampleDataAccess dataAccess,
+            IQueueWriter queueWriter)
         {
             _log = log;
             _dataAccess = dataAccess;
+            _queueWriter = queueWriter;
         }
 
-        public Task Handle(MessageContext context, SampleDistributedTaskRequest message)
+        public async Task Handle(QueueContext context, SampleDistributedTaskRequest message)
         {
+            // This handler does math on two values.
+            // Not a realistic example, in that you wouldn't go through all the trouble of sending
+            // a message to add numbers. The point is to demontrate assigning a task to be completed
+            // by code which may be running in a different process or even on a different machine.
+
             _log.Info("Processing Distributed Task.");
             if (message.Operation != "+")
                 throw new ApplicationException($"I only know how to add!. I don't know how to {message.Operation}.");
 
+            // compute the response.
             var response = new SampleDistributedTaskResponse
             {
                 AppId = message.AppId,
@@ -30,12 +45,13 @@ namespace PeachtreeBus.Example.Handlers
                 Operation = message.Operation,
                 Result = message.A + message.B
             };
-            context.Send(response);
+            // send a response message
+            await _queueWriter.WriteMessage(context.SourceQueue, response);
 
+            // demonstrate interacting with our application data.
             var auditMessge = $"Distrbuted Task Result {response.A} { response.Operation} {response.B} =  {response.Result}";
             _log.Info(auditMessge);
-            return _dataAccess.Audit(auditMessge);
-
+            await _dataAccess.Audit(auditMessge);
         }
     }
 }
