@@ -2,20 +2,18 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace PeachtreeBus.DataAccessTests
 {
     [TestClass]
     class AssemblyInitialize
     {
-        private static string serverConnectionString;
+        private static readonly string serverConnectionString;
         public static string dbConnectionString;
-        private static string testDbName;
+        private static readonly string testDbName;
 
         static AssemblyInitialize()
         {
@@ -32,6 +30,8 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         [AssemblyInitialize]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter",
+            Justification = "Required by Unit Testing Runtime.")]
         public static void AssemblyInit(TestContext context)
         {
             Assert.IsNotNull(serverConnectionString);
@@ -42,14 +42,14 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(System.Data.ConnectionState.Open, connection.State);
 
             // delete the previous database.            
-            if (DbExists(connection, testDbName))
+            if (DbExists(connection))
             {
-                DropDatabase(connection, testDbName);
+                DropDatabase(connection);
             }
 
             // create a new database.
-            CreateDatabase(connection, testDbName);
-            Assert.IsTrue(DbExists(connection, testDbName));
+            CreateDatabase(connection);
+            Assert.IsTrue(DbExists(connection));
 
 
             // create schema and tables
@@ -69,20 +69,20 @@ namespace PeachtreeBus.DataAccessTests
             // no errors thrown?
         }
 
-        private static bool DbExists(SqlConnection connection, string name)
+        private static bool DbExists(SqlConnection connection)
         {
             var command = new SqlCommand($"SELECT database_id FROM sys.databases WHERE Name = '{testDbName}'", connection);
             var result = command.ExecuteScalar();
             return (result != null);
         }
 
-        private static void CreateDatabase(SqlConnection connection, string name)
+        private static void CreateDatabase(SqlConnection connection)
         {
             var command = new SqlCommand($"CREATE DATABASE {testDbName}", connection);
             command.ExecuteNonQuery();
         }
 
-        private static void DropDatabase(SqlConnection connection, string name)
+        private static void DropDatabase(SqlConnection connection)
         {
             var command = new SqlCommand($"alter database [{testDbName}] set single_user with rollback immediate; DROP DATABASE {testDbName}", connection);
             command.ExecuteNonQuery();
