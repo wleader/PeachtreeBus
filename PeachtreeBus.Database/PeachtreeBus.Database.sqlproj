@@ -58,10 +58,14 @@
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="CompletedMessages.sql" />
-    <Build Include="ErrorMessages.sql" />
-    <Build Include="SagaData.sql" />
+    <Build Include="QueueName_Completed.sql" />
+    <Build Include="QueueName_Failed.sql" />
+    <Build Include="SagaName_SagaData.sql" />
     <Build Include="Schema.sql" />
-    <Build Include="PendingMessages.sql" />
+    <Build Include="QueueName_Pending.sql" />
+    <Build Include="Subscriptions.sql" />
+    <Build Include="Subscribed_Pending.sql" />
+    <Build Include="Subscribed_Completed.sql" />
+    <Build Include="Subscribed_Failed.sql" />
   </ItemGroup>
 </Project>
