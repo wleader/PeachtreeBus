@@ -6,11 +6,11 @@ March 5th, 2022
 
 There has been a major rework of things. Release 0.9.3! Woo!
 
-Funtionally the big change is that the Publish-Subscribe feature has been added. There were also some changes to the way that the main tasks are run. Its no longer a collection of Tasks with an AwaitAll, rather these main tasks are now run on their own threads. Neither of these changes is likely to break anything for any existing users.
+Functionally the big change is that the Publish-Subscribe feature has been added. There were also some changes to the way that the main tasks are run. Its no longer a collection of Tasks with an AwaitAll, rather these main tasks are now run on their own threads. Neither of these changes is likely to break anything for any existing users.
 
 The message context is not longer able to send messages. You'll need to inject the QueueWriter into your handlers and sagas.
 
-The backing tables have had a lot of things renamed to make their purpose and usage clearer. Sorry. That's a big pain for anyone that needs to migrate something. But it really is better for the library to get this over with now while the number of affected users is low. (Fortuneatly I think I am the only person using this library so I hope I'm only shooting my own foot.)
+The backing tables have had a lot of things renamed to make their purpose and usage clearer. Sorry. That's a big pain for anyone that needs to migrate something. But it really is better for the library to get this over with now while the number of affected users is low. (Fortunately  I think I am the only person using this library so I hope I'm only shooting my own foot.)
 
 ## About
 
