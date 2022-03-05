@@ -1,4 +1,6 @@
 ﻿using PeachtreeBus.Model;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Data
@@ -42,13 +44,13 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        Task<QueueMessage> GetOnePendingMessage(string queueName);
+        Task<QueueMessage> GetPendingQueued(string queueName);
 
         /// <summary>
         /// Inserts a new message into the database.
         /// </summary>
         /// <param name="message">The message to insert.</param>
-        Task<long> EnqueueMessage(QueueMessage message, string queueName);
+        Task<long> AddMessage(QueueMessage message, string queueName);
 
         /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.
@@ -61,7 +63,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="message">The message to move.</param>
         Task FailMessage(QueueMessage message, string queueName);
-
+        
         /// <summary>
         /// Updates a message.
         /// Only updates message properties that are allowed to change.
@@ -74,7 +76,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="data">The saga data to insert.</param>
         Task<long> Insert(SagaData data, string sagaName);
-
+        
         /// <summary>
         /// Updates the saga data in the database.
         /// </summary>
@@ -95,5 +97,100 @@ namespace PeachtreeBus.Data
         /// <param name="className">The saga's class name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
         Task DeleteSagaData(string sagaName, string key);
+
+        /// <summary>
+        /// Deletes Expired Subscriptions
+        /// </summary>
+        /// <returns></returns>
+        Task ExpireSubscriptions();
+
+        /// <summary>
+        /// Adds or updates subscriptions.
+        /// </summary>
+        /// <param name="SubscriberId">Which subscriber is subscribing.</param>
+        /// <param name="Category">What category of messages the subscriber wants.</param>
+        /// <param name="until">After what time is the subscription no longer valid.</param>
+        /// <returns></returns>
+        Task Subscribe(Guid SubscriberId, string Category, DateTime until);
+
+        /// <summary>
+        /// Gets one message, locking it for update.
+        /// Skips locked messages.
+        /// </summary>
+        /// <param name="queueId">Which message queue to get the message from.</param>
+        /// <returns></returns>
+        Task<SubscribedMessage> GetPendingSubscribed(Guid subscriberId);
+
+        /// <summary>
+        /// Inserts a new message into the database.
+        /// </summary>
+        /// <param name="message">The message to insert.</param>
+        Task<long> AddMessage(SubscribedMessage message);
+
+        /// <summary>
+        /// Inserts the Message into the completed table, and removes it from the queue table.
+        /// </summary>
+        /// <param name="message">The message to move.</param>
+        Task CompleteMessage(SubscribedMessage message);
+
+        /// <summary>
+        /// Inserts the message into the error table, and removes if from the queue table.
+        /// </summary>
+        /// <param name="message">The message to move.</param>
+        Task FailMessage(SubscribedMessage message);
+
+        /// <summary>
+        /// Updates a message.
+        /// Only updates message properties that are allowed to change.
+        /// </summary>
+        /// <param name="message"></param>
+        Task Update(SubscribedMessage message);
+
+        /// <summary>
+        /// Moves Subscription Messages from Pending to Error that are not longer valid
+        /// </summary>
+        /// <returns></returns>
+        Task ExpireSubscriptionMessages();
+
+        /// <summary>
+        /// Gets the current subscribers for a category
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        Task<IEnumerable<Guid>> GetSubscribers(string category);
+
+        /// <summary>
+        /// removes old data from a queue's failed messages.
+        /// </summary>
+        /// <param name="queueName"></param>
+        /// <param name="olderthan"></param>
+        /// <param name="maxCount"></param>
+        /// <returns></returns>
+        Task<long> CleanQueueFailed(string queueName, DateTime olderthan, int maxCount);
+
+        /// <summary>
+        /// removes old data from a queues completed messages
+        /// </summary>
+        /// <param name="queueName"></param>
+        /// <param name="olderthan"></param>
+        /// <param name="maxCount"></param>
+        /// <returns></returns>
+        Task<long> CleanQueueCompleted(string queueName, DateTime olderthan, int maxCount);
+
+        /// <summary>
+        /// removes old data from subscribed completed messages.
+        /// </summary>
+        /// <param name="olderthan"></param>
+        /// <param name="maxCount"></param>
+        /// <returns></returns>
+        Task<long> CleanSubscribedCompleted(DateTime olderthan, int maxCount);
+
+        /// <summary>
+        /// removes old data from subscribed failed messages.
+        /// </summary>
+        /// <param name="olderthan"></param>
+        /// <param name="maxCount"></param>
+        /// <returns></returns>
+        Task<long> CleanSubscribedFailed(DateTime olderthan, int maxCount);
     }
 }
