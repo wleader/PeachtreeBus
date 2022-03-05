@@ -1,6 +1,19 @@
 # PeachtreeBus
 A Message Bus Library
 
+## What's New 
+March 5th, 2022
+
+There has been a major rework of things. Release 0.9.3! Woo!
+
+Funtionally the big change is that the Publish-Subscribe feature has been added. There were also some changes to the way that the main tasks are run. Its no longer a collection of Tasks with an AwaitAll, rather these main tasks are now run on their own threads. Neither of these changes is likely to break anything for any existing users.
+
+The message context is not longer able to send messages. You'll need to inject the QueueWriter into your handlers and sagas.
+
+The backing tables have had a lot of things renamed to make their purpose and usage clearer. Sorry. That's a big pain for anyone that needs to migrate something. But it really is better for the library to get this over with now while the number of affected users is low. (Fortuneatly I think I am the only person using this library so I hope I'm only shooting my own foot.)
+
+## About
+
 Another Message Bus? What gives? Aren't there enough already? No. :D
 
 Though an explanation probably would help you understand why this exists. Yes there are some other really mature message bus libraries out there and you sure should have a look at them because they aren't bad either. But the reason I created this was that there was a very specific set of features that I wanted to have and really only one of the other libraries had that exact feature set, but that library was too expensive for my personal projects, and suffers a bit from Kitchen Sink features. Yeah, when your a commercial software package you want to be useful to a wide audience so that you have the most chances to sell your product. Thats both good and bad. Its good because it means the software is really useful, but its bad because the software ends up getting a lot of features that aren't really useful to everyone. For example, if you want to be able to use different message transports, you end up writing a lot of code to make it possible for different users to use different message transports. Except most users only ever use one, so all other transports are unneeded. Adding to that, all the middle wear code to support that swapping is ultimately not useful either. I ramble.
@@ -11,6 +24,7 @@ I wanted a message bus that has the following features:
 * Interface patterns that were simple to understand and promote unit testable code.
 * Respects that the application owns the DI Container.
 * Sagas!
+* Publish and Subscribe!
 * A Simple way to send a message from "send only" code such as Asp.Net Core.
 
 Something that is missing (cause I haven't needed it yet) but I want to add is Publish-Subscribe. We'll see if that gets added someday.

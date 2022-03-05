@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{FCEB713C-B3A8-40B7-8265-9DE8E4E2ADDE}"
 	ProjectSection(SolutionItems) = preProject
@@ -26,11 +26,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Services", "Pe
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PeachtreeBus.Example.Database", "PeachtreeBus.Example.Database\PeachtreeBus.Example.Database.sqlproj", "{7F6A3911-A90A-4EA3-8B70-E0838191FACC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{04E0E03A-A271-4160-AA62-B213FF1C3A98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peachtreebus.Tests", "Peachtreebus.Tests\Peachtreebus.Tests.csproj", "{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peachtreebus.Tests", "Peachtreebus.Tests\Peachtreebus.Tests.csproj", "{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DataAccessTests", "PeachtreeBus.DataAccessTests\PeachtreeBus.DataAccessTests.csproj", "{19E44B3A-DC79-4901-898E-740D65F59200}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.DataAccessTests", "PeachtreeBus.DataAccessTests\PeachtreeBus.DataAccessTests.csproj", "{19E44B3A-DC79-4901-898E-740D65F59200}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,9 +83,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{04E0E03A-A271-4160-AA62-B213FF1C3A98} = {FCEB713C-B3A8-40B7-8265-9DE8E4E2ADDE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {152625A8-2D37-455D-B3A6-DB03D605D21C}
