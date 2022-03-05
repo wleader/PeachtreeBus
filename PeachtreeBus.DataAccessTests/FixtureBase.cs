@@ -3,38 +3,62 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text;
-using System.Threading;
 
 namespace PeachtreeBus.DataAccessTests
 {
-
+    /// <summary>
+    /// A base class that contains code useful in multiple tests.
+    /// </summary>
     public class FixtureBase
     {
+        /// <summary>
+        /// A DB Connection provided to the DapperDataAccess.
+        /// </summary>
         protected SqlConnection PrimaryConnection;
+
+        /// <summary>
+        /// A secondary connection used by the tests to act on the DB
+        /// without using the DapperDataAccess.
+        /// </summary>
         protected SqlConnection SecondaryConnection;
+
+        /// <summary>
+        /// The data acess being tested.
+        /// </summary>
         protected DapperDataAccess dataAccess;
+
+        /// <summary>
+        /// Provides a schema to the data access.
+        /// </summary>
         protected Mock<IDbSchemaConfiguration> MockSchema;
 
         protected const string DefaultSchema = "PeachtreeBus";
         protected const string DefaultQueue = "QueueName";
-        protected const string PendingMessagesTable = DefaultQueue + "_PendingMessages";
-        protected const string CompletedMessagesTable = DefaultQueue + "_CompletedMessages";
-        protected const string ErrorMessagesTable = DefaultQueue + "_ErrorMessages";
+        protected const string QueuePendingTable = DefaultQueue + "_Pending";
+        protected const string QueueCompletedTable = DefaultQueue + "_Completed";
+        protected const string QueueFailedTable = DefaultQueue + "_Failed";
         protected const string DefaultSagaName = "SagaName";
         protected const string DefaultSagaTable = DefaultSagaName + "_SagaData";
+        protected const string SubscriptionsTable = "Subscriptions";
+        protected const string SubscribedPendingTable = "Subscribed_Pending";
+        protected const string SubscribedFailedTable = "Subscribed_Failed";
+        protected const string SubscribedCompletedTable = "Subscribed_Completed";
 
+        /// <summary>
+        /// Performs tasks that happen before each test.
+        /// </summary>
         public virtual void TestInitialize()
         {
+            // Create connections.
             PrimaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
             PrimaryConnection.Open();
 
             SecondaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
             SecondaryConnection.Open();
 
+            // create the data access object.
             var sharedDB = new SharedDatabase(PrimaryConnection);
 
             MockSchema = new Mock<IDbSchemaConfiguration>();
@@ -42,29 +66,47 @@ namespace PeachtreeBus.DataAccessTests
 
             dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object);
 
+            // start all tests with an Empty DB.
+            // each test will setup rows it needs.
             BeginSecondaryTransaction();
             TruncateAll();
             CommitSecondaryTransaction();
         }
 
+        /// <summary>
+        /// Performs tasks that happen after each test.
+        /// </summary>
         public virtual void TestCleanup()
         {
+            // rollback any uncommitted transaction.
             if (transaction != null) transaction.Rollback();
 
+            // Cleanup up any data left behind by the test.
             BeginSecondaryTransaction();
             TruncateAll();
             CommitSecondaryTransaction();
 
+            // close the connections.
             PrimaryConnection.Close();
             SecondaryConnection.Close();
         }
 
+        /// <summary>
+        /// Holds any transaction started by test code.
+        /// </summary>
         protected SqlTransaction transaction = null;
+
+        /// <summary>
+        /// starts a transaction on the secondary connection.
+        /// </summary>
         protected void BeginSecondaryTransaction()
         {
             transaction = SecondaryConnection.BeginTransaction();
         }
 
+        /// <summary>
+        /// Rolls back the transaction on the secondary connection.
+        /// </summary>
         protected void RollbackSecondaryTransaction()
         {
             if (transaction != null)
@@ -74,6 +116,9 @@ namespace PeachtreeBus.DataAccessTests
             }
         }
 
+        /// <summary>
+        /// Commits the transaction on the secondary connection.
+        /// </summary>
         protected void CommitSecondaryTransaction()
         {
             if (transaction != null)
@@ -83,33 +128,50 @@ namespace PeachtreeBus.DataAccessTests
             }
         }
 
+        /// <summary>
+        /// Uses the secondary connection to count the rows in a table.
+        /// </summary>
+        /// <param name="tablename"></param>
+        /// <returns></returns>
         protected int CountRowsInTable(string tablename)
         {
             string statment = $"SELECT COUNT(*) FROM [{DefaultSchema}].[{tablename}]";
-            using (var cmd = new SqlCommand(statment, SecondaryConnection,transaction))
-            {
-                return (int)cmd.ExecuteScalar();
-            }
+            using var cmd = new SqlCommand(statment, SecondaryConnection, transaction);
+            return (int)cmd.ExecuteScalar();
         }
 
+        /// <summary>
+        /// Truncates all the tables for the test using the secondary connection.
+        /// </summary>
         protected void TruncateAll()
         {
             string statement =
-                $"TRUNCATE TABLE [{DefaultSchema}].[{CompletedMessagesTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{ErrorMessagesTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{PendingMessagesTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{DefaultSagaTable}] ";
+                $"TRUNCATE TABLE [{DefaultSchema}].[{QueueCompletedTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{QueueFailedTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{QueuePendingTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{DefaultSagaTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscriptionsTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedPendingTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedFailedTable}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedCompletedTable}]; ";
             ExecuteNonQuery(statement);
         }
 
+        /// <summary>
+        /// Executes a statement on the secondary connection.
+        /// </summary>
+        /// <param name="statement"></param>
         protected void ExecuteNonQuery(string statement)
         {
-            using (var cmd = new SqlCommand(statement, SecondaryConnection, transaction))
-            {
-                cmd.ExecuteNonQuery();
-            }
+            using var cmd = new SqlCommand(statement, SecondaryConnection, transaction);
+            cmd.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Gets everything in a table as a dataset using the secondary connection.
+        /// </summary>
+        /// <param name="tablename"></param>
+        /// <returns></returns>
         protected DataSet GetTableContent(string tablename)
         {
             var result = new DataSet();
@@ -122,6 +184,12 @@ namespace PeachtreeBus.DataAccessTests
             return result;
         }
 
+        /// <summary>
+        /// Gets everything in a table as a dataset, locks the selected rows, and reads past locked rows.
+        /// Uses the secondary connection.
+        /// </summary>
+        /// <param name="tablename"></param>
+        /// <returns></returns>
         protected DataSet GetTableContentAndLock(string tablename)
         {
             var result = new DataSet();
@@ -134,6 +202,11 @@ namespace PeachtreeBus.DataAccessTests
             return result;
         }
 
+        /// <summary>
+        /// Tests two SagaDatas are equal.
+        /// </summary>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
         protected void AssertSagaEquals(Model.SagaData expected, Model.SagaData actual)
         {
             if (expected == null && actual == null) return;
@@ -148,6 +221,11 @@ namespace PeachtreeBus.DataAccessTests
             //Assert.AreEqual(expected.Blocked, actual.Blocked);
         }
 
+        /// <summary>
+        /// Tests that two QueueMessage are equal.
+        /// </summary>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
         protected void AssertMessageEquals(Model.QueueMessage expected, Model.QueueMessage actual)
         {
             if (expected == null && actual == null) return;
@@ -164,10 +242,39 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(expected.Retries, actual.Retries);
         }
 
-        protected void AssertSqlDbDateTime(DateTime? expected, DateTime? actual)
+        /// <summary>
+        /// Tests that two SubscribedMessage are equal.
+        /// </summary>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        protected void AssertSubscribedEquals(Model.SubscribedMessage expected, Model.SubscribedMessage actual)
+        {
+            if (expected == null && actual == null) return;
+            Assert.IsNotNull(actual, "Actual is null, expected is not.");
+            Assert.IsNotNull(expected, "Expected is null, actual is not.");
+            Assert.AreEqual(expected.Headers, actual.Headers);
+            Assert.AreEqual(expected.MessageId, actual.MessageId);
+            AssertSqlDbDateTime(expected.NotBefore, actual.NotBefore);
+            Assert.AreEqual(expected.Id, actual.Id);
+            Assert.AreEqual(expected.Body, actual.Body);
+            AssertSqlDbDateTime(expected.Completed, actual.Completed);
+            AssertSqlDbDateTime(expected.Enqueued, actual.Enqueued);
+            AssertSqlDbDateTime(expected.Failed, actual.Failed);
+            Assert.AreEqual(expected.Retries, actual.Retries);
+            Assert.AreEqual(expected.SubscriberId, actual.SubscriberId);
+            AssertSqlDbDateTime(expected.ValidUntil, actual.ValidUntil);
+        }
+
+        /// <summary>
+        /// Tests that two nullable DateTime values are equal.
+        /// </summary>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        /// <param name="allowDriftMs">Allows a minor difference in times.</param>
+        protected void AssertSqlDbDateTime(DateTime? expected, DateTime? actual, int allowDriftMs = 100)
         {
             if (expected.HasValue && actual.HasValue)
-                AssertSqlDbDateTime(expected.Value, actual.Value);
+                AssertSqlDbDateTime(expected.Value, actual.Value, allowDriftMs);
 
             if (expected.HasValue != actual.HasValue)
                 Assert.Fail($"Expected {expected}, Actual {actual}");
@@ -175,23 +282,26 @@ namespace PeachtreeBus.DataAccessTests
             // else both are null and match.
         }
 
-        protected void AssertSqlDbDateTime(DateTime expected, DateTime actual, int msDrift = 100)
+        /// <summary>
+        /// Tests that two DateTime values are equal.
+        /// </summary>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        /// <param name="allowDriftMs">Allows for a minor difference in times.</param>
+        protected void AssertSqlDbDateTime(DateTime expected, DateTime actual, int allowDriftMs = 100)
         {
-            Assert.AreEqual(expected.Year, actual.Year);
-            Assert.AreEqual(expected.Month, actual.Month);
-            Assert.AreEqual(expected.Day, actual.Day);
-            Assert.AreEqual(expected.Hour, actual.Hour);
-            Assert.AreEqual(expected.Minute, actual.Minute);
-            Assert.AreEqual(expected.Second, actual.Second);
-
-            // date times the get stored in SQL because of the way things are stored can
-            // be off by a few ms, so just make sure its close
-            Assert.IsTrue(actual.Millisecond < expected.Millisecond + msDrift, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
-            Assert.IsTrue(actual.Millisecond > expected.Millisecond - msDrift, $"Millisecond Mismatch {expected.Millisecond} {actual.Millisecond}");
-
             Assert.AreEqual(expected.Kind, actual.Kind);
+
+            // date times the get stored in SQL, and because of the way things are stored
+            // they can be off by a few ms, so just make sure its close
+            var actualDrift = Math.Abs(expected.Subtract(actual).TotalMilliseconds);
+            Assert.IsTrue(actualDrift < allowDriftMs);
         }
 
+        /// <summary>
+        /// Helper to test that an action throws an exception when the schema is unsafe.
+        /// </summary>
+        /// <param name="action"></param>
         protected void ActionThrowsIfSchemaContainsPoisonChars(Action action)
         {
             var poison = new char[] { '\'', ';', '@', '-', '/', '*' };
@@ -201,13 +311,19 @@ namespace PeachtreeBus.DataAccessTests
             }
         }
 
+        /// <summary>
+        /// Helper to test that an action throws an exception when the schema contains
+        /// a specific character.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="poison"></param>
         protected void ActionThrowsIfShcemaContains(Action action, string poison)
         {
             var exceptionThrown = false;
             MockSchema.Setup(s => s.Schema).Returns(poison);
             try
             {
-                action.Invoke();
+                action();
             }
             catch (ArgumentException)
             {
@@ -216,6 +332,11 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for an unsafe schema name.");
         }
 
+        /// <summary>
+        /// Helper function to test that an action throws an exception when a
+        /// parameter contains unsafe chacters
+        /// </summary>
+        /// <param name="action"></param>
         protected void ActionThrowsIfParameterContainsPoisonChars(Action<string> action)
         {
             var poison = new char[] { '\'', ';', '@', '-', '/', '*' };
@@ -225,6 +346,12 @@ namespace PeachtreeBus.DataAccessTests
             }
         }
 
+        /// <summary>
+        /// Helper function test that an action throws an exception when a parameter
+        /// contains a specific character.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="poison"></param>
         protected void ActionThrowsIfParameterContains(Action<string> action, string poison)
         {
             var exceptionThrown = false;
@@ -239,7 +366,11 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for an unsafe Parameter.");
         }
 
-        protected Model.QueueMessage CreateTestMessage()
+        /// <summary>
+        /// Creates a new QueueMessage
+        /// </summary>
+        /// <returns></returns>
+        protected Model.QueueMessage CreateQueueMessage()
         {
             return new Model.QueueMessage
             {
@@ -254,6 +385,31 @@ namespace PeachtreeBus.DataAccessTests
             };
         }
 
+        /// <summary>
+        /// Creates a new SubscribedMessage
+        /// </summary>
+        /// <returns></returns>
+        protected Model.SubscribedMessage CreateSubscribed()
+        {
+            return new Model.SubscribedMessage
+            {
+                Body = "Body",
+                Completed = null,
+                Failed = null,
+                Enqueued = DateTime.UtcNow,
+                Headers = "Headers",
+                MessageId = Guid.NewGuid(),
+                NotBefore = DateTime.UtcNow,
+                Retries = 0,
+                SubscriberId = Guid.Empty,
+                ValidUntil = DateTime.UtcNow.AddDays(1)
+            };
+        }
+
+        /// <summary>
+        /// Creates a new SagaData
+        /// </summary>
+        /// <returns></returns>
         protected Model.SagaData CreateTestSagaData()
         {
             return new Model.SagaData
@@ -264,26 +420,13 @@ namespace PeachtreeBus.DataAccessTests
                 Key = "Key"
             };
         }
-        protected void ActionThrowsForMessagesWithUnspecifiedDateTimeKinds(Action<Model.QueueMessage> action)
-        {
-            var poisonEnqueued = CreateTestMessage();
-            poisonEnqueued.Enqueued = DateTime.SpecifyKind(poisonEnqueued.Enqueued, DateTimeKind.Unspecified);
-            ActionThrowsForMessage(action, poisonEnqueued);
-            
-            var poisonNotBefore = CreateTestMessage();
-            poisonNotBefore.NotBefore = DateTime.SpecifyKind(poisonNotBefore.NotBefore, DateTimeKind.Unspecified);
-            ActionThrowsForMessage(action, poisonNotBefore);
-            
-            var poisonCompleted = CreateTestMessage();
-            poisonCompleted.Completed = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
-            ActionThrowsForMessage(action, poisonCompleted);
-            
-            var poisonFailed = CreateTestMessage();
-            poisonFailed.Failed = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
-            ActionThrowsForMessage(action, poisonFailed);
-        }
 
-        protected void ActionThrowsForMessage(Action<Model.QueueMessage> action, Model.QueueMessage message)
+        /// <summary>
+        /// Helper method that tests that an action using 
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="message"></param>
+        protected void ActionThrowsFor<T>(Action<T> action, T message)
         {
             var exceptionThrown = false;
             try
