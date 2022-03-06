@@ -6,10 +6,10 @@ namespace PeachtreeBus.SimpleInjector
     /// <summary>
     /// An implementation of IFindSubscribedHandlers using Simple Injector.
     /// </summary>
-    public class FindSubscriptionHandlers : IFindSubscribedHandlers
+    public class FindSubscribedHandlers : IFindSubscribedHandlers
     {
         private readonly IWrappedScope _scope;
-        public FindSubscriptionHandlers(IWrappedScope scope)
+        public FindSubscribedHandlers(IWrappedScope scope)
         {
             _scope = scope;
         }
