@@ -6,5 +6,5 @@ CREATE TABLE [PeachtreeBus].[Subscriptions]
 	[SubscriberId] UNIQUEIDENTIFIER NOT NULL,
 	[Category] NVARCHAR(128) NOT NULL,
 	[ValidUntil] DATETIME2 NOT NULL,
-	CONSTRAINT AK_SubscriberCategory UNIQUE([SubscriberID], [Category])
+	CONSTRAINT AK_SubscriberCategory UNIQUE([SubscriberId], [Category])
 )
