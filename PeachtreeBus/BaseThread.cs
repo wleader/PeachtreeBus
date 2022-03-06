@@ -71,8 +71,8 @@ namespace PeachtreeBus
                 }
                 catch (Exception e)
                 {
-                    _dataAccess.RollbackTransaction();
                     _log.Error(e.ToString());
+                    _dataAccess.RollbackTransaction();
                 }
             }
             while (!_shutdown.ShouldShutdown);
