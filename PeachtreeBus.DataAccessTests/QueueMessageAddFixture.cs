@@ -50,15 +50,15 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that NotBefore must specify DateTimeKind.
         /// </summary>
         [TestMethod]
-        public void AddMessage_ThrowsIfDateTimeKindUnspecified()
+        public async Task AddMessage_ThrowsIfDateTimeKindUnspecified()
         {
-            var action = new Action<Model.QueueMessage>((m) => dataAccess.AddMessage(m, DefaultQueue));
+            var action = new Func<Model.QueueMessage, Task>(async (m) => await dataAccess.AddMessage(m, DefaultQueue));
 
             // we check the not-before because not-before is the only time
             // parameter used by Enqueue message.
             var poisonNotBefore = CreateQueueMessage();
             poisonNotBefore.NotBefore = DateTime.SpecifyKind(poisonNotBefore.NotBefore, DateTimeKind.Unspecified);
-            ActionThrowsFor(action, poisonNotBefore);
+            await ActionThrowsFor(action, poisonNotBefore);
         }
 
         /// <summary>
@@ -66,10 +66,10 @@ namespace PeachtreeBus.DataAccessTests
         /// characters that are an SQL injection risk.
         /// </summary>
         [TestMethod]
-        public void AddMessage_ThrowsIfSchemaContainsUnsafe()
+        public async Task AddMessage_ThrowsIfSchemaContainsUnsafe()
         {
-            var action = new Action(() => dataAccess.AddMessage(new Model.QueueMessage(), DefaultQueue));
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(async () => await dataAccess.AddMessage(new Model.QueueMessage(), DefaultQueue));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 
         /// <summary>
@@ -77,10 +77,10 @@ namespace PeachtreeBus.DataAccessTests
         /// character that are an SQL injection risk
         /// </summary>
         [TestMethod]
-        public void AddMessage_ThrowsIfQueueNameContainsUnsafe()
+        public async Task AddMessage_ThrowsIfQueueNameContainsUnsafe()
         {
-            var action = new Action<string>((s) => dataAccess.AddMessage(new Model.QueueMessage(), s));
-            ActionThrowsIfParameterContainsPoisonChars(action);
+            var action = new Func<string, Task>(async (s) => await dataAccess.AddMessage(new Model.QueueMessage(), s));
+            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

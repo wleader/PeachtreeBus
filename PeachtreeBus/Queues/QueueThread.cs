@@ -26,9 +26,9 @@ namespace PeachtreeBus.Queues
             _queueWork.QueueName = config.QueueName;
         }
 
-        public override Task<bool> DoUnitOfWork()
+        public override async Task<bool> DoUnitOfWork()
         {
-            return _queueWork.DoWork();
+            return await _queueWork.DoWork();
         }
     }
 }

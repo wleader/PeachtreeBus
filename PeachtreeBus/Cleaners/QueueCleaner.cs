@@ -36,9 +36,9 @@ namespace PeachtreeBus.Cleaners
         /// <param name="olderthan">Time since the message completed to be eligible for cleanup.</param>
         /// <param name="maxCount">Maximum number of completed message to cleanup. Keeps DB transaction size small.</param>
         /// <returns>The number of messages removed from the data store.</returns>
-        public Task<long> CleanCompleted(DateTime olderthan, int maxCount)
+        public async Task<long> CleanCompleted(DateTime olderthan, int maxCount)
         {
-            return _dataAccess.CleanQueueCompleted(_qconfig.QueueName, olderthan, maxCount);
+            return await _dataAccess.CleanQueueCompleted(_qconfig.QueueName, olderthan, maxCount);
         }
 
         /// <summary>
@@ -47,9 +47,9 @@ namespace PeachtreeBus.Cleaners
         /// <param name="olderthan">Time since the message failed to be eligble for cleanup.</param>
         /// <param name="maxCount">Maximum number of failed message to cleanup. Keeps DB transaction size small.</param>
         /// <returns>The number of messages removed from the data store.</returns>
-        public Task<long> CleanFailed(DateTime olderthan, int maxCount)
+        public async Task<long> CleanFailed(DateTime olderthan, int maxCount)
         {
-            return _dataAccess.CleanQueueFailed(_qconfig.QueueName, olderthan, maxCount);
+            return await _dataAccess.CleanQueueFailed(_qconfig.QueueName, olderthan, maxCount);
         }
     }
 }

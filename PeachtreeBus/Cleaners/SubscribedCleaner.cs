@@ -32,14 +32,14 @@ namespace PeachtreeBus.Cleaners
         /// <param name="maxCount">Maximum number of messages to clean in an operation.
         /// Keeps database transaction small.</param>
         /// <returns></returns>
-        public Task<long> CleanCompleted(DateTime olderthan, int maxCount)
+        public async Task<long> CleanCompleted(DateTime olderthan, int maxCount)
         {
-            return _dataAccess.CleanSubscribedCompleted(olderthan, maxCount);
+            return await _dataAccess.CleanSubscribedCompleted(olderthan, maxCount);
         }
 
-        public Task<long> CleanFailed(DateTime olderthan, int maxCount)
+        public async Task<long> CleanFailed(DateTime olderthan, int maxCount)
         {
-            return _dataAccess.CleanSubscribedFailed(olderthan, maxCount);
+            return await _dataAccess.CleanSubscribedFailed(olderthan, maxCount);
         }
     }
 }

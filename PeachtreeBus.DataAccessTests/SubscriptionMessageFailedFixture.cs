@@ -107,14 +107,14 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that unsafe schema is not allowed.
         /// </summary>
         [TestMethod]
-        public void FailMessage_ThrowsIfSchemaContainsUnsafe()
+        public async Task FailMessage_ThrowsIfSchemaContainsUnsafe()
         {
             var expected1 = CreateSubscribed();
             expected1.SubscriberId = Guid.NewGuid();
             expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
 
-            var action = new Action(() => dataAccess.FailMessage(expected1));
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(() => dataAccess.FailMessage(expected1));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
     }
 }

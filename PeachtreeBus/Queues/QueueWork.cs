@@ -62,7 +62,7 @@ namespace PeachtreeBus.Queues
             }
 
             // we found a message to process.
-            _log.Debug($"Processing {messageContext.MessageData.MessageId}");
+            _log.Debug($"Processing {messageContext.Headers.MessageClass} {messageContext.MessageData.MessageId}");
             var started = DateTime.UtcNow;
             try
             {
@@ -76,7 +76,7 @@ namespace PeachtreeBus.Queues
                 var messageType = Type.GetType(messageContext.Headers.MessageClass);
                 if (messageType == null)
                 {
-                    throw new ApplicationException($"Message {messageContext.MessageData.MessageId}  as a message class of {messageContext.Headers.MessageClass} which was not a recognized type.");
+                    throw new ApplicationException($"Message {messageContext.MessageData.MessageId} is a message class of {messageContext.Headers.MessageClass} which was not a recognized type.");
                 }
 
                 // Get the message handlers for this message type from the Dependency Injection container.
@@ -104,7 +104,7 @@ namespace PeachtreeBus.Queues
                     if (handlerIsSaga)
                     {
                         messageContext.SagaKey = _sagaMessageMapManager.GetKey(handler, messageContext.Message);
-                        _log.Debug($"Active Saga {messageContext.SagaKey}");
+                        _log.Debug($"Saga Loading {handlerType.FullName} {messageContext.SagaKey}");
 
                         await _queueReader.LoadSaga(handler, messageContext);
 
@@ -117,16 +117,6 @@ namespace PeachtreeBus.Queues
                             _counters.SagaBlocked();
                             return true;
                         }
-
-                        if (messageContext.SagaData == null && !handlerType.IsSagaStartHandler(messageType))
-                        {
-                            // the saga was not locked, and it doesn't exist, and this message doesn't start a saga.
-                            // we are processing a saga message but it is not a saga start message and we didnt read previous
-                            // saga data from the DB. This means we are processing a non-start messge before the saga is started.
-                            // we could continute but that might be bad. Its probably better to stop and draw attention to a probable bug in the saga or message order.
-                            throw new ApplicationException($"A Message of Type {messageType} is being processed, but the saga {handlerType} has not been started for key {messageContext.SagaKey}. An IHandleSagaStartMessage<> handler on the saga must be processed first to start the saga.");
-                        }
-
                     }
 
                     // find the right method on the handler.
@@ -138,6 +128,7 @@ namespace PeachtreeBus.Queues
                     // should it have a seperate try-catch around this and treat it differently?
                     // that would allow us to tell the difference between a problem in a handler, or if the problem was in the bus code.
                     // does that mater for the retry?
+                    _log.Debug($"Handling {messageContext.Headers.MessageClass} with {handlerType.FullName}");
                     {
                         var taskObject = handleMethod.Invoke(handler, new object[] { messageContext, messageContext.Message });
                         var castTask = taskObject as Task;
@@ -147,7 +138,7 @@ namespace PeachtreeBus.Queues
                     if (handlerIsSaga)
                     {
                         await _queueReader.SaveSaga(handler, messageContext);
-                        _log.Debug($"Inactive Saga {messageContext.SagaKey}");
+                        _log.Debug($"Saga Saved {handlerType.FullName} {messageContext.SagaKey}");
                     }
                 }
 
@@ -160,7 +151,7 @@ namespace PeachtreeBus.Queues
             {
                 // there was an exception, Rollback to the save point to undo
                 // any db changes done by the handlers.
-                _log.Warn($"There was an execption processing the message. {ex}");
+                _log.Warn($"There was an execption processing the {messageContext.Headers.MessageClass} message. {ex}");
                 _dataAccess.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
                 await _queueReader.Fail(messageContext, ex);

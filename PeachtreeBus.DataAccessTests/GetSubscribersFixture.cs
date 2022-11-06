@@ -28,11 +28,11 @@ namespace PeachtreeBus.DataAccessTests
         /// that are a SQL injection risk.
         /// </summary>
         [TestMethod]
-        public void GetSubscribers_ThrowsWhenSchemaContainsUnsafe()
+        public async Task GetSubscribers_ThrowsWhenSchemaContainsUnsafe()
         {
             var category = "TestCategory";
-            var action = new Action(() => { dataAccess.GetSubscribers(category); }); ;
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(async () => await dataAccess.GetSubscribers(category)); ;
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
      
         /// <summary>

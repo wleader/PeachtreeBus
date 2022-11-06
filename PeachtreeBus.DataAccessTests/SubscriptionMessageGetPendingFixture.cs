@@ -211,10 +211,10 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that unsafe schema is not allowed.
         /// </summary>
         [TestMethod]
-        public void GetPendingSubscriptionMessage_ThrowsIfSchemaContainsUnsafe()
+        public async Task GetPendingSubscriptionMessage_ThrowsIfSchemaContainsUnsafe()
         {
-            var action = new Action(() => dataAccess.GetPendingSubscribed(Guid.NewGuid()));
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(() => dataAccess.GetPendingSubscribed(Guid.NewGuid()));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
     }
 }

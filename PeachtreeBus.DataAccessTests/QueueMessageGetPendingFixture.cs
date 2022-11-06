@@ -194,20 +194,20 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that unsafe schema are not allowed.
         /// </summary>
         [TestMethod]
-        public void GetPendingQueued_ThrowsIfSchemaContainsUnsafe()
+        public async Task GetPendingQueued_ThrowsIfSchemaContainsUnsafe()
         {
-            var action = new Action(() => dataAccess.GetPendingQueued(DefaultQueue).Wait());
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(async () => await dataAccess.GetPendingQueued(DefaultQueue));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 
         /// <summary>
         /// proves that unsafe queue names are not allowed.
         /// </summary>
         [TestMethod]
-        public void GetPendingQueued_ThrowsIfQueueNameContainsUnsafe()
+        public async Task GetPendingQueued_ThrowsIfQueueNameContainsUnsafe()
         {
-            var action = new Action<string>((s) =>  dataAccess.GetPendingQueued(s).Wait());
-            ActionThrowsIfParameterContainsPoisonChars(action);
+            var action = new Func<string, Task>(async (s) => await dataAccess.GetPendingQueued(s));
+            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

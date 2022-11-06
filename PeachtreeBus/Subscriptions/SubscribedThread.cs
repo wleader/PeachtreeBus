@@ -26,9 +26,9 @@ namespace PeachtreeBus.Subscriptions
             _subscribedWork.SubscriberId = subscriberConfiguration.SubscriberId;
         }
 
-        public override Task<bool> DoUnitOfWork()
+        public override async Task<bool> DoUnitOfWork()
         {
-            return _subscribedWork.DoWork();
+            return await _subscribedWork.DoWork();
         }
     }
 }

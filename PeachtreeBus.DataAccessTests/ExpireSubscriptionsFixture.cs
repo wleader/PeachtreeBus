@@ -60,10 +60,10 @@ namespace PeachtreeBus.DataAccessTests
         /// characters that are a SQL injection risk.
         /// </summary>
         [TestMethod]
-        public void ExpireSubscriptions_ThrowsWhenSchemaContainsUnsafe()
+        public async Task ExpireSubscriptions_ThrowsWhenSchemaContainsUnsafe()
         {
-            var action = new Action(() => dataAccess.ExpireSubscriptions());
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(() => dataAccess.ExpireSubscriptions());
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
     }
 }

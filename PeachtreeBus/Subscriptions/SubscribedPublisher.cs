@@ -113,10 +113,10 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="message"></param>
         /// <param name="notBefore"></param>
         /// <returns></returns>
-        public static Task PublishMessage<T>(this ISubscribedPublisher publisher,
+        public static async Task PublishMessage<T>(this ISubscribedPublisher publisher,
            string category, T message, DateTime? notBefore = null)
         {
-            return publisher.Publish(category, typeof(T), message, notBefore);
+            await publisher.Publish(category, typeof(T), message, notBefore);
         }
     }
 }

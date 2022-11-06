@@ -84,22 +84,22 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that unsafe schema are not allowed.
         /// </summary>
         [TestMethod]
-        public void Update_ThrowsIfSchemaContainsUnsafe()
+        public async Task Update_ThrowsIfSchemaContainsUnsafe()
         {
             var qm = CreateQueueMessage();
-            var action = new Action(() => dataAccess.Update(qm, DefaultQueue).Wait());
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(async () => await dataAccess.Update(qm, DefaultQueue));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 
         /// <summary>
         /// proves that unsafe queue names are not allowed.
         /// </summary>
         [TestMethod]
-        public void Update_ThrowsIfQueueNameContainsUnsafe()
+        public async Task Update_ThrowsIfQueueNameContainsUnsafe()
         {
             var qm = CreateQueueMessage();
-            var action = new Action<string>((s) => dataAccess.Update(qm, s).Wait());
-            ActionThrowsIfParameterContainsPoisonChars(action);
+            var action = new Func<string, Task>(async (s) => await dataAccess.Update(qm, s));
+            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

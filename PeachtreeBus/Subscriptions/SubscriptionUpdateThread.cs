@@ -24,9 +24,9 @@ namespace PeachtreeBus.Subscriptions
             _updater = updater;
         }
 
-        public override Task<bool> DoUnitOfWork()
+        public override async Task<bool> DoUnitOfWork()
         {
-            return _updater.DoWork();
+            return await _updater.DoWork();
         }
     }
 }

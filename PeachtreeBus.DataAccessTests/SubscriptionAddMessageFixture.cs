@@ -51,50 +51,50 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that unsafe schema is not allowed.
         /// </summary>
         [TestMethod]
-        public void AddMessage_ThrowsIfSchemaContainsUnsafe()
+        public async Task AddMessage_ThrowsIfSchemaContainsUnsafe()
         {
             var newMessage = CreateSubscribed();
             newMessage.SubscriberId = Guid.NewGuid();
-            var action = new Action(() => dataAccess.AddMessage(newMessage));
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(() => dataAccess.AddMessage(newMessage));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
         
         /// <summary>
         /// proves that NotBefore must specify DateTimeKind
         /// </summary>
         [TestMethod]
-        public void AddMessage_ThowsIfNotBeforeDateTimeKindUnspecified()
+        public async Task AddMessage_ThowsIfNotBeforeDateTimeKindUnspecified()
         {
             var newMessage = CreateSubscribed();
             newMessage.SubscriberId = Guid.NewGuid();
             newMessage.NotBefore = DateTime.SpecifyKind(newMessage.NotBefore, DateTimeKind.Unspecified);
-            var action = new Action<Model.SubscribedMessage>((m) => dataAccess.AddMessage(m));
-            ActionThrowsFor(action, newMessage);
+            var action = new Func<Model.SubscribedMessage, Task>(async (m) => await dataAccess.AddMessage(m));
+            await ActionThrowsFor(action, newMessage);
         }
         
         /// <summary>
         /// Proves that ValidUntil must specify DateTimeKind
         /// </summary>
         [TestMethod]
-        public void AddMessage_ThrowsIfValidUntilDateTimeKindUnspecified()
+        public async Task AddMessage_ThrowsIfValidUntilDateTimeKindUnspecified()
         {
             var newMessage = CreateSubscribed();
             newMessage.SubscriberId = Guid.NewGuid();
             newMessage.ValidUntil = DateTime.SpecifyKind(newMessage.ValidUntil, DateTimeKind.Unspecified);
-            var action = new Action<Model.SubscribedMessage>((m) => dataAccess.AddMessage(m));
-            ActionThrowsFor(action, newMessage);
+            var action = new Func<Model.SubscribedMessage, Task>(async (m) => await dataAccess.AddMessage(m));
+            await ActionThrowsFor(action, newMessage);
         }
 
         /// <summary>
         /// Proves that subscriber ID cannot be empty.
         /// </summary>
         [TestMethod]
-        public void AddMessage_ThrowsIfSubscriberIdIsGuidEmpty()
+        public async Task AddMessage_ThrowsIfSubscriberIdIsGuidEmpty()
         {
             var newMessage = CreateSubscribed();
             newMessage.SubscriberId = Guid.Empty;
-            var action = new Action<Model.SubscribedMessage>((m) => dataAccess.AddMessage(m));
-            ActionThrowsFor(action, newMessage);
+            var action = new Func<Model.SubscribedMessage, Task>(async (m) => await dataAccess.AddMessage(m));
+            await ActionThrowsFor(action, newMessage);
         }
     }
 }

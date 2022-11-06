@@ -156,10 +156,10 @@ namespace PeachtreeBus.DataAccessTests
         /// characters that are a risk for SQL injection.
         /// </summary>
         [TestMethod]
-        public void CleanSubscribedCompleted_ThrowsIfSchemaUnsafe()
+        public async Task CleanSubscribedCompleted_ThrowsIfSchemaUnsafe()
         {
-            var action = new Action(() => dataAccess.CleanSubscribedCompleted(DateTime.MinValue, 1));
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(async () => await dataAccess.CleanSubscribedCompleted(DateTime.MinValue, 1));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
     }
 }

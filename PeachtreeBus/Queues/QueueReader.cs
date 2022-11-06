@@ -150,15 +150,15 @@ namespace PeachtreeBus.Queues
         }
 
         /// <inheritdoc/>
-        public Task Complete(QueueContext messageContext)
+        public async Task Complete(QueueContext messageContext)
         {
             messageContext.MessageData.Completed = _clock.UtcNow;
             _counters.CompleteMessage();
-            return _dataAccess.CompleteMessage(messageContext.MessageData, messageContext.SourceQueue);
+            await _dataAccess.CompleteMessage(messageContext.MessageData, messageContext.SourceQueue);
         }
 
         /// <inheritdoc/>
-        public Task Fail(QueueContext context, Exception exception)
+        public async Task Fail(QueueContext context, Exception exception)
         {
             context.MessageData.Retries++;
             context.MessageData.NotBefore = _clock.UtcNow.AddSeconds(5 * context.MessageData.Retries); // Wait longer between retries.
@@ -169,13 +169,13 @@ namespace PeachtreeBus.Queues
                 _log.Error($"Message {context.MessageData.MessageId} exceeded max retries ({MaxRetries}) and has failed.");
                 context.MessageData.Failed = DateTime.UtcNow;
                 _counters.FailMessage();
-                return _dataAccess.FailMessage(context.MessageData, context.SourceQueue);
+                await _dataAccess.FailMessage(context.MessageData, context.SourceQueue);
             }
             else
             {
                 _log.Error($"Message {context.MessageData.MessageId} will be retried at {context.MessageData.NotBefore}.");
                 _counters.RetryMessage();
-                return _dataAccess.Update(context.MessageData, context.SourceQueue);
+                await _dataAccess.Update(context.MessageData, context.SourceQueue);
             }
         }
 
@@ -188,6 +188,7 @@ namespace PeachtreeBus.Queues
             var sagaName = (string)nameProperty.GetValue(saga);
 
             // fetch the data from the DB.
+            _log.Debug($"Loading sagadata {sagaName} - {context.SagaKey}");
             context.SagaData = await _dataAccess.GetSagaData(sagaName, context.SagaKey);
             if (context.SagaData != null && context.SagaData.Blocked) return;
 
@@ -219,7 +220,7 @@ namespace PeachtreeBus.Queues
 
 
         /// <inheritdoc/>
-        public Task SaveSaga(object saga, QueueContext context)
+        public async Task SaveSaga(object saga, QueueContext context)
         {
             var sagaType = saga.GetType();
             var nameProperty = sagaType.GetProperty("SagaName");
@@ -230,13 +231,13 @@ namespace PeachtreeBus.Queues
             bool IsComplete = completeProperty.GetValue(saga) is bool completeValue && completeValue;
             if (IsComplete)
             {
-                return _dataAccess.DeleteSagaData(sagaName, context.SagaKey);
+                await _dataAccess.DeleteSagaData(sagaName, context.SagaKey);
             }
 
             // the saga is not complete, serialize it.
             var dataProperty = sagaType.GetProperty("Data");
             var dataObject = dataProperty.GetValue(saga);
-            if (dataObject == null) dataObject = Activator.CreateInstance(dataProperty.PropertyType);
+            dataObject ??= Activator.CreateInstance(dataProperty.PropertyType);
             var serializedData = _serializer.SerializeSaga(dataObject, dataProperty.PropertyType);
 
             if (context.SagaData == null)
@@ -252,22 +253,22 @@ namespace PeachtreeBus.Queues
 
                 // if two start messages are processed at the same time, two inserts could occur on different threads.
                 // if that happens, the second insert is expected to throw a duplicate key constraint violation.
-                return _dataAccess.Insert(context.SagaData, sagaName);
+                await _dataAccess.Insert(context.SagaData, sagaName);
             }
             else
             {
                 // update the existing row.
                 context.SagaData.Data = serializedData;
-                return _dataAccess.Update(context.SagaData, sagaName);
+                await _dataAccess.Update(context.SagaData, sagaName);
             }
         }
 
         /// <inheritdoc/>
-        public Task DelayMessage(QueueContext messageContext, int milliseconds)
+        public async Task DelayMessage(QueueContext messageContext, int milliseconds)
         {
             messageContext.MessageData.NotBefore = _clock.UtcNow.AddMilliseconds(milliseconds);
             _counters.DelayMessage();
-            return _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
+            await _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
         }
     }
 }

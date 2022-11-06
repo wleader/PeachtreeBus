@@ -89,10 +89,10 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that unsafe schema is not allowed.
         /// </summary>
         [TestMethod]
-        public void ExpireMessages_ThrowsIfSchemaContainsUnsafe()
+        public async Task ExpireMessages_ThrowsIfSchemaContainsUnsafe()
         {
-            var action = new Action(() => dataAccess.ExpireSubscriptionMessages());
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(() => dataAccess.ExpireSubscriptionMessages());
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
     }
 }

@@ -141,13 +141,13 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that unsafe schema is not allowed.
         /// </summary>
         [TestMethod]
-        public void Subscribe_ThrowsIfSchemaContainsUnsafe()
+        public async Task Subscribe_ThrowsIfSchemaContainsUnsafe()
         {
             var subscriber = Guid.NewGuid();
             var category = "TestCategory";
             var until = DateTime.UtcNow.AddMinutes(30);
-            var action = new Action(() => dataAccess.Subscribe(subscriber, category, until));
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(() => dataAccess.Subscribe(subscriber, category, until));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 
         /// <summary>
@@ -155,9 +155,9 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]  
-        public void Subscribe_ThrowsIfSubscriberIdIsGuidEmpty()
+        public async Task Subscribe_ThrowsIfSubscriberIdIsGuidEmpty()
         {
-            dataAccess.Subscribe(Guid.Empty, "TestCategory", DateTime.UtcNow.AddMinutes(30));
+            await dataAccess.Subscribe(Guid.Empty, "TestCategory", DateTime.UtcNow.AddMinutes(30));
         }
     }
 }

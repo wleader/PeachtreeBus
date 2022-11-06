@@ -89,20 +89,20 @@ namespace PeachtreeBus.DataAccessTests
         /// Proves that unsafe schema is not allowed
         /// </summary>
         [TestMethod]
-        public void GetSagaData_ThrowsIfSchemaContainsUnsafe()
+        public async Task GetSagaData_ThrowsIfSchemaContainsUnsafe()
         {
-            var action = new Action(() =>  dataAccess.GetSagaData(DefaultSagaName, string.Empty).Wait());
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(async () => await dataAccess.GetSagaData(DefaultSagaName, string.Empty));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 
         /// <summary>
         /// Proves tha unsafe saga names are not allowed.
         /// </summary>
         [TestMethod]
-        public void GetSagaData_ThrowsIfSagaNameContainsUnsafe()
+        public async Task GetSagaData_ThrowsIfSagaNameContainsUnsafe()
         {
-            var action = new Action<string>((s) => dataAccess.GetSagaData(s, string.Empty).Wait());
-            ActionThrowsIfParameterContainsPoisonChars(action);
+            var action = new Func<string,Task>(async (s) => await dataAccess.GetSagaData(s, string.Empty));
+            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

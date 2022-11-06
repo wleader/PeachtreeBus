@@ -154,10 +154,10 @@ namespace PeachtreeBus.DataAccessTests
         /// characters that are a SQL injection risk.
         /// </summary>
         [TestMethod]
-        public void CleanQueueFailed_ThrowsIfSchemaUnsafe()
+        public async Task CleanQueueFailed_ThrowsIfSchemaUnsafe()
         {
-            var action = new Action(() => dataAccess.CleanQueueFailed(DefaultQueue, DateTime.MinValue, 1));
-            ActionThrowsIfSchemaContainsPoisonChars(action);
+            var action = new Func<Task>(async () => await dataAccess.CleanQueueFailed(DefaultQueue, DateTime.MinValue, 1));
+            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 
         /// <summary>
@@ -165,10 +165,10 @@ namespace PeachtreeBus.DataAccessTests
         /// characters that are a SQL injection risk.
         /// </summary>
         [TestMethod]
-        public void CleanQueueFailed_ThrowsIfQueueNameUnsafe()
+        public async Task CleanQueueFailed_ThrowsIfQueueNameUnsafe()
         {
-            var action = new Action<string>((s) => dataAccess.CleanQueueFailed(s, DateTime.MinValue, 1));
-            ActionThrowsIfParameterContainsPoisonChars(action);
+            var action = new Func<string, Task>(async (s) => await dataAccess.CleanQueueFailed(s, DateTime.MinValue, 1));
+            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

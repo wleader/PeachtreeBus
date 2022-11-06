@@ -53,11 +53,11 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public Task Complete(SubscribedContext context)
+        public async Task Complete(SubscribedContext context)
         {
             context.MessageData.Completed = _clock.UtcNow;
             _counters.CompleteMessage();
-            return _dataAccess.CompleteMessage(context.MessageData);
+            await _dataAccess.CompleteMessage(context.MessageData);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="context"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public Task Fail(SubscribedContext context, Exception exception)
+        public async Task Fail(SubscribedContext context, Exception exception)
         {
             context.MessageData.Retries++;
             context.MessageData.NotBefore = _clock.UtcNow.AddSeconds(5 * context.MessageData.Retries); // Wait longer between retries.
@@ -77,13 +77,13 @@ namespace PeachtreeBus.Subscriptions
                 _log.Error($"Message {context.MessageData.MessageId} exceeded max retries ({MaxRetries}) and has failed.");
                 context.MessageData.Failed = _clock.UtcNow;
                 _counters.FailMessage();
-                return _dataAccess.FailMessage(context.MessageData);
+                await _dataAccess.FailMessage(context.MessageData);
             }
             else
             {
                 _log.Error($"Message {context.MessageData.MessageId} will be retried at {context.MessageData.NotBefore}.");
                 _counters.RetryMessage();
-                return _dataAccess.Update(context.MessageData);
+                await _dataAccess.Update(context.MessageData);
             }
         }
 

@@ -5,6 +5,7 @@ using PeachtreeBus.DatabaseSharing;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
 {
@@ -33,6 +34,11 @@ namespace PeachtreeBus.DataAccessTests
         /// Provides a schema to the data access.
         /// </summary>
         protected Mock<IDbSchemaConfiguration> MockSchema;
+
+        /// <summary>
+        /// Provides a log to the data access.
+        /// </summary>
+        protected Mock<ILog<DapperDataAccess>> MockLog;
 
         protected const string DefaultSchema = "PeachtreeBus";
         protected const string DefaultQueue = "QueueName";
@@ -64,7 +70,9 @@ namespace PeachtreeBus.DataAccessTests
             MockSchema = new Mock<IDbSchemaConfiguration>();
             MockSchema.Setup(s => s.Schema).Returns(DefaultSchema);
 
-            dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object);
+            MockLog = new Mock<ILog<DapperDataAccess>>();
+
+            dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object, MockLog.Object);
 
             // start all tests with an Empty DB.
             // each test will setup rows it needs.
@@ -302,12 +310,12 @@ namespace PeachtreeBus.DataAccessTests
         /// Helper to test that an action throws an exception when the schema is unsafe.
         /// </summary>
         /// <param name="action"></param>
-        protected void ActionThrowsIfSchemaContainsPoisonChars(Action action)
+        protected async Task ActionThrowsIfSchemaContainsPoisonChars(Func<Task> action)
         {
             var poison = new char[] { '\'', ';', '@', '-', '/', '*' };
             foreach (var p in poison)
             {
-                ActionThrowsIfShcemaContains(action, p.ToString());
+                await ActionThrowsIfShcemaContains(action, p.ToString());
             }
         }
 
@@ -317,13 +325,13 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="action"></param>
         /// <param name="poison"></param>
-        protected void ActionThrowsIfShcemaContains(Action action, string poison)
+        protected async Task ActionThrowsIfShcemaContains(Func<Task> action, string poison)
         {
             var exceptionThrown = false;
             MockSchema.Setup(s => s.Schema).Returns(poison);
             try
             {
-                action();
+                await action();
             }
             catch (ArgumentException)
             {
@@ -337,12 +345,12 @@ namespace PeachtreeBus.DataAccessTests
         /// parameter contains unsafe chacters
         /// </summary>
         /// <param name="action"></param>
-        protected void ActionThrowsIfParameterContainsPoisonChars(Action<string> action)
+        protected async Task ActionThrowsIfParameterContainsPoisonChars(Func<string, Task> action)
         {
             var poison = new char[] { '\'', ';', '@', '-', '/', '*' };
             foreach (var p in poison)
             {
-                ActionThrowsIfParameterContains(action, p.ToString());
+                await ActionThrowsIfParameterContains(action, p.ToString());
             }
         }
 
@@ -352,12 +360,12 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="action"></param>
         /// <param name="poison"></param>
-        protected void ActionThrowsIfParameterContains(Action<string> action, string poison)
+        protected async Task ActionThrowsIfParameterContains(Func<string, Task> action, string poison)
         {
             var exceptionThrown = false;
             try
             {
-                action.Invoke(poison);
+                await action.Invoke(poison);
             }
             catch (ArgumentException)
             {
@@ -426,12 +434,12 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="action"></param>
         /// <param name="message"></param>
-        protected void ActionThrowsFor<T>(Action<T> action, T message)
+        protected async Task ActionThrowsFor<T>(Func<T, Task> action, T message)
         {
             var exceptionThrown = false;
             try
             {
-                action.Invoke(message);
+                await action.Invoke(message);
             }
             catch (ArgumentException)
             {

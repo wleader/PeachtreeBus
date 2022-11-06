@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using System.Data;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace PeachtreeBus.Data
 {
@@ -38,6 +39,7 @@ namespace PeachtreeBus.Data
         }
 
         private readonly ISharedDatabase _database;
+        private readonly ILog<DapperDataAccess> _log;
         private readonly IDbSchemaConfiguration _schemaConfig;
 
         const string SafeChars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -50,10 +52,14 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="database">A Shared Database connection.</param>
         /// <param name="schemaConfig">Configures which DB Schema to find all the tables in.</param>
-        public DapperDataAccess(ISharedDatabase database, IDbSchemaConfiguration schemaConfig)
+        public DapperDataAccess(
+            ISharedDatabase database,
+            IDbSchemaConfiguration schemaConfig,
+            ILog<DapperDataAccess> log)
         {
             _schemaConfig = schemaConfig;
             _database = database;
+            _log = log;
         }
 
         private bool IsUnsafe(string value)
@@ -70,7 +76,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task<long> AddMessage(QueueMessage message, string queueName)
+        public async Task<long> AddMessage(QueueMessage message, string queueName)
         {
             const string EnqueueMessageStatement =
                 "INSERT INTO [{0}].[{1}_Pending] " +
@@ -104,7 +110,15 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
-            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            }
+            catch(Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(AddMessage)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -113,7 +127,7 @@ namespace PeachtreeBus.Data
         /// <param name="queueName"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task<QueueMessage> GetPendingQueued(string queueName)
+        public async Task<QueueMessage> GetPendingQueued(string queueName)
         {
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.
@@ -135,7 +149,15 @@ namespace PeachtreeBus.Data
 
             var query = string.Format(GetOnePendingMessageStatement, _schemaConfig.Schema, queueName);
 
-            return _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(GetPendingQueued)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -146,7 +168,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task CompleteMessage(QueueMessage message, string queueName)
+        public async Task CompleteMessage(QueueMessage message, string queueName)
         {
             const string CompleteMessageStatement =
                 "DECLARE " +
@@ -185,7 +207,15 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CompleteMessage)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -196,7 +226,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task FailMessage(QueueMessage message, string queueName)
+        public async Task FailMessage(QueueMessage message, string queueName)
         {
             const string FailMessageStatement =
                 "DECLARE " +
@@ -234,7 +264,15 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(FailMessage)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -245,7 +283,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task Update(QueueMessage message, string queueName)
+        public async Task Update(QueueMessage message, string queueName)
         {
             const string UpdateMessageStatement =
                 "UPDATE [{0}].[{1}_Pending] SET " +
@@ -275,7 +313,15 @@ namespace PeachtreeBus.Data
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Update)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -286,7 +332,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task<long> Insert(SagaData data, string sagaName)
+        public async Task<long> Insert(SagaData data, string sagaName)
         {
             const string InsertSagaStatement =
                 "INSERT INTO[{0}].[{1}_SagaData]" +
@@ -315,7 +361,15 @@ namespace PeachtreeBus.Data
             p.Add("@Key", data.Key);
             p.Add("@Data", data.Data);
 
-            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Insert)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -326,7 +380,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task Update(SagaData data, string sagaName)
+        public async Task Update(SagaData data, string sagaName)
         {
             const string UpdateSagaStatement =
                 "UPDATE [{0}].[{1}_SagaData] SET" +
@@ -348,7 +402,15 @@ namespace PeachtreeBus.Data
             p.Add("@Id", data.Id);
             p.Add("@Data", data.Data);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Update)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -358,7 +420,7 @@ namespace PeachtreeBus.Data
         /// <param name="key"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task DeleteSagaData(string sagaName, string key)
+        public async Task DeleteSagaData(string sagaName, string key)
         {
             const string DeleteSagaStatement =
                 "DELETE FROM [{0}].[{1}_SagaData] WHERE [Key] = @Key";
@@ -374,7 +436,15 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(DeleteSagaData)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -384,7 +454,7 @@ namespace PeachtreeBus.Data
         /// <param name="key"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task<SagaData> GetSagaData(string sagaName, string key)
+        public async Task<SagaData> GetSagaData(string sagaName, string key)
         {
             const string GetSagaDataStatement =
                 "DECLARE" +
@@ -414,6 +484,9 @@ namespace PeachtreeBus.Data
                 "BEGIN CATCH" +
                 // If any of the above selects failed, we can assume the saga is locked and return a row with blocked true.
                 // Which will signal the message processor to delay and retry.
+                // 1222 = "Lock request time out period exceeded." which is the error we want to handle by reporting that the row is blocked.
+                // everything else should throw.
+                "  IF (ERROR_NUMBER() != 1222) THROW; " +
                 "  SELECT -1 as [Id], CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000') as [SagaId], @Key as [Key], '' as [Data], 1 as [Blocked] " +
                 "END CATCH ";
 
@@ -429,7 +502,15 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            return _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(GetSagaData)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -437,7 +518,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task ExpireSubscriptions()
+        public async Task ExpireSubscriptions()
         {
             const string ExpireSubscriptionsStatement =
                 "DELETE FROM [{0}].[Subscriptions] WHERE [ValidUntil] < SYSUTCDATETIME()";
@@ -447,7 +528,15 @@ namespace PeachtreeBus.Data
 
             string statement = string.Format(ExpireSubscriptionsStatement, _schemaConfig.Schema);
 
-            return _database.Connection.ExecuteAsync(statement, null, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, null, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(ExpireSubscriptions)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -458,7 +547,7 @@ namespace PeachtreeBus.Data
         /// <param name="until"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task Subscribe(Guid subscriberId, string category, DateTime until)
+        public async Task Subscribe(Guid subscriberId, string category, DateTime until)
         {
             const string SubscribeStatement =
                 "UPDATE [{0}].[Subscriptions] WITH (UPDLOCK, SERIALIZABLE) " +
@@ -486,7 +575,15 @@ namespace PeachtreeBus.Data
             p.Add("@Category", category);
             p.Add("@ValidUntil", until);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Subscribe)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -495,7 +592,7 @@ namespace PeachtreeBus.Data
         /// <param name="subscriberId"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task<SubscribedMessage> GetPendingSubscribed(Guid subscriberId)
+        public async Task<SubscribedMessage> GetPendingSubscribed(Guid subscriberId)
         {
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.
@@ -522,7 +619,15 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
 
-            return _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(GetPendingSubscribed)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -532,7 +637,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task<long> AddMessage(SubscribedMessage message)
+        public async Task<long> AddMessage(SubscribedMessage message)
         {
             const string EnqueueMessageStatement =
                 "INSERT INTO [{0}].[Subscribed_Pending] " +
@@ -572,7 +677,15 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
-            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(AddMessage)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -582,7 +695,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task CompleteMessage(SubscribedMessage message)
+        public async Task CompleteMessage(SubscribedMessage message)
         {
             const string completeStatement =
                 "DECLARE " +
@@ -623,7 +736,15 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CompleteMessage)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -633,7 +754,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task FailMessage(SubscribedMessage message)
+        public async Task FailMessage(SubscribedMessage message)
         {
             const string FailMessageStatement =
                 "DECLARE " +
@@ -673,7 +794,15 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                 await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(FailMessage)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -683,7 +812,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task Update(SubscribedMessage message)
+        public async Task Update(SubscribedMessage message)
         {
             const string UpdateMessageStatement =
                 "UPDATE[{0}].[Subscribed_Pending] SET " +
@@ -711,7 +840,15 @@ namespace PeachtreeBus.Data
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
-            return _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Update)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -719,7 +856,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task ExpireSubscriptionMessages()
+        public async Task ExpireSubscriptionMessages()
         {
             // move to failed
 
@@ -740,7 +877,15 @@ namespace PeachtreeBus.Data
 
             var statement = string.Format(ExpireStatement, _schemaConfig.Schema);
             
-            return _database.Connection.ExecuteAsync(statement, null, _database.Transaction);
+            try
+            {
+                await _database.Connection.ExecuteAsync(statement, null, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(ExpireSubscriptionMessages)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -749,7 +894,7 @@ namespace PeachtreeBus.Data
         /// <param name="category"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task<IEnumerable<Guid>> GetSubscribers(string category)
+        public async Task<IEnumerable<Guid>> GetSubscribers(string category)
         {
             const string GetStatement =
                 "SELECT [SubscriberId]" +
@@ -765,7 +910,15 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Category", category);
 
-            return _database.Connection.QueryAsync<Guid>(statement, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryAsync<Guid>(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(GetSubscribers)}\r\n{ex}");
+                throw;
+            }
         }
         
         /// <summary>
@@ -775,7 +928,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task<long> CleanSubscribedCompleted(DateTime olderthan, int maxCount)
+        public async Task<long> CleanSubscribedCompleted(DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 "DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Completed] " +
@@ -791,7 +944,15 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CleanSubscribedCompleted)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -801,7 +962,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task<long> CleanSubscribedFailed(DateTime olderthan, int maxCount)
+        public async Task<long> CleanSubscribedFailed(DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 "DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Failed] " +
@@ -817,7 +978,15 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CleanSubscribedFailed)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -828,7 +997,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task<long> CleanQueueCompleted(string queueName, DateTime olderthan, int maxCount)
+        public async Task<long> CleanQueueCompleted(string queueName, DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 "DELETE TOP (@MaxCount) FROM [{0}].[{1}_Completed] " +
@@ -846,7 +1015,15 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CleanQueueCompleted)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -857,7 +1034,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task<long> CleanQueueFailed(string queueName, DateTime olderthan, int maxCount)
+        public async Task<long> CleanQueueFailed(string queueName, DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 "DELETE TOP (@MaxCount) FROM [{0}].[{1}_Failed] " +
@@ -875,7 +1052,15 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            try
+            {
+                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CleanQueueFailed)}\r\n{ex}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -919,6 +1104,5 @@ namespace PeachtreeBus.Data
         {
             _database.RollbackTransaction();
         }
-
     }
 }

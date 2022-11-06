@@ -26,9 +26,9 @@ namespace PeachtreeBus.Cleaners
             _cleaner = cleaner;
         }
 
-        public override Task<bool> DoUnitOfWork()
+        public override async Task<bool> DoUnitOfWork()
         {
-            return _cleaner.DoWork();
+            return await _cleaner.DoWork();
         }
     }
 }
