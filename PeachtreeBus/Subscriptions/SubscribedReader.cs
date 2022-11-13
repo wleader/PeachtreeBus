@@ -28,7 +28,7 @@ namespace PeachtreeBus.Subscriptions
             LoggerMessage.Define<Guid, Guid, int>(
                 LogLevel.Error,
                 Events.SubscribedReader_MessageExceededMaxRetries,
-                "Message {MessageId} for Subscriber {SubscriberId] execeed the max number of retries ({MaxRetries}) and has failed.");
+                "Message {MessageId} for Subscriber {SubscriberId} execeed the max number of retries ({MaxRetries}) and has failed.");
 
         internal static void SubscribedReader_MessageExceededMaxRetries(this ILogger logger,
             Guid messageId, Guid subscriberId, int maxRetries)
