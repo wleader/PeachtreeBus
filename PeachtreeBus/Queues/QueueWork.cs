@@ -189,6 +189,16 @@ namespace PeachtreeBus.Queues
                             _counters.SagaBlocked();
                             return true;
                         }
+
+                        if (messageContext.SagaData == null && !handlerType.IsSagaStartHandler(messageType))
+                        {
+                            // the saga was not locked, and it doesn't exist, and this message doesn't start a saga.
+                            // we are processing a saga message but it is not a saga start message and we didnt read previous
+                            // saga data from the DB. This means we are processing a non-start messge before the saga is started.
+                            // we could continute but that would mean that the saga handler might not know it needs to initialize
+                            // the saga data, so its better to stop and make things get fixed.
+                            throw new ApplicationException($"A Message of Type {messageType} is being processed, but the saga {handlerType} has not been started for key {messageContext.SagaKey}. An IHandleSagaStartMessage<> handler on the saga must be processed first to start the saga.");
+                        }
                     }
 
                     // find the right method on the handler.
