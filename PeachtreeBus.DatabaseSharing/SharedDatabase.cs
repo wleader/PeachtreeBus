@@ -101,7 +101,7 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (Transaction != null) throw new ApplicationException("There is already a transaction. Use CreateSavePoint instead of nested transactions.");
+                if (Transaction != null) throw new SharedDatabaseException("There is already a transaction. Use CreateSavePoint instead of nested transactions.");
                 Transaction = Connection.BeginTransaction();
             }
             TransactionStarted?.Invoke(this, null);
@@ -112,7 +112,7 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (Transaction == null) throw new ApplicationException("There is no transaction to commit.");
+                if (Transaction == null) throw new SharedDatabaseException("There is no transaction to commit.");
                 Transaction.Commit();
                 Transaction = null;
             }
@@ -124,7 +124,7 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (Transaction == null) throw new ApplicationException("There is no transaction to create a save point in.");
+                if (Transaction == null) throw new SharedDatabaseException("There is no transaction to create a save point in.");
 
                 Transaction.Save(name);
             }
@@ -135,7 +135,7 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (Transaction == null) throw new ApplicationException("There is no transaction to roll back to a save point.");
+                if (Transaction == null) throw new SharedDatabaseException("There is no transaction to roll back to a save point.");
                 Transaction.Rollback(name);
             }
         }
@@ -145,7 +145,7 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (Transaction == null) throw new ApplicationException("There is no transaction to roll back.");
+                if (Transaction == null) throw new SharedDatabaseException("There is no transaction to roll back.");
                 Transaction.Rollback();
                 Transaction = null;
             }

@@ -147,7 +147,10 @@ namespace PeachtreeBus.Queues
                 var messageType = Type.GetType(messageContext.Headers.MessageClass);
                 if (messageType == null)
                 {
-                    throw new ApplicationException($"Message {messageContext.MessageData.MessageId} is a message class of {messageContext.Headers.MessageClass} which was not a recognized type.");
+                    throw new QueueMessageClassNotRecognizedException(
+                        messageContext.MessageData.MessageId,
+                        QueueName,
+                        messageContext.Headers.MessageClass);
                 }
 
                 // Get the message handlers for this message type from the Dependency Injection container.
@@ -162,7 +165,10 @@ namespace PeachtreeBus.Queues
                 // we shouldn't process a message that has no handlers.
                 if (castHandlers.Length < 1)
                 {
-                    throw new ApplicationException($"There were no message handlers for {messageContext.Headers.MessageClass}.");
+                    throw new QueueMessageNoHandlerException(
+                        messageContext.MessageData.MessageId,
+                        QueueName,
+                        messageType);
                 }
 
                 // invoke each of the handlers.
@@ -197,7 +203,11 @@ namespace PeachtreeBus.Queues
                             // saga data from the DB. This means we are processing a non-start messge before the saga is started.
                             // we could continute but that would mean that the saga handler might not know it needs to initialize
                             // the saga data, so its better to stop and make things get fixed.
-                            throw new ApplicationException($"A Message of Type {messageType} is being processed, but the saga {handlerType} has not been started for key {messageContext.SagaKey}. An IHandleSagaStartMessage<> handler on the saga must be processed first to start the saga.");
+                            throw new SagaNotStartedException(messageContext.MessageData.MessageId,
+                                QueueName,
+                                messageType,
+                                handlerType,
+                                messageContext.SagaKey);
                         }
                     }
 

@@ -32,7 +32,7 @@ namespace PeachtreeBus.SimpleInjector
             }
             else
             {
-                throw new ApplicationException("You did something bad to the container registrations didn't you?");
+                throw new SimpleInjectorScopeFactoryException("Could not get a PeachtreeBus.IWrappedScope of type PeachtreeBus.SimpleInjector.SimpleInjectorScope from the container. Did you replace the registration for IWrappedScope?");
             }
             return siWrappedScoped;
         }
