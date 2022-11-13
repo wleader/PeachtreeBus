@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Example.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Example.Data;
 using PeachtreeBus.Example.Messages;
 using PeachtreeBus.Queues;
 using System;
@@ -11,12 +12,12 @@ namespace PeachtreeBus.Example.Handlers
     /// </summary>
     public class SampleDistributedTaskHandler : IHandleQueueMessage<SampleDistributedTaskRequest>
     {
-        private readonly ILog _log;
+        private readonly ILogger _log;
         private readonly IExampleDataAccess _dataAccess;
         private readonly IQueueWriter _queueWriter;
 
         public SampleDistributedTaskHandler(
-            ILog<SampleDistributedTaskHandler> log,
+            ILogger<SampleDistributedTaskHandler> log,
             IExampleDataAccess dataAccess,
             IQueueWriter queueWriter)
         {
@@ -32,7 +33,7 @@ namespace PeachtreeBus.Example.Handlers
             // a message to add numbers. The point is to demontrate assigning a task to be completed
             // by code which may be running in a different process or even on a different machine.
 
-            _log.Info("Processing Distributed Task.");
+            _log.ProcessingDistributedTask();
             if (message.Operation != "+")
                 throw new ApplicationException($"I only know how to add!. I don't know how to {message.Operation}.");
 
@@ -49,9 +50,8 @@ namespace PeachtreeBus.Example.Handlers
             await _queueWriter.WriteMessage(context.SourceQueue, response);
 
             // demonstrate interacting with our application data.
-            var auditMessge = $"Distrbuted Task Result {response.A} { response.Operation} {response.B} =  {response.Result}";
-            _log.Info(auditMessge);
-            await _dataAccess.Audit(auditMessge);
+            _log.DistributedTaskResult(response.Operation, response.A, response.B, response.Result);
+            await _dataAccess.Audit($"Distributed Task Result: {response.A} {response.Operation} {response.B} = {response.Result}");
         }
     }
 }

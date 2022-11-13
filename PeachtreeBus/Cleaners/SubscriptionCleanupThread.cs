@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace PeachtreeBus.Cleaners
         public DateTime LastCleaned { get; set; } = DateTime.MinValue;
 
         public SubscriptionCleanupThread(IBusDataAccess dataAccess,
-            ILog<SubscriptionCleanupThread> log,
+            ILogger<SubscriptionCleanupThread> log,
             IProvideShutdownSignal shutdown,
             ISubscriptionCleanupWork cleaner,
             ISystemClock clock)

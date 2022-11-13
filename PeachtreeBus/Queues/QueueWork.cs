@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using PeachtreeBus.Sagas;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,79 @@ namespace PeachtreeBus.Queues
         public string QueueName { get; set; }
     }
 
+    internal static class QueueWork_LogMessages
+    {
+        internal static Action<ILogger, Guid, string, Exception> QueueWork_ProcessingMessage_Action =
+            LoggerMessage.Define<Guid, string>(
+                LogLevel.Debug,
+                Events.QueueWork_ProcessingMessage,
+                "Processing Message {MessageId}, Type: {MessageClass}.");
+
+        internal static void QueueWork_ProcessingMessage(this ILogger logger, Guid messageId, string messageClass)
+        {
+            QueueWork_ProcessingMessage_Action(logger, messageId, messageClass, null);
+        }
+
+        internal static Action<ILogger, string, string, Exception> QueueWork_LoadingSaga_Action =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Debug,
+                Events.QueueWork_LoadingSaga,
+                "Saga Loading {SagaType} {SagaKey}");
+
+        internal static void QueueWork_LoadingSaga(this ILogger logger, string sagaType, string sagaKey)
+        {
+            QueueWork_LoadingSaga_Action(logger, sagaType, sagaKey, null);
+        }
+
+        internal static Action<ILogger, string, string, Exception> QueueWork_SagaBlocked_Action =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                Events.QueueWork_SagaBlocked,
+                "The saga {SagaType} for key {SagaKey} is blocked. The current message will be delayed and retried.");
+
+        internal static void QueueWork_SagaBlocked(this ILogger logger, string sagaType, string sagaKey)
+        {
+            QueueWork_SagaBlocked_Action(logger, sagaType, sagaKey, null);
+        }
+
+        internal static Action<ILogger, Guid, string, string, Exception> QueueWork_InvokeHandler_Action =
+            LoggerMessage.Define<Guid, string, string>(
+                LogLevel.Debug,
+                Events.QueueWork_InvokeHandler,
+                "Handling message {MessageId} of type {MessageClass} with {HandlerType}.");
+
+        internal static void QueueWork_InvokeHandler(this ILogger logger, Guid messageId, string messageClass, string HandlerType)
+        {
+            QueueWork_InvokeHandler_Action(logger, messageId, messageClass, HandlerType, null);
+        }
+
+        internal static Action<ILogger, string, string, Exception> QueueWork_SagaSaved_Action =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Debug,
+                Events.QueueWork_SagaSaved,
+                "Saga Saved {SagaType} {SagaKey}.");
+
+        internal static void QueueWork_SagaSaved(this ILogger logger, string sagaType, string sagaKey)
+        {
+            QueueWork_SagaSaved_Action(logger, sagaType, sagaKey, null);
+        }
+
+        internal static Action<ILogger, string, Guid, string, Exception> QueueWork_HandlerException_Action =
+            LoggerMessage.Define<string, Guid, string>(
+                LogLevel.Warning,
+                Events.QueueWork_HandlerException,
+                "There was an exception in {HandlerType} when handling Message {MessageId} of type {MessageType}.");
+            
+        internal static void QueueWork_HandlerException(this ILogger logger, string handlerType, Guid messageId, string messageType, Exception ex)
+        {
+            QueueWork_HandlerException_Action(logger, handlerType, messageId, messageType, ex);
+        }
+    }
+
     /// <inheritdoc/>>
     public class QueueWork : IQueueWork
     {
-        private readonly ILog<QueueWork> _log;
+        private readonly ILogger<QueueWork> _log;
         private readonly IPerfCounters _counters;
         private readonly IFindQueueHandlers _findHandlers;
         private readonly IQueueReader _queueReader;
@@ -26,7 +96,7 @@ namespace PeachtreeBus.Queues
         private readonly ISagaMessageMapManager _sagaMessageMapManager;
 
         public QueueWork(
-            ILog<QueueWork> log,
+            ILogger<QueueWork> log,
             IPerfCounters counters,
             IFindQueueHandlers findHandlers,
             IQueueReader queueReader,
@@ -62,8 +132,9 @@ namespace PeachtreeBus.Queues
             }
 
             // we found a message to process.
-            _log.Debug($"Processing {messageContext.Headers.MessageClass} {messageContext.MessageData.MessageId}");
+            _log.QueueWork_ProcessingMessage(messageContext.MessageData.MessageId, messageContext.Headers.MessageClass);
             var started = DateTime.UtcNow;
+            string handlerTypeName = null!;
             try
             {
                 _counters.StartMessage();
@@ -99,19 +170,20 @@ namespace PeachtreeBus.Queues
                 {
                     // determine if this handler is a saga.
                     var handlerType = handler.GetType();
+                    handlerTypeName = handlerType.FullName;
 
                     var handlerIsSaga = handlerType.IsSubclassOfSaga();
                     if (handlerIsSaga)
                     {
                         messageContext.SagaKey = _sagaMessageMapManager.GetKey(handler, messageContext.Message);
-                        _log.Debug($"Saga Loading {handlerType.FullName} {messageContext.SagaKey}");
-
+                        _log.QueueWork_LoadingSaga(handlerTypeName, messageContext.SagaKey);
+                        
                         await _queueReader.LoadSaga(handler, messageContext);
 
                         if (messageContext.SagaData != null && messageContext.SagaData.Blocked)
                         {
                             // the saga is blocked. delay the message and try again later.
-                            _log.Info($"The saga {handlerType} for key {messageContext.SagaKey} is blocked. The current message will be delayed and retried.");
+                            _log.QueueWork_SagaBlocked(handlerTypeName, messageContext.SagaKey);
                             _dataAccess.RollbackToSavepoint(savepointName);
                             await _queueReader.DelayMessage(messageContext, 250);
                             _counters.SagaBlocked();
@@ -128,7 +200,7 @@ namespace PeachtreeBus.Queues
                     // should it have a seperate try-catch around this and treat it differently?
                     // that would allow us to tell the difference between a problem in a handler, or if the problem was in the bus code.
                     // does that mater for the retry?
-                    _log.Debug($"Handling {messageContext.Headers.MessageClass} with {handlerType.FullName}");
+                    _log.QueueWork_InvokeHandler(messageContext.MessageData.MessageId, messageContext.Headers.MessageClass, handlerType.FullName);
                     {
                         var taskObject = handleMethod.Invoke(handler, new object[] { messageContext, messageContext.Message });
                         var castTask = taskObject as Task;
@@ -138,7 +210,7 @@ namespace PeachtreeBus.Queues
                     if (handlerIsSaga)
                     {
                         await _queueReader.SaveSaga(handler, messageContext);
-                        _log.Debug($"Saga Saved {handlerType.FullName} {messageContext.SagaKey}");
+                        _log.QueueWork_SagaSaved(handlerTypeName, messageContext.SagaKey);
                     }
                 }
 
@@ -151,7 +223,7 @@ namespace PeachtreeBus.Queues
             {
                 // there was an exception, Rollback to the save point to undo
                 // any db changes done by the handlers.
-                _log.Warn($"There was an execption processing the {messageContext.Headers.MessageClass} message. {ex}");
+                _log.QueueWork_HandlerException(handlerTypeName, messageContext.MessageData.MessageId, messageContext.Headers.MessageClass, ex);
                 _dataAccess.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
                 await _queueReader.Fail(messageContext, ex);

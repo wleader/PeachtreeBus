@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions
@@ -16,7 +17,7 @@ namespace PeachtreeBus.Subscriptions
         private readonly ISubscriptionUpdateWork _updater;
 
         public SubscriptionUpdateThread(IProvideShutdownSignal shutdown,
-            ILog<SubscriptionUpdateThread> log,
+            ILogger<SubscriptionUpdateThread> log,
             IBusDataAccess transactionContext,
             ISubscriptionUpdateWork updater)
             : base("Subscription Update", 500, log, transactionContext, shutdown)

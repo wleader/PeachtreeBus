@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus;
 using PeachtreeBus.Cleaners;
@@ -14,7 +15,7 @@ namespace Peachtreebus.Tests.Cleaners
     public class QueueCleanupThreadFixture
     {
         private QueueCleanupThread thread;
-        private Mock<ILog<QueueCleanupThread>> log;
+        private Mock<ILogger<QueueCleanupThread>> log;
         private Mock<IBusDataAccess> dataAccess;
         private Mock<IProvideShutdownSignal> shutdown;
         private Mock<IQueueCleanupWork> cleaner;
@@ -22,7 +23,7 @@ namespace Peachtreebus.Tests.Cleaners
         [TestInitialize]
         public void TestInitialize()
         {
-            log = new Mock<ILog<QueueCleanupThread>>();
+            log = new Mock<ILogger<QueueCleanupThread>>();
             dataAccess = new Mock<IBusDataAccess>();
             shutdown = new Mock<IProvideShutdownSignal>();
             cleaner = new Mock<IQueueCleanupWork>();

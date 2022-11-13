@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Example.Data;
 using PeachtreeBus.Services;
@@ -17,7 +18,7 @@ namespace PeachtreeBus.Example
         /// <summary>
         /// our IOC Container.
         /// </summary>
-        private static readonly Container _container = new Container();
+        private static readonly Container _container = new();
 
         static void Main()
         {
@@ -63,7 +64,12 @@ namespace PeachtreeBus.Example
             // signal shutdown when the process is exiting.
             _container.RegisterSingleton(typeof(IProvideShutdownSignal), typeof(ProcessExitShutdownSignal));
             // log to the console window.
-            _container.RegisterSingleton(typeof(ILog<>), typeof(ConsoleLog<>));
+            using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            });
+            _container.RegisterInstance<ILoggerFactory>(loggerFactory);
+            _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
             // read the DB connection string from an appsettings.json.
             _container.RegisterSingleton(typeof(IProvideDbConnectionString), typeof(AppSettingsDatabaseConfig));
             // register an IConfiguration read from appsettings.json.

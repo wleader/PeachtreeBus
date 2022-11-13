@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus;
 using PeachtreeBus.Cleaners;
@@ -18,7 +19,7 @@ namespace Peachtreebus.Tests.Cleaners
         private Mock<ISystemClock> clock;
         private Mock<ISubscriptionCleanupWork> cleaner;
         private Mock<IProvideShutdownSignal> shutdown;
-        private Mock<ILog<SubscriptionCleanupThread>> log;
+        private Mock<ILogger<SubscriptionCleanupThread>> log;
         private Mock<IBusDataAccess> dataAccess;
         private SubscriptionCleanupThread thread;
 
@@ -32,7 +33,7 @@ namespace Peachtreebus.Tests.Cleaners
 
             cleaner = new Mock<ISubscriptionCleanupWork>();
             shutdown = new Mock<IProvideShutdownSignal>();
-            log = new Mock<ILog<SubscriptionCleanupThread>>();
+            log = new Mock<ILogger<SubscriptionCleanupThread>>();
             dataAccess = new Mock<IBusDataAccess>();
 
             thread = new SubscriptionCleanupThread(

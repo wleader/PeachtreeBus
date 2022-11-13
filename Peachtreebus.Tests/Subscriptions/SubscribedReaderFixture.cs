@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Peachtreebus.Tests.Sagas;
 using PeachtreeBus;
@@ -20,7 +21,7 @@ namespace Peachtreebus.Tests.Subscriptions
     {
         private SubscribedReader reader;
         private Mock<IBusDataAccess> dataAccess;
-        private Mock<ILog<SubscribedReader>> log;
+        private Mock<ILogger<SubscribedReader>> log;
         private Mock<IPerfCounters> counters;
         private Mock<ISerializer> serializer;
         private Mock<ISystemClock> clock;
@@ -33,7 +34,7 @@ namespace Peachtreebus.Tests.Subscriptions
         public void TestInitialize()
         {
             dataAccess = new Mock<IBusDataAccess>();
-            log = new Mock<ILog<SubscribedReader>>();
+            log = new Mock<ILogger<SubscribedReader>>();
             counters = new Mock<IPerfCounters>();
             serializer = new Mock<ISerializer>();
             clock = new Mock<ISystemClock>();

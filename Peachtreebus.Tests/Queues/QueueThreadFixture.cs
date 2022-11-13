@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus;
 using PeachtreeBus.Data;
@@ -17,7 +18,7 @@ namespace Peachtreebus.Tests.Queues
         private Mock<IProvideShutdownSignal> shutdown;
         private int loopCount = 1;
         private Mock<IBusDataAccess> dataAccess;
-        private Mock<ILog<QueueThread>> log;
+        private Mock<ILogger<QueueThread>> log;
         private Mock<IQueueWork> work;
         private QueueConfiguration config;
 
@@ -32,7 +33,7 @@ namespace Peachtreebus.Tests.Queues
                 .Returns(() => loopCount > 0)
                 .Callback(() => loopCount--);
 
-            log = new Mock<ILog<QueueThread>>();
+            log = new Mock<ILogger<QueueThread>>();
 
             dataAccess = new Mock<IBusDataAccess>();
 

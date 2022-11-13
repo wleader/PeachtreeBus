@@ -19,7 +19,7 @@ namespace PeachtreeBus.Sagas
         /// <summary>
         /// A dictionary where the message type is the key, and the key function is the value.
         /// </summary>
-        private readonly Dictionary<Type, object> MapFunctions = new Dictionary<Type, object>();
+        private readonly Dictionary<Type, object> MapFunctions = new();
 
         /// <summary>
         /// Called in the Saga's ConfigureMessageKeys to tell the bus how to calculate a Saga Key from a given message type.

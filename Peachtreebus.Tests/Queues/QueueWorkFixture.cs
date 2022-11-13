@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Peachtreebus.Tests.Sagas;
 using PeachtreeBus;
@@ -18,7 +19,7 @@ namespace Peachtreebus.Tests.Queues
     public class QueueWorkFixture
     {
         private QueueWork work;
-        private Mock<ILog<QueueWork>> log;
+        private Mock<ILogger<QueueWork>> log;
         private Mock<IPerfCounters> counters;
         private Mock<IFindQueueHandlers> findHandlers;
         private Mock<IQueueReader> reader;
@@ -27,7 +28,7 @@ namespace Peachtreebus.Tests.Queues
         [TestInitialize]
         public void TestInitialize()
         {
-            log = new Mock<ILog<QueueWork>>();
+            log = new Mock<ILogger<QueueWork>>();
             counters = new Mock<IPerfCounters>();
             findHandlers = new Mock<IFindQueueHandlers>();
             reader = new Mock<IQueueReader>();

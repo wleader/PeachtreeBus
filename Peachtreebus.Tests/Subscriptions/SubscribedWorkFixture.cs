@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus;
 using PeachtreeBus.Data;
@@ -21,7 +22,7 @@ namespace Peachtreebus.Tests.Subscriptions
         }
 
         private SubscribedWork work;
-        private Mock<ILog<SubscribedWork>> log;
+        private Mock<ILogger<SubscribedWork>> log;
         private Mock<IPerfCounters> counters;
         private Mock<IFindSubscribedHandlers> findHandlers;
         private Mock<ISubscribedReader> reader;
@@ -30,7 +31,7 @@ namespace Peachtreebus.Tests.Subscriptions
         [TestInitialize]
         public void TestInitialize()
         {
-            log = new Mock<ILog<SubscribedWork>>();
+            log = new Mock<ILogger<SubscribedWork>>();
             counters = new Mock<IPerfCounters>();
             findHandlers = new Mock<IFindSubscribedHandlers>();
             reader = new Mock<ISubscribedReader>();

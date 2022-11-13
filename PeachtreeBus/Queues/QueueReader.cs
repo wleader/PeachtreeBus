@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using System;
@@ -63,13 +64,82 @@ namespace PeachtreeBus.Queues
         Task SaveSaga(object saga, QueueContext context);
     }
 
+    internal static class QueueReader_LogMessages
+    {
+        internal static readonly Action<ILogger, string, Guid, Exception> QueueReader_HeaderNotDeserilizable_Action =
+            LoggerMessage.Define<string, Guid>(
+                LogLevel.Warning,
+                Events.QueueReader_HeaderNotDeserializable,
+                "Headers could not be deserialized for message {MessageId} from queue {QueueName}");
+
+        internal static void QueueReader_HeaderNotDeserializable(this ILogger logger, string queueName, Guid messageId, Exception ex)
+        {
+            QueueReader_HeaderNotDeserilizable_Action(logger, queueName, messageId, ex);
+        }
+
+        internal static readonly Action<ILogger, string, Guid, Exception> QueueReader_BodyNotDeserializable_Action =
+            LoggerMessage.Define<string, Guid>(
+                LogLevel.Warning,
+                Events.QueueReader_BodyNotDeserializable,
+                "Body could not be deserialized for message {MessageId} from queue {QueueName}");
+
+        internal static void QueueReader_BodyNotDeserizeralizable(this ILogger logger, string queueName, Guid messageId, Exception ex)
+        {
+            QueueReader_BodyNotDeserializable_Action(logger, queueName, messageId, ex);
+        }
+
+        internal static readonly Action<ILogger, string, Guid, string, Exception> QueueReader_MessageClassNotRecognized_Action =
+            LoggerMessage.Define<string, Guid, string>(
+                LogLevel.Warning,
+                Events.QueueReader_MessageClassNotRecognized,
+                "Message class '{MessageClass}' was not recognized for message {MessageId} from queue {QueueName}");
+
+        internal static void QueueReader_MessageClassNotRecognized(this ILogger logger, string queueName, Guid messageId, string messageClass)
+        {
+            QueueReader_MessageClassNotRecognized_Action(logger, queueName, messageId, messageClass, null);
+        }
+
+        internal static readonly Action<ILogger, string, Guid, int, Exception> QueueReader_MessageExceededMaxRetries_Action =
+            LoggerMessage.Define<string, Guid, int>(
+                LogLevel.Warning,
+                Events.QueueReader_MessageExceededMaxRetries,
+                "Message {MessageId} from queue {QueueName} exceeded the maximum number of allowed retries ({MaxRetries}) and has failed.");
+
+        internal static void QueueReader_MessageExceededMaxRetries(this ILogger logger, string queueName, Guid messageId, int maxRetries)
+        {
+            QueueReader_MessageExceededMaxRetries_Action(logger, queueName, messageId, maxRetries, null);
+        }
+
+        internal static readonly Action<ILogger, string, Guid, DateTime, Exception> QueueReader_MessageWillBeRetried_Action =
+            LoggerMessage.Define<string, Guid, DateTime>(
+                LogLevel.Warning,
+                Events.QueueReader_MessageWillBeRetried,
+                "Message {MessageId} from queue {QueueName} will be retried after {NotBefore}.");
+
+        internal static void QueueReader_MessageWillBeRetried(this ILogger logger, string queueName, Guid messageId, DateTime notBefore)
+        {
+            QueueReader_MessageWillBeRetried_Action(logger, queueName, messageId, notBefore, null);
+        }
+
+        internal static readonly Action<ILogger, string, string, Exception> QueueReader_LoadingSagaData_Action =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                Events.QueueReader_LoadingSagaData,
+                "Loading saga data for {SagaName} - {SagaKey}");
+
+        internal static void QueueReader_LoadingSagaData(this ILogger logger, string sagaName, string sagaKey)
+        {
+            QueueReader_LoadingSagaData_Action(logger, sagaName, sagaKey, null);
+        }
+    }
+
     /// <summary>
     /// Implements IQueueReader Using an IBusDataAccess and JSON serialization.
     /// </summary>
     public class QueueReader :IQueueReader
     {
         private readonly IBusDataAccess _dataAccess;
-        private readonly ILog<QueueReader> _log;
+        private readonly ILogger<QueueReader> _log;
         private readonly IPerfCounters _counters;
         private readonly ISerializer _serializer;
         private readonly ISystemClock _clock;
@@ -82,7 +152,7 @@ namespace PeachtreeBus.Queues
         /// <param name="dataAccess">The Data access.</param>
         /// <param name="log"></param>
         public QueueReader(IBusDataAccess dataAccess,
-            ILog<QueueReader> log,
+            ILogger<QueueReader> log,
             IPerfCounters counters,
             ISerializer serializer,
             ISystemClock clock)
@@ -110,9 +180,9 @@ namespace PeachtreeBus.Queues
             {
                 headers =  _serializer.DeserializeHeaders(queueMessage.Headers);
             }
-            catch
+            catch (Exception ex)
             {
-                _log.Warn($"Headers could not be deserialized for message {queueMessage.MessageId}.");
+                _log.QueueReader_HeaderNotDeserializable(queueName, queueMessage.MessageId, ex);
                 // this might not work, The body might deserialize but there won't be an
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
@@ -129,14 +199,14 @@ namespace PeachtreeBus.Queues
                 {
                     message = _serializer.DeserializeMessage(queueMessage.Body, messageType);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    _log.Warn($"Message Body could not be deserialized for message {queueMessage.MessageId}.");
+                    _log.QueueReader_BodyNotDeserizeralizable(queueName, queueMessage.MessageId, ex);
                 }
             }
             else
             {
-                _log.Warn($"Message class {headers.MessageClass} was not recognized for message {queueMessage.MessageId}.");
+                _log.QueueReader_MessageClassNotRecognized(queueName, queueMessage.MessageId, headers.MessageClass);
             }
 
             // return the new message context.
@@ -166,14 +236,14 @@ namespace PeachtreeBus.Queues
             context.MessageData.Headers = _serializer.SerializeHeaders(context.Headers);
             if (context.MessageData.Retries >= MaxRetries)
             {
-                _log.Error($"Message {context.MessageData.MessageId} exceeded max retries ({MaxRetries}) and has failed.");
+                _log.QueueReader_MessageExceededMaxRetries(context.SourceQueue, context.MessageData.MessageId, MaxRetries);
                 context.MessageData.Failed = DateTime.UtcNow;
                 _counters.FailMessage();
                 await _dataAccess.FailMessage(context.MessageData, context.SourceQueue);
             }
             else
             {
-                _log.Error($"Message {context.MessageData.MessageId} will be retried at {context.MessageData.NotBefore}.");
+                _log.QueueReader_MessageWillBeRetried(context.SourceQueue, context.MessageData.MessageId, context.MessageData.NotBefore);
                 _counters.RetryMessage();
                 await _dataAccess.Update(context.MessageData, context.SourceQueue);
             }
@@ -188,7 +258,7 @@ namespace PeachtreeBus.Queues
             var sagaName = (string)nameProperty.GetValue(saga);
 
             // fetch the data from the DB.
-            _log.Debug($"Loading sagadata {sagaName} - {context.SagaKey}");
+            _log.QueueReader_LoadingSagaData(sagaName, context.SagaKey);
             context.SagaData = await _dataAccess.GetSagaData(sagaName, context.SagaKey);
             if (context.SagaData != null && context.SagaData.Blocked) return;
 

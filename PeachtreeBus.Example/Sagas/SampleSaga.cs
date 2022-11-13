@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Example.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Example.Data;
 using PeachtreeBus.Example.Messages;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
@@ -21,11 +22,11 @@ namespace PeachtreeBus.Example.Sagas
         IHandleSagaStartMessage<SampleSagaStart>,
         IHandleQueueMessage<SampleDistributedTaskResponse>
     {
-        private readonly ILog _log;
+        private readonly ILogger _log;
         private readonly IExampleDataAccess _dataAccess;
         private readonly IQueueWriter _queueWriter;
 
-        public SampleSaga(ILog<SampleSaga> log,
+        public SampleSaga(ILogger<SampleSaga> log,
             IExampleDataAccess dataAccess,
             IQueueWriter queueWriter)
         {
@@ -59,17 +60,17 @@ namespace PeachtreeBus.Example.Sagas
         /// <returns></returns>
         public async Task Handle(QueueContext context, SampleDistributedTaskResponse message)
         {
-            _log.Info($"Distributed Task Complete: {message.A} {message.Operation} {message.B} = {message.Result}");
-            
+            _log.DistributedTaskComplete(message.Operation, message.A, message.B, message.Result);
+
             // update our saga data, keeping track of how much work is remaining.
             Data.PendingTasks--;
-            _log.Info($"{Data.PendingTasks} Tasks Remaining.");
+            _log.PendingTasksRemaining(Data.PendingTasks);
 
             if (Data.PendingTasks == 0)
             {
                 // all tasks are complete, so we can inform the application
                 // that this saga has finished.
-                _log.Info($"Completing SagaId {message.AppId}");
+                _log.CompletingSaga(message.AppId);
                 await _queueWriter.WriteMessage(context.SourceQueue,
                     new SampleSagaComplete { AppId = message.AppId });
                 SagaComplete = true;
@@ -77,15 +78,15 @@ namespace PeachtreeBus.Example.Sagas
             else
             {
                 // there is more work to do, so dispatch another distributed task.
-                _log.Info($"Distributing more work for SagaId {message.AppId}");
-                await _queueWriter.WriteMessage(context.SourceQueue, 
+                _log.DistributingMoreWork(message.AppId);
+                await _queueWriter.WriteMessage(context.SourceQueue,
                     new SampleDistributedTaskRequest
-                {
-                    AppId = message.AppId,
-                    B = (Data.PendingTasks - 1) * 3,
-                    A = (Data.PendingTasks - 1) * 4,
-                    Operation = "+"
-                });
+                    {
+                        AppId = message.AppId,
+                        B = (Data.PendingTasks - 1) * 3,
+                        A = (Data.PendingTasks - 1) * 4,
+                        Operation = "+"
+                    });
             }
 
             // demonstrate interaction with our application database.
@@ -100,23 +101,23 @@ namespace PeachtreeBus.Example.Sagas
         /// <returns></returns>
         public async Task Handle(QueueContext context, SampleSagaStart message)
         {
-            _log.Info($"Starting Tasks for SagaId {message.AppId}");
+            _log.StartingTasks(message.AppId);
 
             // record in our saga data how many distributed tasks that need to be compelted before
             // the saga is regarded as complete.
             Data.PendingTasks = 10;
 
             // send a distributed task out to be worked.
-            await _queueWriter.WriteMessage(context.SourceQueue, 
+            await _queueWriter.WriteMessage(context.SourceQueue,
                 new SampleDistributedTaskRequest
-            {
-                AppId = message.AppId,
-                A = (Data.PendingTasks - 1) * 3,
-                B = (Data.PendingTasks - 1) * 4,
-                Operation = "+"
-            });
+                {
+                    AppId = message.AppId,
+                    A = (Data.PendingTasks - 1) * 3,
+                    B = (Data.PendingTasks - 1) * 4,
+                    Operation = "+"
+                });
 
-            // interact with out application specific database.
+            // interact with our application specific database.
             await _dataAccess.Audit("Saga Started.");
         }
     }

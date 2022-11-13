@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,34 @@ namespace PeachtreeBus.Subscriptions
         Guid SubscriberId { get; set; }
     }
 
+    internal static class SubscribedWork_LogMessages
+    {
+        internal static Action<ILogger, Guid, Guid, Exception> SubscribedWork_ProcessingMessage_Action =
+            LoggerMessage.Define<Guid, Guid>(
+                LogLevel.Debug,
+                Events.SubscribedWork_ProcessingMessage,
+                "Processing message {MessageId} for subscriber {SubscriberId}.");
+
+        internal static void SubscribedWork_ProcessingMessage(this ILogger logger,
+            Guid messageId, Guid subscriberId)
+        {
+            SubscribedWork_ProcessingMessage_Action(logger, messageId, subscriberId, null);
+        }
+
+        internal static Action<ILogger, Guid, Guid, Exception> SubscribedWork_MessageHandlerException_Action =
+            LoggerMessage.Define<Guid, Guid>(
+                LogLevel.Warning,
+                Events.SubscribedWork_MessageHandlerException,
+                "There was an exception while processing message {MessageId} for subscriber {SusbscriberId}.");
+    
+        internal static void SubscribedWork_MessageHandlerException(this ILogger logger, 
+            Guid messageId, Guid subscriberId, Exception ex)
+        {
+            SubscribedWork_MessageHandlerException_Action(logger, messageId, subscriberId, ex);
+        }
+    }
+
+
     /// <summary>
     /// A unit of work that reads one subscribed message and processes it.
     /// </summary>
@@ -21,14 +50,14 @@ namespace PeachtreeBus.Subscriptions
     {
         private readonly ISubscribedReader _reader;
         private readonly IPerfCounters _counters;
-        private readonly ILog<SubscribedWork> _log;
+        private readonly ILogger<SubscribedWork> _log;
         private readonly IBusDataAccess _dataAccess;
         private readonly IFindSubscribedHandlers _findSubscriptionHandlers;
 
         public SubscribedWork(
             ISubscribedReader reader,
             IPerfCounters counters,
-            ILog<SubscribedWork> log,
+            ILogger<SubscribedWork> log,
             IBusDataAccess dataAccess,
             IFindSubscribedHandlers findSubscriptionHandler)
         {
@@ -59,7 +88,9 @@ namespace PeachtreeBus.Subscriptions
             }
 
             // we found a message to process.
-            _log.Debug($"Processing {subsriptionContext.MessageData.MessageId}");
+            _log.SubscribedWork_ProcessingMessage(
+                subsriptionContext.MessageData.MessageId,
+                SubscriberId);
             var started = DateTime.UtcNow;
             try
             {
@@ -121,7 +152,10 @@ namespace PeachtreeBus.Subscriptions
             {
                 // there was an exception, Rollback to the save point to undo
                 // any db changes done by the handlers.
-                _log.Warn($"There was an execption processing the message. {ex}");
+                _log.SubscribedWork_MessageHandlerException(
+                    subsriptionContext.MessageData.MessageId,
+                    SubscriberId,
+                    ex);
                 _dataAccess.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
                 await _reader.Fail(subsriptionContext, ex);

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
@@ -12,14 +13,14 @@ namespace PeachtreeBus.DataAccessTests
     [TestClass]
     public class TransactionsFixture
     {
-        private Mock<ILog<DapperDataAccess>> MockLog;
+        private Mock<ILogger<DapperDataAccess>> MockLog;
         private Mock<ISharedDatabase> MockSharedDatabase;
         private DapperDataAccess dataAccess;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            MockLog = new Mock<ILog<DapperDataAccess>>();
+            MockLog = new Mock<ILogger<DapperDataAccess>>();
             MockSharedDatabase = new Mock<ISharedDatabase>();
             dataAccess = new DapperDataAccess(MockSharedDatabase.Object, null, MockLog.Object);
         }

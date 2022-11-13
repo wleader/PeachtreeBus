@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
@@ -38,7 +39,7 @@ namespace PeachtreeBus.DataAccessTests
         /// <summary>
         /// Provides a log to the data access.
         /// </summary>
-        protected Mock<ILog<DapperDataAccess>> MockLog;
+        protected Mock<ILogger<DapperDataAccess>> MockLog;
 
         protected const string DefaultSchema = "PeachtreeBus";
         protected const string DefaultQueue = "QueueName";
@@ -70,7 +71,7 @@ namespace PeachtreeBus.DataAccessTests
             MockSchema = new Mock<IDbSchemaConfiguration>();
             MockSchema.Setup(s => s.Schema).Returns(DefaultSchema);
 
-            MockLog = new Mock<ILog<DapperDataAccess>>();
+            MockLog = new Mock<ILogger<DapperDataAccess>>();
 
             dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object, MockLog.Object);
 

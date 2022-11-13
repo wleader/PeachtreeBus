@@ -6,10 +6,25 @@ using System;
 using System.Threading.Tasks;
 using System.Data;
 using System.Collections.Generic;
-using System.Collections;
+using Microsoft.Extensions.Logging;
 
 namespace PeachtreeBus.Data
 {
+
+    internal static class DapperDataAccess_LogMessages
+    {
+        internal static readonly Action<ILogger, string, Exception> DapperDataAccess_DataAccessError_Action =
+            LoggerMessage.Define<string>(
+                LogLevel.Error,
+                Events.DapperDataAcess_DataAccessError,
+                "There was an exception interacting with the database. Method: {Method}");
+
+        internal static void DapperDataAccess_DataAccessError(this ILogger logger, string method, Exception ex)
+        {
+            DapperDataAccess_DataAccessError_Action(logger, method, ex);
+        }
+    }
+
     /// <summary>
     /// An SQL type handler for DataTime.
     /// Ensures that DateTimes are always persisted and read as UTC.
@@ -39,7 +54,7 @@ namespace PeachtreeBus.Data
         }
 
         private readonly ISharedDatabase _database;
-        private readonly ILog<DapperDataAccess> _log;
+        private readonly ILogger<DapperDataAccess> _log;
         private readonly IDbSchemaConfiguration _schemaConfig;
 
         const string SafeChars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -55,7 +70,7 @@ namespace PeachtreeBus.Data
         public DapperDataAccess(
             ISharedDatabase database,
             IDbSchemaConfiguration schemaConfig,
-            ILog<DapperDataAccess> log)
+            ILogger<DapperDataAccess> log)
         {
             _schemaConfig = schemaConfig;
             _database = database;
@@ -116,7 +131,7 @@ namespace PeachtreeBus.Data
             }
             catch(Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(AddMessage)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(AddMessage), ex);
                 throw;
             }
         }
@@ -155,7 +170,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(GetPendingQueued)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(GetPendingQueued), ex);
                 throw;
             }
         }
@@ -213,7 +228,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CompleteMessage)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(CompleteMessage), ex);
                 throw;
             }
         }
@@ -270,7 +285,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(FailMessage)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(FailMessage), ex);
                 throw;
             }
         }
@@ -319,7 +334,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Update)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(Update), ex);
                 throw;
             }
         }
@@ -367,7 +382,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Insert)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(Insert), ex);
                 throw;
             }
         }
@@ -408,7 +423,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Update)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(Update), ex);
                 throw;
             }
         }
@@ -442,7 +457,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(DeleteSagaData)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(DeleteSagaData), ex);
                 throw;
             }
         }
@@ -508,7 +523,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(GetSagaData)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(GetSagaData), ex);
                 throw;
             }
         }
@@ -534,7 +549,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(ExpireSubscriptions)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(ExpireSubscriptions), ex);
                 throw;
             }
         }
@@ -581,7 +596,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Subscribe)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(Subscribe), ex);
                 throw;
             }
         }
@@ -625,7 +640,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(GetPendingSubscribed)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(GetPendingSubscribed), ex);
                 throw;
             }
         }
@@ -683,7 +698,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(AddMessage)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(AddMessage), ex);
                 throw;
             }
         }
@@ -742,7 +757,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CompleteMessage)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(CompleteMessage), ex);
                 throw;
             }
         }
@@ -800,7 +815,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(FailMessage)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(FailMessage), ex);
                 throw;
             }
         }
@@ -846,7 +861,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(Update)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(Update), ex);
                 throw;
             }
         }
@@ -883,7 +898,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(ExpireSubscriptionMessages)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(ExpireSubscriptionMessages), ex);
                 throw;
             }
         }
@@ -916,7 +931,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(GetSubscribers)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(GetSubscribers), ex);
                 throw;
             }
         }
@@ -950,7 +965,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CleanSubscribedCompleted)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(CleanSubscribedCompleted), ex);
                 throw;
             }
         }
@@ -984,7 +999,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CleanSubscribedFailed)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(CleanSubscribedFailed), ex);
                 throw;
             }
         }
@@ -1021,7 +1036,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CleanQueueCompleted)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(CleanQueueCompleted), ex);
                 throw;
             }
         }
@@ -1058,7 +1073,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.Error($"Error in {nameof(DapperDataAccess)}.{nameof(CleanQueueFailed)}\r\n{ex}");
+                _log.DapperDataAccess_DataAccessError(nameof(CleanQueueFailed), ex);
                 throw;
             }
         }

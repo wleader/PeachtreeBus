@@ -5,6 +5,7 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{FCEB713C-B3A8-40B7-8265-9DE8E4E2ADDE}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
 		Licence.txt = Licence.txt
 		PeachtreeBus.nuspec = PeachtreeBus.nuspec
 		PeachtreeBus.SimpleInjector.nuspec = PeachtreeBus.SimpleInjector.nuspec

@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using System;
 using System.Threading.Tasks;
 
@@ -22,6 +23,42 @@ namespace PeachtreeBus
         Task<bool> DoWork();
     }
 
+    internal static class BaseThread_LogMessages
+    {
+        internal static Action<ILogger, string, Exception> BaseThread_ThreadStart_Action =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                Events.BaseThread_ThreadStart,
+                "Starting {ThreadName} thread.");
+
+        internal static void BaseThread_ThreadStart(this ILogger logger, string threadName)
+        {
+            BaseThread_ThreadStart_Action(logger, threadName, null);
+        }
+
+        internal static Action<ILogger, string, Exception> BaseThread_ThreadStop_Action =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                Events.BaseThread_ThreadStop,
+                "Thread {ThreadName} stopoped.");
+
+        internal static void BaseThread_ThreadStop(this ILogger logger, string threadName)
+        {
+            BaseThread_ThreadStop_Action(logger, threadName, null);
+        }
+
+        internal static Action<ILogger, string, Exception> BaseThread_ThreadError_Action =
+            LoggerMessage.Define<string>(
+                LogLevel.Error,
+                Events.BaseThread_ThreadError,
+                "Thread {ThreadName} stopoped.");
+
+        internal static void BaseThread_ThreadError(this ILogger logger, string threadName, Exception ex)
+        {
+            BaseThread_ThreadError_Action(logger, threadName, ex);
+        }
+    }
+
     /// <summary>
     /// A basic thread that wrappes the Unit of Work in a database
     /// Transaction.
@@ -30,12 +67,12 @@ namespace PeachtreeBus
     {
         private readonly string _name;
         private readonly int delayMs;
-        private readonly ILog _log;
+        private readonly ILogger _log;
         private readonly IBusDataAccess _dataAccess;
         private readonly IProvideShutdownSignal _shutdown;
 
         public BaseThread(string name, int delayMs,
-            ILog log,
+            ILogger log,
             IBusDataAccess dataAccess,
             IProvideShutdownSignal shutdown)
         {
@@ -50,7 +87,7 @@ namespace PeachtreeBus
 
         public async Task Run()
         {
-            _log.Info($"Starting {_name} Thread.");
+            _log.BaseThread_ThreadStart(_name);
 
             do
             {
@@ -71,13 +108,13 @@ namespace PeachtreeBus
                 }
                 catch (Exception e)
                 {
-                    _log.Error(e.ToString());
+                    _log.BaseThread_ThreadError(_name, e);
                     _dataAccess.RollbackTransaction();
                 }
             }
             while (!_shutdown.ShouldShutdown);
 
-            _log.Info($"Shutdown {_name} Thread.");
+            _log.BaseThread_ThreadStop(_name);
         }
     }
 }

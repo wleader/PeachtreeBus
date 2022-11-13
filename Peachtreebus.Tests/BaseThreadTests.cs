@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus;
 using PeachtreeBus.Data;
@@ -15,7 +16,7 @@ namespace Peachtreebus.Tests
     {
         private class TestThread : BaseThread
         {
-            public TestThread(string name, int delayMs, ILog log,
+            public TestThread(string name, int delayMs, ILogger log,
                 PeachtreeBus.Data.IBusDataAccess dataAccess, IProvideShutdownSignal shutdown)
                 :base(name, delayMs, log, dataAccess, shutdown)
             { }
@@ -34,7 +35,7 @@ namespace Peachtreebus.Tests
         private Mock<IProvideShutdownSignal> shutdown;
         private int loopCount = 1;
         private Mock<IBusDataAccess> dataAccess;
-        private Mock<ILog> log;
+        private Mock<ILogger> log;
                 
 
         [TestInitialize]
@@ -46,7 +47,7 @@ namespace Peachtreebus.Tests
                 .Returns(() => loopCount > 0)
                 .Callback(() => loopCount--);
 
-            log = new Mock<ILog>();
+            log = new Mock<ILogger>();
 
             dataAccess = new Mock<IBusDataAccess>();
 

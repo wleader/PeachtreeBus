@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Cleaners
@@ -17,7 +18,7 @@ namespace PeachtreeBus.Cleaners
         private readonly IQueueCleanupWork _cleaner;
 
         public QueueCleanupThread(
-            ILog<QueueCleanupThread> log,
+            ILogger<QueueCleanupThread> log,
             IBusDataAccess dataAccess,
             IProvideShutdownSignal shutdown,
             IQueueCleanupWork cleaner)

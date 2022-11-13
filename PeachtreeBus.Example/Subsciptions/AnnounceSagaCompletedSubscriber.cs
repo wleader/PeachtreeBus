@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Example.Messages;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Example.Messages;
 using PeachtreeBus.Subscriptions;
 using System.Threading.Tasks;
 
@@ -9,10 +10,10 @@ namespace PeachtreeBus.Example.Subsciptions
     /// </summary>
     public class AnnounceSagaCompletedSubscriber : IHandleSubscribedMessage<AnnounceSagaCompleted>
     {
-        private readonly ILog<AnnounceSagaCompletedSubscriber> _log;
+        private readonly ILogger<AnnounceSagaCompletedSubscriber> _log;
 
         public AnnounceSagaCompletedSubscriber(
-            ILog<AnnounceSagaCompletedSubscriber> log)
+            ILogger<AnnounceSagaCompletedSubscriber> log)
         {
             _log = log;
         }
@@ -20,7 +21,7 @@ namespace PeachtreeBus.Example.Subsciptions
         public Task Handle(SubscribedContext context, AnnounceSagaCompleted message)
         {
             // nothing fancy, just note that we handled the subscribed message.
-            _log.Info($"Subscriber {context.SubscriberId} got Saga complete announcement {message.AppId}");
+            _log.SubscribedSagaComplete(context.SubscriberId, message.AppId);
             return Task.CompletedTask;
         }
     }

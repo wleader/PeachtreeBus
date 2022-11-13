@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Queues
@@ -17,7 +18,7 @@ namespace PeachtreeBus.Queues
 
         public QueueThread(IProvideShutdownSignal shutdown,
             IBusDataAccess dataAccess,
-            ILog<QueueThread> log,
+            ILogger<QueueThread> log,
             IQueueWork queueWork,
             IQueueConfiguration config)
             : base( "Queue", 100, log, dataAccess, shutdown )
