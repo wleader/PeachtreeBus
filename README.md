@@ -2,7 +2,19 @@
 A Message Bus Library
 
 ## What's New 
-March 5th, 2022
+### November 13th, 2022
+
+There has been a minor update, 0.9.4.
+
+This release doesn't really change much but there are a few changes. There have been some tweaks to some async-await code that hopefully will provide better exception data when something does go wrong.
+
+Referenced packages have been updated.
+
+Use of ApplicationException has been replaced with Library specific exceptions, You probably were not catching these before so you probably won't notice a difference in behavior here.
+
+The big change is the change to using Microsoft.Extensions.Logging, and the use of structured logging internally. This means that your DI container will need to povide a Microsoft.Extensions.Logging.ILogger<>. This change should result in a tiny performance improvement, since logging code will waste less effort generating strings that go unused. You'll have better control over how much logging you want to capture from the library, since the Microsoft Logging Extensions give pretty good control over what namespaces you want to record log messages from.
+
+### March 5th, 2022
 
 There has been a major rework of things. Release 0.9.3! Woo!
 
@@ -16,7 +28,7 @@ The backing tables have had a lot of things renamed to make their purpose and us
 
 Another Message Bus? What gives? Aren't there enough already? No. :D
 
-Though an explanation probably would help you understand why this exists. Yes there are some other really mature message bus libraries out there and you sure should have a look at them because they aren't bad either. But the reason I created this was that there was a very specific set of features that I wanted to have and really only one of the other libraries had that exact feature set, but that library was too expensive for my personal projects, and suffers a bit from Kitchen Sink features. Yeah, when your a commercial software package you want to be useful to a wide audience so that you have the most chances to sell your product. Thats both good and bad. Its good because it means the software is really useful, but its bad because the software ends up getting a lot of features that aren't really useful to everyone. For example, if you want to be able to use different message transports, you end up writing a lot of code to make it possible for different users to use different message transports. Except most users only ever use one, so all other transports are unneeded. Adding to that, all the middle wear code to support that swapping is ultimately not useful either. I ramble.
+Though an explanation probably would help you understand why this exists. Yes there are some other really mature message bus libraries out there and you sure should have a look at them because they aren't bad either. But the reason I created this was that there was a very specific set of features that I wanted to have and really only one of the other libraries had that exact feature set, but that library was too expensive for my personal projects, and suffers a bit from Kitchen Sink features. Yeah, when your a commercial software package you want to be useful to a wide audience so that you have the most chances to sell your product. Thats both good and bad. Its good because it means the software is really useful, but its bad because the software ends up getting a lot of features that aren't really useful to everyone. For example, if you want to be able to use different message transports, you end up writing a lot of code to make it possible for different users to use different message transports. Except most users only ever use one, so all other transports are unneeded. Adding to that, all the middle-ware code to support that swapping is ultimately not useful either. I ramble.
 
 I wanted a message bus that has the following features:
 * SQL Server Message Transport
@@ -27,10 +39,8 @@ I wanted a message bus that has the following features:
 * Publish and Subscribe!
 * A Simple way to send a message from "send only" code such as Asp.Net Core.
 
-Something that is missing (cause I haven't needed it yet) but I want to add is Publish-Subscribe. We'll see if that gets added someday.
-
 ## SQL Transport
-A lot of message buses shy away from SQL server as a transport. It does sorta make sense in a lot of scenarios. If you are exchanging message with an unknown system you don't really want them to have access to queue tables. In this case its totally appropriate to pass the message through some kind of independant messaging system. And Indeed if thats what I was doing then I certainly would want to do that. However, the kind of message bus based software I typically work on, the vast majority of what goes on is the system sending messages to itself, and when that is the case, Its not a huge risk to for two processes that are already sharing the same database, to use that database for the message transport. If you are installing my application do you want to have a database server and a messaging service just so the application can talk to itself, or would you rather just have just the database server? Eliminating the need for a messaging service reduces the deployment complexity of the application so thats a good thing. Of course this doesn't completely eliminate the ability to communicate with other messaging services. If you really had to send a message out of the system itself, you could always build in a broker that takes a message from the Database, forwards the message onto some other message queue service. And likewise if you need to recieve messages from some other queue service, a broker could read that other service, deduplicate, and insert the message into the database. 
+A lot of message buses shy away from SQL server as a transport. It does sorta make sense in a lot of scenarios. If you are exchanging message with an unknown system you don't really want them to have access to queue tables. In this case its totally appropriate to pass the message through some kind of independant messaging system. And Indeed if thats what I was doing then I certainly would want to do that. However, the kind of message bus based software I typically work on, the vast majority of what goes on is the system sending messages to itself, and when that is the case, Its not a huge risk for two processes that are already sharing the same database, to use that database for the message transport. If you are installing my application do you want to have a database server and a messaging service just so the application can talk to itself, or would you rather just have just the database server? Eliminating the need for a messaging service reduces the deployment complexity of the application so thats a good thing. Of course this doesn't completely eliminate the ability to communicate with other messaging services. If you really had to send a message out of the system itself, you could always build in a broker that takes a message from the Database, forwards the message onto some other message queue service. And likewise if you need to recieve messages from some other queue service, a broker could read that other service, deduplicate, and insert the message into the database. 
 
 But there is another piece of magic going on here when using SQL for the message transport: Exactly-Once processing of messages is much easier. Reading a message from the database, performing application logic on the database, delivery of new messages, and completion of the message is contained entierly in the database transaction, and as such, all of it happens or none of it happens. This greatly simplifies the application code in that most cases you don't need to check if a message was processed previously or if it partially succeeded. You don't need to workout if the the application data is in some unknown state. The message completed entirely or not at all. This greatly reduces the complexity of error recovery. For this reason, I find SQL transport to be an extremely compelling option.
 
