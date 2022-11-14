@@ -66,7 +66,7 @@ namespace PeachtreeBus.Example
             // log to the console window.
             using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
             {
-                builder.AddConsole();
+                builder.AddSimpleConsole();
             });
             _container.RegisterInstance<ILoggerFactory>(loggerFactory);
             _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
