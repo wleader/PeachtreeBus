@@ -50,7 +50,7 @@ namespace PeachtreeBus.Example.Handlers
             await _queueWriter.WriteMessage(context.SourceQueue, response);
 
             // demonstrate interacting with our application data.
-            _log.DistributedTaskResult(response.Operation, response.A, response.B, response.Result);
+            _log.DistributedTaskResult(response.A, response.Operation, response.B, response.Result);
             await _dataAccess.Audit($"Distributed Task Result: {response.A} {response.Operation} {response.B} = {response.Result}");
         }
     }
