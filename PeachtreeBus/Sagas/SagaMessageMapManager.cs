@@ -16,7 +16,7 @@ namespace PeachtreeBus.Sagas
     public class SagaMessageMapManager : ISagaMessageMapManager
     {
 
-        private readonly Dictionary<Type, SagaMessageMap> Maps = new Dictionary<Type, SagaMessageMap>();
+        private readonly Dictionary<Type, SagaMessageMap> Maps = new();
 
         /// <summary>
         /// Gets a Saga Key for a given Saga and Mesasge.
