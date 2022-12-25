@@ -1,7 +1,18 @@
 # PeachtreeBus
 A Message Bus Library
 
-## What's New 
+## What's New
+### December  25th, 2022
+Message Pipelines! 0.9.5
+
+Message Pipelines are a way to insert code that can run before and/or after each message's handlers are invoked. 
+
+To use message pipelines, you'll need to implement IQueuePipelineStep for code that you want to run on queued messages, and ISubscribedPipelineStep for subscription messages. Note that pipeline steps have a priority property so if you have more than one step, you can control the order they are used. Lower numbers are at the top, and invoke higher numbers, until the message handlers are invoked.
+
+You'll also need the IFindQueuedPipelineSteps and IFindSubscribedPipelineSteps. An implementation of these for Simple Injector has been included in the PeachtreeBus.SimpleInjector package. 
+
+The Example Project has been updated to include a very basic set of Pipeline steps.
+
 ### November 13th, 2022
 
 There has been a minor update, 0.9.4.
