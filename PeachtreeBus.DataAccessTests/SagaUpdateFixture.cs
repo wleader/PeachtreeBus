@@ -50,7 +50,7 @@ namespace PeachtreeBus.DataAccessTests
                 SagaId = Guid.NewGuid() // check this doesn't update
             };
 
-            await dataAccess.Update(updatedSaga, DefaultSagaName );
+            await dataAccess.Update(updatedSaga, DefaultSagaName);
             await Task.Delay(10);
 
             var sagas = GetTableContent(DefaultSagaTable).ToSagas();
