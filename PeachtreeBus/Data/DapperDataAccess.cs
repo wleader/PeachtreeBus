@@ -1,30 +1,15 @@
-﻿using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Model;
-using Dapper;
-using System.Linq;
-using System;
-using System.Threading.Tasks;
-using System.Data;
-using System.Collections.Generic;
+﻿using Dapper;
 using Microsoft.Extensions.Logging;
+using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Model;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.Data
 {
-
-    internal static class DapperDataAccess_LogMessages
-    {
-        internal static readonly Action<ILogger, string, Exception> DapperDataAccess_DataAccessError_Action =
-            LoggerMessage.Define<string>(
-                LogLevel.Error,
-                Events.DapperDataAcess_DataAccessError,
-                "There was an exception interacting with the database. Method: {Method}");
-
-        internal static void DapperDataAccess_DataAccessError(this ILogger logger, string method, Exception ex)
-        {
-            DapperDataAccess_DataAccessError_Action(logger, method, ex);
-        }
-    }
-
     /// <summary>
     /// An SQL type handler for DataTime.
     /// Ensures that DateTimes are always persisted and read as UTC.
@@ -129,7 +114,7 @@ namespace PeachtreeBus.Data
             {
                 return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _log.DapperDataAccess_DataAccessError(nameof(AddMessage), ex);
                 throw;
@@ -715,8 +700,8 @@ namespace PeachtreeBus.Data
             const string completeStatement =
                 "DECLARE " +
                 " @MessageId UNIQUEIDENTIFIER," +
-                " @SubscriberId UNIQUEIDENTIFIER,"+
-                " @ValidUntil DATETIME2, "+
+                " @SubscriberId UNIQUEIDENTIFIER," +
+                " @ValidUntil DATETIME2, " +
                 " @Enqueued DATETIME2, " +
                 " @Body NVARCHAR(MAX), " +
                 " @Retries TINYINT, " +
@@ -811,7 +796,7 @@ namespace PeachtreeBus.Data
 
             try
             {
-                 await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
             }
             catch (Exception ex)
             {
@@ -891,7 +876,7 @@ namespace PeachtreeBus.Data
                 throw new ArgumentException(SchemaUnsafe);
 
             var statement = string.Format(ExpireStatement, _schemaConfig.Schema);
-            
+
             try
             {
                 await _database.Connection.ExecuteAsync(statement, null, _database.Transaction);
@@ -935,7 +920,7 @@ namespace PeachtreeBus.Data
                 throw;
             }
         }
-        
+
         /// <summary>
         /// Removes rows from the Subscribed Compelted Table.
         /// </summary>
@@ -952,7 +937,7 @@ namespace PeachtreeBus.Data
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
-            
+
             string statement = string.Format(statementTemplate, _schemaConfig.Schema);
 
             var p = new DynamicParameters();
