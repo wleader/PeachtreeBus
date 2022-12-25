@@ -7,7 +7,7 @@ namespace Peachtreebus.Tests.Sagas
     /// <summary>
     /// A message for unit tests
     /// </summary>
-    public class TestSagaMessage1: IQueueMessage
+    public class TestSagaMessage1 : IQueueMessage
     {
 
     }
@@ -15,7 +15,7 @@ namespace Peachtreebus.Tests.Sagas
     /// <summary>
     /// A message for unit tests
     /// </summary>
-    public class TestSagaMessage2: IQueueMessage
+    public class TestSagaMessage2 : IQueueMessage
     {
 
     }
