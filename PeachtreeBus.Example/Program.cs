@@ -63,6 +63,7 @@ namespace PeachtreeBus.Example
             // These are things you may want to replace in your application.
             // signal shutdown when the process is exiting.
             _container.RegisterSingleton(typeof(IProvideShutdownSignal), typeof(ProcessExitShutdownSignal));
+
             // log to the console window.
             using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
             {
@@ -70,6 +71,7 @@ namespace PeachtreeBus.Example
             });
             _container.RegisterInstance<ILoggerFactory>(loggerFactory);
             _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
+
             // read the DB connection string from an appsettings.json.
             _container.RegisterSingleton(typeof(IProvideDbConnectionString), typeof(AppSettingsDatabaseConfig));
             // register an IConfiguration read from appsettings.json.
