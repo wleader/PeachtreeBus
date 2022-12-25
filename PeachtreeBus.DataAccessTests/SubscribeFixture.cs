@@ -154,7 +154,7 @@ namespace PeachtreeBus.DataAccessTests
         /// proves that the subscriber ID cannot be empty.
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]  
+        [ExpectedException(typeof(ArgumentException))]
         public async Task Subscribe_ThrowsIfSubscriberIdIsGuidEmpty()
         {
             await dataAccess.Subscribe(Guid.Empty, "TestCategory", DateTime.UtcNow.AddMinutes(30));
