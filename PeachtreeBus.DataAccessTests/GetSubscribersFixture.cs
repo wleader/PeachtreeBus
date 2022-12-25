@@ -34,7 +34,7 @@ namespace PeachtreeBus.DataAccessTests
             var action = new Func<Task>(async () => await dataAccess.GetSubscribers(category)); ;
             await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
-     
+
         /// <summary>
         /// Proves that the correct SubscriberIds are returned.
         /// </summary>
