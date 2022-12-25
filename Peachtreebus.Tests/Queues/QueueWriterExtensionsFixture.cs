@@ -3,6 +3,7 @@ using Moq;
 using Peachtreebus.Tests.Sagas;
 using PeachtreeBus.Queues;
 using System;
+using System.Threading.Tasks;
 
 namespace Peachtreebus.Tests.Queues
 {
@@ -16,7 +17,7 @@ namespace Peachtreebus.Tests.Queues
         /// Proves WriteMessage, writes the message.
         /// </summary>
         [TestMethod]
-        public void WriteMessage_ForwardsToInterface()
+        public async Task WriteMessage_ForwardsToInterface()
         {
             var writer = new Mock<IQueueWriter>();
 
@@ -25,10 +26,10 @@ namespace Peachtreebus.Tests.Queues
 
             writer.Setup(w => w.WriteMessage("TestQueue", typeof(TestSagaMessage1), message, notBefore)).Verifiable();
 
-            writer.Object.WriteMessage("TestQueue", message, notBefore);
+            await writer.Object.WriteMessage("TestQueue", message, notBefore);
 
             writer.Verify();
-           
+
         }
     }
 }
