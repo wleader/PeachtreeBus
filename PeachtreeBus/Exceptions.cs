@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PeachtreeBus
 {
@@ -11,7 +9,7 @@ namespace PeachtreeBus
         { }
 
         internal PeachtreeBusException(string message, Exception innerException)
-            :base(message, innerException)
+            : base(message, innerException)
         { }
 
     }
@@ -61,7 +59,7 @@ namespace PeachtreeBus
             MessageType = messageType;
             SourceQueue = sourceQueue;
             SagaType = sagaType;
-            SagaKey = sagaKey;  
+            SagaKey = sagaKey;
         }
     }
 
