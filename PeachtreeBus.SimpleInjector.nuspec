@@ -17,7 +17,7 @@
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="netstandard2.1">
-            <dependency id="PeachtreeBus" version="0.9.4" />
+            <dependency id="PeachtreeBus" version="0.9.5" />
             <dependency id="SimpleInjector" version="5.4.1" />
             </group>
         </dependencies>
