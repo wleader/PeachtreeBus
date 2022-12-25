@@ -40,7 +40,7 @@ namespace PeachtreeBus.DataAccessTests
 
             // get and update a message.
             var toUpdate = await dataAccess.GetPendingQueued(DefaultQueue);
-            
+
             // set changed values
             toUpdate.MessageId = Guid.NewGuid(); // this should never persist a change.
             toUpdate.Enqueued = toUpdate.Enqueued.AddMinutes(-1); // this should never change.
