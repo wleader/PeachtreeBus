@@ -246,9 +246,9 @@ namespace Peachtreebus.Tests.Queues
                 SourceQueue = "SourceQueue",
                 SagaKey = "SagaKey",
                 SagaData = new SagaData
-                { 
+                {
                     Key = "SagaKey",
-                    Data= "InitialData",
+                    Data = "InitialData",
                 }
             };
 
@@ -279,7 +279,7 @@ namespace Peachtreebus.Tests.Queues
             };
             var testSaga = new TestSaga
             {
-            
+
             };
 
             dataAccess.Setup(d => d.GetSagaData(It.IsAny<string>(), It.IsAny<string>()))
@@ -367,7 +367,7 @@ namespace Peachtreebus.Tests.Queues
                 SourceQueue = "TestSourceQueue",
                 MessageData = new QueueMessage
                 {
-                    Retries = (byte)(reader.MaxRetries -2),
+                    Retries = (byte)(reader.MaxRetries - 2),
                 },
                 Headers = new Headers
                 {
