@@ -22,7 +22,7 @@ namespace PeachtreeBus.SimpleInjector
             container.UsePeachtreeBusDbSchema(dbSchema);
 
             // register our subscription configuration.
-            container.Register(typeof(ISubscribedLifespan), 
+            container.Register(typeof(ISubscribedLifespan),
                 () => new SubscribedLifespan(subscribedLifespan ?? TimeSpan.FromHours(1)),
                 Lifestyle.Singleton);
 
