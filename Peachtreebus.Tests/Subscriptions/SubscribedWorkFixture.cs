@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Peachtreebus.Tests.Pipeline;
 using PeachtreeBus;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Peachtreebus.Tests.Subscriptions
@@ -27,6 +29,7 @@ namespace Peachtreebus.Tests.Subscriptions
         private Mock<IFindSubscribedHandlers> findHandlers;
         private Mock<ISubscribedReader> reader;
         private Mock<IBusDataAccess> dataAccess;
+        private Mock<IFindSubscribedPipelineSteps> findPipelineSteps;
 
         [TestInitialize]
         public void TestInitialize()
@@ -36,6 +39,7 @@ namespace Peachtreebus.Tests.Subscriptions
             findHandlers = new Mock<IFindSubscribedHandlers>();
             reader = new Mock<ISubscribedReader>();
             dataAccess = new Mock<IBusDataAccess>();
+            findPipelineSteps = new();
 
             reader.Setup(r => r.GetNext(It.IsAny<Guid>()))
                 .Returns(Task.FromResult(CreateContext()));
@@ -43,12 +47,16 @@ namespace Peachtreebus.Tests.Subscriptions
             findHandlers.Setup(f => f.FindHandlers<TestMessage>())
                 .Returns(GetOneGoodHandler());
 
+            findPipelineSteps.Setup(f => f.FindSteps())
+                .Returns(Array.Empty<ISubscribedPipelineStep>().ToList());
+
             work = new SubscribedWork(
                 reader.Object,
                 counters.Object,
                 log.Object,
                 dataAccess.Object,
-                findHandlers.Object);
+                findHandlers.Object,
+                findPipelineSteps.Object);
         }
 
         /// <summary>
@@ -167,6 +175,79 @@ namespace Peachtreebus.Tests.Subscriptions
             Assert.IsTrue(result);
         }
 
+        [TestMethod]
+        public async Task Given_PipelineStepsAreProvided_When_DoWork_Then_StepsAreInvokedInOrder()
+        {
+            var invocations = new List<string>();
+
+            var steps = new List<ISubscribedPipelineStep>()
+            {
+                new FakeSubscribedPipelineStep(3, async (c,n) =>
+                {
+                    invocations.Add("step3");
+                    await n(c);
+                    invocations.Add("post3");
+                }),
+                new FakeSubscribedPipelineStep(1, async (c,n) =>
+                {
+                    invocations.Add("step1");
+                    await n(c);
+                    invocations.Add("post1");
+                }),
+                new FakeSubscribedPipelineStep(2, async (c,n) =>
+                {
+                    invocations.Add("step2");
+                    await n(c);
+                    invocations.Add("post2");
+                }),
+            };
+
+            findPipelineSteps.Setup(f => f.FindSteps()).Returns(steps);
+
+            var handler = new Mock<IHandleSubscribedMessage<TestMessage>>();
+            findHandlers.Setup(f => f.FindHandlers<TestMessage>())
+                .Returns(new List<IHandleSubscribedMessage<TestMessage>>() { handler.Object });
+
+            handler.Setup(h => h.Handle(It.IsAny<SubscribedContext>(), It.IsAny<TestMessage>()))
+                .Callback((SubscribedContext c, TestMessage m) =>
+                {
+                    invocations.Add("handler");
+                });
+
+            work.SubscriberId = Guid.NewGuid();
+            var result = await work.DoWork();
+
+            // verify that all the steps were invoked in order.
+            var expected = new List<string>() { "step1", "step2", "step3", "handler", "post3", "post2", "post1" };
+            CollectionAssert.AreEqual(expected, invocations);
+        }
+
+        [TestMethod]
+        public async Task Given_NoPipelineStepsAreProvided_When_DoWork_Then_InvokesHandlers()
+        {
+            var invocations = new List<string>();
+
+            findPipelineSteps.Setup(f => f.FindSteps())
+                .Returns(Array.Empty<ISubscribedPipelineStep>().ToList());
+
+            var handler = new Mock<IHandleSubscribedMessage<TestMessage>>();
+            findHandlers.Setup(f => f.FindHandlers<TestMessage>())
+                .Returns(new List<IHandleSubscribedMessage<TestMessage>>() { handler.Object });
+
+            handler.Setup(h => h.Handle(It.IsAny<SubscribedContext>(), It.IsAny<TestMessage>()))
+                .Callback((SubscribedContext c, TestMessage m) =>
+                {
+                    invocations.Add("handler");
+                });
+
+            work.SubscriberId = Guid.NewGuid();
+            var result = await work.DoWork();
+
+            // verify that all the steps were invoked in order.
+            var expected = new List<string>() { "handler" };
+            CollectionAssert.AreEqual(expected, invocations);
+        }
+
         private SubscribedContext CreateContext()
         {
             return new SubscribedContext()
@@ -176,7 +257,7 @@ namespace Peachtreebus.Tests.Subscriptions
                     MessageId = Guid.NewGuid(),
                 },
                 Headers = new Headers()
-                { 
+                {
                     MessageClass = "Peachtreebus.Tests.Subscriptions.SubscribedWorkFixture+TestMessage, Peachtreebus.Tests",
                 }
             };
