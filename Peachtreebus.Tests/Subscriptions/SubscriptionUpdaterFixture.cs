@@ -83,6 +83,6 @@ namespace Peachtreebus.Tests.Subscriptions
             dataAccess.Verify(d => d.Subscribe(config.SubscriberId, "cat1", unitl), Times.Once);
             dataAccess.Verify(d => d.Subscribe(config.SubscriberId, "cat2", unitl), Times.Once);
         }
-    
+
     }
 }
