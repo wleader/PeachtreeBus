@@ -16,10 +16,10 @@ namespace PeachtreeBus.Cleaners
     {
         private readonly ISubscribedCleanupWork _cleaner;
 
-        public SubscribedCleanupThread(ILogger<SubscribedCleanupThread> log, 
+        public SubscribedCleanupThread(ILogger<SubscribedCleanupThread> log,
             IBusDataAccess dataAccess,
             IProvideShutdownSignal shutdown,
-            ISubscribedCleanupWork cleaner) 
+            ISubscribedCleanupWork cleaner)
             : base("SubscriptionCleaner", 500, log, dataAccess, shutdown)
         {
             _cleaner = cleaner;
@@ -27,7 +27,7 @@ namespace PeachtreeBus.Cleaners
 
         public override async Task<bool> DoUnitOfWork()
         {
-           return await _cleaner.DoWork();
+            return await _cleaner.DoWork();
         }
     }
 }
