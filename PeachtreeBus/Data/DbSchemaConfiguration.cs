@@ -20,7 +20,7 @@
     {
         /// <inheritdoc/>
         public string Schema { get; private set; }
-        public DbSchemaConfiguration( string schema = "PeachtreeBus")
+        public DbSchemaConfiguration(string schema = "PeachtreeBus")
         {
             Schema = schema;
         }
