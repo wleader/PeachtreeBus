@@ -7,8 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		Licence.txt = Licence.txt
+		LogMessages.xsd = LogMessages.xsd
 		PeachtreeBus.nuspec = PeachtreeBus.nuspec
 		PeachtreeBus.SimpleInjector.nuspec = PeachtreeBus.SimpleInjector.nuspec
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PeachtreeBus.Database", "PeachtreeBus.Database\PeachtreeBus.Database.sqlproj", "{F702DCFC-9C33-425E-AE7D-84F340A75EC8}"
