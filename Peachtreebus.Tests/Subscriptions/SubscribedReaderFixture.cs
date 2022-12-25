@@ -29,7 +29,7 @@ namespace Peachtreebus.Tests.Subscriptions
         private SubscribedMessage UpdatedMessage;
         private SubscribedMessage FailedMessage;
         private SubscribedMessage CompletedMessage;
-        
+
         [TestInitialize]
         public void TestInitialize()
         {
