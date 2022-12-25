@@ -126,7 +126,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public static Model.SubscribedMessage ToSubscribedRow (this DataRow row)
+        public static Model.SubscribedMessage ToSubscribedRow(this DataRow row)
         {
             return new Model.SubscribedMessage
             {
