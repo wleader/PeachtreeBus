@@ -3,6 +3,7 @@ using Moq;
 using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
 using System;
+using System.Threading.Tasks;
 
 namespace Peachtreebus.Tests.Cleaners
 {
@@ -19,17 +20,17 @@ namespace Peachtreebus.Tests.Cleaners
         public void TestInitialize()
         {
             dataAccess = new Mock<IBusDataAccess>();
-            cleaner = new SubscribedCleaner( dataAccess.Object);
+            cleaner = new SubscribedCleaner(dataAccess.Object);
         }
 
         /// <summary>
         /// Proves that Clean Subscribed Complete is called with correct parameters.
         /// </summary>
         [TestMethod]
-        public void CleanCompleted_PassesThrough()
+        public async Task CleanCompleted_PassesThrough()
         {
             var olderThan = DateTime.UtcNow.AddDays(-1);
-            cleaner.CleanCompleted(olderThan, 5);
+            await cleaner.CleanCompleted(olderThan, 5);
             dataAccess.Verify(d => d.CleanSubscribedCompleted(olderThan, 5), Times.Once);
         }
 
@@ -37,10 +38,10 @@ namespace Peachtreebus.Tests.Cleaners
         /// Proves that clean subscribed failed is called with correct parameters.
         /// </summary>
         [TestMethod]
-        public void CleanFailed_PassesThrough()
+        public async Task CleanFailed_PassesThrough()
         {
             var olderThan = DateTime.UtcNow.AddDays(-1);
-            cleaner.CleanFailed(olderThan, 5);
+            await cleaner.CleanFailed(olderThan, 5);
             dataAccess.Verify(d => d.CleanSubscribedFailed(olderThan, 5), Times.Once);
         }
     }
