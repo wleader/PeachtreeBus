@@ -63,7 +63,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task CleanCompletedQueueMessages_Cleans()
         {
             var completed = DateTime.UtcNow.AddDays(-1);
-            for(var i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 await CreateTestRow(completed);
             }
