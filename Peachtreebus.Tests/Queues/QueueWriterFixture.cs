@@ -65,7 +65,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task WriteMessage_ThrowsWhenMessageIsNull()
         {
             await writer.WriteMessage(
-                "QueueName", 
+                "QueueName",
                 typeof(TestSagaMessage1),
                 null,
                 null);
