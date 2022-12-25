@@ -14,7 +14,7 @@
     /// </summary>
     public class QueueConfiguration : IQueueConfiguration
     {
-        public string QueueName{get; private set;}
+        public string QueueName { get; private set; }
 
         public QueueConfiguration(string queueName)
         {
