@@ -23,42 +23,6 @@ namespace PeachtreeBus
         Task<bool> DoWork();
     }
 
-    internal static class BaseThread_LogMessages
-    {
-        internal static Action<ILogger, string, Exception> BaseThread_ThreadStart_Action =
-            LoggerMessage.Define<string>(
-                LogLevel.Information,
-                Events.BaseThread_ThreadStart,
-                "Starting {ThreadName} thread.");
-
-        internal static void BaseThread_ThreadStart(this ILogger logger, string threadName)
-        {
-            BaseThread_ThreadStart_Action(logger, threadName, null);
-        }
-
-        internal static Action<ILogger, string, Exception> BaseThread_ThreadStop_Action =
-            LoggerMessage.Define<string>(
-                LogLevel.Information,
-                Events.BaseThread_ThreadStop,
-                "Thread {ThreadName} stopoped.");
-
-        internal static void BaseThread_ThreadStop(this ILogger logger, string threadName)
-        {
-            BaseThread_ThreadStop_Action(logger, threadName, null);
-        }
-
-        internal static Action<ILogger, string, Exception> BaseThread_ThreadError_Action =
-            LoggerMessage.Define<string>(
-                LogLevel.Error,
-                Events.BaseThread_ThreadError,
-                "Thread {ThreadName} stopoped.");
-
-        internal static void BaseThread_ThreadError(this ILogger logger, string threadName, Exception ex)
-        {
-            BaseThread_ThreadError_Action(logger, threadName, ex);
-        }
-    }
-
     /// <summary>
     /// A basic thread that wrappes the Unit of Work in a database
     /// Transaction.
