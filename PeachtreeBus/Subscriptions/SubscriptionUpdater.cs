@@ -19,7 +19,7 @@ namespace PeachtreeBus.Subscriptions
     public class SubscriptionUpdateWork : ISubscriptionUpdateWork
     {
         public DateTime LastUpdate { get; private set; } = DateTime.MinValue;
-        
+
         private readonly IBusDataAccess _dataAccess;
         private readonly ISubscriberConfiguration _config;
         private readonly ISystemClock _clock;
