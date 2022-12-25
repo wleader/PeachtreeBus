@@ -63,7 +63,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="message">The message to move.</param>
         Task FailMessage(QueueMessage message, string queueName);
-        
+
         /// <summary>
         /// Updates a message.
         /// Only updates message properties that are allowed to change.
@@ -76,7 +76,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="data">The saga data to insert.</param>
         Task<long> Insert(SagaData data, string sagaName);
-        
+
         /// <summary>
         /// Updates the saga data in the database.
         /// </summary>
