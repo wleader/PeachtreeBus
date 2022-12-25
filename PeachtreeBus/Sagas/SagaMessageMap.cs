@@ -28,7 +28,7 @@ namespace PeachtreeBus.Sagas
         /// <param name="MapFunction"></param>
         public void Add<TMessage>(Func<TMessage, string> MapFunction) where TMessage : IQueueMessage
         {
-            lock(MapFunction)
+            lock (MapFunction)
             {
                 if (MapFunctions.ContainsKey(typeof(TMessage))) throw new SagaMapException($"The SagaMessageMap already contains a mapping for message type {typeof(TMessage)}.");
                 MapFunctions.Add(typeof(TMessage), MapFunction);
@@ -43,7 +43,7 @@ namespace PeachtreeBus.Sagas
         public string GetKey(object message)
         {
             var messageType = message.GetType();
-            if(!MapFunctions.ContainsKey(messageType))
+            if (!MapFunctions.ContainsKey(messageType))
             {
                 throw new SagaMapException($"The SagaMessageMap does not contain a mapping for message type {messageType}.");
             }
