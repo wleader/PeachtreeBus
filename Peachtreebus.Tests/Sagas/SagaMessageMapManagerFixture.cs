@@ -11,7 +11,8 @@ namespace Peachtreebus.Tests.Sagas
     [TestClass]
     public class SagaMessageMapManagerFixture
     {
-        private class MockMessage1 : IQueueMessage {
+        private class MockMessage1 : IQueueMessage
+        {
             public string Key { get; set; }
         }
 
@@ -20,7 +21,7 @@ namespace Peachtreebus.Tests.Sagas
             public string Key { get; set; }
         }
 
-        private class MockSagaData {  }
+        private class MockSagaData { }
 
         private class MockSaga : Saga<MockSagaData>
         {
