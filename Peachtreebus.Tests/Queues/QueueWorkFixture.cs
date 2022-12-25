@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Peachtreebus.Tests.Pipeline;
 using Peachtreebus.Tests.Sagas;
 using PeachtreeBus;
 using PeachtreeBus.Data;
@@ -8,6 +9,7 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Peachtreebus.Tests.Queues
@@ -22,6 +24,7 @@ namespace Peachtreebus.Tests.Queues
         private Mock<ILogger<QueueWork>> log;
         private Mock<IPerfCounters> counters;
         private Mock<IFindQueueHandlers> findHandlers;
+        private Mock<IFindQueuePipelineSteps> findPipelineSteps;
         private Mock<IQueueReader> reader;
         private Mock<IBusDataAccess> dataAccess;
 
@@ -31,6 +34,8 @@ namespace Peachtreebus.Tests.Queues
             log = new Mock<ILogger<QueueWork>>();
             counters = new Mock<IPerfCounters>();
             findHandlers = new Mock<IFindQueueHandlers>();
+            findPipelineSteps = new();
+
             reader = new Mock<IQueueReader>();
             dataAccess = new Mock<IBusDataAccess>();
 
@@ -40,9 +45,13 @@ namespace Peachtreebus.Tests.Queues
             findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
                 .Returns(GetOneGoodHandler());
 
+            findPipelineSteps.Setup(f => f.FindSteps())
+                .Returns(Array.Empty<IQueuePipelineStep>().ToList());
+
             work = new QueueWork(log.Object,
                 counters.Object,
                 findHandlers.Object,
+                findPipelineSteps.Object,
                 reader.Object,
                 dataAccess.Object,
                 new SagaMessageMapManager());
@@ -248,7 +257,81 @@ namespace Peachtreebus.Tests.Queues
             Assert.IsTrue(result);
         }
 
-        private QueueContext CreateContext()
+        [TestMethod]
+        public async Task Given_PipelineStepsAreProvided_When_DoWork_Then_PipelineStepsAreInvokedInOrder()
+        {
+            var invocations = new List<string>();
+
+            var steps = new List<IQueuePipelineStep>()
+            {
+                new FakeQueuePipelineStep(3, async (c, n) =>
+                {
+                    invocations.Add("step3");
+                    await n.Invoke(c);
+                    invocations.Add("post3");
+                }),
+                new FakeQueuePipelineStep(1, async (c, n) =>
+                {
+                    invocations.Add("step1");
+                    await n.Invoke(c);
+                    invocations.Add("post1");
+                }),
+                new FakeQueuePipelineStep(2, async (c, n) =>
+                {
+                    invocations.Add("step2");
+                    await  n.Invoke(c);
+                    invocations.Add("post2");
+                }),
+            };
+
+            findPipelineSteps.Setup(f => f.FindSteps())
+                .Returns(steps);
+
+            var handler = new Mock<IHandleQueueMessage<TestSagaMessage1>>();
+            findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
+                .Returns(new List<IHandleQueueMessage<TestSagaMessage1>>() { handler.Object });
+
+            handler.Setup(h => h.Handle(It.IsAny<QueueContext>(), It.IsAny<TestSagaMessage1>()))
+                .Callback((QueueContext c, TestSagaMessage1 m) =>
+                {
+                    invocations.Add("handler");
+                });
+
+            work.QueueName = "TestQueue";
+            var result = await work.DoWork();
+
+            // verify that all the steps were invoked in order.
+            var expected = new List<string>() { "step1", "step2", "step3", "handler", "post3", "post2", "post1" };
+            CollectionAssert.AreEqual(expected, invocations);
+        }
+
+        [TestMethod]
+        public async Task Given_NoPipelineStepsAreProvided_When_DoWork_Then_InvokesHandlers()
+        {
+            var invocations = new List<string>();
+
+            findPipelineSteps.Setup(f => f.FindSteps())
+                .Returns(Array.Empty<IQueuePipelineStep>().ToList());
+
+            var handler = new Mock<IHandleQueueMessage<TestSagaMessage1>>();
+            findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
+                .Returns(new List<IHandleQueueMessage<TestSagaMessage1>>() { handler.Object });
+
+            handler.Setup(h => h.Handle(It.IsAny<QueueContext>(), It.IsAny<TestSagaMessage1>()))
+                .Callback((QueueContext c, TestSagaMessage1 m) =>
+                {
+                    invocations.Add("handler");
+                });
+
+            work.QueueName = "TestQueue";
+            var result = await work.DoWork();
+
+            // verify that all the steps were invoked in order.
+            var expected = new List<string>() { "handler" };
+            CollectionAssert.AreEqual(expected, invocations);
+        }
+
+        private static QueueContext CreateContext()
         {
             return new QueueContext()
             {
@@ -264,7 +347,7 @@ namespace Peachtreebus.Tests.Queues
             };
         }
 
-        private QueueContext CreateContextWithUnrecognizedMessageType()
+        private static QueueContext CreateContextWithUnrecognizedMessageType()
         {
             return new QueueContext()
             {
@@ -280,7 +363,7 @@ namespace Peachtreebus.Tests.Queues
             };
         }
 
-        private IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetOneGoodHandler()
+        private static IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetOneGoodHandler()
         {
             var list = new List<IHandleQueueMessage<TestSagaMessage1>>
             {
@@ -289,13 +372,13 @@ namespace Peachtreebus.Tests.Queues
             return list;
         }
 
-        private IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetNoHandlers()
+        private static IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetNoHandlers()
         {
             var list = new List<IHandleQueueMessage<TestSagaMessage1>>();
             return list;
         }
 
-        private IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetTwoHandlers()
+        private static IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetTwoHandlers()
         {
             var list = new List<IHandleQueueMessage<TestSagaMessage1>>
             {
@@ -305,7 +388,7 @@ namespace Peachtreebus.Tests.Queues
             return list;
         }
 
-        private IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetSagaHandler()
+        private static IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetSagaHandler()
         {
             var list = new List<IHandleQueueMessage<TestSagaMessage1>>
             {
