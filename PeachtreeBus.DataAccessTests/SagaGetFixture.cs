@@ -31,14 +31,14 @@ namespace PeachtreeBus.DataAccessTests
         {
             var newSaga1 = CreateTestSagaData();
             newSaga1.Key = "1";
-            
+
             newSaga1.Id = await dataAccess.Insert(newSaga1, DefaultSagaName);
-            
+
             await Task.Delay(10);
             Assert.AreEqual(1, CountRowsInTable(DefaultSagaTable));
 
             var actual = await dataAccess.GetSagaData(DefaultSagaName, newSaga1.Key);
-            
+
             AssertSagaEquals(newSaga1, actual);
             Assert.IsFalse(actual.Blocked);
         }
@@ -101,7 +101,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task GetSagaData_ThrowsIfSagaNameContainsUnsafe()
         {
-            var action = new Func<string,Task>(async (s) => await dataAccess.GetSagaData(s, string.Empty));
+            var action = new Func<string, Task>(async (s) => await dataAccess.GetSagaData(s, string.Empty));
             await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
