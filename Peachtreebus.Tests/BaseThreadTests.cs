@@ -18,7 +18,7 @@ namespace Peachtreebus.Tests
         {
             public TestThread(string name, int delayMs, ILogger log,
                 PeachtreeBus.Data.IBusDataAccess dataAccess, IProvideShutdownSignal shutdown)
-                :base(name, delayMs, log, dataAccess, shutdown)
+                : base(name, delayMs, log, dataAccess, shutdown)
             { }
 
             public bool UnitOfWorkResult { get; set; } = true;
@@ -36,7 +36,7 @@ namespace Peachtreebus.Tests
         private int loopCount = 1;
         private Mock<IBusDataAccess> dataAccess;
         private Mock<ILogger> log;
-                
+
 
         [TestInitialize]
         public void TestInitialize()
