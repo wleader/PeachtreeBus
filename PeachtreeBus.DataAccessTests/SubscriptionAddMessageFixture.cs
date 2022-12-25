@@ -46,7 +46,7 @@ namespace PeachtreeBus.DataAccessTests
 
             AssertSubscribedEquals(newMessage, messages[0]);
         }
-        
+
         /// <summary>
         /// Proves that unsafe schema is not allowed.
         /// </summary>
@@ -58,7 +58,7 @@ namespace PeachtreeBus.DataAccessTests
             var action = new Func<Task>(() => dataAccess.AddMessage(newMessage));
             await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
-        
+
         /// <summary>
         /// proves that NotBefore must specify DateTimeKind
         /// </summary>
@@ -71,7 +71,7 @@ namespace PeachtreeBus.DataAccessTests
             var action = new Func<Model.SubscribedMessage, Task>(async (m) => await dataAccess.AddMessage(m));
             await ActionThrowsFor(action, newMessage);
         }
-        
+
         /// <summary>
         /// Proves that ValidUntil must specify DateTimeKind
         /// </summary>
