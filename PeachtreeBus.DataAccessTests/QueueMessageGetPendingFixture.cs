@@ -16,7 +16,7 @@ namespace PeachtreeBus.DataAccessTests
         {
             base.TestInitialize();
         }
-        
+
         [TestCleanup]
         public override void TestCleanup()
         {
