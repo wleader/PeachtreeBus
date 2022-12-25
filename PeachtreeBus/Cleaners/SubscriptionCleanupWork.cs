@@ -7,7 +7,7 @@ namespace PeachtreeBus.Cleaners
     /// Describes a unit of work that cleans up expired subscriptons.
     /// </summary>
     public interface ISubscriptionCleanupWork : IUnitOfWork { }
-    
+
     /// <summary>
     /// A unit of work that cleans up expired subscriptions.
     /// </summary>
