@@ -16,14 +16,14 @@ namespace PeachtreeBus
         void SentMessage();
     }
 
-    [EventSource(Name ="PeachtreeBus")]
+    [EventSource(Name = "PeachtreeBus")]
     public class PerfCounters : EventSource, IPerfCounters
     {
         private static readonly object LockObj = new();
         private static PerfCounters _instance = null;
         public static PerfCounters Instance()
         {
-            lock(LockObj)
+            lock (LockObj)
             {
                 _instance ??= new PerfCounters();
             }
