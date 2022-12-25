@@ -8,7 +8,7 @@ namespace PeachtreeBus.Subscriptions
     /// Describes a task that will read subscribed messages and attempt to process them.
     /// </summary>
     public interface ISubscribedThread : IThread { }
-   
+
     /// <summary>
     /// A task that will read subscribed messages and attempt to process them.
     /// </summary>
