@@ -1,6 +1,5 @@
 ﻿using SimpleInjector;
 using SimpleInjector.Lifestyles;
-using System;
 
 namespace PeachtreeBus.SimpleInjector
 {
