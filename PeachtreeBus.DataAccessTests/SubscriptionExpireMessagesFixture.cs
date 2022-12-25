@@ -67,7 +67,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task ExpireMessages_DeletesFromPending()
         {
-            
+
             var expected1 = CreateSubscribed();
             expected1.SubscriberId = Guid.NewGuid();
             expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
