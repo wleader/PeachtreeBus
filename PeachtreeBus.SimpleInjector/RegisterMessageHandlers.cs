@@ -42,7 +42,7 @@ namespace PeachtreeBus.SimpleInjector
                 // collection register them so the Message Processor can find the handlers.
                 container.Collection.Register(genericMessageHandlerType, concreteMessageHandlerTypes, Lifestyle.Transient);
 
-                foreach(var ct in concreteMessageHandlerTypes)
+                foreach (var ct in concreteMessageHandlerTypes)
                 {
                     if (container.GetCurrentRegistrations().Any(ip => ip.ImplementationType == ct)) continue;
                     container.Register(ct, ct, Lifestyle.Transient);
