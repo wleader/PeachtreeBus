@@ -35,7 +35,7 @@ namespace PeachtreeBus.Cleaners
         protected readonly IBaseCleanupConfiguration _config;
         protected readonly ISystemClock _clock;
         private readonly IBaseCleaner _cleaner;
-        
+
         /// <summary>
         /// Tracks the last time a cleanup occured.
         /// Used to keep the cleanup from running too often.
