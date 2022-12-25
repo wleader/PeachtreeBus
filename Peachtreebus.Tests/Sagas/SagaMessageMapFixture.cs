@@ -17,11 +17,11 @@ namespace Peachtreebus.Tests.Sagas
 
             var map = new SagaMessageMap();
             map.Add<TestSagaMessage1>((m) => { invokeCount1++; return "Function1"; });
-            map.Add<TestSagaMessage2>((m) => { invokeCount2++; return "Function2";  });
+            map.Add<TestSagaMessage2>((m) => { invokeCount2++; return "Function2"; });
 
             Assert.AreEqual("Function1", map.GetKey(new TestSagaMessage1()));
             Assert.AreEqual("Function2", map.GetKey(new TestSagaMessage2()));
-            
+
             Assert.AreEqual(1, invokeCount1);
             Assert.AreEqual(1, invokeCount2);
 
