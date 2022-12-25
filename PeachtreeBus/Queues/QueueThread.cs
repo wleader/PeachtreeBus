@@ -21,7 +21,7 @@ namespace PeachtreeBus.Queues
             ILogger<QueueThread> log,
             IQueueWork queueWork,
             IQueueConfiguration config)
-            : base( "Queue", 100, log, dataAccess, shutdown )
+            : base("Queue", 100, log, dataAccess, shutdown)
         {
             _queueWork = queueWork;
             _queueWork.QueueName = config.QueueName;
