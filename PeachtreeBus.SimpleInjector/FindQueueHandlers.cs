@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace PeachtreeBus.SimpleInjector
 {
     /// <summary>
-    /// an implementation of IFindMessageHandlers that gets the handlers from a SimpleInjector container.
+    /// an implementation of IFindQueueHandlers that gets the handlers from a SimpleInjector container.
     /// </summary>
     public class FindQueueHandlers : IFindQueueHandlers
     {
