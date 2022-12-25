@@ -26,13 +26,13 @@ namespace Peachtreebus.Tests
             public double Increment;
             public string Series;
 
-    //[1]: "DisplayName"
-    //[3]: "StandardDeviation"
-    //[7]: "IntervalSec"
-    //[8]: "Series"
-    //[9]: "CounterType"
-    //[10]: "Metadata"
-    //[11]: "DisplayUnits"
+            //[1]: "DisplayName"
+            //[3]: "StandardDeviation"
+            //[7]: "IntervalSec"
+            //[8]: "Series"
+            //[9]: "CounterType"
+            //[10]: "Metadata"
+            //[11]: "DisplayUnits"
 
             public EventData(object payload)
             {
@@ -77,7 +77,7 @@ namespace Peachtreebus.Tests
                 enabled = true;
                 ListenFor = name;
                 LastData = null;
-                while (LastData == null) 
+                while (LastData == null)
                 {
                     Thread.Yield();
                     Thread.Sleep(10);
@@ -292,7 +292,7 @@ namespace Peachtreebus.Tests
         {
             var max = expected + tolerance;
             var min = expected - tolerance;
-            Assert.IsTrue(actual >= min && actual <= max, $"The value {actual} for {valueName} was outside the range {min}(min) - {max}(max)."); 
+            Assert.IsTrue(actual >= min && actual <= max, $"The value {actual} for {valueName} was outside the range {min}(min) - {max}(max).");
         }
     }
 }
