@@ -9,7 +9,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAcess.FailMessage
     /// </summary>
     [TestClass]
-    public class QueueMessageFailedFixture : FixtureBase
+    public class QueueMessageFailedFixture : DapperDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

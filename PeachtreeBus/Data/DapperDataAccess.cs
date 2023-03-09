@@ -4,47 +4,25 @@ using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Model;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Data
 {
-    /// <summary>
-    /// An SQL type handler for DataTime.
-    /// Ensures that DateTimes are always persisted and read as UTC.
-    /// </summary>
-    public class DateTimeHandler : SqlMapper.TypeHandler<DateTime>
-    {
-
-        public override void SetValue(IDbDataParameter parameter, DateTime value)
-        {
-            parameter.Value = value;
-        }
-
-        public override DateTime Parse(object value)
-        {
-            return DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc);
-        }
-    }
 
     /// <summary>
     /// An implemenatin of IBusDataAccess that uses Dapper to accees the SQL database.
     /// </summary>
-    public class DapperDataAccess : IBusDataAccess
+    public class DapperDataAccess : BaseDataAccess, IBusDataAccess
     {
         static DapperDataAccess()
         {
-            SqlMapper.AddTypeHandler(new DateTimeHandler());
+            DateTimeHandler.AddTypeHandler();
         }
 
         private readonly ISharedDatabase _database;
         private readonly ILogger<DapperDataAccess> _log;
         private readonly IDbSchemaConfiguration _schemaConfig;
 
-        const string SafeChars = "abcdefghijklmnopqrstuvwxyz0123456789";
-        const string SchemaUnsafe = "The schema name contains not allowable characters.";
-        const string QueueNameUnsafe = "The queue name contains not allowable characters.";
         const string SagaNameUnsafe = "The saga name contains not allowable characters.";
 
         /// <summary>
@@ -60,12 +38,6 @@ namespace PeachtreeBus.Data
             _schemaConfig = schemaConfig;
             _database = database;
             _log = log;
-        }
-
-        private bool IsUnsafe(string value)
-        {
-            if (string.IsNullOrEmpty(value)) return true;
-            return value.ToLower().Any(c => !SafeChars.Contains(c));
         }
 
         /// <summary>

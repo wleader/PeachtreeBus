@@ -9,7 +9,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAcess.CleanQueueCompleted
     /// </summary>
     [TestClass]
-    public class CleanCompletedQueueMessagesFixture : FixtureBase
+    public class CleanCompletedQueueMessagesFixture : DapperDataAccessFixtureBase
     {
         private long lastId = 1000;
 

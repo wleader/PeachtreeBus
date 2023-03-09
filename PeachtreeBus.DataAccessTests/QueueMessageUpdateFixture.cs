@@ -9,7 +9,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.Update
     /// </summary>
     [TestClass]
-    public class QueueMessageUpdateFixture : FixtureBase
+    public class QueueMessageUpdateFixture : DapperDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

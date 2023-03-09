@@ -9,7 +9,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.GetPendingQueued
     /// </summary>
     [TestClass]
-    public class QueueMessageGetPendingFixture : FixtureBase
+    public class QueueMessageGetPendingFixture : DapperDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

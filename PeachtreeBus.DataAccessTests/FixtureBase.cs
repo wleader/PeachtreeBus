@@ -13,7 +13,7 @@ namespace PeachtreeBus.DataAccessTests
     /// <summary>
     /// A base class that contains code useful in multiple tests.
     /// </summary>
-    public class FixtureBase
+    public abstract class FixtureBase<TAccess>
     {
         /// <summary>
         /// A DB Connection provided to the DapperDataAccess.
@@ -26,10 +26,12 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         protected SqlConnection SecondaryConnection;
 
+        protected SharedDatabase SharedDB;
+
         /// <summary>
         /// The data acess being tested.
         /// </summary>
-        protected DapperDataAccess dataAccess;
+        protected TAccess dataAccess;
 
         /// <summary>
         /// Provides a schema to the data access.
@@ -39,7 +41,7 @@ namespace PeachtreeBus.DataAccessTests
         /// <summary>
         /// Provides a log to the data access.
         /// </summary>
-        protected Mock<ILogger<DapperDataAccess>> MockLog;
+        protected Mock<ILogger<TAccess>> MockLog;
 
         protected const string DefaultSchema = "PeachtreeBus";
         protected const string DefaultQueue = "QueueName";
@@ -66,14 +68,14 @@ namespace PeachtreeBus.DataAccessTests
             SecondaryConnection.Open();
 
             // create the data access object.
-            var sharedDB = new SharedDatabase(PrimaryConnection);
+            SharedDB = new SharedDatabase(PrimaryConnection);
 
             MockSchema = new Mock<IDbSchemaConfiguration>();
             MockSchema.Setup(s => s.Schema).Returns(DefaultSchema);
 
-            MockLog = new Mock<ILogger<DapperDataAccess>>();
+            MockLog = new Mock<ILogger<TAccess>>();
 
-            dataAccess = new DapperDataAccess(sharedDB, MockSchema.Object, MockLog.Object);
+            dataAccess = CreateDataAccess();
 
             // start all tests with an Empty DB.
             // each test will setup rows it needs.
@@ -82,13 +84,15 @@ namespace PeachtreeBus.DataAccessTests
             CommitSecondaryTransaction();
         }
 
+        protected abstract TAccess CreateDataAccess();
+
         /// <summary>
         /// Performs tasks that happen after each test.
         /// </summary>
         public virtual void TestCleanup()
         {
             // rollback any uncommitted transaction.
-            if (transaction != null) transaction.Rollback();
+            transaction?.Rollback();
 
             // Cleanup up any data left behind by the test.
             BeginSecondaryTransaction();

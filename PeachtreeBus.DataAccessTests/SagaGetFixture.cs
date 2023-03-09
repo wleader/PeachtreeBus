@@ -8,7 +8,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.GetSagaData
     /// </summary>
     [TestClass]
-    public class SagaGetFixture : FixtureBase
+    public class SagaGetFixture : DapperDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

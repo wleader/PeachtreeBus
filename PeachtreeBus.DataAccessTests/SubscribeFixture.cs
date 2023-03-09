@@ -9,7 +9,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.Subscribe
     /// </summary>
     [TestClass]
-    public class SubscribeFixture : FixtureBase
+    public class SubscribeFixture : DapperDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()
