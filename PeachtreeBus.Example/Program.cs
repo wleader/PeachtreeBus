@@ -44,6 +44,9 @@ namespace PeachtreeBus.Example
             _container.UsePeachtreeBusSubscriptions(new Subscriptions.SubscriberConfiguration(
                 subscriberId, TimeSpan.FromSeconds(60), "Announcements"));
 
+            // disable Failed Message handling
+            _container.UsePeachtreeBusDefaultErrorHandlers();
+
             // this will:
             // setup cleaning of the sample queue.
             // 10 to messages will be cleaned per run

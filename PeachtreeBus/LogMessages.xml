@@ -94,4 +94,28 @@
             </Event>
         </Class>
     </Namespace>
+    <Namespace name="PeachtreeBus_Errors">
+        <Class name="QueueFailures">
+            <Event name="NoHandler" level="Error" exception="true">
+                No implemenation of IHandleFailedQueueMessages was available. You can register DefaultFailedQueueMessageHandler with your dependency injection provider to disable this message.
+            </Event>
+            <Event name="HandlerThrow" level="Error" exception="true">
+                Failed Queue Message Handler {HandlerType:Type} threw an exception while handling a message of type {MessageType:Type}. Database will be rolled back.
+            </Event>
+            <Event name="MessageFailed" level="Warning">
+                A queue message of type {MessageType:Type} exceeded its maximum retries and has failed.
+            </Event>
+        </Class>
+        <Class name="SubscribedFailures">
+            <Event name="NoHandler" level="Error" exception="true">
+                No implemenation of IHandleFailedSubscribedMessages was available. You can register DefaultFailedSubscribedMessageHandler with your dependency injection provider to disable this message.
+            </Event>
+            <Event name="HandlerThrow" level="Error" exception="true">
+                Failed Subscribed Message Handler {HandlerType:Type} threw an exception while handling a message of type {MessageType:Type}. Database will be rolled back.
+            </Event>
+            <Event name="MessageFailed" level="Warning">
+                A subscribed message of type {MessageType:Type} exceeded its maximum retries and has failed.
+            </Event>
+        </Class>
+    </Namespace>
 </LogMessages>

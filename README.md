@@ -2,7 +2,18 @@
 A Message Bus Library
 
 ## What's New
-### December  25th, 2022
+### March 9th, 2023
+
+Management Data Access & FailedMessageHandlers 0.9.6
+
+A ManagementDataAccess class has been added. This class implements and interface with methods that will allow an application to look at the contents of the Pending, Completed, and Failed tables for both Queues and Subscription data. There are also methods for Cancelling pending messages, and Retrying failed messages.
+
+While not a complete management system this should provide the needed functionality for an application to provide message management by whatever user interface it deems appropriate.
+
+Failed Message Handlers Have been Added. By Providing IHandleFailedQueueMessages and IHandleFailedSubscriptionMessages to the the Dependency Injection provider, application specific code can be run when a message exceeds its maximum retries. Like regular message handlers, if the application specific code fails, there will be a database rollback. DefaultFailedQueueMessageHandler and DefaultFailedSubscribedMessageHandler which do nothing can be registered to not use this functionality.
+
+### December 25th, 2022
+
 Message Pipelines! 0.9.5
 
 Message Pipelines are a way to insert code that can run before and/or after each message's handlers are invoked. 

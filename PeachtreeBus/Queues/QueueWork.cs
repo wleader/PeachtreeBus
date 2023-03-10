@@ -114,8 +114,6 @@ namespace PeachtreeBus.Queues
 
         private async Task InvokePipeline(QueueContext context)
         {
-            // todo build a chain of handlers
-            // and invoke them
             var steps = _findPipelineSteps.FindSteps().OrderBy(s => s.Priority);
 
             var pipeline = new Pipeline<QueueContext>();

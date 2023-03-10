@@ -104,8 +104,6 @@ namespace PeachtreeBus.Subscriptions
 
         private async Task InvokePipeline(SubscribedContext context)
         {
-            // todo build a chain of handlers
-            // and invoke them
             var steps = _findPipelineSteps.FindSteps().OrderBy(s => s.Priority);
 
             var pipeline = new Pipeline<SubscribedContext>();

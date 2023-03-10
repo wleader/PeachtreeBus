@@ -4,9 +4,11 @@ using Moq;
 using Peachtreebus.Tests.Sagas;
 using PeachtreeBus;
 using PeachtreeBus.Data;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -25,6 +27,7 @@ namespace Peachtreebus.Tests.Queues
         private Mock<IPerfCounters> perfCounters;
         private Mock<ISerializer> serializer;
         private Mock<ISystemClock> clock;
+        private Mock<IQueueFailures> failures;
 
         private QueueMessage UpdatedMessage;
         private string UpdatedQueue;
@@ -45,6 +48,7 @@ namespace Peachtreebus.Tests.Queues
             perfCounters = new Mock<IPerfCounters>();
             serializer = new Mock<ISerializer>();
             clock = new Mock<ISystemClock>();
+            failures = new();
 
             clock.SetupGet(x => x.UtcNow)
                 .Returns(new DateTime(2022, 2, 22, 14, 22, 22, 222, DateTimeKind.Utc));
@@ -92,7 +96,7 @@ namespace Peachtreebus.Tests.Queues
             serializer.Setup(s => s.SerializeSaga(It.IsAny<object>(), typeof(TestSagaData)))
                 .Returns("SerializedTestSagaData");
 
-            reader = new QueueReader(dataAccess.Object, log.Object, perfCounters.Object, serializer.Object, clock.Object);
+            reader = new QueueReader(dataAccess.Object, log.Object, perfCounters.Object, serializer.Object, clock.Object, failures.Object);
         }
 
         /// <summary>
@@ -596,5 +600,50 @@ namespace Peachtreebus.Tests.Queues
             Assert.AreEqual("SourceQueue", message.SourceQueue);
         }
 
+        [TestMethod]
+        public async Task Fail_InvokesFailHandlerOnMaxRetries()
+        {
+            var context = new QueueContext
+            {
+                MessageData = new QueueMessage
+                {
+                    Retries = (byte)(reader.MaxRetries - 1),
+                },
+                Headers = new Headers
+                {
+
+                },
+                Message = new TestSagaMessage1()
+            };
+
+
+            var exception = new ApplicationException();
+
+            await reader.Fail(context, exception);
+            failures.Verify(f => f.Failed(context, context.Message, exception), Times.Once());
+        }
+
+        [TestMethod]
+        public async Task Fail_DoesNotInvokeFailHandlerBeforeMaxRetries()
+        {
+            var context = new QueueContext
+            {
+                MessageData = new QueueMessage
+                {
+                    Retries = (byte)(reader.MaxRetries - 2),
+                },
+                Headers = new Headers
+                {
+
+                },
+                Message = new TestSagaMessage1()
+            };
+
+
+            var exception = new ApplicationException();
+
+            await reader.Fail(context, exception);
+            failures.Verify(f => f.Failed(context, context.Message, exception), Times.Never());
+        }
     }
 }

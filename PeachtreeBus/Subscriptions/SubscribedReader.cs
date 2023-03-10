@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ namespace PeachtreeBus.Subscriptions
         private readonly ILogger<SubscribedReader> _log;
         private readonly IPerfCounters _counters;
         private readonly ISystemClock _clock;
+        private readonly ISubscribedFailures _failures;
 
         public byte MaxRetries { get; set; }
 
@@ -39,13 +41,15 @@ namespace PeachtreeBus.Subscriptions
             ISerializer serializer,
             ILogger<SubscribedReader> log,
             IPerfCounters counters,
-            ISystemClock clock)
+            ISystemClock clock,
+            ISubscribedFailures failures)
         {
             _dataAccess = dataAccess;
             _serializer = serializer;
             _log = log;
             _counters = counters;
             _clock = clock;
+            _failures = failures;
             MaxRetries = 5;
         }
 
@@ -79,6 +83,7 @@ namespace PeachtreeBus.Subscriptions
                 context.MessageData.Failed = _clock.UtcNow;
                 _counters.FailMessage();
                 await _dataAccess.FailMessage(context.MessageData);
+                await _failures.Failed(context, context.Message, exception);
             }
             else
             {

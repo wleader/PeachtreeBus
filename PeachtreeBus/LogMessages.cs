@@ -6,8 +6,8 @@ using System;
 
 namespace PeachtreeBus
 {
-    public static class GeneratedLoggerMessages
-    {
+	public static class GeneratedLoggerMessages
+	{
         internal static readonly EventId PeachtreeBus_BaseThread_ThreadStart_Event
             = new(1001001, "PeachtreeBus_BaseThread_ThreadStart");
         internal static readonly Action<ILogger, string, Exception> PeachtreeBus_BaseThread_ThreadStart_Action
@@ -308,5 +308,77 @@ namespace PeachtreeBus
         public static void SubscribedReader_MessageWillBeRetried(this ILogger logger, Guid messageId, Guid subscriberId, DateTime notBefore)
             => PeachtreeBus_Subscriptions_SubscribedReader_MessageWillBeRetried_Action(logger, messageId, subscriberId, notBefore, null!);
 
-    }
+        internal static readonly EventId PeachtreeBus_Errors_QueueFailures_NoHandler_Event
+            = new(5001001, "PeachtreeBus_Errors_QueueFailures_NoHandler");
+        internal static readonly Action<ILogger, Exception> PeachtreeBus_Errors_QueueFailures_NoHandler_Action
+            = LoggerMessage.Define(LogLevel.Error,
+                PeachtreeBus_Errors_QueueFailures_NoHandler_Event,
+                "No implemenation of IHandleFailedQueueMessages was available. You can register DefaultFailedQueueMessageHandler with your dependency injection provider to disable this message.");
+        /// <summary>
+        /// (5001001) Error: No implemenation of IHandleFailedQueueMessages was available. You can register DefaultFailedQueueMessageHandler with your dependency injection provider to disable this message.
+        /// </summary>
+        public static void QueueFailures_NoHandler(this ILogger logger, Exception ex)
+            => PeachtreeBus_Errors_QueueFailures_NoHandler_Action(logger, ex);
+
+        internal static readonly EventId PeachtreeBus_Errors_QueueFailures_HandlerThrow_Event
+            = new(5001002, "PeachtreeBus_Errors_QueueFailures_HandlerThrow");
+        internal static readonly Action<ILogger, Type, Type, Exception> PeachtreeBus_Errors_QueueFailures_HandlerThrow_Action
+            = LoggerMessage.Define<Type, Type>(LogLevel.Error,
+                PeachtreeBus_Errors_QueueFailures_HandlerThrow_Event,
+                "Failed Queue Message Handler {HandlerType} threw an exception while handling a message of type {MessageType}. Database will be rolled back.");
+        /// <summary>
+        /// (5001002) Error: Failed Queue Message Handler {HandlerType} threw an exception while handling a message of type {MessageType}. Database will be rolled back.
+        /// </summary>
+        public static void QueueFailures_HandlerThrow(this ILogger logger, Type handlerType, Type messageType, Exception ex)
+            => PeachtreeBus_Errors_QueueFailures_HandlerThrow_Action(logger, handlerType, messageType, ex);
+
+        internal static readonly EventId PeachtreeBus_Errors_QueueFailures_MessageFailed_Event
+            = new(5001003, "PeachtreeBus_Errors_QueueFailures_MessageFailed");
+        internal static readonly Action<ILogger, Type, Exception> PeachtreeBus_Errors_QueueFailures_MessageFailed_Action
+            = LoggerMessage.Define<Type>(LogLevel.Warning,
+                PeachtreeBus_Errors_QueueFailures_MessageFailed_Event,
+                "A queue message of type {MessageType} exceeded its maximum retries and has failed.");
+        /// <summary>
+        /// (5001003) Warning: A queue message of type {MessageType} exceeded its maximum retries and has failed.
+        /// </summary>
+        public static void QueueFailures_MessageFailed(this ILogger logger, Type messageType)
+            => PeachtreeBus_Errors_QueueFailures_MessageFailed_Action(logger, messageType, null!);
+
+        internal static readonly EventId PeachtreeBus_Errors_SubscribedFailures_NoHandler_Event
+            = new(5002001, "PeachtreeBus_Errors_SubscribedFailures_NoHandler");
+        internal static readonly Action<ILogger, Exception> PeachtreeBus_Errors_SubscribedFailures_NoHandler_Action
+            = LoggerMessage.Define(LogLevel.Error,
+                PeachtreeBus_Errors_SubscribedFailures_NoHandler_Event,
+                "No implemenation of IHandleFailedSubscribedMessages was available. You can register DefaultFailedSubscribedMessageHandler with your dependency injection provider to disable this message.");
+        /// <summary>
+        /// (5002001) Error: No implemenation of IHandleFailedSubscribedMessages was available. You can register DefaultFailedSubscribedMessageHandler with your dependency injection provider to disable this message.
+        /// </summary>
+        public static void SubscribedFailures_NoHandler(this ILogger logger, Exception ex)
+            => PeachtreeBus_Errors_SubscribedFailures_NoHandler_Action(logger, ex);
+
+        internal static readonly EventId PeachtreeBus_Errors_SubscribedFailures_HandlerThrow_Event
+            = new(5002002, "PeachtreeBus_Errors_SubscribedFailures_HandlerThrow");
+        internal static readonly Action<ILogger, Type, Type, Exception> PeachtreeBus_Errors_SubscribedFailures_HandlerThrow_Action
+            = LoggerMessage.Define<Type, Type>(LogLevel.Error,
+                PeachtreeBus_Errors_SubscribedFailures_HandlerThrow_Event,
+                "Failed Subscribed Message Handler {HandlerType} threw an exception while handling a message of type {MessageType}. Database will be rolled back.");
+        /// <summary>
+        /// (5002002) Error: Failed Subscribed Message Handler {HandlerType} threw an exception while handling a message of type {MessageType}. Database will be rolled back.
+        /// </summary>
+        public static void SubscribedFailures_HandlerThrow(this ILogger logger, Type handlerType, Type messageType, Exception ex)
+            => PeachtreeBus_Errors_SubscribedFailures_HandlerThrow_Action(logger, handlerType, messageType, ex);
+
+        internal static readonly EventId PeachtreeBus_Errors_SubscribedFailures_MessageFailed_Event
+            = new(5002003, "PeachtreeBus_Errors_SubscribedFailures_MessageFailed");
+        internal static readonly Action<ILogger, Type, Exception> PeachtreeBus_Errors_SubscribedFailures_MessageFailed_Action
+            = LoggerMessage.Define<Type>(LogLevel.Warning,
+                PeachtreeBus_Errors_SubscribedFailures_MessageFailed_Event,
+                "A subscribed message of type {MessageType} exceeded its maximum retries and has failed.");
+        /// <summary>
+        /// (5002003) Warning: A subscribed message of type {MessageType} exceeded its maximum retries and has failed.
+        /// </summary>
+        public static void SubscribedFailures_MessageFailed(this ILogger logger, Type messageType)
+            => PeachtreeBus_Errors_SubscribedFailures_MessageFailed_Action(logger, messageType, null!);
+
+	}
 }

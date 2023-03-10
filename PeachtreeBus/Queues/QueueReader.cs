@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using System;
@@ -74,6 +75,7 @@ namespace PeachtreeBus.Queues
         private readonly IPerfCounters _counters;
         private readonly ISerializer _serializer;
         private readonly ISystemClock _clock;
+        private readonly IQueueFailures _failures;
 
         public byte MaxRetries { get; set; }
 
@@ -86,7 +88,8 @@ namespace PeachtreeBus.Queues
             ILogger<QueueReader> log,
             IPerfCounters counters,
             ISerializer serializer,
-            ISystemClock clock)
+            ISystemClock clock,
+            IQueueFailures failures)
         {
             _log = log;
             _dataAccess = dataAccess;
@@ -94,6 +97,7 @@ namespace PeachtreeBus.Queues
             _serializer = serializer;
             MaxRetries = 5;
             _clock = clock;
+            _failures = failures;
         }
 
         /// <inheritdoc/>
@@ -171,6 +175,7 @@ namespace PeachtreeBus.Queues
                 context.MessageData.Failed = DateTime.UtcNow;
                 _counters.FailMessage();
                 await _dataAccess.FailMessage(context.MessageData, context.SourceQueue);
+                await _failures.Failed(context, context.Message, exception);
             }
             else
             {

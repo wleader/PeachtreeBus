@@ -1,5 +1,6 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
@@ -51,6 +52,13 @@ namespace PeachtreeBus.SimpleInjector
             // consumer of either.
             container.Register(typeof(IQueueWriter), typeof(QueueWriter), Lifestyle.Scoped);
             container.Register(typeof(ISubscribedPublisher), typeof(SubscribedPublisher), Lifestyle.Scoped);
+
+            // failed message handlers
+            container.Register(typeof(IFailedQueueMessageHandlerFactory), typeof(FailedQueueMessageHandlerFactory), Lifestyle.Scoped);
+            container.Register(typeof(IQueueFailures), typeof(QueueFailures), Lifestyle.Scoped);
+
+            container.Register(typeof(IFailedSubscribedMessageHandlerFactory), typeof(FailedSubscribedMessageHandlerFactory), Lifestyle.Scoped);
+            container.Register(typeof(ISubscribedFailures), typeof(SubscribedFailures), Lifestyle.Scoped);
 
             return container;
         }
