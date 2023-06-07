@@ -18,10 +18,10 @@ namespace PeachtreeBus.Subscriptions
 
         public SubscribedThread(IProvideShutdownSignal provideShutdownSignal,
             ILogger<SubscribedThread> log,
-            IBusDataAccess transactionContext,
+            IBusDataAccess busDataAccess,
             ISubscriberConfiguration subscriberConfiguration,
             ISubscribedWork subscribeWork)
-            : base("Subscription Message", 100, log, transactionContext, provideShutdownSignal)
+            : base("Subscription Message", 100, log, busDataAccess, provideShutdownSignal)
         {
             _subscribedWork = subscribeWork;
             _subscribedWork.SubscriberId = subscriberConfiguration.SubscriberId;

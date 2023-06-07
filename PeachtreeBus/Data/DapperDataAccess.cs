@@ -1076,5 +1076,10 @@ namespace PeachtreeBus.Data
         {
             _database.RollbackTransaction();
         }
+
+        public void Reset()
+        {
+            _database.Reconnect();
+        }
     }
 }

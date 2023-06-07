@@ -44,6 +44,30 @@ namespace PeachtreeBus
         public static void BaseThread_ThreadError(this ILogger logger, string threadName, Exception ex)
             => PeachtreeBus_BaseThread_ThreadError_Action(logger, threadName, ex);
 
+        internal static readonly EventId PeachtreeBus_BaseThread_RollbackFailed_Event
+            = new(1001004, "PeachtreeBus_BaseThread_RollbackFailed");
+        internal static readonly Action<ILogger, string, Exception> PeachtreeBus_BaseThread_RollbackFailed_Action
+            = LoggerMessage.Define<string>(LogLevel.Error,
+                PeachtreeBus_BaseThread_RollbackFailed_Event,
+                "Thread {ThreadName} failed to roll back its transaction.");
+        /// <summary>
+        /// (1001004) Error: Thread {ThreadName} failed to roll back its transaction.
+        /// </summary>
+        public static void BaseThread_RollbackFailed(this ILogger logger, string threadName, Exception ex)
+            => PeachtreeBus_BaseThread_RollbackFailed_Action(logger, threadName, ex);
+
+        internal static readonly EventId PeachtreeBus_BaseThread_ResettingDbConnection_Event
+            = new(1001005, "PeachtreeBus_BaseThread_ResettingDbConnection");
+        internal static readonly Action<ILogger, Exception> PeachtreeBus_BaseThread_ResettingDbConnection_Action
+            = LoggerMessage.Define(LogLevel.Information,
+                PeachtreeBus_BaseThread_ResettingDbConnection_Event,
+                "Resetting the database connection.");
+        /// <summary>
+        /// (1001005) Information: Resetting the database connection.
+        /// </summary>
+        public static void BaseThread_ResettingDbConnection(this ILogger logger)
+            => PeachtreeBus_BaseThread_ResettingDbConnection_Action(logger, null!);
+
         internal static readonly EventId PeachtreeBus_Data_DapperDataAccess_DataAccessError_Event
             = new(2001001, "PeachtreeBus_Data_DapperDataAccess_DataAccessError");
         internal static readonly Action<ILogger, string, Exception> PeachtreeBus_Data_DapperDataAccess_DataAccessError_Action

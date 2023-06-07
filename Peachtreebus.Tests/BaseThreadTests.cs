@@ -143,5 +143,20 @@ namespace Peachtreebus.Tests
             await testThread.Run();
             dataAccess.Verify(d => d.RollbackTransaction(), Times.Exactly(2));
         }
+
+        [TestMethod]
+        public async Task Run_ResetsDbConnection_When_WorkThrows_And_RollbackThrows()
+        {
+            testThread.Throw = true;
+
+            dataAccess.Setup(d => d.RollbackTransaction()).Throws(new InvalidOperationException("This SqlTransaction has completed; it is no longer usable."));
+
+            await testThread.Run();
+            dataAccess.Verify(d => d.Reset(), Times.Once);
+
+            loopCount = 2;
+            await testThread.Run();
+            dataAccess.Verify(d => d.Reset(), Times.Exactly(2));
+        }
     }
 }

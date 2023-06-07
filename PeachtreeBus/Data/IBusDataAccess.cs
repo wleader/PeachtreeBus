@@ -39,6 +39,12 @@ namespace PeachtreeBus.Data
         void RollbackToSavepoint(string name);
 
         /// <summary>
+        /// Kills the existing transaction and disconnects and reconnects
+        /// with the DB Server.
+        /// </summary>
+        void Reset();
+
+        /// <summary>
         /// Gets one message, locking it for update.
         /// Skips locked messages.
         /// </summary>

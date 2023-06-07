@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus.SimpleInjector</id>
-        <version>0.9.6</version>
+        <version>0.9.7</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
@@ -17,7 +17,7 @@
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="netstandard2.1">
-            <dependency id="PeachtreeBus" version="0.9.5" />
+            <dependency id="PeachtreeBus" version="0.9.7" />
             <dependency id="SimpleInjector" version="5.4.1" />
             </group>
         </dependencies>

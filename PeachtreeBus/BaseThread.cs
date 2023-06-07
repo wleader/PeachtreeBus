@@ -73,7 +73,16 @@ namespace PeachtreeBus
                 catch (Exception e)
                 {
                     _log.BaseThread_ThreadError(_name, e);
-                    _dataAccess.RollbackTransaction();
+                    try
+                    {
+                        _dataAccess.RollbackTransaction();
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        _log.BaseThread_RollbackFailed(_name, rollbackEx);
+                        _log.BaseThread_ResettingDbConnection();
+                        _dataAccess.Reset();
+                    }
                 }
             }
             while (!_shutdown.ShouldShutdown);

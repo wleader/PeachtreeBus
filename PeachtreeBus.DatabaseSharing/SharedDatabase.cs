@@ -36,6 +36,11 @@ namespace PeachtreeBus.DatabaseSharing
         void RollbackTransaction();
 
         /// <summary>
+        /// Closes and reopens the database connection.
+        /// </summary>
+        void Reconnect();
+
+        /// <summary>
         /// Creates a Savepoint in the Transaction.
         /// Similar to a nested transaction.
         /// </summary>
@@ -89,9 +94,13 @@ namespace PeachtreeBus.DatabaseSharing
 
         public SqlConnection Connection { get; private set; }
 
-        public SharedDatabase(SqlConnection connection)
+        private readonly ISqlConnectionFactory _connectionFactory;
+
+        public SharedDatabase(ISqlConnectionFactory connectionFactory)
         {
-            Connection = connection;
+            _connectionFactory = connectionFactory;
+            Connection = _connectionFactory.GetConnection();
+            Connection.Open();
             Transaction = null;
         }
 
@@ -101,6 +110,11 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
+                if (Connection.State != System.Data.ConnectionState.Open)
+                {
+                    Reconnect();
+                }
+
                 if (Transaction != null) throw new SharedDatabaseException("There is already a transaction. Use CreateSavePoint instead of nested transactions.");
                 Transaction = Connection.BeginTransaction();
             }
@@ -152,5 +166,23 @@ namespace PeachtreeBus.DatabaseSharing
             TransactionConsumed?.Invoke(this, null);
         }
 
+        /// <inheritdoc/>
+        public void Reconnect()
+        {
+            lock (_lock)
+            {
+                if (Transaction is not null)
+                {
+                    Transaction?.Dispose();
+                    Transaction = null;
+                    TransactionConsumed?.Invoke(this, null);
+                }
+
+                Connection?.Close();
+                Connection?.Dispose();
+                Connection = _connectionFactory.GetConnection();
+                Connection.Open();
+            }
+        }
     }
 }

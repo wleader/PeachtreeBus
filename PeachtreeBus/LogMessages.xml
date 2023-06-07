@@ -10,6 +10,12 @@
             <Event name="ThreadError" level="Error" exception="true">
                 Thread {ThreadName:string} errored.
             </Event>
+            <Event name="RollbackFailed" level ="Error" exception="true">
+                Thread {ThreadName:string} failed to roll back its transaction.
+            </Event>
+            <Event name="ResettingDbConnection" level="Information">
+                Resetting the database connection.
+            </Event>
         </Class>
     </Namespace>
     <Namespace name="PeachtreeBus_Data">
