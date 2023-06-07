@@ -9,7 +9,7 @@ Deadlock and Disconnect Recoverey 0.9.7
 
 When a message fails because of an unhandled exception, normally the current database transaction is rolled back, and the message is tried again. However if the unhandled exception is from a database deadlock, the current database transaction can not be rolled back. Now when the handling a failed message and the rollback fails, the transaction will be recreated allowing the processing of messages to continue.
 
-Additionally, the way the connection to the database server is established has been changed, and so if after a failure the connection to the database is no longer usable a new connection will be established. This allows the process to continue to attempt reconnections and to resume processing messages after a connection to the database server is broken.
+Additionally, the way the connection to the database server is established has been changed, and so if after a failure the connection to the database is no longer usable a new connection will be established. This allows the process to continue to attempt to reconnect and to resume processing messages after a connection to the database server is broken.
 
 ### March 9th, 2023
 
