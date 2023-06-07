@@ -5,7 +5,7 @@ A Message Bus Library
 
 ### June 7th, 2023
 
-Deadlock and Disconnect Recoverey 0.9.7
+Deadlock and Disconnect Recovery 0.9.7
 
 When a message fails because of an unhandled exception, normally the current database transaction is rolled back, and the message is tried again. However if the unhandled exception is from a database deadlock, the current database transaction can not be rolled back. Now when the handling a failed message and the rollback fails, the transaction will be recreated allowing the processing of messages to continue.
 
