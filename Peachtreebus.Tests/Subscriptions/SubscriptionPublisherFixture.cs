@@ -19,6 +19,9 @@ namespace Peachtreebus.Tests.Subscriptions
     [TestClass]
     public class SubscriptionPublisherFixture
     {
+        public class MessageWithoutInterface { }
+        public class TestSubscribedMessage : ISubscribedMessage { }
+
         private SubscribedPublisher publisher;
         private SubscribedLifespan lifespan;
         private Mock<IBusDataAccess> dataAccess;
@@ -168,12 +171,12 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             Assert.IsNotNull(SerializedHeaders);
-            Assert.AreEqual("Peachtreebus.Tests.Sagas.TestSagaMessage1, Peachtreebus.Tests", SerializedHeaders.MessageClass);
+            Assert.AreEqual("Peachtreebus.Tests.Subscriptions.SubscriptionPublisherFixture+TestSubscribedMessage, Peachtreebus.Tests", SerializedHeaders.MessageClass);
         }
 
         /// <summary>
@@ -185,8 +188,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -202,8 +205,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                             "cat1",
-                            typeof(TestSagaMessage1),
-                            new TestSagaMessage1(),
+                            typeof(TestSubscribedMessage),
+                            new TestSubscribedMessage(),
                             null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -220,8 +223,8 @@ namespace Peachtreebus.Tests.Subscriptions
             var notBefore = DateTime.UtcNow;
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 notBefore);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -253,8 +256,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -270,8 +273,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -287,8 +290,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -304,8 +307,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -321,8 +324,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
             Assert.AreEqual(1, AddedMessages.Count);
             Assert.IsTrue(AddedMessages.TrueForAll(m => m.Headers == "SerialziedHeaders"));
@@ -337,8 +340,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -354,8 +357,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             counters.Verify(c => c.SentMessage(), Times.Once);
@@ -370,8 +373,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             dataAccess.Verify(d => d.AddMessage(It.IsAny<SubscribedMessage>()), Times.Once);
@@ -386,8 +389,8 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat2",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
 
             Assert.AreEqual(2, AddedMessages.Count);
@@ -409,10 +412,17 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat2",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
+                typeof(TestSubscribedMessage),
+                new TestSubscribedMessage(),
                 null);
             dataAccess.Verify(d => d.ExpireSubscriptions(), Times.Once);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(MissingInterfaceException))]
+        public async Task Given_MessageIsNotISubscribedMessage_When_WriteMessage_Then_ThrowsUsefulException()
+        {
+            await publisher.Publish("cat2", typeof(MessageWithoutInterface), new MessageWithoutInterface(), null);
         }
     }
 }

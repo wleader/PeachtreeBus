@@ -52,6 +52,9 @@ namespace PeachtreeBus.Queues
             if (notBefore.HasValue && notBefore.Value.Kind == DateTimeKind.Unspecified)
                 throw new ArgumentException($"{nameof(notBefore)} must not have an Unspecified DateTimeKind.", nameof(notBefore));
 
+            if (!typeof(IQueueMessage).IsAssignableFrom(type))
+                throw new MissingInterfaceException(type, typeof(IQueueMessage));
+
             // note the type in the headers so it can be deserialized.
             var headers = new Headers
             {

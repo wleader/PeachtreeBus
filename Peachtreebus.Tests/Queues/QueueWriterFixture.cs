@@ -17,6 +17,8 @@ namespace Peachtreebus.Tests.Queues
     [TestClass]
     public class QueueWriterFixture
     {
+        public class MessageWithoutInterface { }
+
         private QueueWriter writer;
         private Mock<IBusDataAccess> dataAccess;
         private Mock<IPerfCounters> counters;
@@ -364,6 +366,16 @@ namespace Peachtreebus.Tests.Queues
                 null);
 
             Assert.AreEqual("FooBazQueue", AddedToQueue);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(MissingInterfaceException))]
+        public async Task Given_MessageIsNotIQueuedMessage_When_WriteMessage_Then_ThrowsUsefulException()
+        {
+            await writer.WriteMessage("FooBazQueue",
+                typeof(MessageWithoutInterface),
+                new MessageWithoutInterface(),
+                null);
         }
     }
 }

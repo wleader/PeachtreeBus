@@ -26,6 +26,11 @@ namespace PeachtreeBus.Subscriptions
                     context.Headers.MessageClass);
             }
 
+            // check that messageType is ISubscribed message, otherwise
+            // MakeGenericMethod will throw a nasty hard to debug exception.
+            if (!typeof(ISubscribedMessage).IsAssignableFrom(messageType))
+                throw new MissingInterfaceException(messageType, typeof(ISubscribedMessage));
+
             // Get the message handlers for this message type from the Dependency Injection container.
             // the list will contain both regular handlers and sagas.
             // if a message has mulitple handlers, we'll get multiple handlers.
