@@ -64,7 +64,7 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Create connections.
             PrimaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
-            
+
             SecondaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
             SecondaryConnection.Open();
 
