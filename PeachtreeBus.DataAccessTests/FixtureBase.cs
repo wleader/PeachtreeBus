@@ -28,6 +28,8 @@ namespace PeachtreeBus.DataAccessTests
 
         protected SharedDatabase SharedDB;
 
+        private Mock<ISqlConnectionFactory> _connectionFactory = new();
+
         /// <summary>
         /// The data acess being tested.
         /// </summary>
@@ -62,13 +64,13 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Create connections.
             PrimaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
-            PrimaryConnection.Open();
-
+            
             SecondaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
             SecondaryConnection.Open();
 
             // create the data access object.
-            SharedDB = new SharedDatabase(PrimaryConnection);
+            _connectionFactory.Setup(f => f.GetConnection()).Returns(PrimaryConnection);
+            SharedDB = new SharedDatabase(_connectionFactory.Object);
 
             MockSchema = new Mock<IDbSchemaConfiguration>();
             MockSchema.Setup(s => s.Schema).Returns(DefaultSchema);
