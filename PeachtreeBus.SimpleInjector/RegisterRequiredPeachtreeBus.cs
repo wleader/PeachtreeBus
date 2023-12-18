@@ -1,11 +1,11 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.Data.SqlClient;
+using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using SimpleInjector;
-using System.Data.SqlClient;
 
 namespace PeachtreeBus.SimpleInjector
 {

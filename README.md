@@ -3,6 +3,16 @@ A Message Bus Library
 
 ## What's New
 
+### December 18th, 2023
+
+SqlClient Update 0.9.8
+
+Out with the old, in with the new. Microsoft does all their SqlClient stuff in the Microsoft.Data.SqlClient package, and isn't updating System.Data.SqlClient anymore. So to keep up with the times, PeachtreeBus is switching too.
+
+Other updates in this release:
+* Update to the latest versions of dependent packages
+* Use of the MissingInterfaceException when a message does not implement the required interface. 
+
 ### June 7th, 2023
 
 Deadlock and Disconnect Recovery 0.9.7

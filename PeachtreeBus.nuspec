@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus</id>
-        <version>0.9.7</version>
+        <version>0.9.8</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>The Publish-Subscribe Release</releaseNotes>
+        <releaseNotes>The SQL Client Release</releaseNotes>
         <description>
         PeachtreeBus is intended to be a light weight message bus system focused integration with SQL server for its transport and persistence, while playing nicely with applications built using Inversion of Control and Dependency Injection.
         </description>
@@ -17,11 +17,11 @@
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="netstandard2.1">
-            <dependency id="Dapper" version="2.0.123" />
-            <dependency id="Microsoft.Extensions.Logging.Abstractions" version="7.0.0" />
-            <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="7.0.0" />
-            <dependency id="System.Data.SqlClient" version="4.8.5" />
-            <dependency id="System.Text.Json" version="7.0.2" />
+            <dependency id="Dapper" version="2.1.24" />
+            <dependency id="Microsoft.Extensions.Logging.Abstractions" version="8.0.0" />
+            <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="8.0.0" />
+            <dependency id="Microsoft.Data.SqlClient" version="5.1.2" />
+            <dependency id="System.Text.Json" version="8.0.0" />
             </group>
         </dependencies>
     </metadata>
