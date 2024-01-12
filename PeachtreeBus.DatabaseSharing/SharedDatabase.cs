@@ -11,11 +11,11 @@ namespace PeachtreeBus.DatabaseSharing
     /// will also want to interact with the database using the same connection inside the same DB Transaction. So this
     /// interface defines an object that holds the transaction for use by both the bus and the application's data access,
     /// allowing the bus code to start the transaction, the application code to enlist the transaction, then return to the
-    /// bus code who commits or rolls back. The object that impliments this interface needs to be a scoped lifestile in the
+    /// bus code who commits or rolls back. The object that impliments this interface needs to be a scoped lifestyle in the
     /// dependency Injection container. This allows all the classes that interact with the database within the same message 
     /// handling scope to use the same connection and transaction.
     /// </remarks>
-    public interface ISharedDatabase
+    public interface ISharedDatabase : IDisposable
     {
         /// <summary>
         /// Starts a transaction. Only one transaction should be started.
@@ -55,7 +55,7 @@ namespace PeachtreeBus.DatabaseSharing
         void RollbackToSavepoint(string name);
 
         /// <summary>
-        /// The current Transaction (Null when there is no transaction.
+        /// The current Transaction (Null when there is no transaction).
         /// </summary>
         SqlTransaction Transaction { get; }
 
@@ -82,7 +82,7 @@ namespace PeachtreeBus.DatabaseSharing
         /// <summary>
         /// used to ensure thread safety.
         /// </summary>
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
         /// <inheritdoc/>
         public event EventHandler TransactionStarted;
@@ -173,7 +173,7 @@ namespace PeachtreeBus.DatabaseSharing
             {
                 if (Transaction is not null)
                 {
-                    Transaction?.Dispose();
+                    Transaction.Dispose();
                     Transaction = null;
                     TransactionConsumed?.Invoke(this, null);
                 }
@@ -183,6 +183,22 @@ namespace PeachtreeBus.DatabaseSharing
                 Connection = _connectionFactory.GetConnection();
                 Connection.Open();
             }
+        }
+
+        public void Dispose()
+        {
+            lock (_lock)
+            {
+                if (Transaction is not null)
+                {
+                    Transaction.Dispose();
+                    Transaction = null;
+                    TransactionConsumed?.Invoke(this, null);
+                }
+                Connection?.Close();
+                Connection?.Dispose();
+            }
+            GC.SuppressFinalize(this);  
         }
     }
 }

@@ -3,6 +3,12 @@ A Message Bus Library
 
 ## What's New
 
+### January 12th, 2024
+
+Bug Fix Update 0.9.9
+
+* Connections to the SQL Server from Asp.Net Core are not released ([1](https://github.com/wleader/PeachtreeBus/issues/1))
+
 ### December 18th, 2023
 
 SqlClient Update 0.9.8
