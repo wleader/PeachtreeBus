@@ -7,7 +7,7 @@ A Message Bus Library
 
 Packages Update 0.9.10
 
-One of the referenced packages Microsoft.Data.SqlClient version 5.1.2 had a known vulnerablity so its been updated. Other packages have been updated too. 
+One of the referenced packages Microsoft.Data.SqlClient version 5.1.2 had a known vulnerability so its been updated. Other packages have been updated too. 
 
 ### January 12th, 2024
 
