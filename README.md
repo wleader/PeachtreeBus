@@ -3,6 +3,12 @@ A Message Bus Library
 
 ## What's New
 
+### Fabruary 25th, 2024
+
+Packages Update 0.9.10
+
+One of the referenced packages Microsoft.Data.SqlClient version 5.1.2 had a known vulnerablity so its been updated. Other packages have been updated too. 
+
 ### January 12th, 2024
 
 Bug Fix Update 0.9.9
