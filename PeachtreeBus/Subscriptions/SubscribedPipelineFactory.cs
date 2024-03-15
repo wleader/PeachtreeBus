@@ -6,10 +6,7 @@ namespace PeachtreeBus.Subscriptions
     /// <summary>
     /// Builds a pipeline for handling a Subscribed message
     /// </summary>
-    public interface ISubscribedPipelineFactory
-    {
-        ISubscribedPipeline Build();
-    }
+    public interface ISubscribedPipelineFactory : IPipelineFactory<SubscribedContext, ISubscribedPipeline> { }
 
     /// <summary>
     /// Builds a pipeline for handling a Subscribed message

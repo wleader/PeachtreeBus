@@ -2,8 +2,15 @@
 
 namespace PeachtreeBus.Pipelines
 {
+    public interface IPipelineFactory<TContext, TPipeline>
+        where TPipeline : IPipeline<TContext>
+    {
+        TPipeline Build();
+    }
+
     public abstract class PipelineFactory<TContext, TPipeline, TFindPipelineSteps, THandlerStep>(
-        IWrappedScope scope)
+        IWrappedScope scope) 
+        : IPipelineFactory<TContext, TPipeline>
         where TPipeline : IPipeline<TContext>
         where TFindPipelineSteps : IFindPipelineSteps<TContext>
         where THandlerStep : IPipelineStep<TContext>

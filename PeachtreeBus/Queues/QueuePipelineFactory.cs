@@ -5,10 +5,7 @@ namespace PeachtreeBus.Queues
     /// <summary>
     /// Builds a pipeline for handling a Queued message.
     /// </summary>
-    public interface IQueuePipelineFactory
-    {
-        IQueuePipeline Build();
-    }
+    public interface IQueuePipelineFactory : IPipelineFactory<QueueContext, IQueuePipeline> { }
 
     /// <summary>
     /// Builds a pipeline for handling a Queued message.
@@ -17,6 +14,6 @@ namespace PeachtreeBus.Queues
         IWrappedScope scope)
         : PipelineFactory<QueueContext, IQueuePipeline, IFindQueuePipelineSteps, IQueueHandlersPipelineStep>(scope)
         , IQueuePipelineFactory
-    {  }
+    { }
 
 }
