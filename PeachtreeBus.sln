@@ -38,6 +38,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{DE1CE708-C
 		Docs\README.md = Docs\README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseSharing.Tests", "PeachtreeBus.DatabaseSharing.Tests\PeachtreeBus.DatabaseSharing.Tests.csproj", "{CF2D1C04-78BD-406F-9BB7-70ED8D6216CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{19E44B3A-DC79-4901-898E-740D65F59200}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19E44B3A-DC79-4901-898E-740D65F59200}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19E44B3A-DC79-4901-898E-740D65F59200}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF2D1C04-78BD-406F-9BB7-70ED8D6216CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF2D1C04-78BD-406F-9BB7-70ED8D6216CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF2D1C04-78BD-406F-9BB7-70ED8D6216CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF2D1C04-78BD-406F-9BB7-70ED8D6216CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

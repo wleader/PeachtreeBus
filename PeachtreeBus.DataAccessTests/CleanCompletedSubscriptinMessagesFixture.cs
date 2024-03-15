@@ -54,7 +54,7 @@ namespace PeachtreeBus.DataAccessTests
             p.Add("@Headers", "");
             p.Add("@Body", "");
 
-            await SecondaryConnection.ExecuteAsync(statement, p);
+            await SecondaryConnection.Connection.ExecuteAsync(statement, p);
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace PeachtreeBus.DatabaseSharing
         /// Creates a new SqlConnection.
         /// </summary>
         /// <returns></returns>
-        SqlConnection GetConnection();
+        ISqlConnection GetConnection();
     }
 
     /// <summary>
@@ -41,9 +41,9 @@ namespace PeachtreeBus.DatabaseSharing
         }
 
         /// <inheritdoc/>
-        public SqlConnection GetConnection()
+        public ISqlConnection GetConnection()
         {
-            var result = new SqlConnection(_provideConnectionString.GetDbConnectionString());
+            var result = new SqlConnectionProxy(_provideConnectionString.GetDbConnectionString());
             return result;
         }
 

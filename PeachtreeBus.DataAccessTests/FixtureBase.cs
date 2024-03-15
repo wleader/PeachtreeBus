@@ -18,13 +18,13 @@ namespace PeachtreeBus.DataAccessTests
         /// <summary>
         /// A DB Connection provided to the DapperDataAccess.
         /// </summary>
-        protected SqlConnection PrimaryConnection;
+        protected ISqlConnection PrimaryConnection;
 
         /// <summary>
         /// A secondary connection used by the tests to act on the DB
         /// without using the DapperDataAccess.
         /// </summary>
-        protected SqlConnection SecondaryConnection;
+        protected ISqlConnection SecondaryConnection;
 
         protected SharedDatabase SharedDB;
 
@@ -63,9 +63,9 @@ namespace PeachtreeBus.DataAccessTests
         public virtual void TestInitialize()
         {
             // Create connections.
-            PrimaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
+            PrimaryConnection = new SqlConnectionProxy(AssemblyInitialize.dbConnectionString);
 
-            SecondaryConnection = new SqlConnection(AssemblyInitialize.dbConnectionString);
+            SecondaryConnection = new SqlConnectionProxy(AssemblyInitialize.dbConnectionString);
             SecondaryConnection.Open();
 
             // create the data access object.
@@ -109,7 +109,7 @@ namespace PeachtreeBus.DataAccessTests
         /// <summary>
         /// Holds any transaction started by test code.
         /// </summary>
-        protected SqlTransaction transaction = null;
+        protected ISqlTransaction transaction = null;
 
         /// <summary>
         /// starts a transaction on the secondary connection.
@@ -151,7 +151,7 @@ namespace PeachtreeBus.DataAccessTests
         protected int CountRowsInTable(string tablename)
         {
             string statment = $"SELECT COUNT(*) FROM [{DefaultSchema}].[{tablename}]";
-            using var cmd = new SqlCommand(statment, SecondaryConnection, transaction);
+            using var cmd = new SqlCommand(statment, SecondaryConnection.Connection, transaction?.Transaction);
             return (int)cmd.ExecuteScalar();
         }
 
@@ -178,7 +178,7 @@ namespace PeachtreeBus.DataAccessTests
         /// <param name="statement"></param>
         protected void ExecuteNonQuery(string statement)
         {
-            using var cmd = new SqlCommand(statement, SecondaryConnection, transaction);
+            using var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction?.Transaction);
             cmd.ExecuteNonQuery();
         }
 
@@ -191,7 +191,7 @@ namespace PeachtreeBus.DataAccessTests
         {
             var result = new DataSet();
             string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}]";
-            using (var cmd = new SqlCommand(statement, SecondaryConnection, transaction))
+            using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction?.Transaction))
             using (var adpater = new SqlDataAdapter(cmd))
             {
                 adpater.Fill(result);
@@ -209,7 +209,7 @@ namespace PeachtreeBus.DataAccessTests
         {
             var result = new DataSet();
             string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}] WITH (UPDLOCK, READPAST)";
-            using (var cmd = new SqlCommand(statement, SecondaryConnection, transaction))
+            using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction.Transaction))
             using (var adpater = new SqlDataAdapter(cmd))
             {
                 adpater.Fill(result);
