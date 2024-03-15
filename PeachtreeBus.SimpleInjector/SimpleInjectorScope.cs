@@ -12,6 +12,12 @@ namespace PeachtreeBus.SimpleInjector
     {
         public Scope Scope { get; set; }
 
+        public void Dispose()
+        {
+            Scope?.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
         public IEnumerable<T> GetAllInstances<T>() where T : class
         {
             var instances = Scope.Container.GetAllInstances<T>();

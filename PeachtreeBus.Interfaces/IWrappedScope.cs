@@ -8,7 +8,7 @@ namespace PeachtreeBus
     /// Can create instances of objects from the DI Container
     /// that are in the current scope as the IWrappedScope itself.
     /// </summary>
-    public interface IWrappedScope
+    public interface IWrappedScope : IDisposable
 
     {
         T GetInstance<T>() where T : class;
