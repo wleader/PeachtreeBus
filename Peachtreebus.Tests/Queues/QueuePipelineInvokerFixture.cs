@@ -11,14 +11,14 @@ namespace Peachtreebus.Tests.Queues
     [TestClass]
     public class QueuePipelineInvokerFixture
     {
-        private Mock<IWrappedScopeFactory> _scopeFactory;
-        private Mock<ISharedDatabase> _sharedDatabase;
-        private Mock<IWrappedScope> _scope;
-        private Mock<IShareObjectsBetweenScopes> _provider;
-        private Mock<IQueuePipelineFactory> _pipelineFactory;
-        private Mock<IQueuePipeline> _pipeline;
-        private QueuePipelineInvoker _invoker;
-        private InternalQueueContext _context;
+        private Mock<IWrappedScopeFactory> _scopeFactory = default!;
+        private Mock<ISharedDatabase> _sharedDatabase = default!;
+        private Mock<IWrappedScope> _scope = default!;
+        private Mock<IShareObjectsBetweenScopes> _provider = default!;
+        private Mock<IQueuePipelineFactory> _pipelineFactory = default!;
+        private Mock<IQueuePipeline> _pipeline = default!;
+        private QueuePipelineInvoker _invoker = default!;
+        private InternalQueueContext _context = default!;
 
         [TestInitialize]
         public void Init()
@@ -31,7 +31,7 @@ namespace Peachtreebus.Tests.Queues
             _sharedDatabase = new();
 
             _provider = new();
-            _provider.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null);
+            _provider.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null!);
             
             _scope.Setup(s => s.GetInstance<IShareObjectsBetweenScopes>()).Returns(_provider.Object);
 

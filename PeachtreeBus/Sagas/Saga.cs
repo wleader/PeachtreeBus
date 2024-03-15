@@ -15,7 +15,7 @@
         /// <summary>
         /// Holds Arbitrary data that will be persisted between saga message handlers.
         /// </summary>
-        public TSagaData Data { get; set; }
+        public TSagaData Data { get; set; } = new TSagaData();
 
         /// <summary>
         /// Saga Handler code will set this to true to inform the bus that the saga is compelte, and persisted data may be discarded.

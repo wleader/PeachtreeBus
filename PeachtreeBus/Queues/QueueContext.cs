@@ -12,7 +12,7 @@ namespace PeachtreeBus.Queues
         /// <summary>
         /// Which Queue the message was read from.
         /// </summary>
-        public string SourceQueue { get; set; }
+        public string SourceQueue { get; set; } = default!;
     }
 
     /// <summary>
@@ -25,37 +25,37 @@ namespace PeachtreeBus.Queues
         /// <summary>
         /// Headers that were stored with the message.
         /// </summary>
-        public Headers Headers { get; set; }
+        public Headers Headers { get; set; } = new();
 
         /// <summary>
         /// The message itself.
         /// </summary>
-        public object Message { get; set; }
+        public object Message { get; set; } = default!;
 
         /// <summary>
         /// The Model of the message as was stored the database.
         /// </summary>
-        public QueueMessage MessageData { get; set; }
+        public QueueMessage MessageData { get; set; } = default!;
 
         /// <summary>
         /// The Model of the saga data related to the message (Null when the message is not part of a saga)
         /// Will be null if the saga is starting and has never persisted to the DB before.
         /// Will be null if the row is locked.
         /// </summary>
-        public SagaData SagaData { get; set; }
+        public SagaData? SagaData { get; set; }
 
         /// <summary>
         /// The Saga instance Key for the messge.
         /// (Null when the message is not part of a saga.
         /// </summary>
-        public string SagaKey { get; set; }
+        public string SagaKey { get; set; } = string.Empty;
 
         /// <summary>
         /// What message handler was last used on the message.
         /// Used to generate exceptions and logs that point to specific
         /// handlers.
         /// </summary>
-        public string CurrentHandler { get; set; } = default;
+        public string? CurrentHandler { get; set; } = default;
 
         /// <summary>
         /// Indicates if the SagaData row was in the database was locked
@@ -63,11 +63,5 @@ namespace PeachtreeBus.Queues
         /// when the sage is not already running.
         /// </summary>
         public bool SagaBlocked { get => SagaData?.Blocked ?? false; }
-
-        /// <summary>
-        /// Holds the name of the SQL Transaction Savepoint Name.
-        /// Enables other code to rollback to the correct save point.
-        /// </summary>
-        public string SavepointName { get; set; } = default;
     }
 }

@@ -58,7 +58,7 @@ namespace PeachtreeBus.DatabaseSharing
         /// <summary>
         /// The current Transaction (Null when there is no transaction).
         /// </summary>
-        SqlTransaction Transaction { get; }
+        SqlTransaction? Transaction { get; }
 
         SqlConnection Connection { get; }
 
@@ -104,17 +104,17 @@ namespace PeachtreeBus.DatabaseSharing
         private readonly object _lock = new();
 
         /// <inheritdoc/>
-        public event EventHandler TransactionStarted;
+        public event EventHandler? TransactionStarted;
         /// <inheritdoc/>
-        public event EventHandler TransactionConsumed;
+        public event EventHandler? TransactionConsumed;
 
         /// <inheritdoc/>
-        public SqlTransaction Transaction { get => _transaction?.Transaction; }
+        public SqlTransaction? Transaction { get => _transaction?.Transaction; }
 
-        public SqlConnection Connection { get => _connection?.Connection; }
+        public SqlConnection Connection { get => _connection.Connection; }
 
         private ISqlConnection _connection;
-        private ISqlTransaction _transaction;
+        private ISqlTransaction? _transaction;
 
         private readonly ISqlConnectionFactory _connectionFactory;
 
@@ -181,7 +181,7 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (Transaction == null) throw new SharedDatabaseException("There is no transaction to roll back.");
+                if (_transaction == null) throw new SharedDatabaseException("There is no transaction to roll back.");
                 _transaction.Rollback();
                 _transaction = null;
             }
@@ -193,15 +193,15 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (Transaction is not null)
+                if (_transaction is not null)
                 {
                     _transaction.Dispose();
                     _transaction = null;
                     TransactionConsumed?.Invoke(this, null);
                 }
 
-                _connection?.Close();
-                _connection?.Dispose();
+                _connection.Close();
+                _connection.Dispose();
                 _connection = _connectionFactory.GetConnection();
                 _connection.Open();
             }
@@ -218,8 +218,8 @@ namespace PeachtreeBus.DatabaseSharing
                     _transaction = null;
                     TransactionConsumed?.Invoke(this, null);
                 }
-                _connection?.Close();
-                _connection?.Dispose();
+                _connection.Close();
+                _connection.Dispose();
             }
             GC.SuppressFinalize(this);  
         }

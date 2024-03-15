@@ -38,7 +38,7 @@ namespace PeachtreeBus.Example.Messages
         public Guid AppId { get; set; }
         public int A { get; set; }
         public int B { get; set; }
-        public string Operation { get; set; }
+        public string Operation { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace PeachtreeBus.Example.Messages
         public Guid AppId { get; set; }
         public int A { get; set; }
         public int B { get; set; }
-        public string Operation { get; set; }
+        public string Operation { get; set; } = string.Empty;
         public int Result { get; set; }
     }
 }

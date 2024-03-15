@@ -10,11 +10,11 @@ namespace Peachtreebus.Tests.Subscriptions
     [TestClass]
     public class SubscribedPipelineFactoryFixture
     {
-        private Mock<ISubscribedPipeline> _pipeline;
-        private Mock<IFindSubscribedPipelineSteps> _findSteps;
-        private Mock<IWrappedScope> _scope;
-        private Mock<ISubscribedHandlersPipelineStep> _handlersStep;
-        private SubscribedPipelineFactory _factory;
+        private Mock<ISubscribedPipeline> _pipeline = default!;
+        private Mock<IFindSubscribedPipelineSteps> _findSteps = default!;
+        private Mock<IWrappedScope> _scope = default!;
+        private Mock<ISubscribedHandlersPipelineStep> _handlersStep = default!;
+        private SubscribedPipelineFactory _factory = default!;
 
         [TestInitialize]
         public void Init()

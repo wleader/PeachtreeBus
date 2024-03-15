@@ -13,8 +13,8 @@ namespace Peachtreebus.Tests.Cleaners
     [TestClass]
     public class SubscribedCleanerFixture
     {
-        private SubscribedCleaner cleaner;
-        private Mock<IBusDataAccess> dataAccess;
+        private SubscribedCleaner cleaner = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
 
         [TestInitialize]
         public void TestInitialize()

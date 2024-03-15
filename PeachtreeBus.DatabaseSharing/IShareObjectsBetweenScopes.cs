@@ -22,6 +22,6 @@
     /// </remarks>
     public interface IShareObjectsBetweenScopes
     {
-        public ISharedDatabase SharedDatabase { get; set; }
+        public ISharedDatabase? SharedDatabase { get; set; }
     }
 }

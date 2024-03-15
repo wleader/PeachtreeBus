@@ -24,7 +24,7 @@ namespace PeachtreeBus.Queues
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        Task<InternalQueueContext> GetNext(string queueName);
+        Task<InternalQueueContext?> GetNext(string queueName);
 
         /// <summary>
         /// Marks a message as successfully processed.
@@ -101,7 +101,7 @@ namespace PeachtreeBus.Queues
         }
 
         /// <inheritdoc/>
-        public async Task<InternalQueueContext> GetNext(string queueName)
+        public async Task<InternalQueueContext?> GetNext(string queueName)
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.
@@ -127,7 +127,7 @@ namespace PeachtreeBus.Queues
 
             // Deserialize the message.
             var messageType = Type.GetType(headers.MessageClass);
-            object message = null;
+            object message = null!;
             if (messageType != null)
             {
                 try

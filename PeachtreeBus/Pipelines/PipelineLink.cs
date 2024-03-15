@@ -5,7 +5,7 @@ namespace PeachtreeBus.Pipelines
 {
     internal class PipelineLink<TContext>
     {
-        private PipelineLink<TContext> _next;
+        private PipelineLink<TContext>? _next;
         private readonly IPipelineStep<TContext> _step;
 
         public PipelineLink(IPipelineStep<TContext> step)

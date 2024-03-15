@@ -20,7 +20,7 @@ namespace PeachtreeBus.Example.Pipeline
         {
             _log.LogInformation("This code runs before Queue Message handlers.");
 
-            await next(context);
+            await next.Invoke(context);
 
             _log.LogInformation("This code runs after Queue Message handlers.");
         }

@@ -21,17 +21,17 @@ namespace Peachtreebus.Tests.Subscriptions
     [TestClass]
     public class SubscribedReaderFixture
     {
-        private SubscribedReader reader;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<ILogger<SubscribedReader>> log;
-        private Mock<IPerfCounters> counters;
-        private Mock<ISerializer> serializer;
-        private Mock<ISystemClock> clock;
-        private Mock<ISubscribedFailures> failures;
+        private SubscribedReader reader = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<ILogger<SubscribedReader>> log = default!;
+        private Mock<IPerfCounters> counters = default!;
+        private Mock<ISerializer> serializer = default!;
+        private Mock<ISystemClock> clock = default!;
+        private Mock<ISubscribedFailures> failures = default!;
 
-        private SubscribedMessage UpdatedMessage;
-        private SubscribedMessage FailedMessage;
-        private SubscribedMessage CompletedMessage;
+        private SubscribedMessage UpdatedMessage = default!;
+        private SubscribedMessage FailedMessage = default!;
+        private SubscribedMessage CompletedMessage = default!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -183,7 +183,7 @@ namespace Peachtreebus.Tests.Subscriptions
             var subscriberId = Guid.NewGuid();
 
             dataAccess.Setup(d => d.GetPendingSubscribed(subscriberId))
-                .Returns(Task.FromResult(expectedMessage));
+                .ReturnsAsync(expectedMessage);
 
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
                .Returns(expectedHeaders);
@@ -192,7 +192,7 @@ namespace Peachtreebus.Tests.Subscriptions
                 .Returns(expectedUserMessage);
 
             var message = await reader.GetNext(subscriberId);
-
+            Assert.IsNotNull(message);
             Assert.IsTrue(ReferenceEquals(expectedMessage, message.MessageData));
             Assert.IsTrue(ReferenceEquals(expectedHeaders, message.Headers));
             Assert.IsTrue(ReferenceEquals(expectedUserMessage, message.Message));
@@ -223,7 +223,7 @@ namespace Peachtreebus.Tests.Subscriptions
             var subscriberId = Guid.NewGuid();
 
             dataAccess.Setup(d => d.GetPendingSubscribed(subscriberId))
-                .Returns(Task.FromResult(expectedMessage));
+                .ReturnsAsync(expectedMessage);
 
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
                .Throws(new JsonException());
@@ -232,7 +232,7 @@ namespace Peachtreebus.Tests.Subscriptions
                 .Returns(expectedUserMessage);
 
             var message = await reader.GetNext(subscriberId);
-
+            Assert.IsNotNull(message);
             Assert.IsTrue(ReferenceEquals(expectedMessage, message.MessageData));
             Assert.IsNotNull(message.Headers);
             Assert.IsNull(message.Message);
@@ -263,13 +263,13 @@ namespace Peachtreebus.Tests.Subscriptions
             Guid subscriberId = Guid.NewGuid();
 
             dataAccess.Setup(d => d.GetPendingSubscribed(subscriberId))
-                .Returns(Task.FromResult(expectedMessage));
+                .ReturnsAsync(expectedMessage);
 
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
                .Returns(expectedHeaders);
 
             var message = await reader.GetNext(subscriberId);
-
+            Assert.IsNotNull(message);
             serializer.Verify(s => s.DeserializeMessage(It.IsAny<string>(), It.IsAny<Type>()), Times.Never);
             Assert.IsTrue(ReferenceEquals(expectedMessage, message.MessageData));
             Assert.IsNotNull(message.Headers);
@@ -301,7 +301,7 @@ namespace Peachtreebus.Tests.Subscriptions
             var subscriberId = Guid.NewGuid();
 
             dataAccess.Setup(d => d.GetPendingSubscribed(subscriberId))
-                .Returns(Task.FromResult(expectedMessage));
+                .ReturnsAsync(expectedMessage);
 
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
                .Returns(expectedHeaders);
@@ -310,7 +310,7 @@ namespace Peachtreebus.Tests.Subscriptions
                 .Throws(new JsonException());
 
             var message = await reader.GetNext(subscriberId);
-
+            Assert.IsNotNull(message);
             Assert.IsTrue(ReferenceEquals(expectedMessage, message.MessageData));
             Assert.IsTrue(ReferenceEquals(expectedHeaders, message.Headers));
             Assert.IsNull(message.Message);

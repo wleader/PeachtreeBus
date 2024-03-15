@@ -11,14 +11,14 @@ namespace Peachtreebus.Tests.Subscriptions
     [TestClass]
     public class SubscribedPipelineInvokerFixture
     {
-        private Mock<IWrappedScopeFactory> _scopeFactory;
-        private Mock<ISharedDatabase> _sharedDatabase;
-        private Mock<IWrappedScope> _scope;
-        private Mock<IShareObjectsBetweenScopes> _provider;
-        private Mock<ISubscribedPipelineFactory> _pipelineFactory;
-        private Mock<ISubscribedPipeline> _pipeline;
-        private SubscribedPipelineInvoker _invoker;
-        private InternalSubscribedContext _context;
+        private Mock<IWrappedScopeFactory> _scopeFactory = default!;
+        private Mock<ISharedDatabase> _sharedDatabase = default!;
+        private Mock<IWrappedScope> _scope = default!;
+        private Mock<IShareObjectsBetweenScopes> _provider = default!;
+        private Mock<ISubscribedPipelineFactory> _pipelineFactory = default!;
+        private Mock<ISubscribedPipeline> _pipeline = default!;
+        private SubscribedPipelineInvoker _invoker = default!;
+        private InternalSubscribedContext _context = default!;
 
         [TestInitialize]
         public void Init()
@@ -31,7 +31,7 @@ namespace Peachtreebus.Tests.Subscriptions
             _sharedDatabase = new();
 
             _provider = new();
-            _provider.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null);
+            _provider.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null!);
 
             _scope.Setup(s => s.GetInstance<IShareObjectsBetweenScopes>()).Returns(_provider.Object);
 

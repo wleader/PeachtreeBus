@@ -10,11 +10,11 @@ namespace Peachtreebus.Tests.Queues
     [TestClass]
     public class QueuePipelineFactoryFixture
     {
-        private Mock<IQueuePipeline> _pipeline;
-        private Mock<IFindQueuePipelineSteps> _findSteps;
-        private Mock<IWrappedScope> _scope;
-        private Mock<IQueueHandlersPipelineStep> _handlersStep;
-        private QueuePipelineFactory _factory;
+        private Mock<IQueuePipeline> _pipeline = default!;
+        private Mock<IFindQueuePipelineSteps> _findSteps = default!;
+        private Mock<IWrappedScope> _scope = default!;
+        private Mock<IQueueHandlersPipelineStep> _handlersStep = default!;
+        private QueuePipelineFactory _factory = default!;
 
         [TestInitialize]
         public void Init()

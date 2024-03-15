@@ -19,7 +19,7 @@ namespace PeachtreeBus.Subscriptions
 
         public int Priority { get => 0; }
 
-        public async Task Invoke(SubscribedContext subscribedcontext, Func<SubscribedContext, Task> next)
+        public async Task Invoke(SubscribedContext subscribedcontext, Func<SubscribedContext, Task>? next)
         {
             var context = (InternalSubscribedContext)subscribedcontext;
 
@@ -67,7 +67,7 @@ namespace PeachtreeBus.Subscriptions
                 // does that mater for the retry?
                 {
                     var taskObject = handleMethod.Invoke(handler, new object[] { context, context.Message });
-                    var castTask = taskObject as Task;
+                    var castTask = (Task)taskObject;
                     await castTask;
                 }
             }

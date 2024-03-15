@@ -19,15 +19,15 @@ namespace Peachtreebus.Tests.Queues
     {
         public class MessageWithoutInterface { }
 
-        private QueueWriter writer;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<IPerfCounters> counters;
-        private Mock<ISerializer> serializer;
-        private Mock<ISystemClock> clock;
+        private QueueWriter writer = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<IPerfCounters> counters = default!;
+        private Mock<ISerializer> serializer = default!;
+        private Mock<ISystemClock> clock = default!;
 
-        private QueueMessage AddedMessage = null;
-        private string AddedToQueue = null;
-        private Headers SerializedHeaders = null;
+        private QueueMessage AddedMessage = null!;
+        private string AddedToQueue = null!;
+        private Headers SerializedHeaders = null!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -69,7 +69,7 @@ namespace Peachtreebus.Tests.Queues
             await writer.WriteMessage(
                 "QueueName",
                 typeof(TestSagaMessage1),
-                null,
+                null!,
                 null);
         }
 
@@ -83,7 +83,7 @@ namespace Peachtreebus.Tests.Queues
         {
             await writer.WriteMessage(
                 "QueueName",
-                null,
+                null!,
                 new TestSagaMessage1(),
                 null);
         }
@@ -97,7 +97,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task WriteMessage_ThrowsWhenQueueNameIsNull()
         {
             await writer.WriteMessage(
-                null,
+                null!,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);

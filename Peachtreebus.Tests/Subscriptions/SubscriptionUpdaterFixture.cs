@@ -14,10 +14,10 @@ namespace Peachtreebus.Tests.Subscriptions
     [TestClass]
     public class SubscriptionUpdaterFixture
     {
-        private SubscriptionUpdateWork Updater;
-        private SubscriberConfiguration config;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<ISystemClock> clock;
+        private SubscriptionUpdateWork Updater = default!;
+        private SubscriberConfiguration config = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<ISystemClock> clock = default!;
 
         [TestInitialize]
         public void TestInitialize()

@@ -52,7 +52,9 @@ namespace PeachtreeBus.Sagas
             var funcType = typeof(Func<,>).MakeGenericType(new Type[] { messageType, typeof(string) });
             var invokeMethod = funcType.GetMethod("Invoke");
             var result = invokeMethod.Invoke(function, new[] { message });
-            return result is string stringResult ? stringResult : null;
+            return result is string stringResult 
+                ? stringResult
+                : throw new SagaMapException("Map function did not return a string.");
         }
     }
 }

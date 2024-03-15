@@ -88,6 +88,7 @@ namespace PeachtreeBus.Queues
         /// Writes a message to a queue
         /// </summary>
         public static async Task WriteMessage<T>(this IQueueWriter writer, string queueName, T message, DateTime? NotBefore = null)
+            where T : notnull
         {
             await writer.WriteMessage(queueName, typeof(T), message, NotBefore);
         }

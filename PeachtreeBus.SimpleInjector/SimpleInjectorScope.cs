@@ -10,7 +10,7 @@ namespace PeachtreeBus.SimpleInjector
     /// </summary>
     public class SimpleInjectorScope : IWrappedScope
     {
-        public Scope Scope { get; set; }
+        public Scope? Scope { get; set; }
 
         public void Dispose()
         {
@@ -20,17 +20,20 @@ namespace PeachtreeBus.SimpleInjector
 
         public IEnumerable<T> GetAllInstances<T>() where T : class
         {
-            var instances = Scope.Container.GetAllInstances<T>();
+            if (Scope == null) throw new InvalidOperationException("Scope must be set before getting instances.");
+            var instances = Scope.Container!.GetAllInstances<T>();
             return instances.Select(i => (T)Scope.GetInstance(i.GetType()));
         }
 
         public T GetInstance<T>() where T : class
         {
+            if (Scope == null) throw new InvalidOperationException("Scope must be set before getting instances.");
             return Scope.GetInstance<T>();
         }
 
         public object GetInstance(Type t)
         {
+            if (Scope == null) throw new InvalidOperationException("Scope must be set before getting instances.");
             return Scope.GetInstance(t);
         }
     }

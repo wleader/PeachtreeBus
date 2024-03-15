@@ -31,11 +31,11 @@ namespace Peachtreebus.Tests
             }
         }
 
-        private TestThread testThread;
-        private Mock<IProvideShutdownSignal> shutdown;
+        private TestThread testThread = default!;
+        private Mock<IProvideShutdownSignal> shutdown = default!;
         private int loopCount = 1;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<ILogger> log;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<ILogger> log = default!;
 
 
         [TestInitialize]

@@ -42,6 +42,7 @@ namespace PeachtreeBus.DataAccessTests
 
             // get and update a message.
             var toUpdate = await dataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
+            Assert.IsNotNull(toUpdate);
 
             // set changed values
             toUpdate.SubscriberId = Guid.NewGuid(); // should never change.

@@ -13,16 +13,16 @@ namespace PeachtreeBus.DataAccessTests
     [TestClass]
     public class TransactionsFixture
     {
-        private Mock<ILogger<DapperDataAccess>> MockLog;
-        private Mock<ISharedDatabase> MockSharedDatabase;
-        private DapperDataAccess dataAccess;
+        private Mock<ILogger<DapperDataAccess>> MockLog = default!;
+        private Mock<ISharedDatabase> MockSharedDatabase = default!;
+        private DapperDataAccess dataAccess = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
             MockLog = new Mock<ILogger<DapperDataAccess>>();
             MockSharedDatabase = new Mock<ISharedDatabase>();
-            dataAccess = new DapperDataAccess(MockSharedDatabase.Object, null, MockLog.Object);
+            dataAccess = new DapperDataAccess(MockSharedDatabase.Object, null!, MockLog.Object);
         }
 
         /// <summary>

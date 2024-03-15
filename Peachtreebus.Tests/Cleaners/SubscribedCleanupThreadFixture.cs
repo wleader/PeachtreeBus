@@ -14,11 +14,11 @@ namespace Peachtreebus.Tests.Cleaners
     [TestClass]
     public class SubscribedCleanupThreadFixture
     {
-        private SubscribedCleanupThread thread;
-        private Mock<ILogger<SubscribedCleanupThread>> log;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<IProvideShutdownSignal> shutdown;
-        private Mock<ISubscribedCleanupWork> cleaner;
+        private SubscribedCleanupThread thread = default!;
+        private Mock<ILogger<SubscribedCleanupThread>> log = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<IProvideShutdownSignal> shutdown = default!;
+        private Mock<ISubscribedCleanupWork> cleaner = default!;
 
         [TestInitialize]
         public void TestInitialize()

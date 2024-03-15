@@ -20,7 +20,7 @@ namespace PeachtreeBus
     public class PerfCounters : EventSource, IPerfCounters
     {
         private static readonly object LockObj = new();
-        private static PerfCounters _instance = null;
+        private static PerfCounters? _instance = null;
         public static PerfCounters Instance()
         {
             lock (LockObj)

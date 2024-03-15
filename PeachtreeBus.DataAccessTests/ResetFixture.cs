@@ -14,10 +14,10 @@ namespace PeachtreeBus.DataAccessTests
     [TestClass]
     public class ResetFixture
     {
-        private DapperDataAccess _dataAccess;
-        private Mock<ISharedDatabase> _sharedDb;
-        private Mock<IDbSchemaConfiguration> _schemaConfiguration;
-        private Mock<ILogger<DapperDataAccess>> _logger;
+        private DapperDataAccess _dataAccess = default!;
+        private Mock<ISharedDatabase> _sharedDb = default!;
+        private Mock<IDbSchemaConfiguration> _schemaConfiguration = default!;
+        private Mock<ILogger<DapperDataAccess>> _logger = default!;
 
         [TestInitialize]
         public void Initialize()

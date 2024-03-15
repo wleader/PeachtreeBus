@@ -27,7 +27,7 @@ namespace PeachtreeBus.Queues
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly IQueuePipelineInvoker _pipelineInvoker = pipelineInvoker;
 
-        public string QueueName { get; set; }
+        public string QueueName { get; set; } = string.Empty;
 
         private const string savepointName = "BeforeMessageHandler";
 
@@ -59,15 +59,13 @@ namespace PeachtreeBus.Queues
                 // creat a save point. If anything goes wrong we can roll back to here,
                 // increment the retry count and try again later.
                 _dataAccess.CreateSavepoint(savepointName);
-
-                context.SavepointName = savepointName;
-                
+                                
                 await _pipelineInvoker.Invoke(context);
 
                 if (context.SagaBlocked)
                 {
                     // the saga is blocked. delay the message and try again later.
-                    _log.QueueWork_SagaBlocked(context.CurrentHandler, context.SagaKey);
+                    _log.QueueWork_SagaBlocked(context.CurrentHandler!, context.SagaKey);
                     _dataAccess.RollbackToSavepoint(savepointName);
                     await _queueReader.DelayMessage(context, 250);
                     _counters.SagaBlocked();
@@ -83,7 +81,7 @@ namespace PeachtreeBus.Queues
             {
                 // there was an exception, Rollback to the save point to undo
                 // any db changes done by the handlers.
-                _log.QueueWork_HandlerException(context.CurrentHandler, context.MessageData.MessageId, context.Headers.MessageClass, ex);
+                _log.QueueWork_HandlerException(context.CurrentHandler!, context.MessageData.MessageId, context.Headers.MessageClass, ex);
                 _dataAccess.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
                 await _queueReader.Fail(context, ex);

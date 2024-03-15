@@ -10,7 +10,7 @@ namespace PeachtreeBus.DataAccessTests
     {
         public virtual long Id { get; set; }
         public virtual Guid SubscriberId { get; set; }
-        public virtual string Category { get; set; }
+        public virtual string Category { get; set; } = string.Empty;
         public virtual DateTime ValidUntil { get; set; }
     }
 }

@@ -21,12 +21,12 @@ namespace PeachtreeBus.Model
         /// <summary>
         /// What instance of the Saga class is the data related to.
         /// </summary>
-        public virtual string Key { get; set; }
+        public virtual string Key { get; set; } = string.Empty;
 
         /// <summary>
         /// The serialized Saga Data.
         /// </summary>
-        public virtual string Data { get; set; }
+        public virtual string Data { get; set; } = string.Empty;
 
         public virtual bool Blocked { get; set; }
     }

@@ -17,13 +17,13 @@ namespace Peachtreebus.Tests.Queues
     [TestClass]
     public class QueueWorkFixture
     {
-        private QueueWork work;
-        private Mock<ILogger<QueueWork>> log;
-        private Mock<IPerfCounters> counters;
-        private Mock<IQueueReader> reader;
-        private Mock<IBusDataAccess> dataAccess;
-        private InternalQueueContext context;
-        private Mock<IQueuePipelineInvoker> pipelineInvoker;
+        private QueueWork work = default!;
+        private Mock<ILogger<QueueWork>> log = default!;
+        private Mock<IPerfCounters> counters = default!;
+        private Mock<IQueueReader> reader = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private InternalQueueContext context = default!;
+        private Mock<IQueuePipelineInvoker> pipelineInvoker = default!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -38,7 +38,7 @@ namespace Peachtreebus.Tests.Queues
             context = CreateContext();
 
             reader.Setup(r => r.GetNext("TestQueue"))
-                .Returns(Task.FromResult(context));
+                .ReturnsAsync(context);
 
             work = new QueueWork(log.Object,
                 counters.Object,
@@ -57,7 +57,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Given_NoPendingMessages_When_DoWork_ThenReturnFalse()
         {
             reader.Setup(r => r.GetNext("TestQueue"))
-                .Returns(Task.FromResult<InternalQueueContext>(null));
+                .ReturnsAsync((InternalQueueContext)null!);
 
             var result = await work.DoWork();
 

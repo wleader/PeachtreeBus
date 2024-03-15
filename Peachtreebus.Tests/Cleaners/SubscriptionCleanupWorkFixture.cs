@@ -13,8 +13,8 @@ namespace Peachtreebus.Tests.Cleaners
     [TestClass]
     public class SubscriptionCleanupWorkFixture
     {
-        private Mock<IBusDataAccess> dataAccess;
-        private SubscriptionCleanupWork work;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private SubscriptionCleanupWork work = default!;
 
         [TestInitialize]
         public void TestInitialize()

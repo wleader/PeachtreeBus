@@ -18,32 +18,32 @@ namespace PeachtreeBus.DataAccessTests
         /// <summary>
         /// A DB Connection provided to the DapperDataAccess.
         /// </summary>
-        protected ISqlConnection PrimaryConnection;
+        protected ISqlConnection PrimaryConnection = default!;
 
         /// <summary>
         /// A secondary connection used by the tests to act on the DB
         /// without using the DapperDataAccess.
         /// </summary>
-        protected ISqlConnection SecondaryConnection;
+        protected ISqlConnection SecondaryConnection = default!;
 
-        protected SharedDatabase SharedDB;
+        protected SharedDatabase SharedDB = default!;
 
         private Mock<ISqlConnectionFactory> _connectionFactory = new();
 
         /// <summary>
         /// The data acess being tested.
         /// </summary>
-        protected TAccess dataAccess;
+        protected TAccess dataAccess = default!;
 
         /// <summary>
         /// Provides a schema to the data access.
         /// </summary>
-        protected Mock<IDbSchemaConfiguration> MockSchema;
+        protected Mock<IDbSchemaConfiguration> MockSchema = default!;
 
         /// <summary>
         /// Provides a log to the data access.
         /// </summary>
-        protected Mock<ILogger<TAccess>> MockLog;
+        protected Mock<ILogger<TAccess>> MockLog = default!;
 
         protected const string DefaultSchema = "PeachtreeBus";
         protected const string DefaultQueue = "QueueName";
@@ -109,7 +109,7 @@ namespace PeachtreeBus.DataAccessTests
         /// <summary>
         /// Holds any transaction started by test code.
         /// </summary>
-        protected ISqlTransaction transaction = null;
+        protected ISqlTransaction? transaction = null;
 
         /// <summary>
         /// starts a transaction on the secondary connection.
@@ -209,7 +209,7 @@ namespace PeachtreeBus.DataAccessTests
         {
             var result = new DataSet();
             string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}] WITH (UPDLOCK, READPAST)";
-            using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction.Transaction))
+            using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction?.Transaction))
             using (var adpater = new SqlDataAdapter(cmd))
             {
                 adpater.Fill(result);

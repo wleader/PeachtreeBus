@@ -37,6 +37,7 @@ namespace PeachtreeBus.DataAccessTests
 
             // get and complete a message.
             var messageToComplete = await dataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
+            Assert.IsNotNull(messageToComplete);
             messageToComplete.Completed = DateTime.UtcNow;
             // screw with the fields that shouldn't change.
             messageToComplete.Body = "NewBody";

@@ -99,7 +99,7 @@ namespace PeachtreeBus.Data
         /// <param name="queueName"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<QueueMessage> GetPendingQueued(string queueName)
+        public async Task<QueueMessage?> GetPendingQueued(string queueName)
         {
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.
@@ -426,7 +426,7 @@ namespace PeachtreeBus.Data
         /// <param name="key"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<SagaData> GetSagaData(string sagaName, string key)
+        public async Task<SagaData?> GetSagaData(string sagaName, string key)
         {
             const string GetSagaDataStatement =
                 "DECLARE" +
@@ -564,7 +564,7 @@ namespace PeachtreeBus.Data
         /// <param name="subscriberId"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<SubscribedMessage> GetPendingSubscribed(Guid subscriberId)
+        public async Task<SubscribedMessage?> GetPendingSubscribed(Guid subscriberId)
         {
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.

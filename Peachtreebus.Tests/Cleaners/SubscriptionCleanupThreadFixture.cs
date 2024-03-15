@@ -16,12 +16,12 @@ namespace Peachtreebus.Tests.Cleaners
     [TestClass]
     public class SubscriptionCleanupThreadFixture
     {
-        private Mock<ISystemClock> clock;
-        private Mock<ISubscriptionCleanupWork> cleaner;
-        private Mock<IProvideShutdownSignal> shutdown;
-        private Mock<ILogger<SubscriptionCleanupThread>> log;
-        private Mock<IBusDataAccess> dataAccess;
-        private SubscriptionCleanupThread thread;
+        private Mock<ISystemClock> clock = default!;
+        private Mock<ISubscriptionCleanupWork> cleaner = default!;
+        private Mock<IProvideShutdownSignal> shutdown = default!;
+        private Mock<ILogger<SubscriptionCleanupThread>> log = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private SubscriptionCleanupThread thread = default!;
 
         [TestInitialize]
         public void TestInitialize()

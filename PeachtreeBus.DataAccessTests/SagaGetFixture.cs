@@ -38,7 +38,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(1, CountRowsInTable(DefaultSagaTable));
 
             var actual = await dataAccess.GetSagaData(DefaultSagaName, newSaga1.Key);
-
+            Assert.IsNotNull(actual);
             AssertSagaEquals(newSaga1, actual);
             Assert.IsFalse(actual.Blocked);
         }
@@ -76,7 +76,7 @@ namespace PeachtreeBus.DataAccessTests
                 var data = GetTableContentAndLock(DefaultSagaTable);
 
                 var actual = await dataAccess.GetSagaData(DefaultSagaName, newSaga1.Key);
-
+                Assert.IsNotNull(actual);
                 Assert.IsTrue(actual.Blocked);
             }
             finally

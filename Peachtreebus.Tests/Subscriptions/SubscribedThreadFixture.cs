@@ -15,14 +15,14 @@ namespace Peachtreebus.Tests.Subscriptions
     [TestClass]
     public class SubscribedThreadFixture
     {
-        private SubscribedThread thread;
-        private Mock<IProvideShutdownSignal> shutdown;
+        private SubscribedThread thread = default!;
+        private Mock<IProvideShutdownSignal> shutdown = default!;
         private int loopCount = 1;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<ILogger<SubscribedThread>> log;
-        private Mock<ISubscribedWork> work;
-        private Mock<ISubscriptionUpdateWork> updater;
-        private SubscriberConfiguration config;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<ILogger<SubscribedThread>> log = default!;
+        private Mock<ISubscribedWork> work = default!;
+        private Mock<ISubscriptionUpdateWork> updater = default!;
+        private SubscriberConfiguration config = default!;
 
         [TestInitialize]
         public void TestInitialize()

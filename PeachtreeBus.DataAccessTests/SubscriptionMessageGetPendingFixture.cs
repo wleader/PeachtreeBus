@@ -130,6 +130,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsNull(actual);
             await Task.Delay(400);
             actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
+            Assert.IsNotNull(actual);
             AssertSubscribedEquals(testMessage, actual);
         }
 
@@ -148,7 +149,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
-
+            Assert.IsNotNull(actual);
             AssertSubscribedEquals(testMessage, actual);
         }
 

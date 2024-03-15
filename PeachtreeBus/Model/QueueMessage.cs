@@ -45,11 +45,11 @@ namespace PeachtreeBus.Model
         /// <summary>
         /// Serialized Message Headers
         /// </summary>
-        public virtual string Headers { get; set; }
+        public virtual string Headers { get; set; } = string.Empty;
 
         /// <summary>
         /// Serialized Message Body
         /// </summary>
-        public virtual string Body { get; set; }
+        public virtual string Body { get; set; } = string.Empty;
     }
 }

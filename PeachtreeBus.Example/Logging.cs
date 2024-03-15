@@ -5,7 +5,7 @@ namespace PeachtreeBus.Example
 {
     internal static class Logging
     {
-        private static readonly Action<ILogger, int, string, int, int, Exception> DistributedTaskCompleteAction =
+        private static readonly Action<ILogger, int, string, int, int, Exception?> DistributedTaskCompleteAction =
             LoggerMessage.Define<int, string, int, int>(LogLevel.Information, 1,
                 "Distributed Task Complete: {ValueA} {Operation} {ValueB} = {Result}");
         internal static void DistributedTaskComplete(this ILogger logger, string operation, int valueA, int valueB, int result)
@@ -13,7 +13,7 @@ namespace PeachtreeBus.Example
             DistributedTaskCompleteAction(logger, valueA, operation, valueB, result, null);
         }
 
-        private static readonly Action<ILogger, int, Exception> PendingTasksRemainingAction =
+        private static readonly Action<ILogger, int, Exception?> PendingTasksRemainingAction =
             LoggerMessage.Define<int>(LogLevel.Information, 2,
                 "{Count} tasks remaining.");
         internal static void PendingTasksRemaining(this ILogger logger, int count)
@@ -21,7 +21,7 @@ namespace PeachtreeBus.Example
             PendingTasksRemainingAction(logger, count, null);
         }
 
-        private static readonly Action<ILogger, Guid, Exception> CompletingSagaAction =
+        private static readonly Action<ILogger, Guid, Exception?> CompletingSagaAction =
             LoggerMessage.Define<Guid>(LogLevel.Information, 3,
                 "Completing Saga {SagaId}.");
 
@@ -30,7 +30,7 @@ namespace PeachtreeBus.Example
             CompletingSagaAction(logger, sagaId, null);
         }
 
-        private static readonly Action<ILogger, Guid, Exception> DistributingMoreWorkAction =
+        private static readonly Action<ILogger, Guid, Exception?> DistributingMoreWorkAction =
             LoggerMessage.Define<Guid>(LogLevel.Information, 4,
                 "Distributing more work for Saga {SagaId}.");
 
@@ -39,7 +39,7 @@ namespace PeachtreeBus.Example
             DistributingMoreWorkAction(logger, sagaId, null);
         }
 
-        private static readonly Action<ILogger, Guid, Exception> StartingTasksAction =
+        private static readonly Action<ILogger, Guid, Exception?> StartingTasksAction =
             LoggerMessage.Define<Guid>(LogLevel.Information, 5,
                 "Starting Tasks for Saga {SagaId}.");
 
@@ -48,7 +48,7 @@ namespace PeachtreeBus.Example
             StartingTasksAction(logger, sagaId, null);
         }
 
-        private static readonly Action<ILogger, Guid, Guid, Exception> SubscribedSagaCompleteAction =
+        private static readonly Action<ILogger, Guid, Guid, Exception?> SubscribedSagaCompleteAction =
             LoggerMessage.Define<Guid, Guid>(LogLevel.Information, 6,
                 "Subscriber {SubscriberId} got a Saga complete announcement {SagaId}");
 
@@ -57,7 +57,7 @@ namespace PeachtreeBus.Example
             SubscribedSagaCompleteAction(logger, subscriberId, sagaId, null);
         }
 
-        private static readonly Action<ILogger, Exception> ProcessingDistributedTaskAction =
+        private static readonly Action<ILogger, Exception?> ProcessingDistributedTaskAction =
             LoggerMessage.Define(LogLevel.Information, 7,
                 "Processing Distributed Task.");
         internal static void ProcessingDistributedTask(this ILogger logger)
@@ -65,7 +65,7 @@ namespace PeachtreeBus.Example
             ProcessingDistributedTaskAction(logger, null);
         }
 
-        private static readonly Action<ILogger, int, string, int, int, Exception> DistributedTaskResultAction =
+        private static readonly Action<ILogger, int, string, int, int, Exception?> DistributedTaskResultAction =
             LoggerMessage.Define<int, string, int, int>(LogLevel.Information, 8,
                 "Distributed Task Result: {ValueA} {Operation} {ValueB} = {Result}");
 
@@ -74,7 +74,7 @@ namespace PeachtreeBus.Example
             DistributedTaskResultAction(logger, valueA, operation, valueB, result, null);
         }
 
-        private static readonly Action<ILogger, Exception> DistributedSagaCompleteAction =
+        private static readonly Action<ILogger, Exception?> DistributedSagaCompleteAction =
             LoggerMessage.Define(LogLevel.Information, 9,
                 "Distributed Saga Complete!");
 

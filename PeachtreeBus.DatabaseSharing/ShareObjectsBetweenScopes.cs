@@ -5,6 +5,6 @@
     /// </summary>
     public class ShareObjectsBetweenScopes : IShareObjectsBetweenScopes
     {
-        public ISharedDatabase SharedDatabase { get; set; } = default;
+        public ISharedDatabase? SharedDatabase { get; set; } = default;
     }
 }

@@ -27,19 +27,19 @@ namespace Peachtreebus.Tests.Pipeline
                 new FakeQueuePipelineStep(3, async (c, n) =>
                 {
                     invocations.Add("step3");
-                    await n.Invoke(c);
+                    await n!.Invoke(c);
                     invocations.Add("post3");
                 }),
                 new FakeQueuePipelineStep(1, async (c, n) =>
                 {
                     invocations.Add("step1");
-                    await n.Invoke(c);
+                    await n!.Invoke(c);
                     invocations.Add("post1");
                 }),
                 new FakeQueuePipelineStep(2, async (c, n) =>
                 {
                     invocations.Add("step2");
-                    await  n.Invoke(c);
+                    await n!.Invoke(c);
                     invocations.Add("post2");
                 }),
             };

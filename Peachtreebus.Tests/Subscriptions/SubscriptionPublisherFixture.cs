@@ -22,15 +22,15 @@ namespace Peachtreebus.Tests.Subscriptions
         public class MessageWithoutInterface { }
         public class TestSubscribedMessage : ISubscribedMessage { }
 
-        private SubscribedPublisher publisher;
-        private SubscribedLifespan lifespan;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<IPerfCounters> counters;
-        private Mock<ISerializer> serializer;
-        private Mock<ISystemClock> clock;
+        private SubscribedPublisher publisher = default!;
+        private SubscribedLifespan lifespan = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<IPerfCounters> counters = default!;
+        private Mock<ISerializer> serializer = default!;
+        private Mock<ISystemClock> clock = default!;
 
         private readonly List<SubscribedMessage> AddedMessages = new List<SubscribedMessage>();
-        private Headers SerializedHeaders = null;
+        private Headers SerializedHeaders = default!;
 
         private readonly List<Guid> cat1subscribers = new List<Guid>()
         {
@@ -98,7 +98,7 @@ namespace Peachtreebus.Tests.Subscriptions
             await publisher.Publish(
                 "cat2",
                 typeof(TestSagaMessage1),
-                null,
+                null!,
                 null);
         }
 
@@ -112,7 +112,7 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             await publisher.Publish(
                 "cat2",
-                null,
+                null!,
                 new TestSagaMessage1(),
                 null);
         }
@@ -126,7 +126,7 @@ namespace Peachtreebus.Tests.Subscriptions
         public async Task Publish_ThrowsWhenCategoryIsNull()
         {
             await publisher.Publish(
-                null,
+                null!,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);

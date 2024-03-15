@@ -23,17 +23,17 @@ namespace PeachtreeBus.Subscriptions
         /// <summary>
         /// The message as read from the database.
         /// </summary>
-        public Model.SubscribedMessage MessageData { get; set; }
+        public Model.SubscribedMessage MessageData { get; set; } = default!;
 
         /// <summary>
         /// Headers that were stored with the message.
         /// </summary>
-        public Headers Headers { get; set; }
+        public Headers Headers { get; set; } = new();
 
         /// <summary>
         /// The message itself.
         /// </summary>
-        public object Message { get; set; }
+        public object Message { get; set; } = default!;
     }
 
 }

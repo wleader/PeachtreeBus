@@ -17,12 +17,12 @@ namespace Peachtreebus.Tests.Errors
     [TestClass]
     public class SubscribedFailuresFixture
     {
-        private SubscribedFailures _testSubject;
+        private SubscribedFailures _testSubject = default!;
 
-        private Mock<ILogger<SubscribedFailures>> log;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<IFailedSubscribedMessageHandlerFactory> handlerFactory;
-        private Mock<IHandleFailedSubscribedMessages> handler;
+        private Mock<ILogger<SubscribedFailures>> log = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<IFailedSubscribedMessageHandlerFactory> handlerFactory = default!;
+        private Mock<IHandleFailedSubscribedMessages> handler = default!;
 
         [TestInitialize]
         public void Initialize()

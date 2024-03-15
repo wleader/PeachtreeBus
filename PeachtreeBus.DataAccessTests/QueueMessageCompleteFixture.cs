@@ -39,6 +39,7 @@ namespace PeachtreeBus.DataAccessTests
 
             // get and complete a message.
             var messageToComplete = await dataAccess.GetPendingQueued(DefaultQueue);
+            Assert.IsNotNull(messageToComplete);
             messageToComplete.Completed = DateTime.UtcNow;
             await dataAccess.CompleteMessage(messageToComplete, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
@@ -64,6 +65,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             var messageToComplete = await dataAccess.GetPendingQueued(DefaultQueue);
+            Assert.IsNotNull(messageToComplete);
             messageToComplete.Completed = DateTime.UtcNow;
             await dataAccess.CompleteMessage(messageToComplete, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
@@ -87,6 +89,7 @@ namespace PeachtreeBus.DataAccessTests
 
             // get and complete a message.
             var messageToComplete = await dataAccess.GetPendingQueued(DefaultQueue);
+            Assert.IsNotNull(messageToComplete);
             messageToComplete.Completed = DateTime.UtcNow;
             // screw with the fields that shouldn't change.
             messageToComplete.Body = "NewBody";

@@ -118,6 +118,7 @@ namespace PeachtreeBus.Subscriptions
         /// <returns></returns>
         public static async Task PublishMessage<T>(this ISubscribedPublisher publisher,
            string category, T message, DateTime? notBefore = null)
+            where T: notnull
         {
             await publisher.Publish(category, typeof(T), message, notBefore);
         }

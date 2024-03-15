@@ -24,13 +24,13 @@ namespace Peachtreebus.Tests.Subscriptions
 
         }
 
-        private SubscribedWork work;
-        private Mock<ILogger<SubscribedWork>> log;
-        private Mock<IPerfCounters> counters;
-        private Mock<ISubscribedReader> reader;
-        private Mock<IBusDataAccess> dataAccess;
-        private InternalSubscribedContext context;
-        private Mock<ISubscribedPipelineInvoker> pipelineInvoker;
+        private SubscribedWork work = default!;
+        private Mock<ILogger<SubscribedWork>> log = default!;
+        private Mock<IPerfCounters> counters = default!;
+        private Mock<ISubscribedReader> reader = default!;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private InternalSubscribedContext context = default!;
+        private Mock<ISubscribedPipelineInvoker> pipelineInvoker = default!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -42,7 +42,7 @@ namespace Peachtreebus.Tests.Subscriptions
 
             context = CreateContext();
             reader.Setup(r => r.GetNext(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(context));
+                .ReturnsAsync(context);
 
             pipelineInvoker = new();
 
@@ -62,7 +62,7 @@ namespace Peachtreebus.Tests.Subscriptions
         public async Task Given_NoPendingMessages_When_DoWork_Then_ReturnFalse()
         {
             reader.Setup(r => r.GetNext(It.IsAny<Guid>()))
-                .Returns(Task.FromResult<InternalSubscribedContext>(null));
+                .ReturnsAsync((InternalSubscribedContext)null!);
 
             work.SubscriberId = Guid.NewGuid();
             var result = await work.DoWork();

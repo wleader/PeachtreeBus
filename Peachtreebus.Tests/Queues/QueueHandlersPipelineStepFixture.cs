@@ -17,13 +17,13 @@ namespace Peachtreebus.Tests.Queues
     {
         public class MessageWithoutInterface { };
 
-        private QueueHandlersPipelineStep _testSubject;
-        private Mock<IFindQueueHandlers> _findHandlers;
-        private Mock<ILogger<QueueHandlersPipelineStep>> _log;
-        private Mock<ISagaMessageMapManager> _sagaMessageMapManager;
-        private Mock<IQueueReader> _queueReader;
+        private QueueHandlersPipelineStep _testSubject = default!;
+        private Mock<IFindQueueHandlers> _findHandlers = default!;
+        private Mock<ILogger<QueueHandlersPipelineStep>> _log = default!;
+        private Mock<ISagaMessageMapManager> _sagaMessageMapManager = default!;
+        private Mock<IQueueReader> _queueReader = default!;
 
-        private TestSaga _testSaga;
+        private TestSaga _testSaga = default!;
 
         [TestInitialize] 
         public void Initialize()
@@ -47,7 +47,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Given_MessageIsNotIQueuedMessage_Then_ThrowsUsefulException()
         {
             var context = GetContext<TestSagaMessage1>();
-            context.Headers.MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName;
+            context.Headers.MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName!;
             await _testSubject.Invoke(context, null);
         }
 
@@ -72,7 +72,7 @@ namespace Peachtreebus.Tests.Queues
                     };
                 });
 
-            await _testSubject.Invoke(context, null);
+            await _testSubject.Invoke(context, null!);
 
             _queueReader.Verify(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()), Times.Once);
             _testSaga.AssertInvocations(1);
@@ -239,7 +239,6 @@ namespace Peachtreebus.Tests.Queues
                 },
                 Message = new TMessage(),
                 MessageData = new(),
-                SavepointName = "BeforeMessageHandler",
             };
         }
 

@@ -13,12 +13,12 @@ namespace Peachtreebus.Tests.Sagas
     {
         private class MockMessage1 : IQueueMessage
         {
-            public string Key { get; set; }
+            public string Key { get; set; } = string.Empty;
         }
 
         private class MockMessage2 : IQueueMessage
         {
-            public string Key { get; set; }
+            public string Key { get; set; } = string.Empty;
         }
 
         private class MockSagaData { }
@@ -37,7 +37,7 @@ namespace Peachtreebus.Tests.Sagas
             }
         }
 
-        private SagaMessageMapManager manager;
+        private SagaMessageMapManager manager = default!;
 
         [TestInitialize]
         public void TestInitialize()

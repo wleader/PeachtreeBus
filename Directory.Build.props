@@ -2,5 +2,7 @@
     <PropertyGroup>
         <LangVersion>latest</LangVersion>
         <Version>0.9.10</Version>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
     </PropertyGroup>
 </Project>

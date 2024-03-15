@@ -20,8 +20,8 @@ namespace Peachtreebus.Tests.Subscriptions
 
         public class TestMessage : ISubscribedMessage { }
 
-        private SubscribedHandlersPipelineStep _testSubject;
-        private Mock<IFindSubscribedHandlers> _findSubscribed;
+        private SubscribedHandlersPipelineStep _testSubject = default!;
+        private Mock<IFindSubscribedHandlers> _findSubscribed = default!;
 
         [TestInitialize]
         public void Initialize()
@@ -36,7 +36,7 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             var context = new InternalSubscribedContext();
             context.Headers = new();
-            context.Headers.MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName;
+            context.Headers.MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName!;
             await _testSubject.Invoke(context, null);
         }
 

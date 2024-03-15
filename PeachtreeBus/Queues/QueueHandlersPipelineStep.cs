@@ -40,7 +40,7 @@ namespace PeachtreeBus.Queues
 
         public int Priority { get => 0; }
 
-        public async Task Invoke(QueueContext externalContext, Func<QueueContext, Task> next)
+        public async Task Invoke(QueueContext externalContext, Func<QueueContext, Task>? next)
         {
             var context = (InternalQueueContext)externalContext;
 
@@ -123,14 +123,14 @@ namespace PeachtreeBus.Queues
                 _log.QueueWork_InvokeHandler(context.MessageData.MessageId, context.Headers.MessageClass, handlerType.FullName);
                 {
                     var taskObject = handleMethod.Invoke(handler, [context, context.Message]);
-                    var castTask = taskObject as Task;
+                    var castTask = (Task)taskObject;
                     await castTask;
                 }
 
                 if (handlerIsSaga)
                 {
                     await _queueReader.SaveSaga(handler, context);
-                    _log.QueueWork_SagaSaved(context.CurrentHandler, context.SagaKey);
+                    _log.QueueWork_SagaSaved(context.CurrentHandler, context.SagaKey!);
                 }
             }
         }

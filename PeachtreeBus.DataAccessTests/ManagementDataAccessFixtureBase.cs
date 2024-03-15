@@ -11,7 +11,7 @@ namespace PeachtreeBus.DataAccessTests
 {
     public abstract class ManagementDataAccessFixtureBase : FixtureBase<ManagementDataAccess>
     {
-        protected DapperDataAccess BusAccess;
+        protected DapperDataAccess BusAccess = default!;
 
         [TestInitialize]
         public override void TestInitialize()

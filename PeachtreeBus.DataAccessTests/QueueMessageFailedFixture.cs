@@ -39,6 +39,7 @@ namespace PeachtreeBus.DataAccessTests
 
             // get and Fail a message.
             var messageToFail = await dataAccess.GetPendingQueued(DefaultQueue);
+            Assert.IsNotNull(messageToFail);
             messageToFail.Failed = DateTime.UtcNow;
             await dataAccess.FailMessage(messageToFail, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
@@ -64,6 +65,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             var messageToFail = await dataAccess.GetPendingQueued(DefaultQueue);
+            Assert.IsNotNull(messageToFail);
             messageToFail.Failed = DateTime.UtcNow;
             await dataAccess.FailMessage(messageToFail, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
@@ -87,6 +89,7 @@ namespace PeachtreeBus.DataAccessTests
 
             // get and faile a message.
             var messageToFail = await dataAccess.GetPendingQueued(DefaultQueue);
+            Assert.IsNotNull(messageToFail);
             messageToFail.Failed = DateTime.UtcNow;
             // screw with the fields that shouldn't change.
             messageToFail.Body = "NewBody";

@@ -50,7 +50,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        Task<QueueMessage> GetPendingQueued(string queueName);
+        Task<QueueMessage?> GetPendingQueued(string queueName);
 
         /// <summary>
         /// Inserts a new message into the database.
@@ -95,7 +95,7 @@ namespace PeachtreeBus.Data
         /// <param name="className">The saga's class name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
         /// <returns>Matching saga data.</returns>
-        Task<SagaData> GetSagaData(string sagaName, string key);
+        Task<SagaData?> GetSagaData(string sagaName, string key);
 
         /// <summary>
         /// Deletes data for completed sagas.
@@ -125,7 +125,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        Task<SubscribedMessage> GetPendingSubscribed(Guid subscriberId);
+        Task<SubscribedMessage?> GetPendingSubscribed(Guid subscriberId);
 
         /// <summary>
         /// Inserts a new message into the database.

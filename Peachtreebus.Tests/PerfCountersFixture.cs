@@ -3,6 +3,7 @@ using PeachtreeBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
+using System.Linq;
 using System.Threading;
 
 namespace Peachtreebus.Tests
@@ -37,16 +38,17 @@ namespace Peachtreebus.Tests
             public EventData(object payload)
             {
                 var d = (IDictionary<string, object>)payload;
-                Name = d["Name"].ToString();
+                System.Diagnostics.Debug.Assert(d is not null);
+                Name = d["Name"]?.ToString() ?? "NULL";
                 Count = (int)(Get(d, "Count") ?? 0);
                 Min = (double)(Get(d, "Min") ?? 0.0);
                 Max = (double)(Get(d, "Max") ?? 0.0);
                 Mean = (double)(Get(d, "Mean") ?? 0.0);
-                Series = (string)Get(d, "Series");
+                Series = (string)(Get(d, "Series") ?? "NULL");
                 Increment = (double)(Get(d, "Increment") ?? 0.0);
             }
 
-            private object Get(IDictionary<string, object> d, string name)
+            private static object? Get(IDictionary<string, object> d, string name)
             {
                 d.TryGetValue(name, out var result);
                 return result;
@@ -59,15 +61,16 @@ namespace Peachtreebus.Tests
         internal class PeachtreeBusEventListener : EventListener
         {
             private bool enabled;
-            private string ListenFor;
-            private EventData LastData;
+            private string? ListenFor;
+            private EventData? LastData;
 
             protected override void OnEventWritten(EventWrittenEventArgs eventData)
             {
                 base.OnEventWritten(eventData);
                 if (!enabled) return;
                 if (eventData.EventName != "EventCounters") return;
-                var data = new EventData(eventData.Payload[0]);
+                var payload = eventData.Payload!.First();
+                var data = new EventData(payload!);
                 if (data.Name != ListenFor) return;
                 LastData = data;
             }
@@ -88,12 +91,12 @@ namespace Peachtreebus.Tests
 
         }
 
-        private PeachtreeBusEventListener listener;
+        private PeachtreeBusEventListener listener = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            var arguments = new Dictionary<string, string>
+            var arguments = new Dictionary<string, string?>
             {
                 {"EventCounterIntervalSec", ".1"}
             };
@@ -110,7 +113,7 @@ namespace Peachtreebus.Tests
         public void TestCleanup()
         {
             listener.Dispose();
-            listener = null;
+            listener = null!;
         }
 
         /// <summary>

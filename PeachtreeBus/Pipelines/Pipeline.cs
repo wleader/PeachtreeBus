@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.Pipelines
 {
     public class Pipeline<TContext> : IPipeline<TContext>
     {
-        PipelineLink<TContext> _first;
-        PipelineLink<TContext> _last;
+        private PipelineLink<TContext>? _first;
+        private PipelineLink<TContext>? _last;
 
         public void Add(IPipelineStep<TContext> step)
         {
@@ -17,7 +18,8 @@ namespace PeachtreeBus.Pipelines
 
         public Task Invoke(TContext context)
         {
-            return _first?.Invoke(context);
+            return _first?.Invoke(context)
+                ?? throw new InvalidOperationException("Pipeline contains no steps.");
         }
     }
 }

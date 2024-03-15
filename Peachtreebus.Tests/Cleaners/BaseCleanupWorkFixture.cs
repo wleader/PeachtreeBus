@@ -13,10 +13,10 @@ namespace Peachtreebus.Tests.Cleaners
     [TestClass]
     public class BaseCleanupWorkFixture
     {
-        private BaseCleanupWork work;
-        private Mock<ISystemClock> clock;
-        private BaseCleanupConfiguration config;
-        private Mock<IBaseCleaner> cleaner;
+        private BaseCleanupWork work = default!;
+        private Mock<ISystemClock> clock = default!;
+        private BaseCleanupConfiguration config = default!;
+        private Mock<IBaseCleaner> cleaner = default!;
 
         [TestInitialize]
         public void TestInitialize()

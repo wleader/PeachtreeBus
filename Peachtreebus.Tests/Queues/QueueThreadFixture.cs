@@ -14,13 +14,13 @@ namespace Peachtreebus.Tests.Queues
     [TestClass]
     public class QueueThreadFixture
     {
-        private QueueThread thread;
-        private Mock<IProvideShutdownSignal> shutdown;
+        private QueueThread thread = default!;
+        private Mock<IProvideShutdownSignal> shutdown = default!;
         private int loopCount = 1;
-        private Mock<IBusDataAccess> dataAccess;
-        private Mock<ILogger<QueueThread>> log;
-        private Mock<IQueueWork> work;
-        private QueueConfiguration config;
+        private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<ILogger<QueueThread>> log = default!;
+        private Mock<IQueueWork> work = default!;
+        private QueueConfiguration config = default!;
 
         [TestInitialize]
         public void TestInitialize()

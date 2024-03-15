@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using PeachtreeBus.DatabaseSharing;
+using System;
 
 namespace PeachtreeBus.Services
 {
@@ -17,7 +18,8 @@ namespace PeachtreeBus.Services
 
         public string GetDbConnectionString()
         {
-            var result = _configuration.GetConnectionString("PeachtreeBus");
+            var result = _configuration.GetConnectionString("PeachtreeBus")
+                ?? throw new ApplicationException("A PeachtreeBus connection string is not configured.");
             return result;
         }
     }

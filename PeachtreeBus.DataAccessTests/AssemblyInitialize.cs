@@ -21,7 +21,8 @@ namespace PeachtreeBus.DataAccessTests
             configurationBuilder.AddJsonFile("appsettings.json");
             var config = configurationBuilder.Build();
 
-            dbConnectionString = config.GetConnectionString("TestDatabase");
+            dbConnectionString = config.GetConnectionString("TestDatabase")
+                ?? throw new ApplicationException("Connection string not configured.");
 
             var csb = new SqlConnectionStringBuilder(dbConnectionString);
             testDbName = csb.InitialCatalog;
