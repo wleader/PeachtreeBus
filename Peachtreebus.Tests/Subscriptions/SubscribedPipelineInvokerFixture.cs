@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Subscriptions;
-using PeachtreeBus;
 using System;
 using System.Threading.Tasks;
 

@@ -8,14 +8,11 @@ namespace PeachtreeBus.SimpleInjector
     /// <summary>
     /// An Implementation of IFindQueuePipelineSteps using SimpleInjector.
     /// </summary>
-    public class FindQueuedPipelineSteps : IFindQueuePipelineSteps
+    public class FindQueuedPipelineSteps(
+        IWrappedScope scope)
+        : IFindQueuePipelineSteps
     {
-        private readonly IWrappedScope _scope;
-
-        public FindQueuedPipelineSteps(IWrappedScope scope)
-        {
-            _scope = scope;
-        }
+        private readonly IWrappedScope _scope = scope;
 
         public IEnumerable<IPipelineStep<QueueContext>> FindSteps()
         {

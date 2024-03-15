@@ -6,8 +6,8 @@ using System;
 
 namespace PeachtreeBus
 {
-	public static class GeneratedLoggerMessages
-	{
+    public static class GeneratedLoggerMessages
+    {
         internal static readonly EventId PeachtreeBus_BaseThread_ThreadStart_Event
             = new(1001001, "PeachtreeBus_BaseThread_ThreadStart");
         internal static readonly Action<ILogger, string, Exception> PeachtreeBus_BaseThread_ThreadStart_Action
@@ -404,5 +404,5 @@ namespace PeachtreeBus
         public static void SubscribedFailures_MessageFailed(this ILogger logger, Type messageType)
             => PeachtreeBus_Errors_SubscribedFailures_MessageFailed_Action(logger, messageType, null!);
 
-	}
+    }
 }

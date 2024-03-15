@@ -12,13 +12,10 @@
     /// <summary>
     /// A default implementation of IQueueConfiguration
     /// </summary>
-    public class QueueConfiguration : IQueueConfiguration
+    public class QueueConfiguration(
+        string queueName)
+        : IQueueConfiguration
     {
-        public string QueueName { get; private set; }
-
-        public QueueConfiguration(string queueName)
-        {
-            QueueName = queueName;
-        }
+        public string QueueName { get; private set; } = queueName;
     }
 }

@@ -26,32 +26,23 @@ namespace PeachtreeBus.Subscriptions
     /// <summary>
     /// Reads and updates, completes, and fails subscribed messages.
     /// </summary>
-    public class SubscribedReader : ISubscribedReader
+    public class SubscribedReader(
+        IBusDataAccess dataAccess,
+        ISerializer serializer,
+        ILogger<SubscribedReader> log,
+        IPerfCounters counters,
+        ISystemClock clock,
+        ISubscribedFailures failures)
+        : ISubscribedReader
     {
-        private readonly IBusDataAccess _dataAccess;
-        private readonly ISerializer _serializer;
-        private readonly ILogger<SubscribedReader> _log;
-        private readonly IPerfCounters _counters;
-        private readonly ISystemClock _clock;
-        private readonly ISubscribedFailures _failures;
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly ISerializer _serializer = serializer;
+        private readonly ILogger<SubscribedReader> _log = log;
+        private readonly IPerfCounters _counters = counters;
+        private readonly ISystemClock _clock = clock;
+        private readonly ISubscribedFailures _failures = failures;
 
-        public byte MaxRetries { get; set; }
-
-        public SubscribedReader(IBusDataAccess dataAccess,
-            ISerializer serializer,
-            ILogger<SubscribedReader> log,
-            IPerfCounters counters,
-            ISystemClock clock,
-            ISubscribedFailures failures)
-        {
-            _dataAccess = dataAccess;
-            _serializer = serializer;
-            _log = log;
-            _counters = counters;
-            _clock = clock;
-            _failures = failures;
-            MaxRetries = 5;
-        }
+        public byte MaxRetries { get; set; } = 5;
 
         /// <summary>
         /// Completes a subscribed message

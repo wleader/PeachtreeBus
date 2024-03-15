@@ -15,16 +15,11 @@ namespace PeachtreeBus.Example.Data
     /// <summary>
     /// A Data Access example that share the database connection and transaction object with PeachtreeBus.
     /// </summary>
-    public class ExampleDataAccess : IExampleDataAccess
+    public class ExampleDataAccess(
+        ISharedDatabase database)
+        : IExampleDataAccess
     {
-        private readonly ISharedDatabase _database;
-
-        public ExampleDataAccess(ISharedDatabase database)
-        {
-            // get a shared database connection and transaction from the DI Container.
-            // This will be the same connection and transaction used by PeachtreeBus.
-            _database = database;
-        }
+        private readonly ISharedDatabase _database = database;
 
         public Task Audit(string message)
         {

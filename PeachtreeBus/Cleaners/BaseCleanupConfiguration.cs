@@ -38,22 +38,18 @@ namespace PeachtreeBus.Cleaners
     /// <summary>
     /// A default implementatin of IBaseCleanupConfiguration
     /// </summary>
-    public class BaseCleanupConfiguration : IBaseCleanupConfiguration
+    public class BaseCleanupConfiguration(
+        int maxDeleteCount,
+        bool cleanCompleted,
+        bool cleanFailed,
+        TimeSpan ageLimit,
+        TimeSpan interval)
+        : IBaseCleanupConfiguration
     {
-        public int MaxDeleteCount { get; set; }
-        public bool CleanCompleted { get; set; }
-        public bool CleanFailed { get; set; }
-        public TimeSpan AgeLimit { get; set; }
-        public TimeSpan Interval { get; set; }
-
-        public BaseCleanupConfiguration(int maxDeleteCount, bool cleanCompleted, bool cleanFailed,
-            TimeSpan ageLimit, TimeSpan interval)
-        {
-            MaxDeleteCount = maxDeleteCount;
-            CleanCompleted = cleanCompleted;
-            CleanFailed = cleanFailed;
-            AgeLimit = ageLimit;
-            Interval = interval;
-        }
+        public int MaxDeleteCount { get; set; } = maxDeleteCount;
+        public bool CleanCompleted { get; set; } = cleanCompleted;
+        public bool CleanFailed { get; set; } = cleanFailed;
+        public TimeSpan AgeLimit { get; set; } = ageLimit;
+        public TimeSpan Interval { get; set; } = interval;
     }
 }

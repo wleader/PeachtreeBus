@@ -2,14 +2,11 @@
 
 namespace PeachtreeBus.SimpleInjector
 {
-    public class FailedSubscribedMessageHandlerFactory : IFailedSubscribedMessageHandlerFactory
+    public class FailedSubscribedMessageHandlerFactory(
+        IWrappedScope scope)
+        : IFailedSubscribedMessageHandlerFactory
     {
-        private readonly IWrappedScope _scope;
-
-        public FailedSubscribedMessageHandlerFactory(IWrappedScope scope)
-        {
-            _scope = scope;
-        }
+        private readonly IWrappedScope _scope = scope;
 
         public IHandleFailedSubscribedMessages GetHandler()
         {

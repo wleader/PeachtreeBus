@@ -16,13 +16,11 @@
     /// <summary>
     /// An implementation of IDbSchema that holds the value in memory.
     /// </summary>
-    public class DbSchemaConfiguration : IDbSchemaConfiguration
+    public class DbSchemaConfiguration(
+        string schema = "PeachtreeBus")
+        : IDbSchemaConfiguration
     {
         /// <inheritdoc/>
-        public string Schema { get; private set; }
-        public DbSchemaConfiguration(string schema = "PeachtreeBus")
-        {
-            Schema = schema;
-        }
+        public string Schema { get; private set; } = schema;
     }
 }

@@ -15,7 +15,7 @@ namespace PeachtreeBus.Data
 
         public static void AddTypeHandler()
         {
-            lock(_lock)
+            lock (_lock)
             {
                 if (_typeHandlerAdded) return;
                 SqlMapper.AddTypeHandler(new DateTimeHandler());

@@ -1,6 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-
-namespace PeachtreeBus.DatabaseSharing
+﻿namespace PeachtreeBus.DatabaseSharing
 {
     /// <summary>
     /// Defines an interface that provides a DB Connection string.
@@ -26,27 +24,20 @@ namespace PeachtreeBus.DatabaseSharing
     /// <summary>
     /// Creates a connection to an SQL database using the Dependency injected Connection string provider.
     /// </summary>
-    public class SqlConnectionFactory : ISqlConnectionFactory
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="provideConnectionString">Provides the connection string.</param>
+    public class SqlConnectionFactory(
+        IProvideDbConnectionString provideConnectionString)
+        : ISqlConnectionFactory
     {
+        private readonly IProvideDbConnectionString _provideConnectionString = provideConnectionString;
 
-        private readonly IProvideDbConnectionString _provideConnectionString;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="provideConnectionString">Provides the connection string.</param>
-        public SqlConnectionFactory(IProvideDbConnectionString provideConnectionString)
-        {
-            _provideConnectionString = provideConnectionString;
-        }
-
-        /// <inheritdoc/>
         public ISqlConnection GetConnection()
         {
             var result = new SqlConnectionProxy(_provideConnectionString.GetDbConnectionString());
             return result;
         }
-
     }
-
 }

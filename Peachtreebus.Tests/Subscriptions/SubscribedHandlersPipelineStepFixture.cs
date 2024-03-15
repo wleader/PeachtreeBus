@@ -6,9 +6,6 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Peachtreebus.Tests.Subscriptions
@@ -34,9 +31,13 @@ namespace Peachtreebus.Tests.Subscriptions
         [ExpectedException(typeof(MissingInterfaceException))]
         public async Task Given_MessageIsNotISubscribedMessage_Then_ThrowsUsefulException()
         {
-            var context = new InternalSubscribedContext();
-            context.Headers = new();
-            context.Headers.MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName!;
+            var context = new InternalSubscribedContext
+            {
+                Headers = new()
+                {
+                    MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName!
+                }
+            };
             await _testSubject.Invoke(context, null);
         }
 

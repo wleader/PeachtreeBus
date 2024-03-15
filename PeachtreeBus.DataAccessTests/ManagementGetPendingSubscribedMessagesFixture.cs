@@ -28,7 +28,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task ThrowsIfSchemaNameContainsUnsafe()
         {
-            var action = new Func<Task>(async () => await dataAccess.GetPendingSubscribedMessages(1,2));
+            var action = new Func<Task>(async () => await dataAccess.GetPendingSubscribedMessages(1, 2));
             await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 

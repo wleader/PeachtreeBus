@@ -59,7 +59,7 @@ namespace PeachtreeBus.Queues
                 // creat a save point. If anything goes wrong we can roll back to here,
                 // increment the retry count and try again later.
                 _dataAccess.CreateSavepoint(savepointName);
-                                
+
                 await _pipelineInvoker.Invoke(context);
 
                 if (context.SagaBlocked)

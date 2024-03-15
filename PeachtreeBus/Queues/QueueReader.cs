@@ -68,37 +68,26 @@ namespace PeachtreeBus.Queues
     /// <summary>
     /// Implements IQueueReader Using an IBusDataAccess and JSON serialization.
     /// </summary>
-    public class QueueReader : IQueueReader
+    /// <remarks>
+    /// Constructor.
+    /// </remarks>
+    /// <param name="dataAccess">The Data access.</param>
+    /// <param name="log"></param>
+    public class QueueReader(IBusDataAccess dataAccess,
+        ILogger<QueueReader> log,
+        IPerfCounters counters,
+        ISerializer serializer,
+        ISystemClock clock,
+        IQueueFailures failures) : IQueueReader
     {
-        private readonly IBusDataAccess _dataAccess;
-        private readonly ILogger<QueueReader> _log;
-        private readonly IPerfCounters _counters;
-        private readonly ISerializer _serializer;
-        private readonly ISystemClock _clock;
-        private readonly IQueueFailures _failures;
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly ILogger<QueueReader> _log = log;
+        private readonly IPerfCounters _counters = counters;
+        private readonly ISerializer _serializer = serializer;
+        private readonly ISystemClock _clock = clock;
+        private readonly IQueueFailures _failures = failures;
 
-        public byte MaxRetries { get; set; }
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="dataAccess">The Data access.</param>
-        /// <param name="log"></param>
-        public QueueReader(IBusDataAccess dataAccess,
-            ILogger<QueueReader> log,
-            IPerfCounters counters,
-            ISerializer serializer,
-            ISystemClock clock,
-            IQueueFailures failures)
-        {
-            _log = log;
-            _dataAccess = dataAccess;
-            _counters = counters;
-            _serializer = serializer;
-            MaxRetries = 5;
-            _clock = clock;
-            _failures = failures;
-        }
+        public byte MaxRetries { get; set; } = 5;
 
         /// <inheritdoc/>
         public async Task<InternalQueueContext?> GetNext(string queueName)

@@ -12,18 +12,15 @@ namespace PeachtreeBus.Cleaners
     /// <summary>
     /// A Default implmentation of ISubscribedCleaner
     /// </summary>
-    public class SubscribedCleaner : ISubscribedCleaner
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="dataAccess">Provides access to the data store.</param>
+    public class SubscribedCleaner(
+        IBusDataAccess dataAccess)
+        : ISubscribedCleaner
     {
-        private readonly IBusDataAccess _dataAccess;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="dataAccess">Provides access to the data store.</param>
-        public SubscribedCleaner(IBusDataAccess dataAccess)
-        {
-            _dataAccess = dataAccess;
-        }
+        private readonly IBusDataAccess _dataAccess = dataAccess;
 
         /// <summary>
         /// Cleans completed subscribed messages

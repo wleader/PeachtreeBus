@@ -30,32 +30,27 @@ namespace PeachtreeBus.Cleaners
     /// A unit of work to be called from a looping thread that
     /// uses a IBaseCleaner to clean messages.
     /// </summary>
-    public class BaseCleanupWork : IUnitOfWork
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="config">Provides configuration.</param>
+    /// <param name="clock">Provides acess to the clock.</param>
+    /// <param name="cleaner">Performs the cleanup.</param>
+    public class BaseCleanupWork(
+        IBaseCleanupConfiguration config,
+        ISystemClock clock,
+        IBaseCleaner cleaner)
+        : IUnitOfWork
     {
-        protected readonly IBaseCleanupConfiguration _config;
-        protected readonly ISystemClock _clock;
-        private readonly IBaseCleaner _cleaner;
+        protected readonly IBaseCleanupConfiguration _config = config;
+        protected readonly ISystemClock _clock = clock;
+        private readonly IBaseCleaner _cleaner = cleaner;
 
         /// <summary>
         /// Tracks the last time a cleanup occured.
         /// Used to keep the cleanup from running too often.
         /// </summary>
         public DateTime NextClean { get; private set; } = DateTime.MinValue;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="config">Provides configuration.</param>
-        /// <param name="clock">Provides acess to the clock.</param>
-        /// <param name="cleaner">Performs the cleanup.</param>
-        public BaseCleanupWork(IBaseCleanupConfiguration config,
-            ISystemClock clock,
-            IBaseCleaner cleaner)
-        {
-            _config = config;
-            _clock = clock;
-            _cleaner = cleaner;
-        }
 
         /// <summary>
         /// Called from a looping thread.

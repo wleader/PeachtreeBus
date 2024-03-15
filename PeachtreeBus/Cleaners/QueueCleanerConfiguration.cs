@@ -16,15 +16,16 @@ namespace PeachtreeBus.Cleaners
     /// <summary>
     /// A default implementation of IQueueCleanerConfiguration
     /// </summary>
-    public class QueueCleanerConfiguration : BaseCleanupConfiguration, IQueueCleanerConfiguration
+    public class QueueCleanerConfiguration(
+        string queueName,
+        int maxDeleteCount,
+        bool cleanCompleted,
+        bool cleanFailed,
+        TimeSpan ageLimit,
+        TimeSpan interval)
+        : BaseCleanupConfiguration(maxDeleteCount, cleanCompleted, cleanFailed, ageLimit, interval)
+        , IQueueCleanerConfiguration
     {
-        public string QueueName { get; private set; }
-
-        public QueueCleanerConfiguration(string queueName, int maxDeleteCount, bool cleanCompleted, bool cleanFailed,
-            TimeSpan ageLimit, TimeSpan interval)
-            : base(maxDeleteCount, cleanCompleted, cleanFailed, ageLimit, interval)
-        {
-            QueueName = queueName;
-        }
+        public string QueueName { get; private set; } = queueName;
     }
 }

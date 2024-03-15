@@ -8,7 +8,6 @@ using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Subscriptions;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;

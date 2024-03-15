@@ -9,16 +9,13 @@ namespace PeachtreeBus.Example.Startup
     /// <summary>
     /// A sample startup task. This will be run once when the process starts.
     /// </summary>
-    public class SendStartupMessage : IRunOnStartup
+    public class SendStartupMessage(
+        IQueueWriter queueWriter,
+        IBusDataAccess busDataAccess)
+        : IRunOnStartup
     {
-        private readonly IQueueWriter _queueWriter;
-        private readonly IBusDataAccess _dataAccess;
-
-        public SendStartupMessage(IQueueWriter queueWriter, IBusDataAccess busDataAccess)
-        {
-            _queueWriter = queueWriter;
-            _dataAccess = busDataAccess;
-        }
+        private readonly IQueueWriter _queueWriter = queueWriter;
+        private readonly IBusDataAccess _dataAccess = busDataAccess;
 
         public async Task Run()
         {

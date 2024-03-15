@@ -16,23 +16,17 @@ namespace PeachtreeBus.Subscriptions
     /// <summary>
     /// A unit of work that updates the subcriptions for the subscriber.
     /// </summary>
-    public class SubscriptionUpdateWork : ISubscriptionUpdateWork
+    public class SubscriptionUpdateWork(
+        IBusDataAccess dataAccess,
+        ISubscriberConfiguration config,
+        ISystemClock clock)
+        : ISubscriptionUpdateWork
     {
         public DateTime LastUpdate { get; private set; } = DateTime.MinValue;
 
-        private readonly IBusDataAccess _dataAccess;
-        private readonly ISubscriberConfiguration _config;
-        private readonly ISystemClock _clock;
-
-        public SubscriptionUpdateWork(
-            IBusDataAccess dataAccess,
-            ISubscriberConfiguration config,
-            ISystemClock clock)
-        {
-            _dataAccess = dataAccess;
-            _config = config;
-            _clock = clock;
-        }
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly ISubscriberConfiguration _config = config;
+        private readonly ISystemClock _clock = clock;
 
         public async Task<bool> DoWork()
         {

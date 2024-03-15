@@ -12,33 +12,28 @@ namespace PeachtreeBus.Data
     /// <summary>
     /// An implemenatin of IBusDataAccess that uses Dapper to accees the SQL database.
     /// </summary>
-    public class DapperDataAccess : BaseDataAccess, IBusDataAccess
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="database">A Shared Database connection.</param>
+    /// <param name="schemaConfig">Configures which DB Schema to find all the tables in.</param>
+    public class DapperDataAccess(
+        ISharedDatabase database,
+        IDbSchemaConfiguration schemaConfig,
+        ILogger<DapperDataAccess> log)
+        : BaseDataAccess
+        , IBusDataAccess
     {
         static DapperDataAccess()
         {
             DateTimeHandler.AddTypeHandler();
         }
 
-        private readonly ISharedDatabase _database;
-        private readonly ILogger<DapperDataAccess> _log;
-        private readonly IDbSchemaConfiguration _schemaConfig;
+        private readonly ISharedDatabase _database = database;
+        private readonly ILogger<DapperDataAccess> _log = log;
+        private readonly IDbSchemaConfiguration _schemaConfig = schemaConfig;
 
         const string SagaNameUnsafe = "The saga name contains not allowable characters.";
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="database">A Shared Database connection.</param>
-        /// <param name="schemaConfig">Configures which DB Schema to find all the tables in.</param>
-        public DapperDataAccess(
-            ISharedDatabase database,
-            IDbSchemaConfiguration schemaConfig,
-            ILogger<DapperDataAccess> log)
-        {
-            _schemaConfig = schemaConfig;
-            _database = database;
-            _log = log;
-        }
 
         /// <summary>
         /// Adds a queue message to the queue's pending table.

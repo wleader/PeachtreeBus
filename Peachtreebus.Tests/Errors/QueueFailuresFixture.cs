@@ -1,5 +1,4 @@
-﻿using Castle.Core.Logging;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Peachtreebus.Tests.Sagas;
@@ -7,9 +6,6 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Peachtreebus.Tests.Errors

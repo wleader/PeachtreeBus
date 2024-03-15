@@ -8,13 +8,11 @@ namespace PeachtreeBus.Services
     /// An implementation of IProvideDbConnectionString that reads it from
     /// a Microsoft.Extensions.Configuration.IConfiguration
     /// </summary>
-    public class AppSettingsDatabaseConfig : IProvideDbConnectionString
+    public class AppSettingsDatabaseConfig(
+        IConfiguration configuration)
+        : IProvideDbConnectionString
     {
-        private readonly IConfiguration _configuration;
-        public AppSettingsDatabaseConfig(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
+        private readonly IConfiguration _configuration = configuration;
 
         public string GetDbConnectionString()
         {

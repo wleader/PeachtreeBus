@@ -291,7 +291,7 @@ namespace Peachtreebus.Tests
             Assert.AreEqual(count, data.Increment);
         }
 
-        public void AssertRange(double expected, double tolerance, double actual, string valueName)
+        public static void AssertRange(double expected, double tolerance, double actual, string valueName)
         {
             var max = expected + tolerance;
             var min = expected - tolerance;

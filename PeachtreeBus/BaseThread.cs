@@ -27,25 +27,19 @@ namespace PeachtreeBus
     /// A basic thread that wrappes the Unit of Work in a database
     /// Transaction.
     /// </summary>
-    public abstract class BaseThread : IThread
+    public abstract class BaseThread(
+        string name,
+        int delayMs,
+        ILogger log,
+        IBusDataAccess dataAccess,
+        IProvideShutdownSignal shutdown)
+        : IThread
     {
-        private readonly string _name;
-        private readonly int delayMs;
-        private readonly ILogger _log;
-        private readonly IBusDataAccess _dataAccess;
-        private readonly IProvideShutdownSignal _shutdown;
-
-        public BaseThread(string name, int delayMs,
-            ILogger log,
-            IBusDataAccess dataAccess,
-            IProvideShutdownSignal shutdown)
-        {
-            _name = name;
-            this.delayMs = delayMs;
-            _log = log;
-            _dataAccess = dataAccess;
-            _shutdown = shutdown;
-        }
+        private readonly string _name = name;
+        private readonly int delayMs = delayMs;
+        private readonly ILogger _log = log;
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly IProvideShutdownSignal _shutdown = shutdown;
 
         public abstract Task<bool> DoUnitOfWork();
 

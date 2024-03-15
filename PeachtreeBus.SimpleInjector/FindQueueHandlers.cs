@@ -6,13 +6,11 @@ namespace PeachtreeBus.SimpleInjector
     /// <summary>
     /// an implementation of IFindQueueHandlers that gets the handlers from a SimpleInjector container.
     /// </summary>
-    public class FindQueueHandlers : IFindQueueHandlers
+    public class FindQueueHandlers(
+        IWrappedScope scope)
+        : IFindQueueHandlers
     {
-        private readonly IWrappedScope _scope;
-        public FindQueueHandlers(IWrappedScope scope)
-        {
-            _scope = scope;
-        }
+        private readonly IWrappedScope _scope = scope;
 
         public IEnumerable<IHandleQueueMessage<T>> FindHandlers<T>() where T : IQueueMessage
         {

@@ -12,22 +12,18 @@ namespace PeachtreeBus.Cleaners
     /// <summary>
     /// A Default implementation of IQueueCleaner
     /// </summary>
-    public class QueueCleaner : IQueueCleaner
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="qconfig">Controls with Queue will be cleaned.</param>
+    /// <param name="dataAccess">Provides access to the data store.</param>
+    public class QueueCleaner(
+        IQueueCleanerConfiguration qconfig,
+        IBusDataAccess dataAccess)
+        : IQueueCleaner
     {
-        private readonly IBusDataAccess _dataAccess;
-        private readonly IQueueCleanerConfiguration _qconfig;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="qconfig">Controls with Queue will be cleaned.</param>
-        /// <param name="dataAccess">Provides access to the data store.</param>
-        public QueueCleaner(IQueueCleanerConfiguration qconfig,
-            IBusDataAccess dataAccess)
-        {
-            _qconfig = qconfig;
-            _dataAccess = dataAccess;
-        }
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly IQueueCleanerConfiguration _qconfig = qconfig;
 
         /// <summary>
         /// Cleans completed messages for the configured queue.

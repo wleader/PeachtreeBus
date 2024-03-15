@@ -7,7 +7,7 @@ namespace PeachtreeBus.Queues
     /// Exposes information about the context that the application code
     /// may want to use.
     /// </summary>
-    public class QueueContext 
+    public class QueueContext
     {
         /// <summary>
         /// Which Queue the message was read from.

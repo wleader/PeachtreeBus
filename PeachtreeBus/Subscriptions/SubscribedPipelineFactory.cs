@@ -1,5 +1,4 @@
 ﻿using PeachtreeBus.Pipelines;
-using System.Linq;
 
 namespace PeachtreeBus.Subscriptions
 {

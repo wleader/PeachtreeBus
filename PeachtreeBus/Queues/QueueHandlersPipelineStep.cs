@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using PeachtreeBus.Data;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Sagas;
 using System;
@@ -19,24 +18,17 @@ namespace PeachtreeBus.Queues
     /// A Pipeline step that passed the message off to all the registered handlers.
     /// Intended to be the final link in the pipline chain.
     /// </summary>
-    public class QueueHandlersPipelineStep : IQueueHandlersPipelineStep
+    public class QueueHandlersPipelineStep(
+        IFindQueueHandlers findHandlers,
+        ILogger<QueueHandlersPipelineStep> log,
+        ISagaMessageMapManager sagaMessageMapManager,
+        IQueueReader queueReader)
+        : IQueueHandlersPipelineStep
     {
-        private readonly IFindQueueHandlers _findHandlers;
-        private readonly ILogger<QueueHandlersPipelineStep> _log;
-        private readonly ISagaMessageMapManager _sagaMessageMapManager;
-        private readonly IQueueReader _queueReader;
-
-        public QueueHandlersPipelineStep(
-            IFindQueueHandlers findHandlers,
-            ILogger<QueueHandlersPipelineStep> log,
-            ISagaMessageMapManager sagaMessageMapManager,
-            IQueueReader queueReader)
-        {
-            _findHandlers = findHandlers;
-            _log = log;
-            _sagaMessageMapManager = sagaMessageMapManager;
-            _queueReader = queueReader;
-        }
+        private readonly IFindQueueHandlers _findHandlers = findHandlers;
+        private readonly ILogger<QueueHandlersPipelineStep> _log = log;
+        private readonly ISagaMessageMapManager _sagaMessageMapManager = sagaMessageMapManager;
+        private readonly IQueueReader _queueReader = queueReader;
 
         public int Priority { get => 0; }
 
@@ -45,14 +37,11 @@ namespace PeachtreeBus.Queues
             var context = (InternalQueueContext)externalContext;
 
             // determine what type of message it is.
-            var messageType = Type.GetType(context.Headers.MessageClass);
-            if (messageType == null)
-            {
-                throw new QueueMessageClassNotRecognizedException(
+            var messageType = Type.GetType(context.Headers.MessageClass)
+                ?? throw new QueueMessageClassNotRecognizedException(
                     context.MessageData.MessageId,
                     context.SourceQueue,
                     context.Headers.MessageClass);
-            }
 
             // check that messageType is IQueueMessage
             // otherwise the MakeGenericMethod call below will throw an nasty exception
@@ -95,7 +84,7 @@ namespace PeachtreeBus.Queues
 
                     // if the saga is blocked. Stop.
                     if (context.SagaBlocked) return;
-                    
+
                     if (context.SagaData == null && !handlerType.IsSagaStartHandler(messageType))
                     {
                         // the saga was not locked, and it doesn't exist, and this message doesn't start a saga.

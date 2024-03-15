@@ -8,7 +8,7 @@ namespace PeachtreeBus.DatabaseSharing.Tests
     {
         private bool _disposed = false;
         private SharedDatabase _db = default!;
-        
+
         [TestInitialize]
         public void Init()
         {

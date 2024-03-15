@@ -14,13 +14,14 @@ namespace Peachtreebus.Tests
     [TestClass]
     public class BaseThreadTests
     {
-        private class TestThread : BaseThread
+        private class TestThread(
+            string name,
+            int delayMs,
+            ILogger log,
+            IBusDataAccess dataAccess,
+            IProvideShutdownSignal shutdown)
+            : BaseThread(name, delayMs, log, dataAccess, shutdown)
         {
-            public TestThread(string name, int delayMs, ILogger log,
-                PeachtreeBus.Data.IBusDataAccess dataAccess, IProvideShutdownSignal shutdown)
-                : base(name, delayMs, log, dataAccess, shutdown)
-            { }
-
             public bool UnitOfWorkResult { get; set; } = true;
             public bool Throw { get; set; } = false;
 

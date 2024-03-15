@@ -52,7 +52,7 @@ namespace Peachtreebus.Tests.Sagas
 
         public void AssertInvoked<TMessage>(QueueContext context, TMessage message)
         {
-            var match = Invocations.SingleOrDefault(i => ReferenceEquals(i.Item1, context) 
+            var match = Invocations.SingleOrDefault(i => ReferenceEquals(i.Item1, context)
                 && ReferenceEquals(i.Item2, message));
             Assert.IsNotNull(match);
         }

@@ -13,19 +13,15 @@ namespace PeachtreeBus.Cleaners
     /// A default implementation of IQueueCleanupThread.
     /// Calls an IQueueCleanupWork in a loop.
     /// </summary>
-    public class QueueCleanupThread : BaseThread, IQueueCleanupThread
+    public class QueueCleanupThread(
+        ILogger<QueueCleanupThread> log,
+        IBusDataAccess dataAccess,
+        IProvideShutdownSignal shutdown,
+        IQueueCleanupWork cleaner)
+        : BaseThread("QueueCleaner", 500, log, dataAccess, shutdown)
+        , IQueueCleanupThread
     {
-        private readonly IQueueCleanupWork _cleaner;
-
-        public QueueCleanupThread(
-            ILogger<QueueCleanupThread> log,
-            IBusDataAccess dataAccess,
-            IProvideShutdownSignal shutdown,
-            IQueueCleanupWork cleaner)
-            : base("QueueCleaner", 500, log, dataAccess, shutdown)
-        {
-            _cleaner = cleaner;
-        }
+        private readonly IQueueCleanupWork _cleaner = cleaner;
 
         public override async Task<bool> DoUnitOfWork()
         {

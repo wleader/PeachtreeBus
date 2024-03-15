@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Subscriptions;
 using PeachtreeBus;
-using System.Collections.Generic;
+using PeachtreeBus.Subscriptions;
 using System;
+using System.Collections.Generic;
 
 namespace Peachtreebus.Tests.Subscriptions
 {

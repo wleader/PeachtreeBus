@@ -1,6 +1,6 @@
-﻿using System;
+﻿using PeachtreeBus.Queues;
+using System;
 using System.Threading.Tasks;
-using PeachtreeBus.Queues;
 
 namespace PeachtreeBus.Errors
 {

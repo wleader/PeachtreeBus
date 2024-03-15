@@ -3,15 +3,11 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Pipelines
 {
-    internal class PipelineLink<TContext>
+    internal class PipelineLink<TContext>(
+        IPipelineStep<TContext> step)
     {
         private PipelineLink<TContext>? _next;
-        private readonly IPipelineStep<TContext> _step;
-
-        public PipelineLink(IPipelineStep<TContext> step)
-        {
-            _step = step;
-        }
+        private readonly IPipelineStep<TContext> _step = step;
 
         public void SetNext(PipelineLink<TContext> next)
         {

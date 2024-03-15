@@ -8,14 +8,11 @@ namespace PeachtreeBus.Subscriptions
 {
     public interface ISubscribedHandlersPipelineStep : IPipelineStep<SubscribedContext> { }
 
-    public class SubscribedHandlersPipelineStep : ISubscribedHandlersPipelineStep
+    public class SubscribedHandlersPipelineStep(
+        IFindSubscribedHandlers findHandlers)
+        : ISubscribedHandlersPipelineStep
     {
-        private readonly IFindSubscribedHandlers _findHandlers;
-
-        public SubscribedHandlersPipelineStep(IFindSubscribedHandlers findHandlers)
-        {
-            _findHandlers = findHandlers;
-        }
+        private readonly IFindSubscribedHandlers _findHandlers = findHandlers;
 
         public int Priority { get => 0; }
 
@@ -24,13 +21,10 @@ namespace PeachtreeBus.Subscriptions
             var context = (InternalSubscribedContext)subscribedcontext;
 
             // determine what type of message it is.
-            var messageType = Type.GetType(context.Headers.MessageClass);
-            if (messageType == null)
-            {
-                throw new SubscribedMessageClassNotRecognizedException(context.MessageData.MessageId,
+            var messageType = Type.GetType(context.Headers.MessageClass)
+                ?? throw new SubscribedMessageClassNotRecognizedException(context.MessageData.MessageId,
                     context.SubscriberId,
                     context.Headers.MessageClass);
-            }
 
             // check that messageType is ISubscribed message, otherwise
             // MakeGenericMethod will throw a nasty hard to debug exception.

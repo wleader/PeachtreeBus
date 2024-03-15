@@ -11,22 +11,15 @@ namespace PeachtreeBus.Errors
         Task Failed(SubscribedContext context, object message, Exception exception);
     }
 
-    public class SubscribedFailures : ISubscribedFailures
+    public class SubscribedFailures(
+        ILogger<SubscribedFailures> log,
+        IBusDataAccess dataAccess,
+        IFailedSubscribedMessageHandlerFactory handlerFactory)
+        : ISubscribedFailures
     {
-        private readonly ILogger<SubscribedFailures> _log;
-        private readonly IBusDataAccess _dataAccess;
-        private readonly IFailedSubscribedMessageHandlerFactory _handlerFactory;
-
-        public SubscribedFailures(
-            ILogger<SubscribedFailures> log,
-            IBusDataAccess dataAccess,
-            IFailedSubscribedMessageHandlerFactory handlerFactory)
-        {
-            _log = log;
-            _dataAccess = dataAccess;
-            _handlerFactory = handlerFactory;
-        }
-
+        private readonly ILogger<SubscribedFailures> _log = log;
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly IFailedSubscribedMessageHandlerFactory _handlerFactory = handlerFactory;
 
         public async Task Failed(SubscribedContext context, object message, Exception exception)
         {

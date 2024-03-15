@@ -9,7 +9,6 @@ using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using PeachtreeBus.Subscriptions;
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -333,7 +332,7 @@ namespace Peachtreebus.Tests.Subscriptions
                 Message = new TestSagaMessage1()
             };
 
-            
+
             var exception = new ApplicationException();
 
             await reader.Fail(context, exception);

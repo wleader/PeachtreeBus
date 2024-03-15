@@ -10,20 +10,15 @@ namespace PeachtreeBus.Example.Handlers
     /// <summary>
     /// An example handler for the SampleSagaCompelteMessage
     /// </summary>
-    public class SagaCompletedHandler : IHandleQueueMessage<SampleSagaComplete>
+    public class SagaCompletedHandler(
+        ILogger<SagaCompletedHandler> log,
+        IExampleDataAccess dataAccess,
+        ISubscribedPublisher publisher)
+        : IHandleQueueMessage<SampleSagaComplete>
     {
-        private readonly ILogger _log;
-        private readonly IExampleDataAccess _dataAccess;
-        private readonly ISubscribedPublisher _publisher;
-
-        public SagaCompletedHandler(ILogger<SagaCompletedHandler> log,
-            IExampleDataAccess dataAccess,
-            ISubscribedPublisher publisher)
-        {
-            _log = log;
-            _dataAccess = dataAccess;
-            _publisher = publisher;
-        }
+        private readonly ILogger _log = log;
+        private readonly IExampleDataAccess _dataAccess = dataAccess;
+        private readonly ISubscribedPublisher _publisher = publisher;
 
         public async Task Handle(QueueContext context, SampleSagaComplete message)
         {

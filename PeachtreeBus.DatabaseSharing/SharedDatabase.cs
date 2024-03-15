@@ -221,7 +221,7 @@ namespace PeachtreeBus.DatabaseSharing
                 _connection.Close();
                 _connection.Dispose();
             }
-            GC.SuppressFinalize(this);  
+            GC.SuppressFinalize(this);
         }
     }
 }

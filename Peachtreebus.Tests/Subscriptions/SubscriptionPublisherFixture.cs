@@ -29,19 +29,19 @@ namespace Peachtreebus.Tests.Subscriptions
         private Mock<ISerializer> serializer = default!;
         private Mock<ISystemClock> clock = default!;
 
-        private readonly List<SubscribedMessage> AddedMessages = new List<SubscribedMessage>();
+        private readonly List<SubscribedMessage> AddedMessages = [];
         private Headers SerializedHeaders = default!;
 
-        private readonly List<Guid> cat1subscribers = new List<Guid>()
-        {
+        private readonly List<Guid> cat1subscribers =
+        [
             Guid.NewGuid()
-        };
+        ];
 
-        private readonly List<Guid> cat2subscribers = new List<Guid>()
-        {
+        private readonly List<Guid> cat2subscribers =
+        [
             Guid.NewGuid(),
             Guid.NewGuid()
-        };
+        ];
 
         [TestInitialize]
         public void TestInitialize()

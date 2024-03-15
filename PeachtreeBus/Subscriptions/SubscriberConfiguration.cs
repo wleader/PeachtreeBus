@@ -17,17 +17,14 @@ namespace PeachtreeBus.Subscriptions
     /// <summary>
     /// default implementation of ISubscriberConfiguration
     /// </summary>
-    public class SubscriberConfiguration : ISubscriberConfiguration
+    public class SubscriberConfiguration(
+        Guid subscriberId,
+        TimeSpan lifespan,
+        params string[] categories)
+        : ISubscriberConfiguration
     {
-        public Guid SubscriberId { get; private set; }
-        public IList<string> Categories { get; private set; }
-        public TimeSpan Lifespan { get; private set; }
-
-        public SubscriberConfiguration(Guid subscriberId, TimeSpan lifespan, params string[] categories)
-        {
-            SubscriberId = subscriberId;
-            Lifespan = lifespan;
-            Categories = categories.ToList();
-        }
+        public Guid SubscriberId { get; private set; } = subscriberId;
+        public IList<string> Categories { get; private set; } = categories.ToList();
+        public TimeSpan Lifespan { get; private set; } = lifespan;
     }
 }

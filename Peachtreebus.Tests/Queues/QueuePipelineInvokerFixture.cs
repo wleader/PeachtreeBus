@@ -32,7 +32,7 @@ namespace Peachtreebus.Tests.Queues
 
             _provider = new();
             _provider.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null!);
-            
+
             _scope.Setup(s => s.GetInstance<IShareObjectsBetweenScopes>()).Returns(_provider.Object);
 
             _pipelineFactory = new();
@@ -49,7 +49,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task When_Invoked_Then_PipelineIsInvoked()
         {
-            
+
             _pipeline.Setup(p => p.Invoke(It.IsAny<QueueContext>()))
                 .Callback<QueueContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
 
@@ -136,7 +136,7 @@ namespace Peachtreebus.Tests.Queues
             // so that the build pipeline will re-use the shared database.
 
             bool providerSet = false;
-            
+
             _provider.SetupSet(p => p.SharedDatabase = It.IsAny<ISharedDatabase>())
                 .Callback<ISharedDatabase>((db) => providerSet = true);
 

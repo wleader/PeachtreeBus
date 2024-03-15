@@ -14,22 +14,18 @@ namespace PeachtreeBus.Cleaners
     /// <summary>
     /// A thread that cleans up expired subscriptions.
     /// </summary>
-    public class SubscriptionCleanupThread : BaseThread, ISubscriptionCleanupThread
+    public class SubscriptionCleanupThread(
+        IBusDataAccess dataAccess,
+        ILogger<SubscriptionCleanupThread> log,
+        IProvideShutdownSignal shutdown,
+        ISubscriptionCleanupWork cleaner,
+        ISystemClock clock)
+        : BaseThread("Subscription Cleaner", 500, log, dataAccess, shutdown)
+        , ISubscriptionCleanupThread
     {
-        private readonly ISubscriptionCleanupWork _cleaner;
-        private readonly ISystemClock _clock;
+        private readonly ISubscriptionCleanupWork _cleaner = cleaner;
+        private readonly ISystemClock _clock = clock;
         public DateTime LastCleaned { get; set; } = DateTime.MinValue;
-
-        public SubscriptionCleanupThread(IBusDataAccess dataAccess,
-            ILogger<SubscriptionCleanupThread> log,
-            IProvideShutdownSignal shutdown,
-            ISubscriptionCleanupWork cleaner,
-            ISystemClock clock)
-            : base("Subscription Cleaner", 500, log, dataAccess, shutdown)
-        {
-            _cleaner = cleaner;
-            _clock = clock;
-        }
 
         public override async Task<bool> DoUnitOfWork()
         {

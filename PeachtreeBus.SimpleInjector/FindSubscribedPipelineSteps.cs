@@ -8,13 +8,11 @@ namespace PeachtreeBus.SimpleInjector
     /// <summary>
     /// An implementation of IFindSubscribedPipelineSteps
     /// </summary>
-    public class FindSubscribedPipelineSteps : IFindSubscribedPipelineSteps
+    public class FindSubscribedPipelineSteps(
+        IWrappedScope scope)
+        : IFindSubscribedPipelineSteps
     {
-        private readonly IWrappedScope _scope;
-        public FindSubscribedPipelineSteps(IWrappedScope scope)
-        {
-            _scope = scope;
-        }
+        private readonly IWrappedScope _scope = scope;
 
         public IEnumerable<IPipelineStep<SubscribedContext>> FindSteps()
         {

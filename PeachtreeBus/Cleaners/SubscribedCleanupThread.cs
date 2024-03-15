@@ -12,18 +12,15 @@ namespace PeachtreeBus.Cleaners
     /// <summary>
     /// A thread that cleans up subscribed messages.
     /// </summary>
-    public class SubscribedCleanupThread : BaseThread, ISubscribedCleanupThread
+    public class SubscribedCleanupThread(
+        ILogger<SubscribedCleanupThread> log,
+        IBusDataAccess dataAccess,
+        IProvideShutdownSignal shutdown,
+        ISubscribedCleanupWork cleaner)
+        : BaseThread("SubscriptionCleaner", 500, log, dataAccess, shutdown)
+        , ISubscribedCleanupThread
     {
-        private readonly ISubscribedCleanupWork _cleaner;
-
-        public SubscribedCleanupThread(ILogger<SubscribedCleanupThread> log,
-            IBusDataAccess dataAccess,
-            IProvideShutdownSignal shutdown,
-            ISubscribedCleanupWork cleaner)
-            : base("SubscriptionCleaner", 500, log, dataAccess, shutdown)
-        {
-            _cleaner = cleaner;
-        }
+        private readonly ISubscribedCleanupWork _cleaner = cleaner;
 
         public override async Task<bool> DoUnitOfWork()
         {

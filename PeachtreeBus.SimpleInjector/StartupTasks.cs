@@ -1,7 +1,6 @@
 ﻿using SimpleInjector;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -64,7 +63,7 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="container"></param>
         public static void RunPeachtreeBusStartupTasks(this Container container)
         {
-            Task.WaitAll(container.PeachtreeBusStartupTasks().ToArray());
+            Task.WaitAll([.. container.PeachtreeBusStartupTasks()]);
         }
     }
 }

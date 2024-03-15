@@ -5,14 +5,11 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Example.Pipeline
 {
-    internal class QueuePipelineExampleStep : IQueuePipelineStep
+    internal class QueuePipelineExampleStep(
+        ILogger<QueuePipelineExampleStep> log)
+        : IQueuePipelineStep
     {
-        private readonly ILogger<QueuePipelineExampleStep> _log;
-
-        public QueuePipelineExampleStep(ILogger<QueuePipelineExampleStep> log)
-        {
-            _log = log;
-        }
+        private readonly ILogger<QueuePipelineExampleStep> _log = log;
 
         public int Priority => 1;
 

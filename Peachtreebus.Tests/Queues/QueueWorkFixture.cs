@@ -44,9 +44,10 @@ namespace Peachtreebus.Tests.Queues
                 counters.Object,
                 reader.Object,
                 dataAccess.Object,
-                pipelineInvoker.Object);
-
-            work.QueueName = "TestQueue";
+                pipelineInvoker.Object)
+            {
+                QueueName = "TestQueue"
+            };
         }
 
         /// <summary>

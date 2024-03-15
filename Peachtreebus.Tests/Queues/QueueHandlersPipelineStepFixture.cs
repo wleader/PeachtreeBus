@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Peachtreebus.Tests.Sagas;
 using PeachtreeBus;
-using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using System;
@@ -25,7 +24,7 @@ namespace Peachtreebus.Tests.Queues
 
         private TestSaga _testSaga = default!;
 
-        [TestInitialize] 
+        [TestInitialize]
         public void Initialize()
         {
             _testSaga = new();

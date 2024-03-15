@@ -16,26 +16,19 @@ namespace PeachtreeBus.Subscriptions
     /// <summary>
     /// Publishes a subscription message to all current subscribers.
     /// </summary>
-    public class SubscribedPublisher : ISubscribedPublisher
+    public class SubscribedPublisher(
+        IBusDataAccess dataAccess,
+        ISubscribedLifespan subscriptionConfiguration,
+        ISerializer serializer,
+        IPerfCounters counters,
+        ISystemClock clock)
+        : ISubscribedPublisher
     {
-        private readonly IBusDataAccess _dataAccess;
-        private readonly ISubscribedLifespan _subscribedLifespan;
-        private readonly ISerializer _serializer;
-        private readonly IPerfCounters _counters;
-        private readonly ISystemClock _clock;
-
-        public SubscribedPublisher(IBusDataAccess dataAccess,
-            ISubscribedLifespan subscriptionConfiguration,
-            ISerializer serializer,
-            IPerfCounters counters,
-            ISystemClock clock)
-        {
-            _dataAccess = dataAccess;
-            _subscribedLifespan = subscriptionConfiguration;
-            _serializer = serializer;
-            _counters = counters;
-            _clock = clock;
-        }
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly ISubscribedLifespan _subscribedLifespan = subscriptionConfiguration;
+        private readonly ISerializer _serializer = serializer;
+        private readonly IPerfCounters _counters = counters;
+        private readonly ISystemClock _clock = clock;
 
         /// <summary>
         /// Publishes the message
@@ -118,7 +111,7 @@ namespace PeachtreeBus.Subscriptions
         /// <returns></returns>
         public static async Task PublishMessage<T>(this ISubscribedPublisher publisher,
            string category, T message, DateTime? notBefore = null)
-            where T: notnull
+            where T : notnull
         {
             await publisher.Publish(category, typeof(T), message, notBefore);
         }

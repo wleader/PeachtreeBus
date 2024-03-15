@@ -9,7 +9,7 @@ namespace PeachtreeBus.Pipelines
     }
 
     public abstract class PipelineFactory<TContext, TPipeline, TFindPipelineSteps, THandlerStep>(
-        IWrappedScope scope) 
+        IWrappedScope scope)
         : IPipelineFactory<TContext, TPipeline>
         where TPipeline : IPipeline<TContext>
         where TFindPipelineSteps : IFindPipelineSteps<TContext>

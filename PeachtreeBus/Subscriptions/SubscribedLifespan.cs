@@ -15,13 +15,10 @@ namespace PeachtreeBus.Subscriptions
     /// <summary>
     /// Default implmentation of ISubscribedLifespan.
     /// </summary>
-    public class SubscribedLifespan : ISubscribedLifespan
+    public class SubscribedLifespan(
+        TimeSpan duration)
+        : ISubscribedLifespan
     {
-        public TimeSpan Duration { get; private set; }
-
-        public SubscribedLifespan(TimeSpan duration)
-        {
-            Duration = duration;
-        }
+        public TimeSpan Duration { get; private set; } = duration;
     }
 }

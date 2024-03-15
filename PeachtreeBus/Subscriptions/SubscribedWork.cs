@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
-using PeachtreeBus.Pipelines;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions
@@ -18,27 +16,19 @@ namespace PeachtreeBus.Subscriptions
     /// <summary>
     /// A unit of work that reads one subscribed message and processes it.
     /// </summary>
-    public class SubscribedWork : ISubscribedWork
+    public class SubscribedWork(
+        ISubscribedReader reader,
+        IPerfCounters counters,
+        ILogger<SubscribedWork> log,
+        IBusDataAccess dataAccess,
+        ISubscribedPipelineInvoker pipelineInvoker)
+        : ISubscribedWork
     {
-        private readonly ISubscribedReader _reader;
-        private readonly IPerfCounters _counters;
-        private readonly ILogger<SubscribedWork> _log;
-        private readonly IBusDataAccess _dataAccess;
-        private readonly ISubscribedPipelineInvoker _pipelineInvoker;
-
-        public SubscribedWork(
-            ISubscribedReader reader,
-            IPerfCounters counters,
-            ILogger<SubscribedWork> log,
-            IBusDataAccess dataAccess,
-            ISubscribedPipelineInvoker pipelineInvoker)
-        {
-            _reader = reader;
-            _counters = counters;
-            _log = log;
-            _dataAccess = dataAccess;
-            _pipelineInvoker = pipelineInvoker;
-        }
+        private readonly ISubscribedReader _reader = reader;
+        private readonly IPerfCounters _counters = counters;
+        private readonly ILogger<SubscribedWork> _log = log;
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly ISubscribedPipelineInvoker _pipelineInvoker = pipelineInvoker;
 
         public Guid SubscriberId { get; set; }
 

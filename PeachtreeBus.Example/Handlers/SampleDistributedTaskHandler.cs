@@ -10,21 +10,15 @@ namespace PeachtreeBus.Example.Handlers
     /// <summary>
     /// An example handler for the SampleDistributedTaskRequest message
     /// </summary>
-    public class SampleDistributedTaskHandler : IHandleQueueMessage<SampleDistributedTaskRequest>
+    public class SampleDistributedTaskHandler(
+        ILogger<SampleDistributedTaskHandler> log,
+        IExampleDataAccess dataAccess,
+        IQueueWriter queueWriter)
+        : IHandleQueueMessage<SampleDistributedTaskRequest>
     {
-        private readonly ILogger _log;
-        private readonly IExampleDataAccess _dataAccess;
-        private readonly IQueueWriter _queueWriter;
-
-        public SampleDistributedTaskHandler(
-            ILogger<SampleDistributedTaskHandler> log,
-            IExampleDataAccess dataAccess,
-            IQueueWriter queueWriter)
-        {
-            _log = log;
-            _dataAccess = dataAccess;
-            _queueWriter = queueWriter;
-        }
+        private readonly ILogger _log = log;
+        private readonly IExampleDataAccess _dataAccess = dataAccess;
+        private readonly IQueueWriter _queueWriter = queueWriter;
 
         public async Task Handle(QueueContext context, SampleDistributedTaskRequest message)
         {

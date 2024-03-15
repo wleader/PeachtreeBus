@@ -25,23 +25,15 @@ namespace PeachtreeBus.Queues
     /// <summary>
     ///  Adds a message to a queue using an IBusDataAccess.
     /// </summary>
-    public class QueueWriter : IQueueWriter
+    public class QueueWriter(IBusDataAccess dataAccess,
+        IPerfCounters counters,
+        ISerializer serializer,
+        ISystemClock clock) : IQueueWriter
     {
-        private readonly IBusDataAccess _dataAccess;
-        private readonly IPerfCounters _counters;
-        private readonly ISerializer _serializer;
-        private readonly ISystemClock _clock;
-
-        public QueueWriter(IBusDataAccess dataAccess,
-            IPerfCounters counters,
-            ISerializer serializer,
-            ISystemClock clock)
-        {
-            _dataAccess = dataAccess;
-            _counters = counters;
-            _serializer = serializer;
-            _clock = clock;
-        }
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly IPerfCounters _counters = counters;
+        private readonly ISerializer _serializer = serializer;
+        private readonly ISystemClock _clock = clock;
 
         public async Task WriteMessage(string queueName, Type type, object message, DateTime? notBefore = null)
         {

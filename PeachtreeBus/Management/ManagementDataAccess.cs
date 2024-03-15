@@ -10,28 +10,23 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Management
 {
-    public class ManagementDataAccess : BaseDataAccess, IManagementDataAccess
+    public class ManagementDataAccess(
+        ISharedDatabase database,
+        IDbSchemaConfiguration schemaConfig,
+        ILogger<ManagementDataAccess> log)
+        : BaseDataAccess
+        , IManagementDataAccess
     {
         static ManagementDataAccess()
         {
             DateTimeHandler.AddTypeHandler();
         }
 
-        private readonly IDbSchemaConfiguration _schemaConfig;
-        private readonly ISharedDatabase _database;
-        private readonly ILogger<ManagementDataAccess> _log;
+        private readonly IDbSchemaConfiguration _schemaConfig = schemaConfig;
+        private readonly ISharedDatabase _database = database;
+        private readonly ILogger<ManagementDataAccess> _log = log;
 
         protected const string TableNameUnsafe = "The table name contains not allowable characters.";
-
-        public ManagementDataAccess(
-            ISharedDatabase database,
-            IDbSchemaConfiguration schemaConfig,
-            ILogger<ManagementDataAccess> log)
-        {
-            _schemaConfig = schemaConfig;
-            _database = database;
-            _log = log;
-        }
 
         private async Task<List<T>> GetMessages<T>(string queueName, string table, int skip, int take)
         {

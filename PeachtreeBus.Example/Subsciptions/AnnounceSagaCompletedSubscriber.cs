@@ -8,15 +8,11 @@ namespace PeachtreeBus.Example.Subsciptions
     /// <summary>
     /// An example of handling a subscribed message.
     /// </summary>
-    public class AnnounceSagaCompletedSubscriber : IHandleSubscribedMessage<AnnounceSagaCompleted>
+    public class AnnounceSagaCompletedSubscriber(
+        ILogger<AnnounceSagaCompletedSubscriber> log)
+        : IHandleSubscribedMessage<AnnounceSagaCompleted>
     {
-        private readonly ILogger<AnnounceSagaCompletedSubscriber> _log;
-
-        public AnnounceSagaCompletedSubscriber(
-            ILogger<AnnounceSagaCompletedSubscriber> log)
-        {
-            _log = log;
-        }
+        private readonly ILogger<AnnounceSagaCompletedSubscriber> _log = log;
 
         public Task Handle(SubscribedContext context, AnnounceSagaCompleted message)
         {

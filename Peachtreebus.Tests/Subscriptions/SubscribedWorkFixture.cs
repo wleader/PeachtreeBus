@@ -1,14 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Peachtreebus.Tests.Pipeline;
 using PeachtreeBus;
 using PeachtreeBus.Data;
-using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Peachtreebus.Tests.Subscriptions
@@ -141,7 +138,7 @@ namespace Peachtreebus.Tests.Subscriptions
             CollectionAssert.AreEqual(expected, invocations);
         }
 
-        private InternalSubscribedContext CreateContext()
+        private static InternalSubscribedContext CreateContext()
         {
             return new InternalSubscribedContext()
             {

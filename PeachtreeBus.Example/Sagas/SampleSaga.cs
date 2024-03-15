@@ -18,22 +18,17 @@ namespace PeachtreeBus.Example.Sagas
     /// <summary>
     /// An example of a saga.
     /// </summary>
-    public class SampleSaga : Saga<SampleSagaData>,
-        IHandleSagaStartMessage<SampleSagaStart>,
-        IHandleQueueMessage<SampleDistributedTaskResponse>
+    public class SampleSaga(
+        ILogger<SampleSaga> log,
+        IExampleDataAccess dataAccess,
+        IQueueWriter queueWriter)
+        : Saga<SampleSagaData>
+        , IHandleSagaStartMessage<SampleSagaStart>
+        , IHandleQueueMessage<SampleDistributedTaskResponse>
     {
-        private readonly ILogger _log;
-        private readonly IExampleDataAccess _dataAccess;
-        private readonly IQueueWriter _queueWriter;
-
-        public SampleSaga(ILogger<SampleSaga> log,
-            IExampleDataAccess dataAccess,
-            IQueueWriter queueWriter)
-        {
-            _log = log;
-            _dataAccess = dataAccess;
-            _queueWriter = queueWriter;
-        }
+        private readonly ILogger _log = log;
+        private readonly IExampleDataAccess _dataAccess = dataAccess;
+        private readonly IQueueWriter _queueWriter = queueWriter;
 
         /// <summary>
         /// A saga must provide a saga name, This value is used to ensure that each saga 

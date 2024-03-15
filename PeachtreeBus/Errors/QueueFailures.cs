@@ -11,22 +11,15 @@ namespace PeachtreeBus.Errors
         Task Failed(QueueContext context, object message, Exception exception);
     }
 
-    public class QueueFailures : IQueueFailures
+    public class QueueFailures(
+        ILogger<QueueFailures> log,
+        IBusDataAccess dataAccess,
+        IFailedQueueMessageHandlerFactory handlerFactory)
+        : IQueueFailures
     {
-        private readonly ILogger<QueueFailures> _log;
-        private readonly IBusDataAccess _dataAccess;
-        private readonly IFailedQueueMessageHandlerFactory _handlerFactory;
-
-        public QueueFailures(
-            ILogger<QueueFailures> log,
-            IBusDataAccess dataAccess,
-            IFailedQueueMessageHandlerFactory handlerFactory)
-        {
-            _log = log;
-            _dataAccess = dataAccess;
-            _handlerFactory = handlerFactory;
-        }
-
+        private readonly ILogger<QueueFailures> _log = log;
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly IFailedQueueMessageHandlerFactory _handlerFactory = handlerFactory;
 
         public async Task Failed(QueueContext context, object message, Exception exception)
         {

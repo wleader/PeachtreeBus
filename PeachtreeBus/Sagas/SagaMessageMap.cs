@@ -4,9 +4,8 @@ using System.Collections.Generic;
 
 namespace PeachtreeBus.Sagas
 {
-    public class SagaMapException : Exception
+    public class SagaMapException(string message) : Exception(message)
     {
-        public SagaMapException(string message) : base(message) { }
     }
 
     /// <summary>
@@ -19,7 +18,7 @@ namespace PeachtreeBus.Sagas
         /// <summary>
         /// A dictionary where the message type is the key, and the key function is the value.
         /// </summary>
-        private readonly Dictionary<Type, object> MapFunctions = new();
+        private readonly Dictionary<Type, object> MapFunctions = [];
 
         /// <summary>
         /// Called in the Saga's ConfigureMessageKeys to tell the bus how to calculate a Saga Key from a given message type.
@@ -52,7 +51,7 @@ namespace PeachtreeBus.Sagas
             var funcType = typeof(Func<,>).MakeGenericType(new Type[] { messageType, typeof(string) });
             var invokeMethod = funcType.GetMethod("Invoke");
             var result = invokeMethod.Invoke(function, new[] { message });
-            return result is string stringResult 
+            return result is string stringResult
                 ? stringResult
                 : throw new SagaMapException("Map function did not return a string.");
         }

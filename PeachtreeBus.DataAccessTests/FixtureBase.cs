@@ -28,7 +28,7 @@ namespace PeachtreeBus.DataAccessTests
 
         protected SharedDatabase SharedDB = default!;
 
-        private Mock<ISqlConnectionFactory> _connectionFactory = new();
+        private readonly Mock<ISqlConnectionFactory> _connectionFactory = new();
 
         /// <summary>
         /// The data acess being tested.

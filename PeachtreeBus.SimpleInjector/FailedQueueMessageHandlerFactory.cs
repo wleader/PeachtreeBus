@@ -2,14 +2,11 @@
 
 namespace PeachtreeBus.SimpleInjector
 {
-    public class FailedQueueMessageHandlerFactory : IFailedQueueMessageHandlerFactory
+    public class FailedQueueMessageHandlerFactory(
+        IWrappedScope scope)
+        : IFailedQueueMessageHandlerFactory
     {
-        private readonly IWrappedScope _scope;
-
-        public FailedQueueMessageHandlerFactory(IWrappedScope scope)
-        {
-            _scope = scope;
-        }
+        private readonly IWrappedScope _scope = scope;
 
         public IHandleFailedQueueMessages GetHandler()
         {
