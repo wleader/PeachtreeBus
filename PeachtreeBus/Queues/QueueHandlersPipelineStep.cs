@@ -38,6 +38,8 @@ namespace PeachtreeBus.Queues
             _queueReader = queueReader;
         }
 
+        public int Priority { get => 0; }
+
         public async Task Invoke(QueueContext externalContext, Func<QueueContext, Task> next)
         {
             var context = (InternalQueueContext)externalContext;

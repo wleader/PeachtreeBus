@@ -24,9 +24,9 @@ namespace Peachtreebus.Tests.Queues
             _scope = new();
             _handlersStep = new();
 
-            _scope.Setup(s => s.GetInstance<IQueuePipeline>()).Returns(_pipeline.Object);
-            _scope.Setup(s => s.GetInstance<IFindQueuePipelineSteps>()).Returns(_findSteps.Object);
-            _scope.Setup(s => s.GetInstance<IQueueHandlersPipelineStep>()).Returns(_handlersStep.Object);
+            _scope.Setup(s => s.GetInstance(typeof(IQueuePipeline))).Returns(_pipeline.Object);
+            _scope.Setup(s => s.GetInstance(typeof(IFindQueuePipelineSteps))).Returns(_findSteps.Object);
+            _scope.Setup(s => s.GetInstance(typeof(IQueueHandlersPipelineStep))).Returns(_handlersStep.Object);
 
             _factory = new QueuePipelineFactory(_scope.Object);
         }

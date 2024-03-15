@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Queues;
+﻿using PeachtreeBus.Pipelines;
+using PeachtreeBus.Queues;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,7 +17,7 @@ namespace PeachtreeBus.SimpleInjector
             _scope = scope;
         }
 
-        public IEnumerable<IQueuePipelineStep> FindSteps()
+        public IEnumerable<IPipelineStep<QueueContext>> FindSteps()
         {
             return _scope.GetAllInstances<IQueuePipelineStep>().ToList();
         }

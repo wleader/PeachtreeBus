@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions
 {
-    public class SubscribedHandlersPipelineStep : IPipelineStep<SubscribedContext>
+    public interface ISubscribedHandlersPipelineStep : IPipelineStep<SubscribedContext> { }
+
+    public class SubscribedHandlersPipelineStep : ISubscribedHandlersPipelineStep
     {
         private readonly IFindSubscribedHandlers _findHandlers;
 
@@ -14,6 +16,8 @@ namespace PeachtreeBus.Subscriptions
         {
             _findHandlers = findHandlers;
         }
+
+        public int Priority { get => 0; }
 
         public async Task Invoke(SubscribedContext subscribedcontext, Func<SubscribedContext, Task> next)
         {

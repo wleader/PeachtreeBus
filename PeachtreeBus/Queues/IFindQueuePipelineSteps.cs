@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using PeachtreeBus.Pipelines;
 
 namespace PeachtreeBus.Queues
 {
-    public interface IFindQueuePipelineSteps
-    {
-        IEnumerable<IQueuePipelineStep> FindSteps();
-    }
+    public interface IFindQueuePipelineSteps : IFindPipelineSteps<QueueContext> { }
 }

@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Subscriptions;
+﻿using PeachtreeBus.Pipelines;
+using PeachtreeBus.Subscriptions;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +16,7 @@ namespace PeachtreeBus.SimpleInjector
             _scope = scope;
         }
 
-        public IEnumerable<ISubscribedPipelineStep> FindSteps()
+        public IEnumerable<IPipelineStep<SubscribedContext>> FindSteps()
         {
             return _scope.GetAllInstances<ISubscribedPipelineStep>().ToList();
         }

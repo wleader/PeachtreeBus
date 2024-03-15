@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using PeachtreeBus.Pipelines;
 
 namespace PeachtreeBus.Subscriptions
 {
-    public interface IFindSubscribedPipelineSteps
-    {
-        IEnumerable<ISubscribedPipelineStep> FindSteps();
-    }
+    public interface IFindSubscribedPipelineSteps : IFindPipelineSteps<SubscribedContext> { }
 }

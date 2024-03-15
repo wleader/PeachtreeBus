@@ -2,8 +2,5 @@
 
 namespace PeachtreeBus.Queues
 {
-    public interface IQueuePipelineStep : IPipelineStep<QueueContext>
-    {
-        public int Priority { get; }
-    }
+    public interface IQueuePipelineStep : IPipelineStep<QueueContext> { }
 }
