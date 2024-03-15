@@ -110,7 +110,7 @@ namespace Peachtreebus.Tests.Queues
             perfCounters.Setup(c => c.DelayMessage()).Throws(new ApplicationException());
 
             var now = clock.Object.UtcNow;
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
@@ -134,7 +134,7 @@ namespace Peachtreebus.Tests.Queues
                 .Throws(new ApplicationException());
 
             var now = clock.Object.UtcNow;
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
@@ -154,7 +154,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Delay_DelaysMessage()
         {
             var now = clock.Object.UtcNow;
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
@@ -179,7 +179,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task SaveSaga_DeletesCompleteSaga()
         {
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
@@ -207,7 +207,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task SaveSaga_InsertsNewSagaData()
         {
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
@@ -240,7 +240,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task SaveSaga_UpdatesExistingSagaData()
         {
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
@@ -277,7 +277,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task LoadSaga_InitializesWhenNew()
         {
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
 
             };
@@ -301,7 +301,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task LoadSaga_DeserializesExisting()
         {
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
 
             };
@@ -335,7 +335,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task LoadSaga_ReturnsWhenBlocked()
         {
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
 
             };
@@ -366,7 +366,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Fail_UpdatesMessage()
         {
             var expectedRetries = (byte)(reader.MaxRetries - 1);
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 SourceQueue = "TestSourceQueue",
                 MessageData = new QueueMessage
@@ -398,7 +398,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Fail_FailsMaxReties()
         {
             var expectedRetries = (byte)(reader.MaxRetries);
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 SourceQueue = "TestSourceQueue",
                 MessageData = new QueueMessage
@@ -430,7 +430,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Completee_Completes()
         {
             var now = clock.Object.UtcNow;
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
@@ -477,12 +477,13 @@ namespace Peachtreebus.Tests.Queues
             serializer.Setup(s => s.DeserializeMessage(It.IsAny<string>(), typeof(TestSagaMessage1)))
                 .Returns(expectedUserMessage);
 
-            var message = await reader.GetNext("SourceQueue");
+            var context = await reader.GetNext("SourceQueue");
 
-            Assert.IsTrue(ReferenceEquals(expectedQueueMessage, message.MessageData));
-            Assert.IsTrue(ReferenceEquals(expectedHeaders, message.Headers));
-            Assert.IsTrue(ReferenceEquals(expectedUserMessage, message.Message));
-            Assert.AreEqual("SourceQueue", message.SourceQueue);
+            Assert.IsTrue(ReferenceEquals(expectedQueueMessage, context.MessageData));
+            Assert.IsTrue(ReferenceEquals(expectedHeaders, context.Headers));
+            Assert.IsTrue(ReferenceEquals(expectedUserMessage, context.Message));
+            Assert.AreEqual("SourceQueue", context.SourceQueue);
+            Assert.IsFalse(context.SagaBlocked);
         }
 
         /// <summary>
@@ -603,7 +604,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task Fail_InvokesFailHandlerOnMaxRetries()
         {
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
@@ -626,7 +627,7 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task Fail_DoesNotInvokeFailHandlerBeforeMaxRetries()
         {
-            var context = new QueueContext
+            var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {

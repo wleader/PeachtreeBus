@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
-using PeachtreeBus.Pipelines;
-using PeachtreeBus.Sagas;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Queues
@@ -17,40 +14,22 @@ namespace PeachtreeBus.Queues
     }
 
     /// <inheritdoc/>>
-    public class QueueWork : IQueueWork
+    public class QueueWork(
+        ILogger<QueueWork> log,
+        IPerfCounters counters,
+        IQueueReader queueReader,
+        IBusDataAccess dataAccess,
+        IQueuePipelineInvoker pipelineInvoker) : IQueueWork
     {
-        private readonly ILogger<QueueWork> _log;
-        private readonly IPerfCounters _counters;
-        private readonly IFindQueueHandlers _findHandlers;
-        private readonly IFindQueuePipelineSteps _findPipelineSteps;
-        private readonly IQueueReader _queueReader;
-        private readonly IBusDataAccess _dataAccess;
-        private readonly ISagaMessageMapManager _sagaMessageMapManager;
-
-        public QueueWork(
-            ILogger<QueueWork> log,
-            IPerfCounters counters,
-            IFindQueueHandlers findHandlers,
-            IFindQueuePipelineSteps findPipelineSteps,
-            IQueueReader queueReader,
-            IBusDataAccess dataAccess,
-            ISagaMessageMapManager sagaMessageMapManager)
-        {
-            _log = log;
-            _counters = counters;
-            _findHandlers = findHandlers;
-            _findPipelineSteps = findPipelineSteps;
-            _queueReader = queueReader;
-            _dataAccess = dataAccess;
-            _sagaMessageMapManager = sagaMessageMapManager;
-        }
+        private readonly ILogger<QueueWork> _log = log;
+        private readonly IPerfCounters _counters = counters;
+        private readonly IQueueReader _queueReader = queueReader;
+        private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly IQueuePipelineInvoker _pipelineInvoker = pipelineInvoker;
 
         public string QueueName { get; set; }
 
         private const string savepointName = "BeforeMessageHandler";
-
-        private string _currentHandlerTypeName = null;
-        private bool _sagaBlocked = false;
 
         /// <summary>
         /// Actually does the work of processing a single message.
@@ -81,12 +60,17 @@ namespace PeachtreeBus.Queues
                 // increment the retry count and try again later.
                 _dataAccess.CreateSavepoint(savepointName);
 
-                _sagaBlocked = false;
+                context.SavepointName = savepointName;
+                
+                await _pipelineInvoker.Invoke(context);
 
-                await InvokePipeline(context);
-
-                if (_sagaBlocked)
+                if (context.SagaBlocked)
                 {
+                    // the saga is blocked. delay the message and try again later.
+                    _log.QueueWork_SagaBlocked(context.CurrentHandler, context.SagaKey);
+                    _dataAccess.RollbackToSavepoint(savepointName);
+                    await _queueReader.DelayMessage(context, 250);
+                    _counters.SagaBlocked();
                     return true;
                 }
 
@@ -99,7 +83,7 @@ namespace PeachtreeBus.Queues
             {
                 // there was an exception, Rollback to the save point to undo
                 // any db changes done by the handlers.
-                _log.QueueWork_HandlerException(_currentHandlerTypeName, context.MessageData.MessageId, context.Headers.MessageClass, ex);
+                _log.QueueWork_HandlerException(context.CurrentHandler, context.MessageData.MessageId, context.Headers.MessageClass, ex);
                 _dataAccess.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
                 await _queueReader.Fail(context, ex);
@@ -111,26 +95,5 @@ namespace PeachtreeBus.Queues
                 _counters.FinishMessage(started);
             }
         }
-
-        private async Task InvokePipeline(QueueContext context)
-        {
-            var steps = _findPipelineSteps.FindSteps().OrderBy(s => s.Priority);
-
-            var pipeline = new Pipeline<QueueContext>();
-            foreach (var step in steps)
-            {
-                pipeline.Add(step);
-            }
-
-            var handlersStep = new QueueHandlersPipelineStep(QueueName, _findHandlers, _log,
-                _sagaMessageMapManager, _queueReader, _counters, _dataAccess, savepointName);
-            pipeline.Add(handlersStep);
-
-            await pipeline.Invoke(context);
-
-            _sagaBlocked = handlersStep.SagaBlocked;
-            _currentHandlerTypeName = handlersStep.CurrentHandlerTypeName;
-        }
-
     }
 }
