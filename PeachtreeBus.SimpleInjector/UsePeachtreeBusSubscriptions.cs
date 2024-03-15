@@ -24,6 +24,11 @@ namespace PeachtreeBus.SimpleInjector
             container.Register(typeof(IFindSubscribedPipelineSteps), typeof(FindSubscribedPipelineSteps), Lifestyle.Scoped);
             container.Register(typeof(ISubscriptionUpdateThread), typeof(SubscriptionUpdateThread), Lifestyle.Scoped);
             container.Register(typeof(ISubscriptionUpdateWork), typeof(SubscriptionUpdateWork), Lifestyle.Scoped);
+            container.Register(typeof(ISubscribedPipelineInvoker), typeof(SubscribedPipelineInvoker), Lifestyle.Scoped);
+            container.Register(typeof(ISubscribedPipelineFactory), typeof(SubscribedPipelineFactory), Lifestyle.Scoped);
+            container.Register(typeof(ISubscribedPipeline), typeof(SubscribedPipeline), Lifestyle.Scoped);
+            container.Register(typeof(ISubscribedHandlersPipelineStep), typeof(SubscribedHandlersPipelineStep), Lifestyle.Scoped);
+
 
             // register our subscription configuration.
             container.Register(typeof(ISubscriberConfiguration), () => config, Lifestyle.Singleton);
