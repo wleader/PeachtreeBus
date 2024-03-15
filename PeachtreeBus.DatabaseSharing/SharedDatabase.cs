@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
+using System.Diagnostics;
 
 namespace PeachtreeBus.DatabaseSharing
 {
@@ -70,6 +71,14 @@ namespace PeachtreeBus.DatabaseSharing
         /// An event to signal a transaction ended so that other DbContext instances can synchronize transaction usage.
         /// </summary>
         event EventHandler TransactionConsumed;
+
+        /// <summary>
+        /// Enables preventing the Shared Database object from being disposed.
+        /// This is useful because the object has to be accessible as a scoped object
+        /// in multiple DI Scopes, but the DI container must not dispose it when
+        /// and inner scope ends.
+        /// </summary>
+        bool DenyDispose { get; set; }
     }
 
     /// <summary>
@@ -77,8 +86,18 @@ namespace PeachtreeBus.DatabaseSharing
     /// Intended to live a scoped lifestyle so that all data access classes in the same scope
     /// share the same DB transaction.
     /// </summary>
+    [DebuggerDisplay("SharedDatabase [{InstanceId}]")]
     public class SharedDatabase : ISharedDatabase
     {
+        /// <summary>
+        /// Give each instance a different ID.
+        /// Helps with diagnosing which instances are the same and different.
+        /// </summary>
+        public Guid InstanceId { get; private set; } = Guid.NewGuid();
+
+        /// <inheritdoc/>
+        public bool DenyDispose { get; set; } = false;
+
         /// <summary>
         /// used to ensure thread safety.
         /// </summary>
@@ -187,6 +206,7 @@ namespace PeachtreeBus.DatabaseSharing
 
         public void Dispose()
         {
+            if (DenyDispose) return;
             lock (_lock)
             {
                 if (Transaction is not null)
