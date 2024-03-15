@@ -24,23 +24,20 @@ namespace PeachtreeBus.Subscriptions
         private readonly IPerfCounters _counters;
         private readonly ILogger<SubscribedWork> _log;
         private readonly IBusDataAccess _dataAccess;
-        private readonly IFindSubscribedHandlers _findSubscriptionHandlers;
-        private readonly IFindSubscribedPipelineSteps _findPipelineSteps;
+        private readonly ISubscribedPipelineInvoker _pipelineInvoker;
 
         public SubscribedWork(
             ISubscribedReader reader,
             IPerfCounters counters,
             ILogger<SubscribedWork> log,
             IBusDataAccess dataAccess,
-            IFindSubscribedHandlers findSubscriptionHandler,
-            IFindSubscribedPipelineSteps findPipelineSteps)
+            ISubscribedPipelineInvoker pipelineInvoker)
         {
             _reader = reader;
             _counters = counters;
             _log = log;
             _dataAccess = dataAccess;
-            _findSubscriptionHandlers = findSubscriptionHandler;
-            _findPipelineSteps = findPipelineSteps;
+            _pipelineInvoker = pipelineInvoker;
         }
 
         public Guid SubscriberId { get; set; }
@@ -75,7 +72,7 @@ namespace PeachtreeBus.Subscriptions
                 // increment the retry count and try again later.
                 _dataAccess.CreateSavepoint(savepointName);
 
-                await InvokePipeline(context);
+                await _pipelineInvoker.Invoke(context);
 
                 // if nothing threw an exception, we can mark the message as processed.
                 await _reader.Complete(context);
@@ -100,22 +97,6 @@ namespace PeachtreeBus.Subscriptions
             {
                 _counters.FinishMessage(started);
             }
-        }
-
-        private async Task InvokePipeline(SubscribedContext context)
-        {
-            var steps = _findPipelineSteps.FindSteps().OrderBy(s => s.Priority);
-
-            var pipeline = new Pipeline<SubscribedContext>();
-            foreach (var step in steps)
-            {
-                pipeline.Add(step);
-            }
-
-            var handlersStep = new SubscribedHandlersPipelineStep(_findSubscriptionHandlers);
-            pipeline.Add(handlersStep);
-
-            await pipeline.Invoke(context);
         }
     }
 }
