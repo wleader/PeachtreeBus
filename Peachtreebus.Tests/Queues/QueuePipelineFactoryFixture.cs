@@ -4,9 +4,8 @@ using PeachtreeBus;
 using PeachtreeBus.Queues;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Peachtreebus.Tests.Pipeline
+namespace Peachtreebus.Tests.Queues
 {
     [TestClass]
     public class QueuePipelineFactoryFixture
