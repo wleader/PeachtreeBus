@@ -22,13 +22,13 @@ namespace PeachtreeBus.Queues
     public class QueueHandlersPipelineStep : IQueueHandlersPipelineStep
     {
         private readonly IFindQueueHandlers _findHandlers;
-        private readonly ILogger _log;
+        private readonly ILogger<QueueHandlersPipelineStep> _log;
         private readonly ISagaMessageMapManager _sagaMessageMapManager;
         private readonly IQueueReader _queueReader;
 
         public QueueHandlersPipelineStep(
             IFindQueueHandlers findHandlers,
-            ILogger log,
+            ILogger<QueueHandlersPipelineStep> log,
             ISagaMessageMapManager sagaMessageMapManager,
             IQueueReader queueReader)
         {

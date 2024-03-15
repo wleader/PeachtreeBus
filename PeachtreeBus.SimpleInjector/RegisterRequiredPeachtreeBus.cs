@@ -25,7 +25,7 @@ namespace PeachtreeBus.SimpleInjector
             // do cleanups
             // pretty much everything, so always register these things.
             container.Register(typeof(IBusDataAccess), typeof(DapperDataAccess), Lifestyle.Scoped);
-            container.Register(typeof(SqlConnection), () => container.GetInstance<ISqlConnectionFactory>().GetConnection(), Lifestyle.Scoped);
+            container.Register(typeof(ISqlConnection), () => container.GetInstance<ISqlConnectionFactory>().GetConnection(), Lifestyle.Scoped);
             container.Register(typeof(ISqlConnectionFactory), typeof(SqlConnectionFactory), Lifestyle.Scoped);
             container.Register(typeof(IShareObjectsBetweenScopes), typeof(ShareObjectsBetweenScopes), Lifestyle.Scoped);
 

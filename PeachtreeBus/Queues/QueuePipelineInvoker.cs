@@ -11,6 +11,7 @@ namespace PeachtreeBus.Queues
     public class QueuePipelineInvoker(
         IWrappedScopeFactory scopeFactory,
         ISharedDatabase sharedDatabase)
+        : IQueuePipelineInvoker
     {
         private readonly IWrappedScopeFactory _scopeFactory = scopeFactory;
         private readonly ISharedDatabase _sharedDatabase = sharedDatabase;

@@ -25,6 +25,10 @@ namespace PeachtreeBus.SimpleInjector
             container.Register(typeof(IQueueThread), typeof(QueueThread), Lifestyle.Scoped);
             container.Register(typeof(IQueueWork), typeof(QueueWork), Lifestyle.Scoped);
             container.Register(typeof(IQueueReader), typeof(QueueReader), Lifestyle.Scoped);
+            container.Register(typeof(IQueuePipelineInvoker), typeof(QueuePipelineInvoker), Lifestyle.Scoped);
+            container.Register(typeof(IQueuePipelineFactory), typeof(QueuePipelineFactory), Lifestyle.Scoped);
+            container.Register(typeof(IQueuePipeline), typeof(QueuePipeline), Lifestyle.Scoped);
+            container.Register(typeof(IQueueHandlersPipelineStep), typeof(QueueHandlersPipelineStep), Lifestyle.Scoped);
 
             // register message handlers and sagas.
             // this finds types that impliment IHandleMessage<>.
