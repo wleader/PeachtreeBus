@@ -18,9 +18,9 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        Task<SubscribedContext> GetNext(Guid subscriberId);
-        Task Complete(SubscribedContext subsriptionContext);
-        Task Fail(SubscribedContext subsriptionContext, Exception ex);
+        Task<InternalSubscribedContext> GetNext(Guid subscriberId);
+        Task Complete(InternalSubscribedContext subsriptionContext);
+        Task Fail(InternalSubscribedContext subsriptionContext, Exception ex);
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task Complete(SubscribedContext context)
+        public async Task Complete(InternalSubscribedContext context)
         {
             context.MessageData.Completed = _clock.UtcNow;
             _counters.CompleteMessage();
@@ -71,7 +71,7 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="context"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public async Task Fail(SubscribedContext context, Exception exception)
+        public async Task Fail(InternalSubscribedContext context, Exception exception)
         {
             context.MessageData.Retries++;
             context.MessageData.NotBefore = _clock.UtcNow.AddSeconds(5 * context.MessageData.Retries); // Wait longer between retries.
@@ -98,7 +98,7 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="subscriberId"></param>
         /// <returns></returns>
-        public async Task<SubscribedContext> GetNext(Guid subscriberId)
+        public async Task<InternalSubscribedContext> GetNext(Guid subscriberId)
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.
@@ -141,7 +141,7 @@ namespace PeachtreeBus.Subscriptions
             }
 
             // return the new message context.
-            return new SubscribedContext
+            return new InternalSubscribedContext
             {
                 MessageData = subscriptionMessage,
                 Headers = headers,

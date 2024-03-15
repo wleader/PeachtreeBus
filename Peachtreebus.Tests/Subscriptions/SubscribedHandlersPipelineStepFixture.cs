@@ -18,7 +18,7 @@ namespace Peachtreebus.Tests.Subscriptions
 
         private SubscribedHandlersPipelineStep _testSubject;
         private Mock<IFindSubscribedHandlers> _findSubscribed;
-        private SubscribedContext _context;
+        private InternalSubscribedContext _context;
         
         [TestInitialize]
         public void Initialize()

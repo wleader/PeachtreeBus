@@ -15,8 +15,10 @@ namespace PeachtreeBus.Subscriptions
             _findHandlers = findHandlers;
         }
 
-        public async Task Invoke(SubscribedContext context, Func<SubscribedContext, Task> next)
+        public async Task Invoke(SubscribedContext subscribedcontext, Func<SubscribedContext, Task> next)
         {
+            var context = (InternalSubscribedContext)subscribedcontext;
+
             // determine what type of message it is.
             var messageType = Type.GetType(context.Headers.MessageClass);
             if (messageType == null)

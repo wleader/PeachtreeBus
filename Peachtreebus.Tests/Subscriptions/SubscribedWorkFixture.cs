@@ -67,7 +67,7 @@ namespace Peachtreebus.Tests.Subscriptions
         public async Task DoWork_WhenNoMessage_ThenReturnFalse()
         {
             reader.Setup(r => r.GetNext(It.IsAny<Guid>()))
-                .Returns(Task.FromResult<SubscribedContext>(null));
+                .Returns(Task.FromResult<InternalSubscribedContext>(null));
 
             work.SubscriberId = Guid.NewGuid();
             var result = await work.DoWork();
@@ -116,7 +116,7 @@ namespace Peachtreebus.Tests.Subscriptions
             var result = await work.DoWork();
 
             dataAccess.Verify(d => d.RollbackToSavepoint("BeforeSubscriptionHandler"), Times.Once);
-            reader.Verify(r => r.Fail(It.IsAny<SubscribedContext>(), It.IsAny<Exception>()), Times.Once);
+            reader.Verify(r => r.Fail(It.IsAny<InternalSubscribedContext>(), It.IsAny<Exception>()), Times.Once);
             counters.Verify(c => c.FinishMessage(It.IsAny<DateTime>()), Times.Once);
             Assert.IsTrue(result);
         }
@@ -135,7 +135,7 @@ namespace Peachtreebus.Tests.Subscriptions
             var result = await work.DoWork();
 
             dataAccess.Verify(d => d.RollbackToSavepoint("BeforeSubscriptionHandler"), Times.Once);
-            reader.Verify(r => r.Fail(It.IsAny<SubscribedContext>(), It.IsAny<Exception>()), Times.Once);
+            reader.Verify(r => r.Fail(It.IsAny<InternalSubscribedContext>(), It.IsAny<Exception>()), Times.Once);
             counters.Verify(c => c.FinishMessage(It.IsAny<DateTime>()), Times.Once);
             Assert.IsTrue(result);
         }
@@ -151,7 +151,7 @@ namespace Peachtreebus.Tests.Subscriptions
             var result = await work.DoWork();
 
             dataAccess.Verify(d => d.RollbackToSavepoint("BeforeSubscriptionHandler"), Times.Never);
-            reader.Verify(r => r.Complete(It.IsAny<SubscribedContext>()), Times.Once);
+            reader.Verify(r => r.Complete(It.IsAny<InternalSubscribedContext>()), Times.Once);
             counters.Verify(c => c.FinishMessage(It.IsAny<DateTime>()), Times.Once);
             Assert.IsTrue(result);
         }
@@ -170,7 +170,7 @@ namespace Peachtreebus.Tests.Subscriptions
             var result = await work.DoWork();
 
             dataAccess.Verify(d => d.RollbackToSavepoint("BeforeSubscriptionHandler"), Times.Never);
-            reader.Verify(r => r.Complete(It.IsAny<SubscribedContext>()), Times.Once);
+            reader.Verify(r => r.Complete(It.IsAny<InternalSubscribedContext>()), Times.Once);
             counters.Verify(c => c.FinishMessage(It.IsAny<DateTime>()), Times.Once);
             Assert.IsTrue(result);
         }
@@ -248,9 +248,9 @@ namespace Peachtreebus.Tests.Subscriptions
             CollectionAssert.AreEqual(expected, invocations);
         }
 
-        private SubscribedContext CreateContext()
+        private InternalSubscribedContext CreateContext()
         {
-            return new SubscribedContext()
+            return new InternalSubscribedContext()
             {
                 MessageData = new PeachtreeBus.Model.SubscribedMessage
                 {
@@ -263,9 +263,9 @@ namespace Peachtreebus.Tests.Subscriptions
             };
         }
 
-        private Task<SubscribedContext> CreateContextWithUnrecognizedMessageType()
+        private Task<InternalSubscribedContext> CreateContextWithUnrecognizedMessageType()
         {
-            return Task.FromResult(new SubscribedContext()
+            return Task.FromResult(new InternalSubscribedContext()
             {
                 MessageData = new PeachtreeBus.Model.SubscribedMessage
                 {

@@ -84,7 +84,7 @@ namespace Peachtreebus.Tests.Subscriptions
         public async Task Fail_UpdatesMessage()
         {
             var expectedRetries = (byte)(reader.MaxRetries - 1);
-            var context = new SubscribedContext
+            var context = new InternalSubscribedContext
             {
                 MessageData = new SubscribedMessage
                 {
@@ -114,7 +114,7 @@ namespace Peachtreebus.Tests.Subscriptions
         public async Task Fail_FailsMaxReties()
         {
             var expectedRetries = (byte)(reader.MaxRetries);
-            var context = new SubscribedContext
+            var context = new InternalSubscribedContext
             {
                 MessageData = new SubscribedMessage
                 {
@@ -144,7 +144,7 @@ namespace Peachtreebus.Tests.Subscriptions
         public async Task Complete_Completes()
         {
             var now = clock.Object.UtcNow;
-            var context = new SubscribedContext
+            var context = new InternalSubscribedContext
             {
                 MessageData = new SubscribedMessage
                 {
@@ -320,7 +320,7 @@ namespace Peachtreebus.Tests.Subscriptions
         [TestMethod]
         public async Task Fail_InvokesFailHandlerOnMaxRetries()
         {
-            var context = new SubscribedContext
+            var context = new InternalSubscribedContext
             {
                 MessageData = new SubscribedMessage
                 {
@@ -343,7 +343,7 @@ namespace Peachtreebus.Tests.Subscriptions
         [TestMethod]
         public async Task Fail_DoesNotInvokeFailHandlerBeforeMaxRetries()
         {
-            var context = new SubscribedContext
+            var context = new InternalSubscribedContext
             {
                 MessageData = new SubscribedMessage
                 {
