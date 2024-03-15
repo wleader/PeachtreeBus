@@ -1,24 +1,24 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
+using PeachtreeBus;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Queues
+namespace Peachtreebus.Tests.Subscriptions
 {
     [TestClass]
-    public class QueuePipelineInvokerFixture
+    public class SubscribedPipelineInvokerFixture
     {
         private Mock<IWrappedScopeFactory> _scopeFactory;
         private Mock<ISharedDatabase> _sharedDatabase;
         private Mock<IWrappedScope> _scope;
         private Mock<IShareObjectsBetweenScopes> _provider;
-        private Mock<IQueuePipelineFactory> _pipelineFactory;
-        private Mock<IQueuePipeline> _pipeline;
-        private QueuePipelineInvoker _invoker;
-        private InternalQueueContext _context;
+        private Mock<ISubscribedPipelineFactory> _pipelineFactory;
+        private Mock<ISubscribedPipeline> _pipeline;
+        private SubscribedPipelineInvoker _invoker;
+        private InternalSubscribedContext _context;
 
         [TestInitialize]
         public void Init()
@@ -32,11 +32,11 @@ namespace Peachtreebus.Tests.Queues
 
             _provider = new();
             _provider.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null);
-            
+
             _scope.Setup(s => s.GetInstance<IShareObjectsBetweenScopes>()).Returns(_provider.Object);
 
             _pipelineFactory = new();
-            _scope.Setup(s => s.GetInstance(typeof(IQueuePipelineFactory))).Returns(_pipelineFactory.Object);
+            _scope.Setup(s => s.GetInstance(typeof(ISubscribedPipelineFactory))).Returns(_pipelineFactory.Object);
 
             _pipeline = new();
             _pipelineFactory.Setup(f => f.Build()).Returns(_pipeline.Object);
@@ -49,9 +49,9 @@ namespace Peachtreebus.Tests.Queues
         [TestMethod]
         public async Task When_Invoked_Then_PipelineIsInvoked()
         {
-            
-            _pipeline.Setup(p => p.Invoke(It.IsAny<QueueContext>()))
-                .Callback<QueueContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
+
+            _pipeline.Setup(p => p.Invoke(It.IsAny<SubscribedContext>()))
+                .Callback<SubscribedContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
 
             await _invoker.Invoke(_context);
         }
@@ -108,7 +108,7 @@ namespace Peachtreebus.Tests.Queues
         [ExpectedException(typeof(TestException))]
         public async Task Given_GetPipelineFactoryWillThrow_When_Invoke_ScopeIsDisposed()
         {
-            _scope.Setup(s => s.GetInstance(typeof(IQueuePipelineFactory))).Throws<TestException>();
+            _scope.Setup(s => s.GetInstance(typeof(ISubscribedPipelineFactory))).Throws<TestException>();
             await VerifyScopeDisposedOnException();
         }
 
@@ -124,7 +124,7 @@ namespace Peachtreebus.Tests.Queues
         [ExpectedException(typeof(TestException))]
         public async Task Given_PipelineInvokeWillThrow_When_Invoke_ScopeIsDisposed()
         {
-            _pipeline.Setup(p => p.Invoke(It.IsAny<QueueContext>())).Throws<TestException>();
+            _pipeline.Setup(p => p.Invoke(It.IsAny<SubscribedContext>())).Throws<TestException>();
             await VerifyScopeDisposedOnException();
         }
 
@@ -136,11 +136,11 @@ namespace Peachtreebus.Tests.Queues
             // so that the build pipeline will re-use the shared database.
 
             bool providerSet = false;
-            
+
             _provider.SetupSet(p => p.SharedDatabase = It.IsAny<ISharedDatabase>())
                 .Callback<ISharedDatabase>((db) => providerSet = true);
 
-            _scope.Setup(s => s.GetInstance(typeof(IQueuePipelineFactory)))
+            _scope.Setup(s => s.GetInstance(typeof(ISubscribedPipelineFactory)))
                 .Callback(() => Assert.IsTrue(providerSet))
                 .Returns(_pipelineFactory.Object);
 
