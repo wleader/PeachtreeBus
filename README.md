@@ -3,9 +3,9 @@ A Message Bus Library
 
 ## What's New
 
-### March 15th, 2024
+### March 16th, 2024
 
-Child Scopes Update 0.10.1
+Child Scopes Update 0.10.2
 
 The big change here is that the library was not starting a new Dependency injection scope before building the pipelines and handlers. This meant that the instances of handlers, and pipeline steps, and anything they depended on were not being newly created for each message. This meant that there could be weird side effects because objects were not in freshly initialized states. After this change, a new Dependency Injection scope is used for each message, ensuring that that objects used by handlers and pipeline steps are fresh and clean.
 
