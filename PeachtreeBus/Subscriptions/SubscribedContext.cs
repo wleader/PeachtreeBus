@@ -12,6 +12,11 @@ namespace PeachtreeBus.Subscriptions
         /// The Subscriber that the message was sent to.
         /// </summary>
         public Guid SubscriberId { get; set; }
+
+        /// <summary>
+        /// The message itself.
+        /// </summary>
+        public object Message { get; set; } = default!;
     }
 
     /// <summary>
@@ -29,11 +34,6 @@ namespace PeachtreeBus.Subscriptions
         /// Headers that were stored with the message.
         /// </summary>
         public Headers Headers { get; set; } = new();
-
-        /// <summary>
-        /// The message itself.
-        /// </summary>
-        public object Message { get; set; } = default!;
     }
 
 }

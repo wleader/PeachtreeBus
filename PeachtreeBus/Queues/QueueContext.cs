@@ -13,6 +13,11 @@ namespace PeachtreeBus.Queues
         /// Which Queue the message was read from.
         /// </summary>
         public string SourceQueue { get; set; } = default!;
+
+        /// <summary>
+        /// The message itself.
+        /// </summary>
+        public object Message { get; set; } = default!;
     }
 
     /// <summary>
@@ -26,11 +31,6 @@ namespace PeachtreeBus.Queues
         /// Headers that were stored with the message.
         /// </summary>
         public Headers Headers { get; set; } = new();
-
-        /// <summary>
-        /// The message itself.
-        /// </summary>
-        public object Message { get; set; } = default!;
 
         /// <summary>
         /// The Model of the message as was stored the database.
