@@ -3,6 +3,12 @@ A Message Bus Library
 
 ## What's New
 
+### March 31st, 2024
+
+Easter Update 0.10.3
+
+It turns out that there is a use for the application code to access the message object via the QueueContext and SubscribedContext in pipeline steps. Since the message itself really does belong to the application code, the Message property has been added back to the context objects.
+
 ### March 16th, 2024
 
 Child Scopes Update 0.10.2
