@@ -5,16 +5,13 @@
                 Starting {ThreadName:string} thread.
             </Event>
             <Event name="ThreadStop" level="Information">
-                Thread {ThreadName:string} stopoped.
+                Thread {ThreadName:string} stopped.
             </Event>
             <Event name="ThreadError" level="Error" exception="true">
                 Thread {ThreadName:string} errored.
             </Event>
             <Event name="RollbackFailed" level ="Error" exception="true">
                 Thread {ThreadName:string} failed to roll back its transaction.
-            </Event>
-            <Event name="ResettingDbConnection" level="Information">
-                Resetting the database connection.
             </Event>
         </Class>
     </Namespace>

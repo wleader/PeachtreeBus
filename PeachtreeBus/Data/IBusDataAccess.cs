@@ -42,7 +42,7 @@ namespace PeachtreeBus.Data
         /// Kills the existing transaction and disconnects and reconnects
         /// with the DB Server.
         /// </summary>
-        void Reset();
+        void Reconnect();
 
         /// <summary>
         /// Gets one message, locking it for update.

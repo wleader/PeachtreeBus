@@ -6,7 +6,7 @@ using PeachtreeBus.Data;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests
+namespace PeachtreeBus.Tests
 {
     /// <summary>
     /// Proves the behavior of BaseThread.
@@ -45,8 +45,14 @@ namespace Peachtreebus.Tests
             shutdown = new Mock<IProvideShutdownSignal>();
 
             shutdown.SetupGet(s => s.ShouldShutdown)
-                .Returns(() => loopCount > 0)
-                .Callback(() => loopCount--);
+                .Returns(() => 
+                {
+                    return loopCount < 1;
+                })
+                .Callback(() =>
+                {
+                    loopCount--;
+                });
 
             log = new Mock<ILogger>();
 
@@ -56,7 +62,7 @@ namespace Peachtreebus.Tests
         }
 
         /// <summary>
-        /// Proves the thread loops forever until it recieves the shutdown signal.
+        /// Proves the thread loops forever until it receives the shutdown signal.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
@@ -86,10 +92,12 @@ namespace Peachtreebus.Tests
         [TestMethod]
         public async Task Run_BeginsTransaction()
         {
+            loopCount = 0;
             await testThread.Run();
             dataAccess.Verify(d => d.BeginTransaction(), Times.Once);
 
-            loopCount = 2;
+            dataAccess.Invocations.Clear();
+            loopCount = 1;
             await testThread.Run();
             dataAccess.Verify(d => d.BeginTransaction(), Times.Exactly(2));
         }
@@ -103,10 +111,12 @@ namespace Peachtreebus.Tests
         public async Task Run_CommitsWhenWorkReturnsTrue()
         {
             testThread.UnitOfWorkResult = true;
+            loopCount = 0;
             await testThread.Run();
             dataAccess.Verify(d => d.CommitTransaction(), Times.Once);
 
-            loopCount = 2;
+            dataAccess.Invocations.Clear();
+            loopCount = 1;
             await testThread.Run();
             dataAccess.Verify(d => d.CommitTransaction(), Times.Exactly(2));
         }
@@ -120,10 +130,12 @@ namespace Peachtreebus.Tests
         public async Task Run_RollsBackWhenWorkReturnsFalse()
         {
             testThread.UnitOfWorkResult = false;
+            loopCount = 0;
             await testThread.Run();
             dataAccess.Verify(d => d.RollbackTransaction(), Times.Once);
 
-            loopCount = 2;
+            dataAccess.Invocations.Clear();
+            loopCount = 1;
             await testThread.Run();
             dataAccess.Verify(d => d.RollbackTransaction(), Times.Exactly(2));
         }
@@ -137,10 +149,12 @@ namespace Peachtreebus.Tests
         public async Task Run_RollsBackWhenWorkThrows()
         {
             testThread.Throw = true;
+            loopCount = 0;
             await testThread.Run();
             dataAccess.Verify(d => d.RollbackTransaction(), Times.Once);
 
-            loopCount = 2;
+            dataAccess.Invocations.Clear();
+            loopCount = 1;
             await testThread.Run();
             dataAccess.Verify(d => d.RollbackTransaction(), Times.Exactly(2));
         }
@@ -152,12 +166,37 @@ namespace Peachtreebus.Tests
 
             dataAccess.Setup(d => d.RollbackTransaction()).Throws(new InvalidOperationException("This SqlTransaction has completed; it is no longer usable."));
 
+            loopCount = 1;
             await testThread.Run();
-            dataAccess.Verify(d => d.Reset(), Times.Once);
+            dataAccess.Verify(d => d.Reconnect(), Times.Exactly(2));
 
+            dataAccess.Invocations.Clear();
             loopCount = 2;
             await testThread.Run();
-            dataAccess.Verify(d => d.Reset(), Times.Exactly(2));
+            dataAccess.Verify(d => d.Reconnect(), Times.Exactly(3));
+        }
+
+        [TestMethod]
+        public async Task Run_DoesNotBeginATransaction_When_DbResetThrows()
+        {
+            testThread.Throw = true;
+
+            dataAccess.Setup(d => d.RollbackTransaction()).Throws(new InvalidOperationException("This SqlTransaction has completed; it is no longer usable."));
+            dataAccess.Setup(d => d.Reconnect()).Throws(new InvalidOperationException("Unable to connect to database."));
+            shutdown.SetupGet(s => s.ShouldShutdown).Returns(false);
+
+            int counter = 0;
+            dataAccess.Setup(d => d.Reconnect()).Callback(() =>
+            {
+                counter++;
+                shutdown.SetupGet(s => s.ShouldShutdown).Returns(counter > 1);
+            })
+            .Throws(new InvalidOperationException("Unable to connect to database."));
+
+            await testThread.Run();
+            dataAccess.Verify(d => d.Reconnect(), Times.Exactly(2));
+            dataAccess.Verify(d => d.BeginTransaction(), Times.Never);
+            dataAccess.Verify(d => d.RollbackTransaction(), Times.Exactly(2));
         }
     }
 }

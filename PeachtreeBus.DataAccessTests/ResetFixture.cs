@@ -26,7 +26,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public void Reset_CallsReconnect()
         {
-            _dataAccess.Reset();
+            _dataAccess.Reconnect();
             _sharedDb.Verify(sdb => sdb.Reconnect(), Times.Once());
         }
     }

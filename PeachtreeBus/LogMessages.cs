@@ -6,8 +6,8 @@ using System;
 
 namespace PeachtreeBus
 {
-    public static class GeneratedLoggerMessages
-    {
+	public static class GeneratedLoggerMessages
+	{
         internal static readonly EventId PeachtreeBus_BaseThread_ThreadStart_Event
             = new(1001001, "PeachtreeBus_BaseThread_ThreadStart");
         internal static readonly Action<ILogger, string, Exception> PeachtreeBus_BaseThread_ThreadStart_Action
@@ -25,9 +25,9 @@ namespace PeachtreeBus
         internal static readonly Action<ILogger, string, Exception> PeachtreeBus_BaseThread_ThreadStop_Action
             = LoggerMessage.Define<string>(LogLevel.Information,
                 PeachtreeBus_BaseThread_ThreadStop_Event,
-                "Thread {ThreadName} stopoped.");
+                "Thread {ThreadName} stopped.");
         /// <summary>
-        /// (1001002) Information: Thread {ThreadName} stopoped.
+        /// (1001002) Information: Thread {ThreadName} stopped.
         /// </summary>
         public static void BaseThread_ThreadStop(this ILogger logger, string threadName)
             => PeachtreeBus_BaseThread_ThreadStop_Action(logger, threadName, null!);
@@ -55,18 +55,6 @@ namespace PeachtreeBus
         /// </summary>
         public static void BaseThread_RollbackFailed(this ILogger logger, string threadName, Exception ex)
             => PeachtreeBus_BaseThread_RollbackFailed_Action(logger, threadName, ex);
-
-        internal static readonly EventId PeachtreeBus_BaseThread_ResettingDbConnection_Event
-            = new(1001005, "PeachtreeBus_BaseThread_ResettingDbConnection");
-        internal static readonly Action<ILogger, Exception> PeachtreeBus_BaseThread_ResettingDbConnection_Action
-            = LoggerMessage.Define(LogLevel.Information,
-                PeachtreeBus_BaseThread_ResettingDbConnection_Event,
-                "Resetting the database connection.");
-        /// <summary>
-        /// (1001005) Information: Resetting the database connection.
-        /// </summary>
-        public static void BaseThread_ResettingDbConnection(this ILogger logger)
-            => PeachtreeBus_BaseThread_ResettingDbConnection_Action(logger, null!);
 
         internal static readonly EventId PeachtreeBus_Data_DapperDataAccess_DataAccessError_Event
             = new(2001001, "PeachtreeBus_Data_DapperDataAccess_DataAccessError");
@@ -404,5 +392,5 @@ namespace PeachtreeBus
         public static void SubscribedFailures_MessageFailed(this ILogger logger, Type messageType)
             => PeachtreeBus_Errors_SubscribedFailures_MessageFailed_Action(logger, messageType, null!);
 
-    }
+	}
 }

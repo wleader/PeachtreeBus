@@ -46,11 +46,13 @@ namespace PeachtreeBus
         public async Task Run()
         {
             _log.BaseThread_ThreadStart(_name);
-
             do
             {
                 try
                 {
+                    // while reconnecting sounds expensive, its actually not.
+                    // the SqlClient library code does connection pooling for us.
+                    _dataAccess.Reconnect();
                     _dataAccess.BeginTransaction();
                     if (await DoUnitOfWork())
                     {
@@ -74,8 +76,6 @@ namespace PeachtreeBus
                     catch (Exception rollbackEx)
                     {
                         _log.BaseThread_RollbackFailed(_name, rollbackEx);
-                        _log.BaseThread_ResettingDbConnection();
-                        _dataAccess.Reset();
                     }
                 }
             }
