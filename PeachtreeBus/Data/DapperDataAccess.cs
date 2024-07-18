@@ -46,7 +46,7 @@ namespace PeachtreeBus.Data
         public async Task<long> AddMessage(QueueMessage message, string queueName)
         {
             const string EnqueueMessageStatement =
-                "INSERT INTO [{0}].[{1}_Pending] " +
+                "INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK) " +
                 " ([MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]) " +
                 "VALUES" +
                 " ( @MessageId, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body); " +
@@ -253,7 +253,7 @@ namespace PeachtreeBus.Data
         public async Task Update(QueueMessage message, string queueName)
         {
             const string UpdateMessageStatement =
-                "UPDATE [{0}].[{1}_Pending] SET " +
+                "UPDATE [{0}].[{1}_Pending] WITH (ROWLOCK) SET " +
                 "[NotBefore] = @NotBefore, " +
                 "[Retries] = @Retries, " +
                 "[Headers] = @Headers " +
@@ -302,7 +302,7 @@ namespace PeachtreeBus.Data
         public async Task<long> Insert(SagaData data, string sagaName)
         {
             const string InsertSagaStatement =
-                "INSERT INTO[{0}].[{1}_SagaData]" +
+                "INSERT INTO[{0}].[{1}_SagaData] WITH (ROWLOCK)" +
                 " ([SagaId], [Key], [Data]) " +
                 "VALUES" +
                 " (@SagaId, @Key, @Data); " +
@@ -350,7 +350,7 @@ namespace PeachtreeBus.Data
         public async Task Update(SagaData data, string sagaName)
         {
             const string UpdateSagaStatement =
-                "UPDATE [{0}].[{1}_SagaData] SET" +
+                "UPDATE [{0}].[{1}_SagaData] WITH (ROWLOCK) SET" +
                 " [Data] = @Data " +
                 "WHERE [Id] = @Id";
 
@@ -390,7 +390,7 @@ namespace PeachtreeBus.Data
         public async Task DeleteSagaData(string sagaName, string key)
         {
             const string DeleteSagaStatement =
-                "DELETE FROM [{0}].[{1}_SagaData] WHERE [Key] = @Key";
+                "DELETE FROM [{0}].[{1}_SagaData] WITH (ROWLOCK) WHERE [Key] = @Key";
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -488,7 +488,7 @@ namespace PeachtreeBus.Data
         public async Task ExpireSubscriptions()
         {
             const string ExpireSubscriptionsStatement =
-                "DELETE FROM [{0}].[Subscriptions] WHERE [ValidUntil] < SYSUTCDATETIME()";
+                "DELETE FROM [{0}].[Subscriptions] WITH (ROWLOCK, READPAST) WHERE [ValidUntil] < SYSUTCDATETIME()";
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -523,7 +523,7 @@ namespace PeachtreeBus.Data
                 "    AND [Category] = @Category " +
                 "IF @@ROWCOUNT = 0 " +
                 "BEGIN " +
-                "    INSERT INTO [{0}].[Subscriptions] " +
+                "    INSERT INTO [{0}].[Subscriptions] WITH (ROWLOCK) " +
                 "    ([SubscriberId], [Category], [ValidUntil]) " +
                 "    VALUES " +
                 "    (@SubscriberId, @Category, @ValidUntil); " +
@@ -607,7 +607,7 @@ namespace PeachtreeBus.Data
         public async Task<long> AddMessage(SubscribedMessage message)
         {
             const string EnqueueMessageStatement =
-                "INSERT INTO [{0}].[Subscribed_Pending] " +
+                "INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)" +
                 " ([MessageId], [SubscriberId], [ValidUntil], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]) " +
                 "VALUES" +
                 " ( @MessageId, @SubscriberId, @ValidUntil, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body); " +
@@ -782,7 +782,7 @@ namespace PeachtreeBus.Data
         public async Task Update(SubscribedMessage message)
         {
             const string UpdateMessageStatement =
-                "UPDATE[{0}].[Subscribed_Pending] SET " +
+                "UPDATE[{0}].[Subscribed_Pending] WITH (ROWLOCK) SET " +
                 "[NotBefore] = @NotBefore, " +
                 "[Retries] = @Retries, " +
                 "[Headers] = @Headers " +
@@ -831,7 +831,7 @@ namespace PeachtreeBus.Data
                 "DECLARE " +
                 "  @Now DATETIME2;" +
                 " SELECT @Now = SYSUTCDATETIME();" +
-                " INSERT INTO [{0}].[Subscribed_Failed]" +
+                " INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)" +
                 "  ([Id], [MessageId], [SubscriberId], [ValidUntil], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]) " +
                 " SELECT [Id], [MessageId], [SubscriberId], [ValidUntil], [NotBefore], [Enqueued], [Completed], @Now, [Retries], [Headers], [Body] " +
                 "  FROM [{0}].[Subscribed_Pending]" +
@@ -865,7 +865,7 @@ namespace PeachtreeBus.Data
         {
             const string GetStatement =
                 "SELECT [SubscriberId]" +
-                " FROM [{0}].[Subscriptions]" +
+                " FROM [{0}].[Subscriptions] WITH (READPAST)" +
                 " WHERE [Category] = @Category" +
                 " AND [ValidUntil] > SYSUTCDATETIME()";
 
@@ -898,7 +898,7 @@ namespace PeachtreeBus.Data
         public async Task<long> CleanSubscribedCompleted(DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
-                "DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Completed] " +
+                "DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Completed] WITH (ROWLOCK, READPAST)" +
                 "WHERE Completed < @OlderThan; " +
                 "SELECT @@ROWCOUNT; ";
 
@@ -932,7 +932,7 @@ namespace PeachtreeBus.Data
         public async Task<long> CleanSubscribedFailed(DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
-                "DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Failed] " +
+                "DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Failed] WITH (ROWLOCK, READPAST) " +
                 "WHERE Failed < @OlderThan; " +
                 "SELECT @@ROWCOUNT; ";
 
@@ -967,7 +967,7 @@ namespace PeachtreeBus.Data
         public async Task<long> CleanQueueCompleted(string queueName, DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
-                "DELETE TOP (@MaxCount) FROM [{0}].[{1}_Completed] " +
+                "DELETE TOP (@MaxCount) FROM [{0}].[{1}_Completed] WITH (ROWLOCK, READPAST) " +
                 "WHERE Completed < @OlderThan; " +
                 "SELECT @@ROWCOUNT; ";
 
@@ -1004,7 +1004,7 @@ namespace PeachtreeBus.Data
         public async Task<long> CleanQueueFailed(string queueName, DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
-                "DELETE TOP (@MaxCount) FROM [{0}].[{1}_Failed] " +
+                "DELETE TOP (@MaxCount) FROM [{0}].[{1}_Failed] WITH (ROWLOCK, READPAST) " +
                 "WHERE Failed < @OlderThan; " +
                 "SELECT @@ROWCOUNT; ";
 
