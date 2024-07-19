@@ -150,7 +150,6 @@ namespace PeachtreeBus.DataAccessTests
             ExecuteNonQuery($"UPDATE [{DefaultSchema}].[{QueuePendingTable}] SET [Failed] = SYSUTCDATETIME() WHERE [Id] = {testMessage.Id}");
             await Task.Delay(10); // wait for the rows to be ready
 
-
             var actual = await dataAccess.GetPendingQueued(DefaultQueue);
             Assert.IsNull(actual);
         }

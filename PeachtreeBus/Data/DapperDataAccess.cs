@@ -46,11 +46,13 @@ namespace PeachtreeBus.Data
         public async Task<long> AddMessage(QueueMessage message, string queueName)
         {
             const string EnqueueMessageStatement =
-                "INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK) " +
-                " ([MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]) " +
-                "VALUES" +
-                " ( @MessageId, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body); " +
-                "SELECT SCOPE_IDENTITY()";
+                """
+                INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK)
+                ([MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                OUTPUT INSERTED.[Id]
+                VALUES
+                (@MessageId, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -79,7 +81,7 @@ namespace PeachtreeBus.Data
 
             try
             {
-                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+                return message.Id = await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
             }
             catch (Exception ex)
             {
@@ -102,12 +104,13 @@ namespace PeachtreeBus.Data
             // NotBefore so we don't get messages that are scheduled for the future.
             // Completed and Failed are null means not previously processed and not previously exceeded retry count.
             const string GetOnePendingMessageStatement =
-                "SELECT TOP 1 *" +
-                " FROM[{0}].[{1}_Pending]" +
-                " WITH(UPDLOCK, READPAST, ROWLOCK)" +
-                " WHERE NotBefore < SYSUTCDATETIME()" +
-                "  AND Completed IS NULL " +
-                "  AND Failed IS NULL";
+                """
+                SELECT TOP 1 [Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
+                FROM[{0}].[{1}_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
+                WHERE NotBefore < SYSUTCDATETIME()
+                AND Completed IS NULL 
+                AND Failed IS NULL
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -139,11 +142,12 @@ namespace PeachtreeBus.Data
         {
             const string CompleteMessageStatement =
                 """
-                INSERT INTO [{0}].[{1}_Completed] WITH (ROWLOCK)  
-                SELECT D.[Id], D.[MessageId], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body] FROM
-                    (DELETE FROM [{0}].[{1}_Pending] WITH (ROWLOCK)
-                        OUTPUT DELETED.*
-                        WHERE [Id] = @Id) D
+                INSERT INTO [{0}].[{1}_Completed] WITH (ROWLOCK) 
+                ([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[MessageId], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body]
+                FROM (DELETE FROM [{0}].[{1}_Pending] WITH (ROWLOCK)
+                      OUTPUT DELETED.*
+                      WHERE [Id] = @Id) D
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -185,10 +189,11 @@ namespace PeachtreeBus.Data
             const string FailMessageStatement =
                 """
                 INSERT INTO [{0}].[{1}_Failed] WITH (ROWLOCK)  
-                SELECT D.[Id], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body] FROM
-                    (DELETE FROM [{0}].[{1}_Pending] WITH (ROWLOCK)
-                        OUTPUT DELETED.*
-                        WHERE [Id] = @Id) D
+                ([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body]
+                FROM (DELETE FROM [{0}].[{1}_Pending] WITH (ROWLOCK)
+                      OUTPUT DELETED.*
+                      WHERE [Id] = @Id) D
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -228,11 +233,13 @@ namespace PeachtreeBus.Data
         public async Task Update(QueueMessage message, string queueName)
         {
             const string UpdateMessageStatement =
-                "UPDATE [{0}].[{1}_Pending] WITH (ROWLOCK) SET " +
-                "[NotBefore] = @NotBefore, " +
-                "[Retries] = @Retries, " +
-                "[Headers] = @Headers " +
-                "WHERE [Id] = @Id";
+                """
+                UPDATE [{0}].[{1}_Pending] WITH (ROWLOCK) SET
+                [NotBefore] = @NotBefore,
+                [Retries] = @Retries,
+                [Headers] = @Headers
+                WHERE [Id] = @Id
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -277,11 +284,13 @@ namespace PeachtreeBus.Data
         public async Task<long> Insert(SagaData data, string sagaName)
         {
             const string InsertSagaStatement =
-                "INSERT INTO[{0}].[{1}_SagaData] WITH (ROWLOCK)" +
-                " ([SagaId], [Key], [Data]) " +
-                "VALUES" +
-                " (@SagaId, @Key, @Data); " +
-                "SELECT SCOPE_IDENTITY()";
+                """
+                INSERT INTO[{0}].[{1}_SagaData] WITH (ROWLOCK)
+                ([SagaId], [Key], [Data])
+                OUTPUT INSERTED.[Id]
+                VALUES
+                (@SagaId, @Key, @Data)
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -325,9 +334,11 @@ namespace PeachtreeBus.Data
         public async Task Update(SagaData data, string sagaName)
         {
             const string UpdateSagaStatement =
-                "UPDATE [{0}].[{1}_SagaData] WITH (ROWLOCK) SET" +
-                " [Data] = @Data " +
-                "WHERE [Id] = @Id";
+                """
+                UPDATE [{0}].[{1}_SagaData] WITH (ROWLOCK) SET
+                [Data] = @Data
+                WHERE [Id] = @Id
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -365,7 +376,10 @@ namespace PeachtreeBus.Data
         public async Task DeleteSagaData(string sagaName, string key)
         {
             const string DeleteSagaStatement =
-                "DELETE FROM [{0}].[{1}_SagaData] WITH (ROWLOCK) WHERE [Key] = @Key";
+                """
+                DELETE FROM [{0}].[{1}_SagaData] WITH (ROWLOCK)
+                WHERE [Key] = @Key
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -398,39 +412,53 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentException"></exception>
         public async Task<SagaData?> GetSagaData(string sagaName, string key)
         {
+            // This is a multi-step operation.
+            // First we try to select and lock the target row into variables with an UPDLOCK and NOWAIT.
+            // If the first select locked the row, 
+            //      The @@ROWCOUNT will be 1, and we can return the selected data.
+            // If the first select could not lock the row,
+            //      The @@ROWCOUNT will be 0. It could be because another thread has locked it,
+            //      or the row doesn't exist. To Determine if the row exists, we select again with only the
+            //      NOWAIT hint.
+            // If the second select succeeds, then it means that another thread has locked it, and we can return
+            //      a result with Bockled as 1 (true).
+            // If the second select throws,
+            //      it means that the row really is locked by someone else.
+            // If any select fails with error 1222, then the row is locked by someone else
+            //      return a blocked result.
             const string GetSagaDataStatement =
-                "DECLARE" +
-                " @Id bigint," +
-                " @SagaId uniqueidentifier," +
-                " @Data nvarchar(max) " +
-                "BEGIN TRY" +
-                // First Select into variables, and try to get an update lock.
-                // NOWAIT hint means it will go straight to CATCH if the row is locked.
-                "  SELECT" +
-                "    @Id = [Id], @SagaId = [SagaId], @Data = [Data]" +
-                "  FROM [{0}].[{1}_SagaData] WITH (NOWAIT, UPDLOCK, ROWLOCK)" +
-                "  WHERE[Key] = @Key" +
+                """
+                DECLARE
+                    @Id bigint,
+                    @SagaId uniqueidentifier,
+                    @Data nvarchar(max)
+                BEGIN TRY
+                    SELECT @Id = [Id],
+                           @SagaId = [SagaId],
+                           @Data = [Data]
+                        FROM [{0}].[{1}_SagaData] WITH (NOWAIT, UPDLOCK, ROWLOCK)
+                        WHERE[Key] = @Key
 
-                "  IF @@ROWCOUNT > 0" +
-                //   A row was selected, so we got the data and locked it for ourselves
-                //   return the data and note that the saga is not blocked.
-                "    SELECT @Id as [Id], @SagaId as [SagaId], @Key as [Key], @Data as [Data], 0 as [Blocked]" +
-                "  ELSE" +
-                //   A row was not selected. but we can't be sure if it was because of a lock (NOWAIT is screwy)
-                //   So select the data without trying to get an update lock, either we will select the data, but blocked will be true,
-                //   or we will get no rows (because the row doesn't exist, which is ok if the saga is about to be started.)
-                "    SELECT [Id], [SagaId], [Key], [Data], 1 as [Blocked]" +
-                "    FROM [{0}].[{1}_SagaData] WITH (NOWAIT)" +
-                "    WHERE [Key] = @Key " +
-                "END TRY " +
-                "BEGIN CATCH" +
-                // If any of the above selects failed, we can assume the saga is locked and return a row with blocked true.
-                // Which will signal the message processor to delay and retry.
-                // 1222 = "Lock request time out period exceeded." which is the error we want to handle by reporting that the row is blocked.
-                // everything else should throw.
-                "  IF (ERROR_NUMBER() != 1222) THROW; " +
-                "  SELECT -1 as [Id], CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000') as [SagaId], @Key as [Key], '' as [Data], 1 as [Blocked] " +
-                "END CATCH ";
+                    IF @@ROWCOUNT > 0
+                        SELECT @Id as [Id],
+                               @SagaId as [SagaId],
+                               @Key as [Key],
+                               @Data as [Data],
+                               0 as [Blocked]
+                    ELSE
+                        SELECT [Id], [SagaId], [Key], [Data], 1 as [Blocked]
+                            FROM [{0}].[{1}_SagaData] WITH (NOWAIT)
+                            WHERE [Key] = @Key
+                END TRY
+                BEGIN CATCH
+                    IF (ERROR_NUMBER() != 1222) THROW
+                    SELECT -1 as [Id],
+                           CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000') as [SagaId],
+                           @Key as [Key],
+                           '' as [Data],
+                           1 as [Blocked]
+                END CATCH
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -463,7 +491,10 @@ namespace PeachtreeBus.Data
         public async Task ExpireSubscriptions()
         {
             const string ExpireSubscriptionsStatement =
-                "DELETE FROM [{0}].[Subscriptions] WITH (ROWLOCK, READPAST) WHERE [ValidUntil] < SYSUTCDATETIME()";
+                """
+                DELETE FROM [{0}].[Subscriptions] WITH (ROWLOCK, READPAST)
+                WHERE [ValidUntil] < SYSUTCDATETIME()
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -492,17 +523,19 @@ namespace PeachtreeBus.Data
         public async Task Subscribe(Guid subscriberId, string category, DateTime until)
         {
             const string SubscribeStatement =
-                "UPDATE [{0}].[Subscriptions] WITH (UPDLOCK, SERIALIZABLE) " +
-                "    SET [ValidUntil] = @ValidUntil " +
-                "    WHERE [SubscriberId] = @SubscriberId " +
-                "    AND [Category] = @Category " +
-                "IF @@ROWCOUNT = 0 " +
-                "BEGIN " +
-                "    INSERT INTO [{0}].[Subscriptions] WITH (ROWLOCK) " +
-                "    ([SubscriberId], [Category], [ValidUntil]) " +
-                "    VALUES " +
-                "    (@SubscriberId, @Category, @ValidUntil); " +
-                "END";
+                """
+                UPDATE [{0}].[Subscriptions] WITH (UPDLOCK, SERIALIZABLE)
+                    SET [ValidUntil] = @ValidUntil
+                    WHERE [SubscriberId] = @SubscriberId
+                    AND [Category] = @Category
+                IF @@ROWCOUNT = 0
+                BEGIN
+                    INSERT INTO [{0}].[Subscriptions] WITH (ROWLOCK)
+                    ([SubscriberId], [Category], [ValidUntil])
+                    VALUES
+                    (@SubscriberId, @Category, @ValidUntil)
+                END
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -542,13 +575,14 @@ namespace PeachtreeBus.Data
             // NotBefore so we don't get messages that are scheduled for the future.
             // Completed and Failed are null means not previously processed and not previously exceeded retry count.
             const string statement =
-                "SELECT TOP 1 *" +
-                " FROM[{0}].[Subscribed_Pending]" +
-                " WITH(UPDLOCK, READPAST, ROWLOCK)" +
-                " WHERE NotBefore < SYSUTCDATETIME()" +
-                "  AND SubscriberId = @SubscriberId" +
-                "  AND Completed IS NULL " +
-                "  AND Failed IS NULL";
+                """
+                SELECT TOP 1 [Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
+                    FROM[{0}].[Subscribed_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
+                    WHERE NotBefore < SYSUTCDATETIME()
+                    AND SubscriberId = @SubscriberId
+                    AND Completed IS NULL
+                    AND Failed IS NULL
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -582,11 +616,13 @@ namespace PeachtreeBus.Data
         public async Task<long> AddMessage(SubscribedMessage message)
         {
             const string EnqueueMessageStatement =
-                "INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)" +
-                " ([MessageId], [SubscriberId], [ValidUntil], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]) " +
-                "VALUES" +
-                " ( @MessageId, @SubscriberId, @ValidUntil, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body); " +
-                "SELECT SCOPE_IDENTITY()";
+                """
+                INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
+                ([SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                OUTPUT INSERTED.[Id]
+                VALUES
+                (@SubscriberId, @ValidUntil, @MessageId,@NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -621,7 +657,7 @@ namespace PeachtreeBus.Data
 
             try
             {
-                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+                return message.Id = await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
             }
             catch (Exception ex)
             {
@@ -641,7 +677,8 @@ namespace PeachtreeBus.Data
         {
             const string completeStatement =
                 """
-                INSERT INTO [{0}].[Subscribed_Completed] WITH (ROWLOCK)  
+                INSERT INTO [{0}].[Subscribed_Completed] WITH (ROWLOCK)
+                ([Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
                 SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
@@ -684,6 +721,7 @@ namespace PeachtreeBus.Data
             const string FailMessageStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)  
+                ([Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
                 SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
@@ -724,11 +762,13 @@ namespace PeachtreeBus.Data
         public async Task Update(SubscribedMessage message)
         {
             const string UpdateMessageStatement =
-                "UPDATE[{0}].[Subscribed_Pending] WITH (ROWLOCK) SET " +
-                "[NotBefore] = @NotBefore, " +
-                "[Retries] = @Retries, " +
-                "[Headers] = @Headers " +
-                "WHERE [Id] = @Id";
+                """
+                UPDATE[{0}].[Subscribed_Pending] WITH (ROWLOCK)
+                SET [NotBefore] = @NotBefore,
+                    [Retries] = @Retries,
+                    [Headers] = @Headers
+                WHERE [Id] = @Id
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -772,6 +812,7 @@ namespace PeachtreeBus.Data
             const string ExpireStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)
+                ([Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
                 SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
@@ -803,10 +844,12 @@ namespace PeachtreeBus.Data
         public async Task<IEnumerable<Guid>> GetSubscribers(string category)
         {
             const string GetStatement =
-                "SELECT [SubscriberId]" +
-                " FROM [{0}].[Subscriptions] WITH (READPAST)" +
-                " WHERE [Category] = @Category" +
-                " AND [ValidUntil] > SYSUTCDATETIME()";
+                """
+                SELECT [SubscriberId]
+                    FROM [{0}].[Subscriptions] WITH (READPAST)
+                    WHERE [Category] = @Category
+                    AND [ValidUntil] > SYSUTCDATETIME()
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -837,9 +880,12 @@ namespace PeachtreeBus.Data
         public async Task<long> CleanSubscribedCompleted(DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
-                "DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Completed] WITH (ROWLOCK, READPAST)" +
-                "WHERE Completed < @OlderThan; " +
-                "SELECT @@ROWCOUNT; ";
+                """
+                DELETE TOP (@MaxCount) 
+                    FROM [{0}].[Subscribed_Completed] WITH (ROWLOCK, READPAST)
+                    WHERE Completed < @OlderThan
+                SELECT @@ROWCOUNT
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -871,9 +917,12 @@ namespace PeachtreeBus.Data
         public async Task<long> CleanSubscribedFailed(DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
-                "DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Failed] WITH (ROWLOCK, READPAST) " +
-                "WHERE Failed < @OlderThan; " +
-                "SELECT @@ROWCOUNT; ";
+                """
+                DELETE TOP (@MaxCount) 
+                    FROM [{0}].[Subscribed_Failed] WITH (ROWLOCK, READPAST)
+                    WHERE Failed < @OlderThan
+                SELECT @@ROWCOUNT
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -906,9 +955,11 @@ namespace PeachtreeBus.Data
         public async Task<long> CleanQueueCompleted(string queueName, DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
-                "DELETE TOP (@MaxCount) FROM [{0}].[{1}_Completed] WITH (ROWLOCK, READPAST) " +
-                "WHERE Completed < @OlderThan; " +
-                "SELECT @@ROWCOUNT; ";
+                """
+                DELETE TOP (@MaxCount) FROM [{0}].[{1}_Completed] WITH (ROWLOCK, READPAST)
+                    WHERE Completed < @OlderThan
+                SELECT @@ROWCOUNT
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
@@ -943,9 +994,11 @@ namespace PeachtreeBus.Data
         public async Task<long> CleanQueueFailed(string queueName, DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
-                "DELETE TOP (@MaxCount) FROM [{0}].[{1}_Failed] WITH (ROWLOCK, READPAST) " +
-                "WHERE Failed < @OlderThan; " +
-                "SELECT @@ROWCOUNT; ";
+                """
+                DELETE TOP (@MaxCount) FROM [{0}].[{1}_Failed] WITH (ROWLOCK, READPAST)
+                    WHERE Failed < @OlderThan
+                SELECT @@ROWCOUNT
+                """;
 
             if (IsUnsafe(_schemaConfig.Schema))
                 throw new ArgumentException(SchemaUnsafe);
