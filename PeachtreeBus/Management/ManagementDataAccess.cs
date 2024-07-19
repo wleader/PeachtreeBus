@@ -97,28 +97,11 @@ namespace PeachtreeBus.Management
         {
             const string CancelPendingQueuedStatement =
                 """
-                DECLARE
-                    @MessageId UNIQUEIDENTIFIER,
-                    @NotBefore DATETIME2,
-                    @Enqueued DATETIME2,
-                    @Retries TINYINT,
-                    @Body NVARCHAR(MAX),
-                    @Headers NVARCHAR(MAX);
-                SELECT 
-                    @MessageId = [MessageId],
-                    @Enqueued = [Enqueued],
-                    @Retries = [Retries],
-                    @Body = [Body],
-                    @NotBefore = [NotBefore],
-                    @Headers = [Headers]
-                    FROM [{0}].[{1}_Pending]
-                    WHERE [Id] = @Id;
-                INSERT INTO [{0}].[{1}_Failed]
-                    ([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                    VALUES
-                    (@Id, @MessageId, @NotBefore, @Enqueued, NULL, SYSUTCDATETIME(), @Retries, @Headers, @Body);
-                DELETE FROM [{0}].[{1}_Pending]
-                    WHERE [Id] = @Id;
+                INSERT INTO [{0}].[{1}_Failed] WITH (ROWLOCK)  
+                SELECT D.[Id], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
+                    (DELETE FROM [{0}].[{1}_Pending] WITH (ROWLOCK)
+                        OUTPUT DELETED.*
+                        WHERE [Id] = @Id) D
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -146,32 +129,11 @@ namespace PeachtreeBus.Management
         {
             const string CancelPendingSubscribedStatement =
                 """
-                DECLARE
-                    @SubscriberId UNIQUEIDENTIFIER,
-                    @ValidUntil DATETIME2,
-                    @MessageId UNIQUEIDENTIFIER,
-                    @NotBefore DATETIME2,
-                    @Enqueued DATETIME2,
-                    @Retries TINYINT,
-                    @Body NVARCHAR(MAX),
-                    @Headers NVARCHAR(MAX);
-                SELECT 
-                    @SubscriberId = [SubscriberId],
-                    @ValidUntil = [ValidUntil],
-                    @MessageId = [MessageId],
-                    @Enqueued = [Enqueued],
-                    @Retries = [Retries],
-                    @Body = [Body],
-                    @NotBefore = [NotBefore],
-                    @Headers = [Headers]
-                    FROM [{0}].[Subscribed_Pending]
-                    WHERE [Id] = @Id;
-                INSERT INTO [{0}].[Subscribed_Failed]
-                    ([Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                    VALUES
-                    (@Id, @SubscriberId, @ValidUntil, @MessageId, @NotBefore, @Enqueued, NULL, SYSUTCDATETIME(), @Retries, @Headers, @Body);
-                DELETE FROM [{0}].[Subscribed_Pending]
-                    WHERE [Id] = @Id;
+                INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)  
+                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
+                    (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
+                        OUTPUT DELETED.*
+                        WHERE [Id] = @Id) D
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -197,28 +159,11 @@ namespace PeachtreeBus.Management
         {
             const string RetryFailedQueuedStatement =
                 """
-                DECLARE
-                    @MessageId UNIQUEIDENTIFIER,
-                    @NotBefore DATETIME2,
-                    @Enqueued DATETIME2,
-                    @Retries TINYINT,
-                    @Body NVARCHAR(MAX),
-                    @Headers NVARCHAR(MAX);
-                SELECT 
-                    @MessageId = [MessageId],
-                    @Enqueued = [Enqueued],
-                    @Retries = [Retries],
-                    @Body = [Body],
-                    @NotBefore = [NotBefore],
-                    @Headers = [Headers]
-                    FROM [{0}].[{1}_Failed]
-                    WHERE [Id] = @Id;
-                INSERT INTO [{0}].[{1}_Pending]
-                    ([MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                    VALUES
-                    (@MessageId, @NotBefore, @Enqueued, NULL, NULL, 0, @Headers, @Body);
-                DELETE FROM [{0}].[{1}_Failed]
-                    WHERE [Id] = @Id;
+                INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK)  
+                SELECT D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, NULL, 0, D.[Headers], D.[Body] FROM
+                    (DELETE FROM [{0}].[{1}_Failed] WITH (ROWLOCK)
+                        OUTPUT DELETED.*
+                        WHERE [Id] = @Id) D
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -245,33 +190,12 @@ namespace PeachtreeBus.Management
         public async Task RetryFailedSubscribedMessage(long id)
         {
             const string RetryFailedSubscribedStatement =
-            """
-                DECLARE
-                    @SubscriberId UNIQUEIDENTIFIER,
-                    @ValidUntil DATETIME2,
-                    @MessageId UNIQUEIDENTIFIER,
-                    @NotBefore DATETIME2,
-                    @Enqueued DATETIME2,
-                    @Retries TINYINT,
-                    @Body NVARCHAR(MAX),
-                    @Headers NVARCHAR(MAX);
-                SELECT 
-                    @SubscriberId = [SubscriberId],
-                    @ValidUntil = [ValidUntil],
-                    @MessageId = [MessageId],
-                    @Enqueued = [Enqueued],
-                    @Retries = [Retries],
-                    @Body = [Body],
-                    @NotBefore = [NotBefore],
-                    @Headers = [Headers]
-                    FROM [{0}].[Subscribed_Failed]
-                    WHERE [Id] = @Id;
-                INSERT INTO [{0}].[Subscribed_Pending]
-                    ([SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                    VALUES
-                    (@SubscriberId, @ValidUntil, @MessageId, @NotBefore, @Enqueued, NULL, NULL, 0, @Headers, @Body);
-                DELETE FROM [{0}].[Subscribed_Failed]
-                    WHERE [Id] = @Id;
+                """
+                INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)  
+                SELECT D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, NULL, 0, D.[Headers], D.[Body] FROM
+                    (DELETE FROM [{0}].[Subscribed_Failed] WITH (ROWLOCK)
+                        OUTPUT DELETED.*
+                        WHERE [Id] = @Id) D
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
