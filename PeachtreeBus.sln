@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		PeachtreeBus.nuspec = PeachtreeBus.nuspec
 		PeachtreeBus.SimpleInjector.nuspec = PeachtreeBus.SimpleInjector.nuspec
 		README.md = README.md
+		WhatsOld.md = WhatsOld.md
 	EndProjectSection
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PeachtreeBus.Database", "PeachtreeBus.Database\PeachtreeBus.Database.sqlproj", "{F702DCFC-9C33-425E-AE7D-84F340A75EC8}"
@@ -38,7 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{DE1CE708-C
 		Docs\README.md = Docs\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseSharing.Tests", "PeachtreeBus.DatabaseSharing.Tests\PeachtreeBus.DatabaseSharing.Tests.csproj", "{CF2D1C04-78BD-406F-9BB7-70ED8D6216CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.DatabaseSharing.Tests", "PeachtreeBus.DatabaseSharing.Tests\PeachtreeBus.DatabaseSharing.Tests.csproj", "{CF2D1C04-78BD-406F-9BB7-70ED8D6216CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
