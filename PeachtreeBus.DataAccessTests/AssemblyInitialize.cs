@@ -9,7 +9,7 @@ using System.Linq;
 namespace PeachtreeBus.DataAccessTests
 {
     [TestClass]
-    class AssemblyInitialize
+    public class AssemblyInitialize
     {
         private static readonly string serverConnectionString;
         public static string dbConnectionString;
