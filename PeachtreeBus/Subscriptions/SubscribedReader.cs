@@ -137,7 +137,8 @@ namespace PeachtreeBus.Subscriptions
                 MessageData = subscriptionMessage,
                 Headers = headers,
                 Message = message,
-                SubscriberId = subscriberId
+                SubscriberId = subscriberId,
+                MessageId = subscriptionMessage.MessageId,
             };
         }
     }

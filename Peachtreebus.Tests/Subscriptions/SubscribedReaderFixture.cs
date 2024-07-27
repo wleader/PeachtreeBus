@@ -190,11 +190,12 @@ namespace Peachtreebus.Tests.Subscriptions
             serializer.Setup(s => s.DeserializeMessage(It.IsAny<string>(), typeof(TestSagaMessage1)))
                 .Returns(expectedUserMessage);
 
-            var message = await reader.GetNext(subscriberId);
-            Assert.IsNotNull(message);
-            Assert.IsTrue(ReferenceEquals(expectedMessage, message.MessageData));
-            Assert.IsTrue(ReferenceEquals(expectedHeaders, message.Headers));
-            Assert.IsTrue(ReferenceEquals(expectedUserMessage, message.Message));
+            var context = await reader.GetNext(subscriberId);
+            Assert.IsNotNull(context);
+            Assert.IsTrue(ReferenceEquals(expectedMessage, context.MessageData));
+            Assert.IsTrue(ReferenceEquals(expectedHeaders, context.Headers));
+            Assert.IsTrue(ReferenceEquals(expectedUserMessage, context.Message));
+            Assert.AreEqual(expectedMessage.MessageId, context.MessageId);
         }
 
         /// <summary>

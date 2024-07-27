@@ -456,7 +456,8 @@ namespace Peachtreebus.Tests.Queues
 
             var expectedQueueMessage = new QueueMessage
             {
-                Headers = "{ \"MessageClass\":\"" + messageClass + "\"}"
+                Headers = "{ \"MessageClass\":\"" + messageClass + "\"}",
+                MessageId = Guid.NewGuid()
             };
 
             var expectedHeaders = new Headers
@@ -483,6 +484,7 @@ namespace Peachtreebus.Tests.Queues
             Assert.IsTrue(ReferenceEquals(expectedUserMessage, context.Message));
             Assert.AreEqual("SourceQueue", context.SourceQueue);
             Assert.IsFalse(context.SagaBlocked);
+            Assert.AreEqual(expectedQueueMessage.MessageId, context.MessageId);
         }
 
         /// <summary>

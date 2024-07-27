@@ -136,6 +136,7 @@ namespace PeachtreeBus.Queues
             // return the new message context.
             return new InternalQueueContext
             {
+                MessageId = queueMessage.MessageId,
                 MessageData = queueMessage,
                 Headers = headers,
                 Message = message,

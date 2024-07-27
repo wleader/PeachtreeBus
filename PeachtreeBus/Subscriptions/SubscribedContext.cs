@@ -17,6 +17,11 @@ namespace PeachtreeBus.Subscriptions
         /// The message itself.
         /// </summary>
         public object Message { get; set; } = default!;
+
+        /// <summary>
+        /// A unique Id for the message.
+        /// </summary>
+        public Guid MessageId { get; set; }
     }
 
     /// <summary>
