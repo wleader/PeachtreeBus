@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus</id>
-        <version>0.10.4</version>
+        <version>0.10.5</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>The SQL Performance Release</releaseNotes>
+        <releaseNotes>Connect On Demand Release</releaseNotes>
         <description>
         PeachtreeBus is intended to be a light weight message bus system focused integration with SQL server for its transport and persistence, while playing nicely with applications built using Inversion of Control and Dependency Injection.
         </description>

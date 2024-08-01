@@ -55,6 +55,13 @@ namespace Peachtreebus.Tests.Subscriptions
 
             await _invoker.Invoke(_context);
         }
+        
+        [TestMethod]
+        public async Task When_Invoked_Then_ContextScopeIsSet()
+        {
+            await _invoker.Invoke(_context);
+            Assert.AreSame(_scope.Object, _context.Scope);
+        }
 
         [TestMethod]
         public async Task When_Invoked_Then_SharedDatabaseRefusesDispose()

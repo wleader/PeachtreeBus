@@ -57,6 +57,13 @@ namespace Peachtreebus.Tests.Queues
         }
 
         [TestMethod]
+        public async Task When_Invoked_Then_ContextScopeIsSet()
+        {
+            await _invoker.Invoke(_context);
+            Assert.AreSame(_scope.Object, _context.Scope);
+        }
+
+        [TestMethod]
         public async Task When_Invoked_Then_SharedDatabaseRefusesDispose()
         {
             // ensure that the shared database does not get disposed by the inner scope.

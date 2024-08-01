@@ -16,3 +16,4 @@
 *.dbmdl
 *.nupkg
 nuget.exe
+*.user

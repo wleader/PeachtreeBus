@@ -69,7 +69,12 @@ namespace PeachtreeBus.DataAccessTests
             SecondaryConnection.Open();
 
             // create the data access object.
-            _connectionFactory.Setup(f => f.GetConnection()).Returns(PrimaryConnection);
+            _connectionFactory.Setup(f => f.GetConnection()).Returns(() =>
+            {
+                if (PrimaryConnection.Disposed) 
+                    PrimaryConnection = new SqlConnectionProxy(AssemblyInitialize.dbConnectionString);
+                return PrimaryConnection;
+            });
             SharedDB = new SharedDatabase(_connectionFactory.Object);
 
             MockSchema = new Mock<IDbSchemaConfiguration>();

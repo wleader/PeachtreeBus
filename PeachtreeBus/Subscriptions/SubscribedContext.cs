@@ -6,22 +6,12 @@ namespace PeachtreeBus.Subscriptions
     /// Stores contextual data about the subscription message being handled,
     /// that may be useful to application code.
     /// </summary>
-    public class SubscribedContext
+    public class SubscribedContext : BaseContext
     {
         /// <summary>
         /// The Subscriber that the message was sent to.
         /// </summary>
         public Guid SubscriberId { get; set; }
-
-        /// <summary>
-        /// The message itself.
-        /// </summary>
-        public object Message { get; set; } = default!;
-
-        /// <summary>
-        /// A unique Id for the message.
-        /// </summary>
-        public Guid MessageId { get; set; }
     }
 
     /// <summary>

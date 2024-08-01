@@ -12,6 +12,7 @@ namespace PeachtreeBus.Pipelines
         IWrappedScopeFactory scopeFactory,
         ISharedDatabase sharedDatabase)
         : IPipelineInvoker<TContext>
+        where TContext : BaseContext
         where TPipeline : IPipeline<TContext>
         where TFactory : IPipelineFactory<TContext, TPipeline>
     {
@@ -49,6 +50,8 @@ namespace PeachtreeBus.Pipelines
             var scope = _scopeFactory.Create();
             try
             {
+                context.Scope = scope;
+
                 // pass the database connection to the scope.
                 var sharedDbProvider = scope.GetInstance<IShareObjectsBetweenScopes>();
                 System.Diagnostics.Debug.Assert(sharedDbProvider.SharedDatabase is null);

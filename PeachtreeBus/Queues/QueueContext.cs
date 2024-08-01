@@ -8,22 +8,12 @@ namespace PeachtreeBus.Queues
     /// Exposes information about the context that the application code
     /// may want to use.
     /// </summary>
-    public class QueueContext
+    public class QueueContext : BaseContext
     {
         /// <summary>
         /// Which Queue the message was read from.
         /// </summary>
         public string SourceQueue { get; set; } = default!;
-
-        /// <summary>
-        /// The message itself.
-        /// </summary>
-        public object Message { get; set; } = default!;
-
-        /// <summary>
-        /// A unique Id for the message.
-        /// </summary>
-        public Guid MessageId { get; set; }
     }
 
     /// <summary>
