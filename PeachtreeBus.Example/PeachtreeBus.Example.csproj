@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PeachtreeBus.Example.Database\PeachtreeBus.Example.Database.sqlproj" />
     <ProjectReference Include="..\PeachtreeBus.Interfaces\PeachtreeBus.Interfaces.csproj" />
     <ProjectReference Include="..\PeachtreeBus.Services\PeachtreeBus.Services.csproj" />
     <ProjectReference Include="..\PeachtreeBus.SimpleInjector\PeachtreeBus.SimpleInjector.csproj" />
