@@ -4,8 +4,9 @@ A Message Bus Library
 ## What's New
 
 ### August 1st 2024
+Connect On Demand Update 
 
-Connect On Demand Update The ISharedDatabase implementation now no longer attempts to connect inside its constructor. This can cause problems when a Dependency Injection Container tries to verify the registrations by creating instances of everything. Now, the connection will be made when it is needed.
+The ISharedDatabase implementation now no longer attempts to connect inside its constructor. This can cause problems when a Dependency Injection Container tries to verify the registrations by creating instances of everything. Now, the connection will be made when it is needed.
 
 Additionally the message context objects for Queued and Subscribed messages expose a property containing the current dependency injection scope. This is an experimental feature, and may be removed in a future update. Its preferable that you use constructor injection wherever possible. Chances are if you think you need this, there's likely to be a change to your application code that can be made to avoid using it.
 
