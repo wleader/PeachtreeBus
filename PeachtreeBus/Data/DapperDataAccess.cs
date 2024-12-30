@@ -108,8 +108,6 @@ namespace PeachtreeBus.Data
                 SELECT TOP 1 [Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
                 FROM[{0}].[{1}_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
                 WHERE NotBefore < SYSUTCDATETIME()
-                AND Completed IS NULL 
-                AND Failed IS NULL
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -580,8 +578,6 @@ namespace PeachtreeBus.Data
                     FROM[{0}].[Subscribed_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
                     WHERE NotBefore < SYSUTCDATETIME()
                     AND SubscriberId = @SubscriberId
-                    AND Completed IS NULL
-                    AND Failed IS NULL
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
