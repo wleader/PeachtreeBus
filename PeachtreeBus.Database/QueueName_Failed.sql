@@ -3,7 +3,7 @@
 
 CREATE TABLE [PeachtreeBus].[QueueName_Failed]
 (
-	[Id] BIGINT NOT NULL PRIMARY KEY, 
+	[Id] BIGINT NOT NULL, 
     [MessageId] UNIQUEIDENTIFIER NOT NULL, 
     [NotBefore] DATETIME2 NOT NULL, 
     [Enqueued] DATETIME2 NOT NULL,
@@ -11,7 +11,8 @@ CREATE TABLE [PeachtreeBus].[QueueName_Failed]
     [Failed] DATETIME2 NULL, 
     [Retries] TINYINT NOT NULL,
     [Headers] NVARCHAR(MAX) NOT NULL,
-    [Body] NVARCHAR(MAX) NOT NULL
+    [Body] NVARCHAR(MAX) NOT NULL,
+    CONSTRAINT PK_QueueName_Failed_Id PRIMARY KEY ([Id])
 )
 GO
 

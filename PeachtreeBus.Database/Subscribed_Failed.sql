@@ -3,7 +3,7 @@
 
 CREATE TABLE [PeachtreeBus].[Subscribed_Failed]
 (
-    [Id] BIGINT NOT NULL PRIMARY KEY,
+    [Id] BIGINT NOT NULL,
     [SubscriberId] UNIQUEIDENTIFIER NOT NULL, 
     [ValidUntil] DATETIME2 NOT NULL,
     [MessageId] UNIQUEIDENTIFIER NOT NULL, 
@@ -13,7 +13,8 @@ CREATE TABLE [PeachtreeBus].[Subscribed_Failed]
     [Failed] DATETIME2 NULL, 
     [Retries] TINYINT NOT NULL,
     [Headers] NVARCHAR(MAX) NOT NULL,
-    [Body] NVARCHAR(MAX) NOT NULL
+    [Body] NVARCHAR(MAX) NOT NULL,
+    CONSTRAINT PK_Subscribed_Failed_Id PRIMARY KEY ([Id])
 )
 GO
 
