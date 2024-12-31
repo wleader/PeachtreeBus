@@ -14,7 +14,7 @@ CREATE TABLE [PeachtreeBus].[Subscribed_Pending]
     [Retries] TINYINT NOT NULL,
     [Headers] NVARCHAR(MAX) NOT NULL,
     [Body] NVARCHAR(MAX) NOT NULL,
-    CONSTRAINT PK_Subscribed_Pending_Id PRIMARY KEY ([SubscriberId])
+    CONSTRAINT PK_Subscribed_Pending_Id PRIMARY KEY ([Id])
 )
 GO
 
