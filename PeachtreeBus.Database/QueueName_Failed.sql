@@ -15,5 +15,5 @@ CREATE TABLE [PeachtreeBus].[QueueName_Failed]
 )
 GO
 
-ALTER TABLE [PeachtreeBus].[QueueName_Failed] ADD DEFAULT ((0)) FOR [Retries]
+ALTER TABLE [PeachtreeBus].[QueueName_Failed] ADD CONSTRAINT DF_QueueName_Failed_Retries DEFAULT ((0)) FOR [Retries]
 GO

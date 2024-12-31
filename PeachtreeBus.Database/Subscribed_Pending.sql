@@ -17,5 +17,5 @@ CREATE TABLE [PeachtreeBus].[Subscribed_Pending]
 )
 GO
 
-ALTER TABLE [PeachtreeBus].[Subscribed_Pending] ADD DEFAULT ((0)) FOR [Retries]
+ALTER TABLE [PeachtreeBus].[Subscribed_Pending] ADD  CONSTRAINT DF_Subscribed_Pending_Retries DEFAULT ((0)) FOR [Retries]
 GO

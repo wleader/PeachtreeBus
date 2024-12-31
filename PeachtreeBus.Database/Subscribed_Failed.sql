@@ -17,5 +17,5 @@ CREATE TABLE [PeachtreeBus].[Subscribed_Failed]
 )
 GO
 
-ALTER TABLE [PeachtreeBus].[Subscribed_Failed] ADD DEFAULT ((0)) FOR [Retries]
+ALTER TABLE [PeachtreeBus].[Subscribed_Failed] ADD  CONSTRAINT DF_Subscribed_Failed_Retries DEFAULT ((0)) FOR [Retries]
 GO

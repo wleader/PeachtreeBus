@@ -15,5 +15,5 @@ CREATE TABLE [PeachtreeBus].[QueueName_Completed]
 )
 GO
 
-ALTER TABLE [PeachtreeBus].[QueueName_Completed] ADD DEFAULT ((0)) FOR [Retries]
+ALTER TABLE [PeachtreeBus].[QueueName_Completed] ADD CONSTRAINT DF_QueueName_Completed_Retries DEFAULT ((0)) FOR [Retries]
 GO
