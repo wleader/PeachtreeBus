@@ -24,9 +24,9 @@ namespace Peachtreebus.Tests.Queues
             var message = new TestSagaMessage1();
             var notBefore = DateTime.UtcNow;
 
-            writer.Setup(w => w.WriteMessage("TestQueue", typeof(TestSagaMessage1), message, notBefore)).Verifiable();
+            writer.Setup(w => w.WriteMessage("TestQueue", typeof(TestSagaMessage1), message, notBefore, 10)).Verifiable();
 
-            await writer.Object.WriteMessage("TestQueue", message, notBefore);
+            await writer.Object.WriteMessage("TestQueue", message, notBefore, 10);
 
             writer.Verify();
 
