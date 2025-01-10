@@ -5,6 +5,7 @@ using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,6 +21,12 @@ namespace PeachtreeBus.Management
         static ManagementDataAccess()
         {
             DateTimeHandler.AddTypeHandler();
+
+            typeFields = new(new Dictionary<Type, string>()
+            {
+                {typeof(QueueMessage), "[Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]"},
+                {typeof(SubscribedMessage), "[Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]"},
+            });
         }
 
         private readonly IDbSchemaConfiguration _schemaConfig = schemaConfig;
@@ -28,11 +35,13 @@ namespace PeachtreeBus.Management
 
         protected const string TableNameUnsafe = "The table name contains not allowable characters.";
 
+        private static readonly ReadOnlyDictionary<Type, string> typeFields;
+
         private async Task<List<T>> GetMessages<T>(string queueName, string table, int skip, int take)
         {
-            const string GetFailedMessagesStatement =
+            const string template =
                 """
-                    SELECT * FROM [{0}].[{1}_{2}]
+                    SELECT {3} FROM [{0}].[{1}_{2}]
                     WITH (READPAST)
                     ORDER BY [Enqueued] DESC
                     OFFSET @Skip ROWS
@@ -46,7 +55,8 @@ namespace PeachtreeBus.Management
             if (IsUnsafe(table))
                 throw new ArgumentException(TableNameUnsafe);
 
-            string statement = string.Format(GetFailedMessagesStatement, _schemaConfig.Schema, queueName, table);
+            string fields = typeFields[typeof(T)];
+            string statement = string.Format(template, _schemaConfig.Schema, queueName, table, fields);
 
             var p = new DynamicParameters();
             p.Add("@Skip", skip);
@@ -54,7 +64,7 @@ namespace PeachtreeBus.Management
 
             try
             {
-                return (await _database.Connection.QueryAsync<T>(statement, p, _database.Transaction)).ToList();
+                return (await _database.Connection.QueryAsync<T>(template, p, _database.Transaction)).ToList();
             }
             catch (Exception ex)
             {
@@ -97,8 +107,9 @@ namespace PeachtreeBus.Management
         {
             const string CancelPendingQueuedStatement =
                 """
-                INSERT INTO [{0}].[{1}_Failed] WITH (ROWLOCK)  
-                SELECT D.[Id], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
+                INSERT INTO [{0}].[{1}_Failed] WITH (ROWLOCK)
+                ([Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[{1}_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D
@@ -129,8 +140,9 @@ namespace PeachtreeBus.Management
         {
             const string CancelPendingSubscribedStatement =
                 """
-                INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)  
-                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
+                INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK) 
+                ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D
@@ -159,8 +171,9 @@ namespace PeachtreeBus.Management
         {
             const string RetryFailedQueuedStatement =
                 """
-                INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK)  
-                SELECT D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, NULL, 0, D.[Headers], D.[Body] FROM
+                INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK)
+                ([MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, NULL, 0, D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[{1}_Failed] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D
@@ -191,8 +204,9 @@ namespace PeachtreeBus.Management
         {
             const string RetryFailedSubscribedStatement =
                 """
-                INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)  
-                SELECT D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, NULL, 0, D.[Headers], D.[Body] FROM
+                INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK) 
+                ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, NULL, 0, D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Failed] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D

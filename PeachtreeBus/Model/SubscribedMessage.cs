@@ -29,6 +29,12 @@ namespace PeachtreeBus.Model
         public virtual Guid MessageId { get; set; }
 
         /// <summary>
+        /// Used to prioritize which messages are processed first.
+        /// Higher numbers are are processed before lower numbers.
+        /// </summary>
+        public virtual int Priority { get; set; }
+
+        /// <summary>
         /// Set to a time in the future to delay processing of the message.
         /// </summary>
         public virtual DateTime NotBefore { get; set; }

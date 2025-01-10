@@ -19,7 +19,7 @@ namespace PeachtreeBus.Queues
         /// <param name="message"></param>
         /// <param name="notBefore"></param>
         /// <returns></returns>
-        Task WriteMessage(string queueName, Type type, object message, DateTime? notBefore = null);
+        Task WriteMessage(string queueName, Type type, object message, DateTime? notBefore = null, int priority = 0);
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace PeachtreeBus.Queues
         private readonly ISerializer _serializer = serializer;
         private readonly ISystemClock _clock = clock;
 
-        public async Task WriteMessage(string queueName, Type type, object message, DateTime? notBefore = null)
+        public async Task WriteMessage(string queueName, Type type, object message, DateTime? notBefore = null, int priority = 0)
         {
             if (message == null) throw new ArgumentNullException(nameof(message), $"{nameof(message)} must not be null.");
             if (type == null) throw new ArgumentNullException(nameof(type), $"{nameof(type)} must not be null.");
@@ -57,6 +57,7 @@ namespace PeachtreeBus.Queues
             var qm = new Model.QueueMessage
             {
                 MessageId = Guid.NewGuid(),
+                Priority = priority,
                 NotBefore = notBefore.HasValue ? notBefore.Value.ToUniversalTime() : _clock.UtcNow,
                 Enqueued = _clock.UtcNow,
                 Completed = null,
@@ -79,10 +80,10 @@ namespace PeachtreeBus.Queues
         /// <summary>
         /// Writes a message to a queue
         /// </summary>
-        public static async Task WriteMessage<T>(this IQueueWriter writer, string queueName, T message, DateTime? NotBefore = null)
+        public static async Task WriteMessage<T>(this IQueueWriter writer, string queueName, T message, DateTime? NotBefore = null, int priority = 0)
             where T : notnull
         {
-            await writer.WriteMessage(queueName, typeof(T), message, NotBefore);
+            await writer.WriteMessage(queueName, typeof(T), message, NotBefore, priority);
         }
     }
 

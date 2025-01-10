@@ -48,10 +48,10 @@ namespace PeachtreeBus.Data
             const string EnqueueMessageStatement =
                 """
                 INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK)
-                ([MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                ([MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
                 OUTPUT INSERTED.[Id]
                 VALUES
-                (@MessageId, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
+                (@MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -75,6 +75,7 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@MessageId", message.MessageId);
+            p.Add("@Priority", message.Priority);
             p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
@@ -105,9 +106,10 @@ namespace PeachtreeBus.Data
             // Completed and Failed are null means not previously processed and not previously exceeded retry count.
             const string GetOnePendingMessageStatement =
                 """
-                SELECT TOP 1 [Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
+                SELECT TOP 1 [Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
                 FROM[{0}].[{1}_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
                 WHERE NotBefore < SYSUTCDATETIME()
+                ORDER BY [Priority] DESC
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -141,8 +143,8 @@ namespace PeachtreeBus.Data
             const string CompleteMessageStatement =
                 """
                 INSERT INTO [{0}].[{1}_Completed] WITH (ROWLOCK) 
-                ([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[MessageId], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body]
+                ([Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body]
                 FROM (DELETE FROM [{0}].[{1}_Pending] WITH (ROWLOCK)
                       OUTPUT DELETED.*
                       WHERE [Id] = @Id) D
@@ -187,8 +189,8 @@ namespace PeachtreeBus.Data
             const string FailMessageStatement =
                 """
                 INSERT INTO [{0}].[{1}_Failed] WITH (ROWLOCK)  
-                ([Id], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body]
+                ([Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body]
                 FROM (DELETE FROM [{0}].[{1}_Pending] WITH (ROWLOCK)
                       OUTPUT DELETED.*
                       WHERE [Id] = @Id) D
@@ -574,10 +576,11 @@ namespace PeachtreeBus.Data
             // Completed and Failed are null means not previously processed and not previously exceeded retry count.
             const string statement =
                 """
-                SELECT TOP 1 [Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
+                SELECT TOP 1 [Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
                     FROM[{0}].[Subscribed_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
                     WHERE NotBefore < SYSUTCDATETIME()
                     AND SubscriberId = @SubscriberId
+                    ORDER BY [Priority] DESC
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -614,10 +617,10 @@ namespace PeachtreeBus.Data
             const string EnqueueMessageStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
-                ([SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
                 OUTPUT INSERTED.[Id]
                 VALUES
-                (@SubscriberId, @ValidUntil, @MessageId,@NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
+                (@SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
                 """;
 
             if (IsUnsafe(_schemaConfig.Schema))
@@ -645,6 +648,7 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@MessageId", message.MessageId);
+            p.Add("@Priority", message.Priority);
             p.Add("@SubscriberId", message.SubscriberId);
             p.Add("@ValidUntil", message.ValidUntil.ToUniversalTime());
             p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
@@ -674,8 +678,8 @@ namespace PeachtreeBus.Data
             const string completeStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Completed] WITH (ROWLOCK)
-                ([Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body] FROM
+                ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D
@@ -717,8 +721,8 @@ namespace PeachtreeBus.Data
             const string FailMessageStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)  
-                ([Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body] FROM
+                ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D
@@ -808,8 +812,8 @@ namespace PeachtreeBus.Data
             const string ExpireStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)
-                ([Id], [SubscriberId], [ValidUntil], [MessageId], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
+                ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [ValidUntil] < SYSUTCDATETIME()) D
