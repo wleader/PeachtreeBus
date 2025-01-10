@@ -34,10 +34,12 @@ namespace PeachtreeBus.DataAccessTests
         {
             // puts a row in the completed table.
             var statement =
-            "INSERT INTO [{0}].[Subscribed_Completed] " +
-            "([Id],[SubscriberId],[ValidUntil],[MessageId],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body]) " +
-            "VALUES " +
-            "(@Id, @SubscriberId, @ValidUntil, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)";
+            """
+            INSERT INTO [{0}].[Subscribed_Completed]
+            ([Id],[SubscriberId],[ValidUntil],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
+            VALUES
+            (@Id, @SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
+            """;
 
             statement = string.Format(statement, DefaultSchema, DefaultQueue);
 
@@ -46,6 +48,7 @@ namespace PeachtreeBus.DataAccessTests
             p.Add("@SubscriberId", Guid.NewGuid());
             p.Add("@ValidUntil", DateTime.MaxValue);
             p.Add("@MessageId", Guid.NewGuid());
+            p.Add("@Priority", 0);
             p.Add("@NotBefore", DateTime.UtcNow.AddDays(-1));
             p.Add("@Enqueued", DateTime.UtcNow.AddDays(-1));
             p.Add("@Completed", completed);

@@ -4,13 +4,14 @@
 CREATE TABLE [PeachtreeBus].[Subscribed_Failed]
 (
     [Id] BIGINT NOT NULL,
-    [SubscriberId] UNIQUEIDENTIFIER NOT NULL, 
+    [SubscriberId] UNIQUEIDENTIFIER NOT NULL,
     [ValidUntil] DATETIME2 NOT NULL,
-    [MessageId] UNIQUEIDENTIFIER NOT NULL, 
-    [NotBefore] DATETIME2 NOT NULL, 
+    [MessageId] UNIQUEIDENTIFIER NOT NULL,
+    [Priority] INT NOT NULL,
+    [NotBefore] DATETIME2 NOT NULL,
     [Enqueued] DATETIME2 NOT NULL,
     [Completed] DATETIME2 NULL,
-    [Failed] DATETIME2 NULL, 
+    [Failed] DATETIME2 NULL,
     [Retries] TINYINT NOT NULL,
     [Headers] NVARCHAR(MAX) NOT NULL,
     [Body] NVARCHAR(MAX) NOT NULL,
@@ -19,4 +20,7 @@ CREATE TABLE [PeachtreeBus].[Subscribed_Failed]
 GO
 
 ALTER TABLE [PeachtreeBus].[Subscribed_Failed] ADD  CONSTRAINT DF_Subscribed_Failed_Retries DEFAULT ((0)) FOR [Retries]
+GO
+
+CREATE INDEX IX_Subscribed_Failed_Enqueued ON [PeachtreeBus].[Subscribed_Failed] ([Enqueued])
 GO

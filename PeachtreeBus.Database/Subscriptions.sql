@@ -9,3 +9,10 @@ CREATE TABLE [PeachtreeBus].[Subscriptions]
 	CONSTRAINT PK_Subscriptions_Id PRIMARY KEY ([Id]),
 	CONSTRAINT AK_SubscriberCategory UNIQUE([SubscriberId], [Category])
 )
+GO
+
+CREATE INDEX IX_Subscriptions_SubscriberCategory ON [PeachtreeBus].[Subscriptions] ([SubscriberId], [Category])
+GO
+
+CREATE INDEX IX_Subcriptions_ValidUntilCategory ON [PeachtreeBus].[Subscriptions] ([ValidUntil], [Category])
+GO

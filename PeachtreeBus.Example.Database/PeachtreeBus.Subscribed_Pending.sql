@@ -27,4 +27,3 @@ GO
 
 CREATE INDEX IX_Subscribed_Pending_Enqueued ON [PeachtreeBus].[Subscribed_Pending] ([Enqueued])
 GO
-

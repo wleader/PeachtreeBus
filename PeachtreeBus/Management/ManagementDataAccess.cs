@@ -64,7 +64,7 @@ namespace PeachtreeBus.Management
 
             try
             {
-                return (await _database.Connection.QueryAsync<T>(template, p, _database.Transaction)).ToList();
+                return (await _database.Connection.QueryAsync<T>(statement, p, _database.Transaction)).ToList();
             }
             catch (Exception ex)
             {

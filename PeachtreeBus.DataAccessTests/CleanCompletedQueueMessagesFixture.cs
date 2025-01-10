@@ -34,16 +34,19 @@ namespace PeachtreeBus.DataAccessTests
         {
             // puts a row in the completed table.
             var statement =
-            "INSERT INTO [{0}].[{1}_Completed] " +
-            "([Id],[MessageId],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body]) " +
-            "VALUES " +
-            "(@Id, @MessageId, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)";
+            """
+            INSERT INTO [{0}].[{1}_Completed]
+            ([Id],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
+            VALUES
+            (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
+            """;
 
             statement = string.Format(statement, DefaultSchema, DefaultQueue);
 
             var p = new DynamicParameters();
             p.Add("@Id", lastId++);
             p.Add("@MessageId", Guid.NewGuid());
+            p.Add("@Priority", 0);
             p.Add("@NotBefore", DateTime.UtcNow.AddDays(-1));
             p.Add("@Enqueued", DateTime.UtcNow.AddDays(-1));
             p.Add("@Completed", completed);

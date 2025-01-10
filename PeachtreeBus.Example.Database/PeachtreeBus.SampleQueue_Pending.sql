@@ -24,6 +24,5 @@ GO
 CREATE INDEX IX_SampleQueue_Pending_GetNext ON [PeachtreeBus].[SampleQueue_Pending] ([Priority]) INCLUDE ([NotBefore])
 GO
 
-
 CREATE INDEX IX_SampleQueue_Pending_Enqueued ON [PeachtreeBus].[SampleQueue_Pending] ([Enqueued] DESC)
 GO
