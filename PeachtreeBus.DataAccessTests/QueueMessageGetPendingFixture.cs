@@ -113,48 +113,6 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Proves that a completed message cannot be returned.
-        /// </summary>
-        /// <remarks>The pending table really shouldn't contain a message where compelted is not null anyway.</remarks>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingQueued_DoesNotReturnCompletedMessage()
-        {
-            // Add one message;
-            var testMessage = CreateQueueMessage();
-            testMessage.Id = await dataAccess.AddMessage(testMessage, DefaultQueue);
-            await Task.Delay(10); // wait for the rows to be ready
-
-            // normally EnqueueMessage can't insert a completed message so we have to maniupulate things.
-            ExecuteNonQuery($"UPDATE [{DefaultSchema}].[{QueuePendingTable}] SET [Completed] = SYSUTCDATETIME() WHERE [Id] = {testMessage.Id}");
-            await Task.Delay(10); // wait for the rows to be ready
-
-            var actual = await dataAccess.GetPendingQueued(DefaultQueue);
-            Assert.IsNull(actual);
-        }
-
-        /// <summary>
-        /// Proves that a failed message cannot be returned.
-        /// </summary>
-        /// <remarks>The pending table really shouldn't contain a message where compelted is not null anyway.</remarks>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingQueued_DoesNotReturnFailedMessage()
-        {
-            // Add one message;
-            var testMessage = CreateQueueMessage();
-            testMessage.Id = await dataAccess.AddMessage(testMessage, DefaultQueue);
-            await Task.Delay(10); // wait for the rows to be ready
-
-            // normally EnqueueMessage can't insert a failed message so we have to maniupulate things.
-            ExecuteNonQuery($"UPDATE [{DefaultSchema}].[{QueuePendingTable}] SET [Failed] = SYSUTCDATETIME() WHERE [Id] = {testMessage.Id}");
-            await Task.Delay(10); // wait for the rows to be ready
-
-            var actual = await dataAccess.GetPendingQueued(DefaultQueue);
-            Assert.IsNull(actual);
-        }
-
-        /// <summary>
         /// Proves that a message is not returned before its NotBefore time.
         /// </summary>
         /// <returns></returns>

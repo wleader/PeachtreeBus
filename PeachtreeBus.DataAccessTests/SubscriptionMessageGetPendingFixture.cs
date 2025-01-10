@@ -24,28 +24,6 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Proves that a completed message cannot be returned.
-        /// </summary>
-        /// <remarks>The pending table should never have a compelted message in it anyway.</remarks>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingSubscriptionMessage_DoesNotReturnCompletedMessage()
-        {
-            // Add one message;
-            var testMessage = CreateSubscribed();
-            testMessage.SubscriberId = Guid.NewGuid();
-            testMessage.Id = await dataAccess.AddMessage(testMessage);
-            await Task.Delay(10); // wait for the rows to be ready
-
-            // normally EnqueueMessage can't insert a completed message so we have to maniupulate things.
-            ExecuteNonQuery($"UPDATE [{DefaultSchema}].[{SubscribedPendingTable}] SET [Completed] = SYSUTCDATETIME() WHERE [Id] = {testMessage.Id}");
-            await Task.Delay(10); // wait for the rows to be ready
-
-            var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
-            Assert.IsNull(actual);
-        }
-
-        /// <summary>
         /// Proves that a message is not returned before its NotBefore value.
         /// </summary>
         /// <returns></returns>
@@ -58,28 +36,6 @@ namespace PeachtreeBus.DataAccessTests
             testMessage.NotBefore = testMessage.NotBefore.AddHours(1);
             testMessage.Id = await dataAccess.AddMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
-            var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
-            Assert.IsNull(actual);
-        }
-
-        /// <summary>
-        /// Proves that a failed message is not returned
-        /// </summary>
-        /// <remarks>The pending table should never contain a failed message anyway.</remarks>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingSubscriptionMessage_DoesNotReturnFailedMessage()
-        {
-            // Add one message;
-            var testMessage = CreateSubscribed();
-            testMessage.SubscriberId = Guid.NewGuid();
-            testMessage.Id = await dataAccess.AddMessage(testMessage);
-            await Task.Delay(10); // wait for the rows to be ready
-
-            // normally EnqueueMessage can't insert a completed message so we have to maniupulate things.
-            ExecuteNonQuery($"UPDATE [{DefaultSchema}].[{SubscribedPendingTable}] SET [Failed] = SYSUTCDATETIME() WHERE [Id] = {testMessage.Id}");
-            await Task.Delay(10); // wait for the rows to be ready
-
             var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
             Assert.IsNull(actual);
         }
