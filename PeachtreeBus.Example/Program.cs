@@ -80,7 +80,7 @@ namespace PeachtreeBus.Example
             // register an IConfiguration read from appsettings.json.
             _container.RegisterSingleton(typeof(IConfiguration), () =>
             {
-                IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+                var configurationBuilder = new ConfigurationBuilder();
                 configurationBuilder.AddJsonFile("appsettings.json");
                 return configurationBuilder.Build();
             });

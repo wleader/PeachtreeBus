@@ -63,16 +63,16 @@ namespace PeachtreeBus.DataAccessTests
         public virtual void TestInitialize()
         {
             // Create connections.
-            PrimaryConnection = new SqlConnectionProxy(AssemblyInitialize.dbConnectionString);
+            PrimaryConnection = new SqlConnectionProxy(AssemblyInitialize.DbConnectionString);
 
-            SecondaryConnection = new SqlConnectionProxy(AssemblyInitialize.dbConnectionString);
+            SecondaryConnection = new SqlConnectionProxy(AssemblyInitialize.DbConnectionString);
             SecondaryConnection.Open();
 
             // create the data access object.
             _connectionFactory.Setup(f => f.GetConnection()).Returns(() =>
             {
-                if (PrimaryConnection.Disposed) 
-                    PrimaryConnection = new SqlConnectionProxy(AssemblyInitialize.dbConnectionString);
+                if (PrimaryConnection.Disposed)
+                    PrimaryConnection = new SqlConnectionProxy(AssemblyInitialize.DbConnectionString);
                 return PrimaryConnection;
             });
             SharedDB = new SharedDatabase(_connectionFactory.Object);
