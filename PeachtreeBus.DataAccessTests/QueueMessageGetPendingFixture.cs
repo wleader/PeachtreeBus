@@ -167,5 +167,25 @@ namespace PeachtreeBus.DataAccessTests
             var action = new Func<string, Task>(async (s) => await dataAccess.GetPendingQueued(s));
             await ActionThrowsIfParameterContainsPoisonChars(action);
         }
+
+        [TestMethod]
+        public async Task GetPendingQueued_ReturnsHigherPriorityMessage()
+        {
+            var lowMessage = CreateQueueMessage();
+            lowMessage.Priority = 1;
+            lowMessage.NotBefore = DateTime.UtcNow.AddMinutes(-2);
+            lowMessage.Id = await dataAccess.AddMessage(lowMessage, DefaultQueue);
+
+            var highMessage = CreateQueueMessage();
+            highMessage.Priority = 2;
+            highMessage.NotBefore = DateTime.UtcNow.AddMinutes(-1);
+            highMessage.Id = await dataAccess.AddMessage(highMessage, DefaultQueue);
+
+            await Task.Delay(10); // wait for the rows to be ready
+
+            var actual = await dataAccess.GetPendingQueued(DefaultQueue);
+            Assert.IsNotNull(actual);
+            AssertMessageEquals(highMessage, actual);
+        }
     }
 }

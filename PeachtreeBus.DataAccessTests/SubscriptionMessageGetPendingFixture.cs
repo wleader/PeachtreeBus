@@ -173,5 +173,29 @@ namespace PeachtreeBus.DataAccessTests
             var action = new Func<Task>(() => dataAccess.GetPendingSubscribed(Guid.NewGuid()));
             await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
+
+        [TestMethod]
+        public async Task GetPendingSubscriptionMessage_ReturnsHigherPriorityMessage()
+        {
+            var subscriber = Guid.NewGuid();
+
+            var lowMessage = CreateSubscribed();
+            lowMessage.Priority = 1;
+            lowMessage.NotBefore = DateTime.UtcNow.AddMinutes(-2);
+            lowMessage.SubscriberId = subscriber;
+            lowMessage.Id = await dataAccess.AddMessage(lowMessage);
+
+            var highMessage = CreateSubscribed();
+            highMessage.Priority = 2;
+            highMessage.NotBefore = DateTime.UtcNow.AddMinutes(-1);
+            highMessage.SubscriberId = subscriber;
+            highMessage.Id = await dataAccess.AddMessage(highMessage);
+
+            await Task.Delay(10); // wait for the rows to be ready
+
+            var actual = await dataAccess.GetPendingSubscribed(subscriber);
+            Assert.IsNotNull(actual);
+            AssertSubscribedEquals(highMessage, actual);
+        }
     }
 }
