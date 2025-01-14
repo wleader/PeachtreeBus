@@ -4,6 +4,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -174,7 +175,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 null);
 
             Assert.IsNotNull(SerializedHeaders);
-            Assert.AreEqual("Peachtreebus.Tests.Subscriptions.SubscriptionPublisherFixture+TestSubscribedMessage, Peachtreebus.Tests", SerializedHeaders.MessageClass);
+            Assert.AreEqual("PeachtreeBus.Tests.Subscriptions.SubscriptionPublisherFixture+TestSubscribedMessage, PeachtreeBus.Tests", SerializedHeaders.MessageClass);
         }
 
         /// <summary>

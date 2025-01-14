@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -237,7 +238,7 @@ namespace PeachtreeBus.Tests.Queues
                 },
                 Headers = new Headers
                 {
-                    MessageClass = "Peachtreebus.Tests.Sagas.NotARealMessageType, Peachtreebus.Tests"
+                    MessageClass = "PeachtreeBus.Tests.Sagas.NotARealMessageType, PeachtreeBus.Tests"
                 },
                 Message = new TestSagaMessage1()
             };

@@ -1,15 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Peachtreebus.Tests.Sagas;
-using PeachtreeBus;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Queues
+namespace PeachtreeBus.Tests.Queues
 {
     /// <summary>
     ///  Proves the behavior of QueueWork
@@ -143,7 +142,7 @@ namespace Peachtreebus.Tests.Queues
                 },
                 Headers = new Headers
                 {
-                    MessageClass = "Peachtreebus.Tests.Sagas.TestSagaMessage1, Peachtreebus.Tests"
+                    MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
                 },
                 Message = new TestSagaMessage1()
             };

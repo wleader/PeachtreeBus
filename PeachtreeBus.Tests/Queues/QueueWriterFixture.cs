@@ -4,6 +4,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
 
@@ -145,7 +146,7 @@ namespace PeachtreeBus.Tests.Queues
                 null);
 
             Assert.IsNotNull(SerializedHeaders);
-            Assert.AreEqual("Peachtreebus.Tests.Sagas.TestSagaMessage1, Peachtreebus.Tests", SerializedHeaders.MessageClass);
+            Assert.AreEqual("PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests", SerializedHeaders.MessageClass);
         }
 
         /// <summary>

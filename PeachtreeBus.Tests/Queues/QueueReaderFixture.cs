@@ -6,6 +6,7 @@ using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -531,7 +532,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task GetNext_HandlesUnrecognizedMessageClass()
         {
-            var messageClass = "Peachtreebus.Tests.Sagas.TestSagaNotARealMessage, " + typeof(TestSagaMessage1).Assembly.GetName().Name;
+            var messageClass = "PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, " + typeof(TestSagaMessage1).Assembly.GetName().Name;
 
             var expectedQueueMessage = new QueueMessage
             {

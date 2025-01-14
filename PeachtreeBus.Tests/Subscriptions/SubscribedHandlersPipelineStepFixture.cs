@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -118,7 +119,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 },
                 Headers = new Headers
                 {
-                    MessageClass = "Peachtreebus.Tests.Subscribed.NotARealMessageType, Peachtreebus.Tests"
+                    MessageClass = "PeachtreeBus.Tests.Subscribed.NotARealMessageType, PeachtreeBus.Tests"
                 },
                 Message = new TestSagaMessage1()
             };

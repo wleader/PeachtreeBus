@@ -147,7 +147,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 },
                 Headers = new Headers()
                 {
-                    MessageClass = "Peachtreebus.Tests.Subscriptions.SubscribedWorkFixture+TestMessage, Peachtreebus.Tests",
+                    MessageClass = "PeachtreeBus.Tests.Subscriptions.SubscribedWorkFixture+TestMessage, PeachtreeBus.Tests",
                 }
             };
         }

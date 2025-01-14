@@ -6,6 +6,7 @@ using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -243,7 +244,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task GetNext_HandlesUnrecognizedMessageClass()
         {
-            var messageClass = "Peachtreebus.Tests.Sagas.TestSagaNotARealMessage, " + typeof(TestSagaMessage1).Assembly.GetName().Name;
+            var messageClass = "PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, " + typeof(TestSagaMessage1).Assembly.GetName().Name;
 
             var expectedMessage = new SubscribedMessage
             {
