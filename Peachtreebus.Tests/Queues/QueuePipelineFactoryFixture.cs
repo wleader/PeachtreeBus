@@ -2,7 +2,6 @@
 using Moq;
 using PeachtreeBus;
 using PeachtreeBus.Queues;
-using System;
 using System.Collections.Generic;
 
 namespace Peachtreebus.Tests.Queues
@@ -35,7 +34,7 @@ namespace Peachtreebus.Tests.Queues
         public void Given_NoPipelineStepsAreProvided_When_Build_Then_OnlyHandlerStepIsAdded()
         {
 
-            _findSteps.Setup(f => f.FindSteps()).Returns(Array.Empty<IQueuePipelineStep>());
+            _findSteps.Setup(f => f.FindSteps()).Returns([]);
 
             var result = _factory.Build();
 

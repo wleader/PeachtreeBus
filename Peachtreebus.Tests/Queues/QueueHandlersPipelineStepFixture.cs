@@ -58,7 +58,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Given_MessageIsHandledBySaga_When_Invoke_Then_SagaHandlesMessage()
         {
             _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
-                .Returns(GetSagaHandler());
+                .Returns(() => [_testSaga]);
 
             var context = GetContext<TestSagaMessage1>();
 
@@ -125,7 +125,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Given_SagaIsBlocked_When_Invoke_Then_Return()
         {
             _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
-                .Returns(GetSagaHandler());
+                .Returns(() => [_testSaga]);
 
             var context = GetContext<TestSagaMessage1>();
 
@@ -163,7 +163,7 @@ namespace Peachtreebus.Tests.Queues
         {
             // message is handled by the saga
             _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
-                .Returns(GetSagaHandler());
+                .Returns(() => [_testSaga]);
 
             // the handler for this message is not IHandleSagaStartMessage<>
             var context = GetContext<TestSagaMessage1>();
@@ -188,7 +188,7 @@ namespace Peachtreebus.Tests.Queues
         public async Task Given_MessageHasNoHandlers_When_Invoke_Then_Throws()
         {
             _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
-                .Returns(GetNoHandlers());
+                .Returns(() => []);
 
             var context = GetContext<TestSagaMessage1>();
             await _testSubject.Invoke(context, null);
@@ -212,18 +212,6 @@ namespace Peachtreebus.Tests.Queues
         {
             var context = GetContext<object>();// object does not implement IQueueMessage
             await _testSubject.Invoke(context, null);
-        }
-
-        private IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetSagaHandler()
-        {
-            List<IHandleQueueMessage<TestSagaMessage1>> result = [_testSaga];
-            return result;
-        }
-
-        private static IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetNoHandlers()
-        {
-            var list = new List<IHandleQueueMessage<TestSagaMessage1>>();
-            return list;
         }
 
         private static InternalQueueContext GetContext<TMessage>()

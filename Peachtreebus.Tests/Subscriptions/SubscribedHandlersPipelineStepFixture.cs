@@ -2,7 +2,6 @@
 using Moq;
 using Peachtreebus.Tests.Sagas;
 using PeachtreeBus;
-using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
@@ -69,7 +68,7 @@ namespace Peachtreebus.Tests.Subscriptions
         public async Task Given_MessageHasNoHandlers_When_Invoke_Then_Throws()
         {
             _findSubscribed.Setup(f => f.FindHandlers<TestMessage>())
-                .Returns(Array.Empty<IHandleSubscribedMessage<TestMessage>>());
+                .Returns([]);
 
             var context = GetContext<TestMessage>();
 
@@ -94,12 +93,6 @@ namespace Peachtreebus.Tests.Subscriptions
         {
             var context = GetContext<object>();// object does not implement IQueueMessage
             await _testSubject.Invoke(context, null);
-        }
-
-        private static IEnumerable<IHandleQueueMessage<TestSagaMessage1>> GetNoHandlers()
-        {
-            var list = new List<IHandleQueueMessage<TestSagaMessage1>>();
-            return list;
         }
 
         private static InternalSubscribedContext GetContext<TMessage>()

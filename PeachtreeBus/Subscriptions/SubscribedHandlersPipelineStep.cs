@@ -60,7 +60,7 @@ namespace PeachtreeBus.Subscriptions
                 // that would allow us to tell the difference between a problem in a handler, or if the problem was in the bus code.
                 // does that mater for the retry?
                 {
-                    var taskObject = handleMethod.Invoke(handler, new object[] { context, context.Message });
+                    var taskObject = handleMethod.Invoke(handler, [context, context.Message]);
                     var castTask = (Task)taskObject;
                     await castTask;
                 }
