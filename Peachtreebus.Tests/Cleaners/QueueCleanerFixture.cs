@@ -5,7 +5,7 @@ using PeachtreeBus.Data;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Cleaners
+namespace PeachtreeBus.Tests.Cleaners
 {
     /// <summary>
     /// Proves the behavior of QueueCleaner

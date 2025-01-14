@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Peachtreebus.Tests.Sagas;
-using PeachtreeBus;
 using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
@@ -11,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Subscriptions
+namespace PeachtreeBus.Tests.Subscriptions
 {
     /// <summary>
     /// Proves the behavior of SubscriptionPublisher

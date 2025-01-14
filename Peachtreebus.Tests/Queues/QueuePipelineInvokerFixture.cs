@@ -1,12 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Queues
+namespace PeachtreeBus.Tests.Queues
 {
     [TestClass]
     public class QueuePipelineInvokerFixture

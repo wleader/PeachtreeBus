@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Peachtreebus.Tests.Sagas;
-using PeachtreeBus;
 using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Model;
@@ -9,7 +7,7 @@ using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Queues
+namespace PeachtreeBus.Tests.Queues
 {
     /// <summary>
     /// Proves the behavior of QueueWriter

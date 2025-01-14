@@ -4,7 +4,7 @@ using PeachtreeBus.Sagas;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Sagas
+namespace PeachtreeBus.Tests.Sagas
 {
     /// <summary>
     /// Proves the behavior of SagaTypeExtensions.

@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus;
 using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Cleaners
+namespace PeachtreeBus.Tests.Cleaners
 {
     /// <summary>
     /// Proves the behavior of SubscribedCleanupThread

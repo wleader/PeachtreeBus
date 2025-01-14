@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Peachtreebus.Tests.Sagas;
-using PeachtreeBus;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Queues
+namespace PeachtreeBus.Tests.Queues
 {
     [TestClass]
     public class QueueHandlersPipelineStepFixture

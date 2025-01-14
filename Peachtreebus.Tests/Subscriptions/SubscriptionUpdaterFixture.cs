@@ -6,7 +6,7 @@ using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Subscriptions
+namespace PeachtreeBus.Tests.Subscriptions
 {
     /// <summary>
     /// Proves the behavior SubscriptionUpdater

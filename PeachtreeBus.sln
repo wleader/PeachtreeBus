@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Services", "Pe
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PeachtreeBus.Example.Database", "PeachtreeBus.Example.Database\PeachtreeBus.Example.Database.sqlproj", "{7F6A3911-A90A-4EA3-8B70-E0838191FACC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peachtreebus.Tests", "Peachtreebus.Tests\Peachtreebus.Tests.csproj", "{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Tests", "PeachtreeBus.Tests\PeachtreeBus.Tests.csproj", "{E3CE7D00-B9A8-4D84-8887-DDA47FA72B47}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.DataAccessTests", "PeachtreeBus.DataAccessTests\PeachtreeBus.DataAccessTests.csproj", "{19E44B3A-DC79-4901-898E-740D65F59200}"
 EndProject

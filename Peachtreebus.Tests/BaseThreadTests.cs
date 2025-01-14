@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus;
 using PeachtreeBus.Data;
 using System;
 using System.Threading.Tasks;
@@ -45,7 +44,7 @@ namespace PeachtreeBus.Tests
             shutdown = new Mock<IProvideShutdownSignal>();
 
             shutdown.SetupGet(s => s.ShouldShutdown)
-                .Returns(() => 
+                .Returns(() =>
                 {
                     return loopCount < 1;
                 })

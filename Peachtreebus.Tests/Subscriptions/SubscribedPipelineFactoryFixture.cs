@@ -1,11 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
 
-namespace Peachtreebus.Tests.Subscriptions
+namespace PeachtreeBus.Tests.Subscriptions
 {
     [TestClass]
     public class SubscribedPipelineFactoryFixture

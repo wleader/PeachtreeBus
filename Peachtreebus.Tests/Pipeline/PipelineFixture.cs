@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Pipeline
+namespace PeachtreeBus.Tests.Pipeline
 {
     [TestClass]
     public class PipelineFixture

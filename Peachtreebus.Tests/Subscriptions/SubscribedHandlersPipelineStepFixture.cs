@@ -1,13 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Peachtreebus.Tests.Sagas;
-using PeachtreeBus;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Subscriptions
+namespace PeachtreeBus.Tests.Subscriptions
 {
     [TestClass]
     public class SubscribedHandlersPipelineStepFixture

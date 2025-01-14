@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 
-namespace Peachtreebus.Tests
+namespace PeachtreeBus.Tests
 {
     [TestClass]
     public class DbSchemaConfigurationFixture

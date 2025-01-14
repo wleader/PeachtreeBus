@@ -4,7 +4,7 @@ using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Pipeline
+namespace PeachtreeBus.Tests.Pipeline
 {
     public class FakeQueuePipelineStep(
         int priority = 0,

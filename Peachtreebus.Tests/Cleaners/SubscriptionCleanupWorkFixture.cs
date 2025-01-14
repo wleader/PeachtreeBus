@@ -4,7 +4,7 @@ using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Cleaners
+namespace PeachtreeBus.Tests.Cleaners
 {
 
     /// <summary>

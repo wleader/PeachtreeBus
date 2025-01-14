@@ -1,12 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
-namespace Peachtreebus.Tests.Subscriptions
+namespace PeachtreeBus.Tests.Subscriptions
 {
     [TestClass]
     public class SubscribedPipelineInvokerFixture
@@ -55,7 +54,7 @@ namespace Peachtreebus.Tests.Subscriptions
 
             await _invoker.Invoke(_context);
         }
-        
+
         [TestMethod]
         public async Task When_Invoked_Then_ContextScopeIsSet()
         {

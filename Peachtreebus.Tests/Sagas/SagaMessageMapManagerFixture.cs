@@ -3,7 +3,7 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using System;
 
-namespace Peachtreebus.Tests.Sagas
+namespace PeachtreeBus.Tests.Sagas
 {
     /// <summary>
     /// Proves the behavior of SagaMessageMapManager

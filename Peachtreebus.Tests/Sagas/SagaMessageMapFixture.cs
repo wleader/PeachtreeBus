@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Sagas;
 
-namespace Peachtreebus.Tests.Sagas
+namespace PeachtreeBus.Tests.Sagas
 {
     /// <summary>
     /// Proves the behavior of SagaMessageMap

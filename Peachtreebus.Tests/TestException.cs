@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Peachtreebus.Tests
+namespace PeachtreeBus.Tests
 {
     public class TestException() : Exception(null, null) { }
 }

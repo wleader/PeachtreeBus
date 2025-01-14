@@ -1,12 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
 
-namespace Peachtreebus.Tests
+namespace PeachtreeBus.Tests
 {
     /// <summary>
     /// Proves the behavior of PerfCounters
