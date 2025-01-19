@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -83,26 +82,6 @@ namespace PeachtreeBus.DataAccessTests
             {
                 RollbackSecondaryTransaction();
             }
-        }
-
-        /// <summary>
-        /// Proves that unsafe schema is not allowed
-        /// </summary>
-        [TestMethod]
-        public async Task GetSagaData_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.GetSagaData(DefaultSagaName, string.Empty));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
-        /// Proves tha unsafe saga names are not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task GetSagaData_ThrowsIfSagaNameContainsUnsafe()
-        {
-            var action = new Func<string, Task>(async (s) => await dataAccess.GetSagaData(s, string.Empty));
-            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

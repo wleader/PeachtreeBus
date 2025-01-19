@@ -12,7 +12,7 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="container"></param>
         /// <param name="schema">The name of the schema to use.</param>
         /// <returns></returns>
-        public static Container UsePeachtreeBusDbSchema(this Container container, string schema = "PeachtreeBus")
+        public static Container UsePeachtreeBusDbSchema(this Container container, SchemaName schema)
         {
             container.RegisterSingleton(typeof(IDbSchemaConfiguration), () => new DbSchemaConfiguration(schema));
             return container;

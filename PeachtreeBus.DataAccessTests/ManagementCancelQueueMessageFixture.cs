@@ -8,20 +8,6 @@ namespace PeachtreeBus.DataAccessTests
     public class ManagementCancelQueueMessageFixture : ManagementDataAccessFixtureBase
     {
         [TestMethod]
-        public async Task ThrowsIfQueueNameContainsUnsafe()
-        {
-            var action = new Func<string, Task>(async (s) => await dataAccess.CancelPendingQueueMessage(s, 1));
-            await ActionThrowsIfParameterContainsPoisonChars(action);
-        }
-
-        [TestMethod]
-        public async Task ThrowsIfSchemaNameContainsUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.CancelPendingQueueMessage(DefaultQueue, 1));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        [TestMethod]
         public async Task InsertsIntoTargetTable()
         {
             var s1 = await CreatePendingQueued();

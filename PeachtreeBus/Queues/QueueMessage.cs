@@ -1,6 +1,7 @@
-﻿using System;
+﻿using PeachtreeBus.Data;
+using System;
 
-namespace PeachtreeBus.Model;
+namespace PeachtreeBus.Queues;
 
 /// <summary>
 /// Represents a row in a queue table.

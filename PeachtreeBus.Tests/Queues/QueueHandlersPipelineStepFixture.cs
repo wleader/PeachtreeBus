@@ -41,12 +41,11 @@ namespace PeachtreeBus.Tests.Queues
         }
 
         [TestMethod]
-        [ExpectedException(typeof(MissingInterfaceException))]
         public async Task Given_MessageIsNotIQueuedMessage_Then_ThrowsUsefulException()
         {
             var context = GetContext<TestSagaMessage1>();
             context.Headers.MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName!;
-            await _testSubject.Invoke(context, null);
+            await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() => _testSubject.Invoke(context, null));
         }
 
         /// <summary>
@@ -64,7 +63,7 @@ namespace PeachtreeBus.Tests.Queues
             _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()))
                 .Callback<object, InternalQueueContext>((s, c) =>
                 {
-                    c.SagaData = new PeachtreeBus.Model.SagaData
+                    c.SagaData = new SagaData
                     {
                         Blocked = false
                     };
@@ -95,7 +94,7 @@ namespace PeachtreeBus.Tests.Queues
             _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()))
                 .Callback<object, InternalQueueContext>((s, c) =>
                 {
-                    c.SagaData = new PeachtreeBus.Model.SagaData
+                    c.SagaData = new SagaData
                     {
                         Blocked = false
                     };
@@ -131,7 +130,7 @@ namespace PeachtreeBus.Tests.Queues
             _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()))
                 .Callback<object, InternalQueueContext>((s, c) =>
                 {
-                    c.SagaData = new PeachtreeBus.Model.SagaData
+                    c.SagaData = new SagaData
                     {
                         Blocked = true
                     };
@@ -206,11 +205,10 @@ namespace PeachtreeBus.Tests.Queues
         }
 
         [TestMethod]
-        [ExpectedException(typeof(MissingInterfaceException))]
         public async Task Given_AMessageThatDoesNotImplementIQueueMessage_When_Invoke_Then_Throws()
         {
             var context = GetContext<object>();// object does not implement IQueueMessage
-            await _testSubject.Invoke(context, null);
+            await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() => _testSubject.Invoke(context, null));
         }
 
         private static InternalQueueContext GetContext<TMessage>()
@@ -225,6 +223,7 @@ namespace PeachtreeBus.Tests.Queues
                 },
                 Message = new TMessage(),
                 MessageData = new(),
+                SourceQueue = new("SourceQueue"),
             };
         }
 
@@ -232,7 +231,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             return new InternalQueueContext()
             {
-                MessageData = new PeachtreeBus.Model.QueueMessage
+                MessageData = new QueueMessage
                 {
                     MessageId = Guid.NewGuid(),
                 },
@@ -240,7 +239,8 @@ namespace PeachtreeBus.Tests.Queues
                 {
                     MessageClass = "PeachtreeBus.Tests.Sagas.NotARealMessageType, PeachtreeBus.Tests"
                 },
-                Message = new TestSagaMessage1()
+                Message = new TestSagaMessage1(),
+                SourceQueue = new("SourceQueue"),
             };
         }
     }

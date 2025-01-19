@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -7,14 +6,6 @@ namespace PeachtreeBus.DataAccessTests
     [TestClass]
     public class ManagementRetrySubscribedMessageFixture : ManagementDataAccessFixtureBase
     {
-
-        [TestMethod]
-        public async Task ThrowsIfSchemaNameContainsUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.RetryFailedSubscribedMessage(1));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
         [TestMethod]
         public async Task InsertsIntoTargetTable()
         {

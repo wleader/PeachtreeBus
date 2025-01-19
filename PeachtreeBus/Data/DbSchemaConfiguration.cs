@@ -10,17 +10,17 @@
         /// <summary>
         /// The Schema name ot use.
         /// </summary>
-        string Schema { get; }
+        SchemaName Schema { get; }
     }
 
     /// <summary>
     /// An implementation of IDbSchema that holds the value in memory.
     /// </summary>
     public class DbSchemaConfiguration(
-        string schema = "PeachtreeBus")
+        SchemaName? schema = null)
         : IDbSchemaConfiguration
     {
         /// <inheritdoc/>
-        public string Schema { get; private set; } = schema;
+        public SchemaName Schema { get; private set; } = schema ?? new("PeachtreeBus");
     }
 }

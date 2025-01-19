@@ -24,18 +24,6 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Proves that statements do not run when schema contains characters
-        /// that are a SQL injection risk.
-        /// </summary>
-        [TestMethod]
-        public async Task GetSubscribers_ThrowsWhenSchemaContainsUnsafe()
-        {
-            var category = "TestCategory";
-            var action = new Func<Task>(async () => await dataAccess.GetSubscribers(category)); ;
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
         /// Proves that the correct SubscriberIds are returned.
         /// </summary>
         /// <returns></returns>

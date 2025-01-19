@@ -9,15 +9,16 @@ namespace PeachtreeBus.Tests
         [TestMethod]
         public void DbSchemaConfiguration_ReturnsSchemaNameProvidedToConstructor()
         {
-            IDbSchemaConfiguration schema = new DbSchemaConfiguration("TestSchema");
-            Assert.AreEqual("TestSchema", schema.Schema);
+            var expected = new SchemaName("TestSchema");
+            IDbSchemaConfiguration schema = new DbSchemaConfiguration(expected);
+            Assert.AreEqual(expected, schema.Schema);
         }
 
         [TestMethod]
         public void DbSchemaConfiguration_UsesCorrectDefault()
         {
-            IDbSchemaConfiguration schema = new DbSchemaConfiguration();
-            Assert.AreEqual("PeachtreeBus", schema.Schema);
+            IDbSchemaConfiguration schema = new DbSchemaConfiguration(null);
+            Assert.AreEqual("PeachtreeBus", schema.Schema.Value);
         }
     }
 }

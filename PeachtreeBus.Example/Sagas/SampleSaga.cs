@@ -30,11 +30,13 @@ namespace PeachtreeBus.Example.Sagas
         private readonly IExampleDataAccess _dataAccess = dataAccess;
         private readonly IQueueWriter _queueWriter = queueWriter;
 
+        private static readonly SagaName _sagaName = new("SampleSaga");
+
         /// <summary>
         /// A saga must provide a saga name, This value is used to ensure that each saga 
         /// has its own data table in database. This value must be unique for each of your sagas.
         /// </summary>
-        public override string SagaName => "SampleSaga";
+        public override SagaName SagaName => _sagaName;
 
         /// <summary>
         /// Describes how to find the correct row in the saga data table for any given message being handled.

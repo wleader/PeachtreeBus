@@ -6,16 +6,16 @@
     /// </summary>
     public interface IQueueConfiguration
     {
-        string QueueName { get; }
+        QueueName QueueName { get; }
     }
 
     /// <summary>
     /// A default implementation of IQueueConfiguration
     /// </summary>
     public class QueueConfiguration(
-        string queueName)
+        QueueName queueName)
         : IQueueConfiguration
     {
-        public string QueueName { get; private set; } = queueName;
+        public QueueName QueueName { get; private set; } = queueName;
     }
 }

@@ -10,7 +10,7 @@
         /// Each saga must have a unique name in the system.
         /// This is used to build the table name for the saga data.
         /// </summary>
-        public abstract string SagaName { get; }
+        public abstract SagaName SagaName { get; }
 
         /// <summary>
         /// Holds Arbitrary data that will be persisted between saga message handlers.

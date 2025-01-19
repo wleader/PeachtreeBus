@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Sagas;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,7 +42,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10);
             Assert.AreEqual(2, CountRowsInTable(DefaultSagaTable));
 
-            var updatedSaga = new Model.SagaData
+            var updatedSaga = new SagaData
             {
                 Id = newSaga1.Id,
                 Blocked = true, // doesn't actually get stored.
@@ -67,26 +68,6 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(newSaga1.Key, actualSaga1.Key); // key shouldn't change.
             Assert.AreEqual(newSaga1.SagaId, actualSaga1.SagaId); // SagaId Shouldn't change
             Assert.AreEqual(updatedSaga.Data, actualSaga1.Data); // Data should change
-        }
-
-        /// <summary>
-        /// Proves that unsafe schema is not allowed
-        /// </summary>
-        [TestMethod]
-        public async Task UpdateSaga_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(() => dataAccess.Update(new Model.SagaData(), DefaultSagaName));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
-        /// proves that unsafe saga names are not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task UpdateSaga_ThrowsIfSagaNameContainsUnsafe()
-        {
-            var action = new Func<string, Task>((s) => dataAccess.Update(new Model.SagaData(), s));
-            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

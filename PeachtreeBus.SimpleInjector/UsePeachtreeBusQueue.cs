@@ -13,7 +13,7 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="container"></param>
         /// <param name="queueName"></param>
         /// <returns></returns>
-        public static Container UsePeachtreeBusQueue(this Container container, string queueName)
+        public static Container UsePeachtreeBusQueue(this Container container, QueueName queueName)
         {
             // specify which queue this process is reading from
             container.RegisterSingleton(typeof(IQueueConfiguration), () => new QueueConfiguration(queueName));

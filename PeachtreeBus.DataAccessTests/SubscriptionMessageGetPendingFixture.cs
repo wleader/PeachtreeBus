@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Model;
+using PeachtreeBus.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -163,16 +163,6 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_ThrowsIfSubscriberIsGuidEmpty()
         {
             await dataAccess.GetPendingSubscribed(Guid.Empty);
-        }
-
-        /// <summary>
-        /// Proves that unsafe schema is not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task GetPendingSubscriptionMessage_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(() => dataAccess.GetPendingSubscribed(Guid.NewGuid()));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
 
         [TestMethod]

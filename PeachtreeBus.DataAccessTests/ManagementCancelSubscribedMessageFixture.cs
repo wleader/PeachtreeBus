@@ -8,13 +8,6 @@ namespace PeachtreeBus.DataAccessTests
     public class ManagementCancelSubscribedMessageFixture : ManagementDataAccessFixtureBase
     {
         [TestMethod]
-        public async Task ThrowsIfSchemaNameContainsUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.CancelPendingSubscribedMessage(1));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        [TestMethod]
         public async Task InsertsIntoTargetTable()
         {
             var s1 = await CreatePendingSubscribed();

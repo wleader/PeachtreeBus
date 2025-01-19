@@ -49,8 +49,7 @@ namespace PeachtreeBus.Subscriptions
             if (notBefore.HasValue && notBefore.Value.Kind == DateTimeKind.Unspecified)
                 throw new ArgumentException($"{nameof(notBefore)} must not have an Unspecified DateTimeKind.", nameof(notBefore));
 
-            if (!typeof(ISubscribedMessage).IsAssignableFrom(type))
-                throw new MissingInterfaceException(type, typeof(ISubscribedMessage));
+            TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(type);
 
             // expire any out of data subscribers so we don't waste resources
             // sending to subscribers that are not renewing their subscriptions.
@@ -78,7 +77,7 @@ namespace PeachtreeBus.Subscriptions
             {
 
                 // create the message entity, serializing the headers and body.
-                var sm = new Model.SubscribedMessage
+                var sm = new SubscribedMessage
                 {
                     ValidUntil = validUntil,
                     SubscriberId = subscriber,

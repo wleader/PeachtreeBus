@@ -26,7 +26,6 @@ namespace PeachtreeBus.Tests.Subscriptions
         }
 
         [TestMethod]
-        [ExpectedException(typeof(MissingInterfaceException))]
         public async Task Given_MessageIsNotISubscribedMessage_Then_ThrowsUsefulException()
         {
             var context = new InternalSubscribedContext
@@ -36,7 +35,8 @@ namespace PeachtreeBus.Tests.Subscriptions
                     MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName!
                 }
             };
-            await _testSubject.Invoke(context, null);
+            await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
+                _testSubject.Invoke(context, null));
         }
 
 
@@ -87,11 +87,11 @@ namespace PeachtreeBus.Tests.Subscriptions
         }
 
         [TestMethod]
-        [ExpectedException(typeof(MissingInterfaceException))]
-        public async Task Given_AMessageThatDoesNotImplementIQueueMessage_When_Invoke_Then_Throws()
+        public async Task Given_AMessageThatDoesNotImplementISubscribedMessage_When_Invoke_Then_Throws()
         {
             var context = GetContext<object>();// object does not implement IQueueMessage
-            await _testSubject.Invoke(context, null);
+            await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
+                _testSubject.Invoke(context, null));
         }
 
         private static InternalSubscribedContext GetContext<TMessage>()
@@ -113,7 +113,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             return new InternalSubscribedContext()
             {
-                MessageData = new PeachtreeBus.Model.SubscribedMessage
+                MessageData = new SubscribedMessage
                 {
                     MessageId = Guid.NewGuid(),
                 },

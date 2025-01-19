@@ -1,7 +1,9 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Model;
+using PeachtreeBus.Queues;
+using PeachtreeBus.Sagas;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,8 +23,7 @@ namespace PeachtreeBus.Data
         ISharedDatabase database,
         IDbSchemaConfiguration schemaConfig,
         ILogger<DapperDataAccess> log)
-        : BaseDataAccess
-        , IBusDataAccess
+        : IBusDataAccess
     {
         static DapperDataAccess()
         {
@@ -33,8 +34,6 @@ namespace PeachtreeBus.Data
         private readonly ILogger<DapperDataAccess> _log = log;
         private readonly IDbSchemaConfiguration _schemaConfig = schemaConfig;
 
-        const string SagaNameUnsafe = "The saga name contains not allowable characters.";
-
         /// <summary>
         /// Adds a queue message to the queue's pending table.
         /// </summary>
@@ -43,7 +42,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<long> AddMessage(QueueMessage message, string queueName)
+        public async Task<long> AddMessage(QueueMessage message, QueueName queueName)
         {
             const string EnqueueMessageStatement =
                 """
@@ -54,10 +53,6 @@ namespace PeachtreeBus.Data
                 (@MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName))
-                throw new ArgumentException(QueueNameUnsafe);
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
             if (message.MessageId == null)
@@ -95,7 +90,7 @@ namespace PeachtreeBus.Data
         /// <param name="queueName"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<QueueMessage?> GetPendingQueued(string queueName)
+        public async Task<QueueMessage?> GetPendingQueued(QueueName queueName)
         {
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.
@@ -109,11 +104,6 @@ namespace PeachtreeBus.Data
                 WHERE NotBefore < SYSUTCDATETIME()
                 ORDER BY [Priority] DESC
                 """;
-
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName))
-                throw new ArgumentException(QueueNameUnsafe);
 
             var query = string.Format(GetOnePendingMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -136,7 +126,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task CompleteMessage(QueueMessage message, string queueName)
+        public async Task CompleteMessage(QueueMessage message, QueueName queueName)
         {
             const string CompleteMessageStatement =
                 """
@@ -148,10 +138,6 @@ namespace PeachtreeBus.Data
                       WHERE [Id] = @Id) D
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName))
-                throw new ArgumentException(QueueNameUnsafe);
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
             if (string.IsNullOrEmpty(message.Headers))
@@ -182,7 +168,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task FailMessage(QueueMessage message, string queueName)
+        public async Task FailMessage(QueueMessage message, QueueName queueName)
         {
             const string FailMessageStatement =
                 """
@@ -194,10 +180,6 @@ namespace PeachtreeBus.Data
                       WHERE [Id] = @Id) D
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName))
-                throw new ArgumentException(QueueNameUnsafe);
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
             if (string.IsNullOrEmpty(message.Headers))
@@ -228,7 +210,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task Update(QueueMessage message, string queueName)
+        public async Task Update(QueueMessage message, QueueName queueName)
         {
             const string UpdateMessageStatement =
                 """
@@ -239,10 +221,6 @@ namespace PeachtreeBus.Data
                 WHERE [Id] = @Id
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName))
-                throw new ArgumentException(QueueNameUnsafe);
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
             if (message.NotBefore == null)
@@ -277,7 +255,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<long> Insert(SagaData data, string sagaName)
+        public async Task<long> Insert(SagaData data, SagaName sagaName)
         {
             const string InsertSagaStatement =
                 """
@@ -288,10 +266,6 @@ namespace PeachtreeBus.Data
                 (@SagaId, @Key, @Data)
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(sagaName))
-                throw new ArgumentException(SagaNameUnsafe);
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
             if (data.SagaId == null)
@@ -327,7 +301,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task Update(SagaData data, string sagaName)
+        public async Task Update(SagaData data, SagaName sagaName)
         {
             const string UpdateSagaStatement =
                 """
@@ -336,10 +310,6 @@ namespace PeachtreeBus.Data
                 WHERE [Id] = @Id
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(sagaName))
-                throw new ArgumentException(SagaNameUnsafe);
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
             if (string.IsNullOrEmpty(data.Data))
@@ -369,7 +339,7 @@ namespace PeachtreeBus.Data
         /// <param name="key"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task DeleteSagaData(string sagaName, string key)
+        public async Task DeleteSagaData(SagaName sagaName, string key)
         {
             const string DeleteSagaStatement =
                 """
@@ -377,10 +347,6 @@ namespace PeachtreeBus.Data
                 WHERE [Key] = @Key
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(sagaName))
-                throw new ArgumentException(SagaNameUnsafe);
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentException($"{nameof(key)} must be not null and not empty.");
 
@@ -406,7 +372,7 @@ namespace PeachtreeBus.Data
         /// <param name="key"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<SagaData?> GetSagaData(string sagaName, string key)
+        public async Task<SagaData?> GetSagaData(SagaName sagaName, string key)
         {
             // This is a multi-step operation.
             // First we try to select and lock the target row into variables with an UPDLOCK and NOWAIT.
@@ -456,10 +422,6 @@ namespace PeachtreeBus.Data
                 END CATCH
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(sagaName))
-                throw new ArgumentException(SagaNameUnsafe);
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentException($"{nameof(key)} must be not null and not empty.");
 
@@ -491,9 +453,6 @@ namespace PeachtreeBus.Data
                 DELETE FROM [{0}].[Subscriptions] WITH (ROWLOCK, READPAST)
                 WHERE [ValidUntil] < SYSUTCDATETIME()
                 """;
-
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
 
             string statement = string.Format(ExpireSubscriptionsStatement, _schemaConfig.Schema);
 
@@ -532,9 +491,6 @@ namespace PeachtreeBus.Data
                     (@SubscriberId, @Category, @ValidUntil)
                 END
                 """;
-
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
 
             if (subscriberId == Guid.Empty)
                 throw new ArgumentException($"{nameof(subscriberId)} must not be Guid.Empty");
@@ -579,9 +535,6 @@ namespace PeachtreeBus.Data
                     ORDER BY [Priority] DESC
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-
             if (subscriberId == Guid.Empty)
                 throw new ArgumentException($"{nameof(subscriberId)} must not be Guid.Empty");
 
@@ -619,8 +572,6 @@ namespace PeachtreeBus.Data
                 (@SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
             if (message.MessageId == null)
@@ -677,8 +628,6 @@ namespace PeachtreeBus.Data
                         WHERE [Id] = @Id) D
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
             if (string.IsNullOrEmpty(message.Headers))
@@ -720,8 +669,6 @@ namespace PeachtreeBus.Data
                         WHERE [Id] = @Id) D
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
             if (string.IsNullOrEmpty(message.Headers))
@@ -762,8 +709,6 @@ namespace PeachtreeBus.Data
                 WHERE [Id] = @Id
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
             if (message.NotBefore == null)
@@ -809,9 +754,6 @@ namespace PeachtreeBus.Data
                         WHERE [ValidUntil] < SYSUTCDATETIME()) D
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-
             var statement = string.Format(ExpireStatement, _schemaConfig.Schema);
 
             try
@@ -840,9 +782,6 @@ namespace PeachtreeBus.Data
                     WHERE [Category] = @Category
                     AND [ValidUntil] > SYSUTCDATETIME()
                 """;
-
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
 
             var statement = string.Format(GetStatement, _schemaConfig.Schema);
 
@@ -876,9 +815,6 @@ namespace PeachtreeBus.Data
                     WHERE Completed < @OlderThan
                 SELECT @@ROWCOUNT
                 """;
-
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
 
             string statement = string.Format(statementTemplate, _schemaConfig.Schema);
 
@@ -914,9 +850,6 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-
             string statement = string.Format(statementTemplate, _schemaConfig.Schema);
 
             var p = new DynamicParameters();
@@ -942,7 +875,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<long> CleanQueueCompleted(string queueName, DateTime olderthan, int maxCount)
+        public async Task<long> CleanQueueCompleted(QueueName queueName, DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 """
@@ -950,11 +883,6 @@ namespace PeachtreeBus.Data
                     WHERE Completed < @OlderThan
                 SELECT @@ROWCOUNT
                 """;
-
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName))
-                throw new ArgumentException(QueueNameUnsafe);
 
             string statement = string.Format(statementTemplate, _schemaConfig.Schema, queueName);
 
@@ -981,7 +909,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<long> CleanQueueFailed(string queueName, DateTime olderthan, int maxCount)
+        public async Task<long> CleanQueueFailed(QueueName queueName, DateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 """
@@ -989,11 +917,6 @@ namespace PeachtreeBus.Data
                     WHERE Failed < @OlderThan
                 SELECT @@ROWCOUNT
                 """;
-
-            if (IsUnsafe(_schemaConfig.Schema))
-                throw new ArgumentException(SchemaUnsafe);
-            if (IsUnsafe(queueName))
-                throw new ArgumentException(QueueNameUnsafe);
 
             string statement = string.Format(statementTemplate, _schemaConfig.Schema, queueName);
 

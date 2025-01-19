@@ -19,7 +19,7 @@ namespace PeachtreeBus.Queues
         /// <param name="message"></param>
         /// <param name="notBefore"></param>
         /// <returns></returns>
-        Task WriteMessage(string queueName, Type type, object message, DateTime? notBefore = null, int priority = 0);
+        Task WriteMessage(QueueName queueName, Type type, object message, DateTime? notBefore = null, int priority = 0);
     }
 
     /// <summary>
@@ -35,17 +35,12 @@ namespace PeachtreeBus.Queues
         private readonly ISerializer _serializer = serializer;
         private readonly ISystemClock _clock = clock;
 
-        public async Task WriteMessage(string queueName, Type type, object message, DateTime? notBefore = null, int priority = 0)
+        public async Task WriteMessage(QueueName queueName, Type type, object message, DateTime? notBefore = null, int priority = 0)
         {
             if (message == null) throw new ArgumentNullException(nameof(message), $"{nameof(message)} must not be null.");
             if (type == null) throw new ArgumentNullException(nameof(type), $"{nameof(type)} must not be null.");
-            if (string.IsNullOrWhiteSpace(queueName)) throw new ArgumentNullException($"{nameof(queueName)} must not be null and not empty.");
 
-            if (notBefore.HasValue && notBefore.Value.Kind == DateTimeKind.Unspecified)
-                throw new ArgumentException($"{nameof(notBefore)} must not have an Unspecified DateTimeKind.", nameof(notBefore));
-
-            if (!typeof(IQueueMessage).IsAssignableFrom(type))
-                throw new MissingInterfaceException(type, typeof(IQueueMessage));
+            TypeIsNotIQueueMessageException.ThrowIfMissingInterface(type);
 
             // note the type in the headers so it can be deserialized.
             var headers = new Headers
@@ -54,11 +49,11 @@ namespace PeachtreeBus.Queues
             };
 
             // create the message entity, serializing the headers and body.
-            var qm = new Model.QueueMessage
+            var qm = new QueueMessage
             {
                 MessageId = Guid.NewGuid(),
                 Priority = priority,
-                NotBefore = notBefore.HasValue ? notBefore.Value.ToUniversalTime() : _clock.UtcNow,
+                NotBefore = notBefore ?? _clock.UtcNow,
                 Enqueued = _clock.UtcNow,
                 Completed = null,
                 Failed = null,
@@ -80,7 +75,7 @@ namespace PeachtreeBus.Queues
         /// <summary>
         /// Writes a message to a queue
         /// </summary>
-        public static async Task WriteMessage<T>(this IQueueWriter writer, string queueName, T message, DateTime? NotBefore = null, int priority = 0)
+        public static async Task WriteMessage<T>(this IQueueWriter writer, QueueName queueName, T message, DateTime? NotBefore = null, int priority = 0)
             where T : notnull
         {
             await writer.WriteMessage(queueName, typeof(T), message, NotBefore, priority);

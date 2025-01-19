@@ -25,28 +25,28 @@
     <Namespace name="PeachtreeBus_Queues">
         <Class name="QueueReader">
             <Event name="HeaderNotDeserializable" level="Warning" exception="true">
-                Headers could not be deserialized for message {MessageId:Guid} from queue {QueueName:string}.
+                Headers could not be deserialized for message {MessageId:Guid} from queue {QueueName:QueueName}.
             </Event>
             <Event name="BodyNotDeserializable" level="Warning" exception="true">
-                Body could not be deserialized for message {MessageId:Guid} from queue {QueueName:string}.
+                Body could not be deserialized for message {MessageId:Guid} from queue {QueueName:QueueName}.
             </Event>
             <Event name="MessageClassNotRecognized" level="Warning">
-                Message class '{MessageClass:string}' was not recognized for message {MessageId:Guid} from queue {QueueName:string}.
+                Message class '{MessageClass:string}' was not recognized for message {MessageId:Guid} from queue {QueueName:QueueName}.
             </Event>
             <Event name="MessageExceededMaxRetries" level="Warning">
-                Message {MessageId:Guid} from queue {QueueName:string} exceeded the maximum number of allowed retries ({MaxRetries:int}) and has failed.
+                Message {MessageId:Guid} from queue {QueueName:QueueName} exceeded the maximum number of allowed retries ({MaxRetries:int}) and has failed.
             </Event>
             <Event name="MessageWillBeRetried" level="Warning">
-                Message {MessageId:Guid} from queue {QueueName:string} will be retried after {NotBefore:DateTime}.
+                Message {MessageId:Guid} from queue {QueueName:QueueName} will be retried after {NotBefore:DateTime}.
             </Event>
             <Event name="LoadingSagaData" level="Information">
-                Loading saga data for {SagaName:string} - {SagaKey:string}.
+                Loading saga data for {SagaName:SagaName} - {SagaKey:string}.
             </Event>
             <Event name="DeletingSagaData" level="Information">
-                Deleting saga data for {SagaName:string} - {SagaKey:string}.
+                Deleting saga data for {SagaName:SagaName} - {SagaKey:string}.
             </Event>
             <Event name="SavingSagaData" level="Information">
-                Saving saga data for {SagaName:string} - {SagaKey:string}.
+                Saving saga data for {SagaName:SagaName} - {SagaKey:string}.
             </Event>
         </Class>
         <Class name="QueueWork">

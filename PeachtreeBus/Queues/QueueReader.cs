@@ -2,7 +2,7 @@
 using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
-using PeachtreeBus.Model;
+using PeachtreeBus.Sagas;
 using System;
 using System.Threading.Tasks;
 
@@ -24,7 +24,7 @@ namespace PeachtreeBus.Queues
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        Task<InternalQueueContext?> GetNext(string queueName);
+        Task<InternalQueueContext?> GetNext(QueueName queueName);
 
         /// <summary>
         /// Marks a message as successfully processed.
@@ -90,7 +90,7 @@ namespace PeachtreeBus.Queues
         public byte MaxRetries { get; set; } = 5;
 
         /// <inheritdoc/>
-        public async Task<InternalQueueContext?> GetNext(string queueName)
+        public async Task<InternalQueueContext?> GetNext(QueueName queueName)
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.
@@ -130,7 +130,7 @@ namespace PeachtreeBus.Queues
             }
             else
             {
-                _log.QueueReader_MessageClassNotRecognized(queueName, queueMessage.MessageId, headers.MessageClass);
+                _log.QueueReader_MessageClassNotRecognized(headers.MessageClass, queueMessage.MessageId, queueName);
             }
 
             // return the new message context.
@@ -182,7 +182,7 @@ namespace PeachtreeBus.Queues
             // work out the class name of the saga.
             var sagaType = saga.GetType();
             var nameProperty = sagaType.GetProperty("SagaName");
-            var sagaName = (string)nameProperty.GetValue(saga);
+            var sagaName = (SagaName)nameProperty.GetValue(saga);
 
             // fetch the data from the DB.
             _log.QueueReader_LoadingSagaData(sagaName, context.SagaKey);
@@ -222,7 +222,7 @@ namespace PeachtreeBus.Queues
         {
             var sagaType = saga.GetType();
             var nameProperty = sagaType.GetProperty("SagaName");
-            var sagaName = (string)nameProperty.GetValue(saga);
+            var sagaName = (SagaName)nameProperty.GetValue(saga);
 
             // if the saga is complete, we can delete the data.
             var completeProperty = sagaType.GetProperty("SagaComplete");

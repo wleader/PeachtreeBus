@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,13 +23,5 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(actual[0].Id, s3.Id, "Newer Expected is not correct.");
             Assert.AreEqual(actual[1].Id, s2.Id, "Older Expected is not correct.");
         }
-
-        [TestMethod]
-        public async Task ThrowsIfSchemaNameContainsUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.GetCompletedSubscribedMessages(1, 2));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
     }
 }

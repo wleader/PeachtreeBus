@@ -84,15 +84,5 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
         }
-
-        /// <summary>
-        /// Proves that unsafe schema is not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task ExpireMessages_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(() => dataAccess.ExpireSubscriptionMessages());
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
     }
 }

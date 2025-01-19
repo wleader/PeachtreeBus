@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PeachtreeBus.Queues;
+using System;
 
 namespace PeachtreeBus.Cleaners
 {
@@ -10,14 +11,14 @@ namespace PeachtreeBus.Cleaners
         /// <summary>
         /// The Queue that will be cleaned.
         /// </summary>
-        public string QueueName { get; }
+        public QueueName QueueName { get; }
     }
 
     /// <summary>
     /// A default implementation of IQueueCleanerConfiguration
     /// </summary>
     public class QueueCleanerConfiguration(
-        string queueName,
+        QueueName queueName,
         int maxDeleteCount,
         bool cleanCompleted,
         bool cleanFailed,
@@ -26,6 +27,6 @@ namespace PeachtreeBus.Cleaners
         : BaseCleanupConfiguration(maxDeleteCount, cleanCompleted, cleanFailed, ageLimit, interval)
         , IQueueCleanerConfiguration
     {
-        public string QueueName { get; private set; } = queueName;
+        public QueueName QueueName { get; private set; } = queueName;
     }
 }

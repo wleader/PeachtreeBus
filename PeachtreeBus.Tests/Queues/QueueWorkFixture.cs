@@ -23,6 +23,7 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<IBusDataAccess> dataAccess = default!;
         private InternalQueueContext context = default!;
         private Mock<IQueuePipelineInvoker> pipelineInvoker = default!;
+        private readonly QueueName testQueue = new("TestQueue");
 
         [TestInitialize]
         public void TestInitialize()
@@ -36,7 +37,7 @@ namespace PeachtreeBus.Tests.Queues
 
             context = CreateContext();
 
-            reader.Setup(r => r.GetNext("TestQueue"))
+            reader.Setup(r => r.GetNext(testQueue))
                 .ReturnsAsync(context);
 
             work = new QueueWork(log.Object,
@@ -45,7 +46,7 @@ namespace PeachtreeBus.Tests.Queues
                 dataAccess.Object,
                 pipelineInvoker.Object)
             {
-                QueueName = "TestQueue"
+                QueueName = testQueue
             };
         }
 
@@ -56,7 +57,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Given_NoPendingMessages_When_DoWork_ThenReturnFalse()
         {
-            reader.Setup(r => r.GetNext("TestQueue"))
+            reader.Setup(r => r.GetNext(testQueue))
                 .ReturnsAsync((InternalQueueContext)null!);
 
             var result = await work.DoWork();
@@ -136,7 +137,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             return new InternalQueueContext()
             {
-                MessageData = new PeachtreeBus.Model.QueueMessage
+                MessageData = new QueueMessage
                 {
                     MessageId = Guid.NewGuid(),
                 },

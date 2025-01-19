@@ -1,6 +1,8 @@
 ﻿//------------------------------------------------------
 // This is a generated file. Do not make manual changes.
 //------------------------------------------------------
+using PeachtreeBus.Queues;
+using PeachtreeBus.Sagas;
 using Microsoft.Extensions.Logging;
 using System;
 
@@ -70,98 +72,98 @@ namespace PeachtreeBus
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_HeaderNotDeserializable_Event
             = new(3001001, "PeachtreeBus_Queues_QueueReader_HeaderNotDeserializable");
-        internal static readonly Action<ILogger, Guid, string, Exception> PeachtreeBus_Queues_QueueReader_HeaderNotDeserializable_Action
-            = LoggerMessage.Define<Guid, string>(LogLevel.Warning,
+        internal static readonly Action<ILogger, Guid, QueueName, Exception> PeachtreeBus_Queues_QueueReader_HeaderNotDeserializable_Action
+            = LoggerMessage.Define<Guid, QueueName>(LogLevel.Warning,
                 PeachtreeBus_Queues_QueueReader_HeaderNotDeserializable_Event,
                 "Headers could not be deserialized for message {MessageId} from queue {QueueName}.");
         /// <summary>
         /// (3001001) Warning: Headers could not be deserialized for message {MessageId} from queue {QueueName}.
         /// </summary>
-        public static void QueueReader_HeaderNotDeserializable(this ILogger logger, Guid messageId, string queueName, Exception ex)
+        public static void QueueReader_HeaderNotDeserializable(this ILogger logger, Guid messageId, QueueName queueName, Exception ex)
             => PeachtreeBus_Queues_QueueReader_HeaderNotDeserializable_Action(logger, messageId, queueName, ex);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_BodyNotDeserializable_Event
             = new(3001002, "PeachtreeBus_Queues_QueueReader_BodyNotDeserializable");
-        internal static readonly Action<ILogger, Guid, string, Exception> PeachtreeBus_Queues_QueueReader_BodyNotDeserializable_Action
-            = LoggerMessage.Define<Guid, string>(LogLevel.Warning,
+        internal static readonly Action<ILogger, Guid, QueueName, Exception> PeachtreeBus_Queues_QueueReader_BodyNotDeserializable_Action
+            = LoggerMessage.Define<Guid, QueueName>(LogLevel.Warning,
                 PeachtreeBus_Queues_QueueReader_BodyNotDeserializable_Event,
                 "Body could not be deserialized for message {MessageId} from queue {QueueName}.");
         /// <summary>
         /// (3001002) Warning: Body could not be deserialized for message {MessageId} from queue {QueueName}.
         /// </summary>
-        public static void QueueReader_BodyNotDeserializable(this ILogger logger, Guid messageId, string queueName, Exception ex)
+        public static void QueueReader_BodyNotDeserializable(this ILogger logger, Guid messageId, QueueName queueName, Exception ex)
             => PeachtreeBus_Queues_QueueReader_BodyNotDeserializable_Action(logger, messageId, queueName, ex);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Event
             = new(3001003, "PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized");
-        internal static readonly Action<ILogger, string, Guid, string, Exception> PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Action
-            = LoggerMessage.Define<string, Guid, string>(LogLevel.Warning,
+        internal static readonly Action<ILogger, string, Guid, QueueName, Exception> PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Action
+            = LoggerMessage.Define<string, Guid, QueueName>(LogLevel.Warning,
                 PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Event,
                 "Message class '{MessageClass}' was not recognized for message {MessageId} from queue {QueueName}.");
         /// <summary>
         /// (3001003) Warning: Message class '{MessageClass}' was not recognized for message {MessageId} from queue {QueueName}.
         /// </summary>
-        public static void QueueReader_MessageClassNotRecognized(this ILogger logger, string messageClass, Guid messageId, string queueName)
+        public static void QueueReader_MessageClassNotRecognized(this ILogger logger, string messageClass, Guid messageId, QueueName queueName)
             => PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Action(logger, messageClass, messageId, queueName, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Event
             = new(3001004, "PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries");
-        internal static readonly Action<ILogger, Guid, string, int, Exception> PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Action
-            = LoggerMessage.Define<Guid, string, int>(LogLevel.Warning,
+        internal static readonly Action<ILogger, Guid, QueueName, int, Exception> PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Action
+            = LoggerMessage.Define<Guid, QueueName, int>(LogLevel.Warning,
                 PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Event,
                 "Message {MessageId} from queue {QueueName} exceeded the maximum number of allowed retries ({MaxRetries}) and has failed.");
         /// <summary>
         /// (3001004) Warning: Message {MessageId} from queue {QueueName} exceeded the maximum number of allowed retries ({MaxRetries}) and has failed.
         /// </summary>
-        public static void QueueReader_MessageExceededMaxRetries(this ILogger logger, Guid messageId, string queueName, int maxRetries)
+        public static void QueueReader_MessageExceededMaxRetries(this ILogger logger, Guid messageId, QueueName queueName, int maxRetries)
             => PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Action(logger, messageId, queueName, maxRetries, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_MessageWillBeRetried_Event
             = new(3001005, "PeachtreeBus_Queues_QueueReader_MessageWillBeRetried");
-        internal static readonly Action<ILogger, Guid, string, DateTime, Exception> PeachtreeBus_Queues_QueueReader_MessageWillBeRetried_Action
-            = LoggerMessage.Define<Guid, string, DateTime>(LogLevel.Warning,
+        internal static readonly Action<ILogger, Guid, QueueName, DateTime, Exception> PeachtreeBus_Queues_QueueReader_MessageWillBeRetried_Action
+            = LoggerMessage.Define<Guid, QueueName, DateTime>(LogLevel.Warning,
                 PeachtreeBus_Queues_QueueReader_MessageWillBeRetried_Event,
                 "Message {MessageId} from queue {QueueName} will be retried after {NotBefore}.");
         /// <summary>
         /// (3001005) Warning: Message {MessageId} from queue {QueueName} will be retried after {NotBefore}.
         /// </summary>
-        public static void QueueReader_MessageWillBeRetried(this ILogger logger, Guid messageId, string queueName, DateTime notBefore)
+        public static void QueueReader_MessageWillBeRetried(this ILogger logger, Guid messageId, QueueName queueName, DateTime notBefore)
             => PeachtreeBus_Queues_QueueReader_MessageWillBeRetried_Action(logger, messageId, queueName, notBefore, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_LoadingSagaData_Event
             = new(3001006, "PeachtreeBus_Queues_QueueReader_LoadingSagaData");
-        internal static readonly Action<ILogger, string, string, Exception> PeachtreeBus_Queues_QueueReader_LoadingSagaData_Action
-            = LoggerMessage.Define<string, string>(LogLevel.Information,
+        internal static readonly Action<ILogger, SagaName, string, Exception> PeachtreeBus_Queues_QueueReader_LoadingSagaData_Action
+            = LoggerMessage.Define<SagaName, string>(LogLevel.Information,
                 PeachtreeBus_Queues_QueueReader_LoadingSagaData_Event,
                 "Loading saga data for {SagaName} - {SagaKey}.");
         /// <summary>
         /// (3001006) Information: Loading saga data for {SagaName} - {SagaKey}.
         /// </summary>
-        public static void QueueReader_LoadingSagaData(this ILogger logger, string sagaName, string sagaKey)
+        public static void QueueReader_LoadingSagaData(this ILogger logger, SagaName sagaName, string sagaKey)
             => PeachtreeBus_Queues_QueueReader_LoadingSagaData_Action(logger, sagaName, sagaKey, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_DeletingSagaData_Event
             = new(3001007, "PeachtreeBus_Queues_QueueReader_DeletingSagaData");
-        internal static readonly Action<ILogger, string, string, Exception> PeachtreeBus_Queues_QueueReader_DeletingSagaData_Action
-            = LoggerMessage.Define<string, string>(LogLevel.Information,
+        internal static readonly Action<ILogger, SagaName, string, Exception> PeachtreeBus_Queues_QueueReader_DeletingSagaData_Action
+            = LoggerMessage.Define<SagaName, string>(LogLevel.Information,
                 PeachtreeBus_Queues_QueueReader_DeletingSagaData_Event,
                 "Deleting saga data for {SagaName} - {SagaKey}.");
         /// <summary>
         /// (3001007) Information: Deleting saga data for {SagaName} - {SagaKey}.
         /// </summary>
-        public static void QueueReader_DeletingSagaData(this ILogger logger, string sagaName, string sagaKey)
+        public static void QueueReader_DeletingSagaData(this ILogger logger, SagaName sagaName, string sagaKey)
             => PeachtreeBus_Queues_QueueReader_DeletingSagaData_Action(logger, sagaName, sagaKey, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_SavingSagaData_Event
             = new(3001008, "PeachtreeBus_Queues_QueueReader_SavingSagaData");
-        internal static readonly Action<ILogger, string, string, Exception> PeachtreeBus_Queues_QueueReader_SavingSagaData_Action
-            = LoggerMessage.Define<string, string>(LogLevel.Information,
+        internal static readonly Action<ILogger, SagaName, string, Exception> PeachtreeBus_Queues_QueueReader_SavingSagaData_Action
+            = LoggerMessage.Define<SagaName, string>(LogLevel.Information,
                 PeachtreeBus_Queues_QueueReader_SavingSagaData_Event,
                 "Saving saga data for {SagaName} - {SagaKey}.");
         /// <summary>
         /// (3001008) Information: Saving saga data for {SagaName} - {SagaKey}.
         /// </summary>
-        public static void QueueReader_SavingSagaData(this ILogger logger, string sagaName, string sagaKey)
+        public static void QueueReader_SavingSagaData(this ILogger logger, SagaName sagaName, string sagaKey)
             => PeachtreeBus_Queues_QueueReader_SavingSagaData_Action(logger, sagaName, sagaKey, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueWork_ProcessingMessage_Event

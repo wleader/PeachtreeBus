@@ -2,7 +2,6 @@
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
-using PeachtreeBus.Model;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests.Sagas;
 using System;
@@ -419,10 +418,10 @@ namespace PeachtreeBus.Tests.Subscriptions
         }
 
         [TestMethod]
-        [ExpectedException(typeof(MissingInterfaceException))]
         public async Task Given_MessageIsNotISubscribedMessage_When_WriteMessage_Then_ThrowsUsefulException()
         {
-            await publisher.Publish("cat2", typeof(MessageWithoutInterface), new MessageWithoutInterface(), null);
+            await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
+                publisher.Publish("cat2", typeof(MessageWithoutInterface), new MessageWithoutInterface(), null));
         }
     }
 }

@@ -4,6 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Queues;
+using PeachtreeBus.Sagas;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Data;
 using System.Threading.Tasks;
@@ -45,13 +48,15 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         protected Mock<ILogger<TAccess>> MockLog = default!;
 
-        protected const string DefaultSchema = "PeachtreeBus";
-        protected const string DefaultQueue = "QueueName";
-        protected const string QueuePendingTable = DefaultQueue + "_Pending";
-        protected const string QueueCompletedTable = DefaultQueue + "_Completed";
-        protected const string QueueFailedTable = DefaultQueue + "_Failed";
-        protected const string DefaultSagaName = "SagaName";
-        protected const string DefaultSagaTable = DefaultSagaName + "_SagaData";
+        protected readonly SchemaName DefaultSchema = new("PeachtreeBus");
+        protected const string DefaultQueueStr = "QueueName";
+        protected readonly QueueName DefaultQueue = new(DefaultQueueStr);
+        protected const string QueuePendingTable = DefaultQueueStr + "_Pending";
+        protected const string QueueCompletedTable = DefaultQueueStr + "_Completed";
+        protected const string QueueFailedTable = DefaultQueueStr + "_Failed";
+        protected const string DefaultSagaNameStr = "SagaName";
+        protected readonly SagaName DefaultSagaName = new(DefaultSagaNameStr);
+        protected const string DefaultSagaTable = DefaultSagaNameStr + "_SagaData";
         protected const string SubscriptionsTable = "Subscriptions";
         protected const string SubscribedPendingTable = "Subscribed_Pending";
         protected const string SubscribedFailedTable = "Subscribed_Failed";
@@ -227,7 +232,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="expected"></param>
         /// <param name="actual"></param>
-        protected void AssertSagaEquals(Model.SagaData expected, Model.SagaData actual)
+        protected void AssertSagaEquals(SagaData expected, SagaData actual)
         {
             if (expected == null && actual == null) return;
             Assert.IsNotNull(actual, "Actual is null, expected is not.");
@@ -246,7 +251,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="expected"></param>
         /// <param name="actual"></param>
-        protected void AssertMessageEquals(Model.QueueMessage expected, Model.QueueMessage actual)
+        protected void AssertMessageEquals(QueueMessage expected, QueueMessage actual)
         {
             if (expected == null && actual == null) return;
             Assert.IsNotNull(actual, "Actual is null, expected is not.");
@@ -267,7 +272,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="expected"></param>
         /// <param name="actual"></param>
-        protected void AssertSubscribedEquals(Model.SubscribedMessage expected, Model.SubscribedMessage actual)
+        protected void AssertSubscribedEquals(SubscribedMessage expected, SubscribedMessage actual)
         {
             if (expected == null && actual == null) return;
             Assert.IsNotNull(actual, "Actual is null, expected is not.");
@@ -319,80 +324,12 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Helper to test that an action throws an exception when the schema is unsafe.
-        /// </summary>
-        /// <param name="action"></param>
-        protected async Task ActionThrowsIfSchemaContainsPoisonChars(Func<Task> action)
-        {
-            var poison = new char[] { '\'', ';', '@', '-', '/', '*' };
-            foreach (var p in poison)
-            {
-                await ActionThrowsIfShcemaContains(action, p.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Helper to test that an action throws an exception when the schema contains
-        /// a specific character.
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="poison"></param>
-        protected async Task ActionThrowsIfShcemaContains(Func<Task> action, string poison)
-        {
-            var exceptionThrown = false;
-            MockSchema.Setup(s => s.Schema).Returns(poison);
-            try
-            {
-                await action();
-            }
-            catch (ArgumentException)
-            {
-                exceptionThrown = true;
-            }
-            Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for an unsafe schema name.");
-        }
-
-        /// <summary>
-        /// Helper function to test that an action throws an exception when a
-        /// parameter contains unsafe chacters
-        /// </summary>
-        /// <param name="action"></param>
-        protected async Task ActionThrowsIfParameterContainsPoisonChars(Func<string, Task> action)
-        {
-            var poison = new char[] { '\'', ';', '@', '-', '/', '*' };
-            foreach (var p in poison)
-            {
-                await ActionThrowsIfParameterContains(action, p.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Helper function test that an action throws an exception when a parameter
-        /// contains a specific character.
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="poison"></param>
-        protected async Task ActionThrowsIfParameterContains(Func<string, Task> action, string poison)
-        {
-            var exceptionThrown = false;
-            try
-            {
-                await action.Invoke(poison);
-            }
-            catch (ArgumentException)
-            {
-                exceptionThrown = true;
-            }
-            Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for an unsafe Parameter.");
-        }
-
-        /// <summary>
         /// Creates a new QueueMessage
         /// </summary>
         /// <returns></returns>
-        protected Model.QueueMessage CreateQueueMessage()
+        protected QueueMessage CreateQueueMessage()
         {
-            return new Model.QueueMessage
+            return new QueueMessage
             {
                 Body = "Body",
                 Completed = null,
@@ -409,9 +346,9 @@ namespace PeachtreeBus.DataAccessTests
         /// Creates a new SubscribedMessage
         /// </summary>
         /// <returns></returns>
-        protected Model.SubscribedMessage CreateSubscribed()
+        protected SubscribedMessage CreateSubscribed()
         {
-            return new Model.SubscribedMessage
+            return new SubscribedMessage
             {
                 Body = "Body",
                 Completed = null,
@@ -430,9 +367,9 @@ namespace PeachtreeBus.DataAccessTests
         /// Creates a new SagaData
         /// </summary>
         /// <returns></returns>
-        protected Model.SagaData CreateTestSagaData()
+        protected SagaData CreateTestSagaData()
         {
-            return new Model.SagaData
+            return new SagaData
             {
                 Blocked = false,
                 Data = "Data",

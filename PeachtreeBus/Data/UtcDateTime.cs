@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeachtreeBus.Model;
+namespace PeachtreeBus.Data;
 
 public readonly record struct UtcDateTime
 {

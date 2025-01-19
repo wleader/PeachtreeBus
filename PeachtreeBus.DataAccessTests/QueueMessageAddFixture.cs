@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -44,28 +43,6 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(1, messages.Count);
 
             AssertMessageEquals(newMessage, messages[0]);
-        }
-
-        /// <summary>
-        /// Proves that statements do not execute if Schema contains 
-        /// characters that are an SQL injection risk.
-        /// </summary>
-        [TestMethod]
-        public async Task AddMessage_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.AddMessage(new Model.QueueMessage(), DefaultQueue));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
-        /// Proves that statements do not execute if queue name contains
-        /// character that are an SQL injection risk
-        /// </summary>
-        [TestMethod]
-        public async Task AddMessage_ThrowsIfQueueNameContainsUnsafe()
-        {
-            var action = new Func<string, Task>(async (s) => await dataAccess.AddMessage(new Model.QueueMessage(), s));
-            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

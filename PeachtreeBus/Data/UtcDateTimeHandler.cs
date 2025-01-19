@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using PeachtreeBus.Model;
 using System;
 using System.Data;
 

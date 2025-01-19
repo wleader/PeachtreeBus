@@ -4,8 +4,8 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Interfaces;
-using PeachtreeBus.Model;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Sagas;
 using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Text.Json;
@@ -19,6 +19,8 @@ namespace PeachtreeBus.Tests.Queues
     [TestClass]
     public class QueueReaderFixture
     {
+        private static readonly QueueName SourceQueue = new("SourceQueue");
+
         private QueueReader reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
         private Mock<ILogger<QueueReader>> log = default!;
@@ -28,15 +30,15 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<IQueueFailures> failures = default!;
 
         private QueueMessage UpdatedMessage = default!;
-        private string UpdatedQueue = default!;
+        private QueueName UpdatedQueue = default!;
         private QueueMessage FailedMessage = default!;
-        private string FailedQueue = default!;
+        private QueueName FailedQueue = default!;
         private QueueMessage CompletedMessage = default!;
-        private string CompletedQueue = default!;
+        private QueueName CompletedQueue = default!;
         private SagaData InsertedSagaData = default!;
-        private string InsertedSagaName = default!;
+        private SagaName InsertedSagaName = default!;
         private SagaData UpdatedSagaData = default!;
-        private string UpdatedSagaName = default!;
+        private SagaName UpdatedSagaName = default!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -51,40 +53,40 @@ namespace PeachtreeBus.Tests.Queues
             clock.SetupGet(x => x.UtcNow)
                 .Returns(new DateTime(2022, 2, 22, 14, 22, 22, 222, DateTimeKind.Utc));
 
-            dataAccess.Setup(d => d.Update(It.IsAny<QueueMessage>(), It.IsAny<string>()))
-                .Callback<QueueMessage, string>((m, q) =>
+            dataAccess.Setup(d => d.Update(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
+                .Callback<QueueMessage, QueueName>((m, q) =>
                 {
                     UpdatedMessage = m;
                     UpdatedQueue = q;
                 })
                 .Returns(Task.CompletedTask);
 
-            dataAccess.Setup(d => d.Insert(It.IsAny<SagaData>(), It.IsAny<string>()))
-                .Callback<SagaData, string>((d, n) =>
+            dataAccess.Setup(d => d.Insert(It.IsAny<SagaData>(), It.IsAny<SagaName>()))
+                .Callback<SagaData, SagaName>((d, n) =>
                 {
                     InsertedSagaData = d;
                     InsertedSagaName = n;
                 })
                 .Returns(Task.FromResult<long>(12345));
 
-            dataAccess.Setup(d => d.Update(It.IsAny<SagaData>(), It.IsAny<string>()))
-                .Callback<SagaData, string>((d, n) =>
+            dataAccess.Setup(d => d.Update(It.IsAny<SagaData>(), It.IsAny<SagaName>()))
+                .Callback<SagaData, SagaName>((d, n) =>
                 {
                     UpdatedSagaData = d;
                     UpdatedSagaName = n;
                 })
                 .Returns(Task.CompletedTask);
 
-            dataAccess.Setup(d => d.FailMessage(It.IsAny<QueueMessage>(), It.IsAny<string>()))
-                .Callback<QueueMessage, string>((d, n) =>
+            dataAccess.Setup(d => d.FailMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
+                .Callback<QueueMessage, QueueName>((d, n) =>
                 {
                     FailedMessage = d;
                     FailedQueue = n;
                 })
                 .Returns(Task.CompletedTask);
 
-            dataAccess.Setup(d => d.CompleteMessage(It.IsAny<QueueMessage>(), It.IsAny<string>()))
-                .Callback<QueueMessage, string>((d, n) =>
+            dataAccess.Setup(d => d.CompleteMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
+                .Callback<QueueMessage, QueueName>((d, n) =>
                 {
                     CompletedMessage = d;
                     CompletedQueue = n;
@@ -115,7 +117,7 @@ namespace PeachtreeBus.Tests.Queues
                     Id = 12345,
                     NotBefore = now,
                 },
-                SourceQueue = "SourceQueue"
+                SourceQueue = SourceQueue
             };
             await reader.DelayMessage(context, 1000);
         }
@@ -128,7 +130,7 @@ namespace PeachtreeBus.Tests.Queues
         [ExpectedException(typeof(ApplicationException))]
         public async Task Delay_ThrowsWhenDataAccessThrows()
         {
-            dataAccess.Setup(d => d.Update(It.IsAny<QueueMessage>(), It.IsAny<string>()))
+            dataAccess.Setup(d => d.Update(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
                 .Throws(new ApplicationException());
 
             var now = clock.Object.UtcNow;
@@ -139,7 +141,7 @@ namespace PeachtreeBus.Tests.Queues
                     Id = 12345,
                     NotBefore = now,
                 },
-                SourceQueue = "SourceQueue"
+                SourceQueue = SourceQueue
             };
             await reader.DelayMessage(context, 1000);
         }
@@ -159,7 +161,7 @@ namespace PeachtreeBus.Tests.Queues
                     Id = 12345,
                     NotBefore = now,
                 },
-                SourceQueue = "SourceQueue"
+                SourceQueue = SourceQueue
             };
             await reader.DelayMessage(context, 1000);
 
@@ -167,7 +169,7 @@ namespace PeachtreeBus.Tests.Queues
 
             Assert.IsTrue(ReferenceEquals(context.MessageData, UpdatedMessage));
             Assert.AreEqual(expectedTime, context.MessageData.NotBefore);
-            Assert.AreEqual(UpdatedQueue, "SourceQueue");
+            Assert.AreEqual(UpdatedQueue, SourceQueue);
         }
 
         /// <summary>
@@ -184,7 +186,7 @@ namespace PeachtreeBus.Tests.Queues
                     Id = 12345,
                     NotBefore = clock.Object.UtcNow,
                 },
-                SourceQueue = "SourceQueue",
+                SourceQueue = SourceQueue,
                 SagaKey = "SagaKey"
             };
 
@@ -212,7 +214,7 @@ namespace PeachtreeBus.Tests.Queues
                     Id = 12345,
                     NotBefore = clock.Object.UtcNow,
                 },
-                SourceQueue = "SourceQueue",
+                SourceQueue = SourceQueue,
                 SagaKey = "SagaKey",
                 SagaData = null
             };
@@ -224,7 +226,7 @@ namespace PeachtreeBus.Tests.Queues
 
             await reader.SaveSaga(testSaga, context);
 
-            dataAccess.Verify(d => d.Insert(It.IsAny<SagaData>(), It.IsAny<string>()), Times.Once);
+            dataAccess.Verify(d => d.Insert(It.IsAny<SagaData>(), It.IsAny<SagaName>()), Times.Once);
 
             Assert.AreEqual(testSaga.SagaName, InsertedSagaName);
             Assert.AreEqual("SerializedTestSagaData", InsertedSagaData.Data);
@@ -245,7 +247,7 @@ namespace PeachtreeBus.Tests.Queues
                     Id = 12345,
                     NotBefore = clock.Object.UtcNow,
                 },
-                SourceQueue = "SourceQueue",
+                SourceQueue = SourceQueue,
                 SagaKey = "SagaKey",
                 SagaData = new SagaData
                 {
@@ -261,7 +263,7 @@ namespace PeachtreeBus.Tests.Queues
 
             await reader.SaveSaga(testSaga, context);
 
-            dataAccess.Verify(d => d.Update(It.IsAny<SagaData>(), It.IsAny<string>()), Times.Once);
+            dataAccess.Verify(d => d.Update(It.IsAny<SagaData>(), It.IsAny<SagaName>()), Times.Once);
 
             Assert.AreEqual(testSaga.SagaName, UpdatedSagaName);
             Assert.AreEqual("SerializedTestSagaData", UpdatedSagaData.Data);
@@ -284,7 +286,7 @@ namespace PeachtreeBus.Tests.Queues
 
             };
 
-            dataAccess.Setup(d => d.GetSagaData(It.IsAny<string>(), It.IsAny<string>()))
+            dataAccess.Setup(d => d.GetSagaData(It.IsAny<SagaName>(), It.IsAny<string>()))
                 .ReturnsAsync((SagaData)null!);
 
             await reader.LoadSaga(testSaga, context);
@@ -308,7 +310,7 @@ namespace PeachtreeBus.Tests.Queues
 
             };
 
-            dataAccess.Setup(d => d.GetSagaData(It.IsAny<string>(), It.IsAny<string>()))
+            dataAccess.Setup(d => d.GetSagaData(It.IsAny<SagaName>(), It.IsAny<string>()))
                 .ReturnsAsync(new SagaData
                 {
                     Blocked = false,
@@ -342,7 +344,7 @@ namespace PeachtreeBus.Tests.Queues
 
             };
 
-            dataAccess.Setup(d => d.GetSagaData(It.IsAny<string>(), It.IsAny<string>()))
+            dataAccess.Setup(d => d.GetSagaData(It.IsAny<SagaName>(), It.IsAny<string>()))
                 .ReturnsAsync(new SagaData
                 {
                     Blocked = true,
@@ -364,9 +366,10 @@ namespace PeachtreeBus.Tests.Queues
         public async Task Fail_UpdatesMessage()
         {
             var expectedRetries = (byte)(reader.MaxRetries - 1);
+            var TestSourceQueue = new QueueName("TestSourceQueue");
             var context = new InternalQueueContext
             {
-                SourceQueue = "TestSourceQueue",
+                SourceQueue = TestSourceQueue,
                 MessageData = new QueueMessage
                 {
                     Retries = (byte)(reader.MaxRetries - 2),
@@ -383,9 +386,9 @@ namespace PeachtreeBus.Tests.Queues
             Assert.IsTrue(context.MessageData.NotBefore >= clock.Object.UtcNow.AddSeconds(5)); // 
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.Headers.ExceptionDetails));
             perfCounters.Verify(c => c.RetryMessage(), Times.Once);
-            dataAccess.Verify(c => c.Update(It.IsAny<QueueMessage>(), It.IsAny<string>()), Times.Once);
+            dataAccess.Verify(c => c.Update(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()), Times.Once);
             Assert.IsTrue(ReferenceEquals(context.MessageData, UpdatedMessage));
-            Assert.AreEqual("TestSourceQueue", UpdatedQueue);
+            Assert.AreEqual(TestSourceQueue, UpdatedQueue);
         }
 
         /// <summary>
@@ -395,10 +398,11 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Fail_FailsMaxReties()
         {
-            var expectedRetries = (byte)(reader.MaxRetries);
+            var expectedRetries = reader.MaxRetries;
+            var TestSourceQueue = new QueueName("TestSourceQueue");
             var context = new InternalQueueContext
             {
-                SourceQueue = "TestSourceQueue",
+                SourceQueue = TestSourceQueue,
                 MessageData = new QueueMessage
                 {
                     Retries = (byte)(reader.MaxRetries - 1),
@@ -415,9 +419,9 @@ namespace PeachtreeBus.Tests.Queues
             Assert.IsTrue(context.MessageData.NotBefore >= clock.Object.UtcNow.AddSeconds(5)); // 
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.Headers.ExceptionDetails));
             perfCounters.Verify(c => c.FailMessage(), Times.Once);
-            dataAccess.Verify(c => c.FailMessage(It.IsAny<QueueMessage>(), It.IsAny<string>()), Times.Once);
+            dataAccess.Verify(c => c.FailMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()), Times.Once);
             Assert.IsTrue(ReferenceEquals(context.MessageData, FailedMessage));
-            Assert.AreEqual("TestSourceQueue", FailedQueue);
+            Assert.AreEqual(TestSourceQueue, FailedQueue);
         }
 
         /// <summary>
@@ -435,13 +439,13 @@ namespace PeachtreeBus.Tests.Queues
                     Id = 12345,
                     NotBefore = now,
                 },
-                SourceQueue = "SourceQueue"
+                SourceQueue = SourceQueue
             };
             await reader.Complete(context);
 
             Assert.IsTrue(ReferenceEquals(context.MessageData, CompletedMessage));
             Assert.AreEqual(now, context.MessageData.Completed);
-            Assert.AreEqual(CompletedQueue, "SourceQueue");
+            Assert.AreEqual(CompletedQueue, SourceQueue);
         }
 
         /// <summary>
@@ -467,7 +471,7 @@ namespace PeachtreeBus.Tests.Queues
 
             var expectedUserMessage = new TestSagaMessage1();
 
-            dataAccess.Setup(d => d.GetPendingQueued("SourceQueue"))
+            dataAccess.Setup(d => d.GetPendingQueued(SourceQueue))
                 .ReturnsAsync(expectedQueueMessage);
 
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
@@ -476,12 +480,12 @@ namespace PeachtreeBus.Tests.Queues
             serializer.Setup(s => s.DeserializeMessage(It.IsAny<string>(), typeof(TestSagaMessage1)))
                 .Returns(expectedUserMessage);
 
-            var context = await reader.GetNext("SourceQueue");
+            var context = await reader.GetNext(SourceQueue);
 
             Assert.IsTrue(ReferenceEquals(expectedQueueMessage, context!.MessageData));
             Assert.IsTrue(ReferenceEquals(expectedHeaders, context.Headers));
             Assert.IsTrue(ReferenceEquals(expectedUserMessage, context.Message));
-            Assert.AreEqual("SourceQueue", context.SourceQueue);
+            Assert.AreEqual(SourceQueue, context.SourceQueue);
             Assert.IsFalse(context.SagaBlocked);
             Assert.AreEqual(expectedQueueMessage.MessageId, context.MessageId);
         }
@@ -508,7 +512,7 @@ namespace PeachtreeBus.Tests.Queues
 
             var expectedUserMessage = new TestSagaMessage1();
 
-            dataAccess.Setup(d => d.GetPendingQueued("SourceQueue"))
+            dataAccess.Setup(d => d.GetPendingQueued(SourceQueue))
                 .ReturnsAsync(expectedQueueMessage);
 
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
@@ -517,12 +521,12 @@ namespace PeachtreeBus.Tests.Queues
             serializer.Setup(s => s.DeserializeMessage(It.IsAny<string>(), typeof(TestSagaMessage1)))
                 .Returns(expectedUserMessage);
 
-            var message = await reader.GetNext("SourceQueue");
+            var message = await reader.GetNext(SourceQueue);
 
             Assert.IsTrue(ReferenceEquals(expectedQueueMessage, message!.MessageData));
             Assert.IsNotNull(message.Headers);
             Assert.IsNull(message.Message);
-            Assert.AreEqual("SourceQueue", message.SourceQueue);
+            Assert.AreEqual(SourceQueue, message.SourceQueue);
         }
 
         /// <summary>
@@ -547,19 +551,19 @@ namespace PeachtreeBus.Tests.Queues
 
             var expectedUserMessage = new TestSagaMessage1();
 
-            dataAccess.Setup(d => d.GetPendingQueued("SourceQueue"))
+            dataAccess.Setup(d => d.GetPendingQueued(SourceQueue))
                 .ReturnsAsync(expectedQueueMessage);
 
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
                .Returns(expectedHeaders);
 
-            var message = await reader.GetNext("SourceQueue");
+            var message = await reader.GetNext(SourceQueue);
 
             serializer.Verify(s => s.DeserializeMessage(It.IsAny<string>(), It.IsAny<Type>()), Times.Never);
             Assert.IsTrue(ReferenceEquals(expectedQueueMessage, message!.MessageData));
             Assert.IsNotNull(message.Headers);
             Assert.IsNull(message.Message);
-            Assert.AreEqual("SourceQueue", message.SourceQueue);
+            Assert.AreEqual(SourceQueue, message.SourceQueue);
         }
 
         /// <summary>
@@ -584,7 +588,7 @@ namespace PeachtreeBus.Tests.Queues
 
             var expectedUserMessage = new TestSagaMessage1();
 
-            dataAccess.Setup(d => d.GetPendingQueued("SourceQueue"))
+            dataAccess.Setup(d => d.GetPendingQueued(SourceQueue))
                 .ReturnsAsync(expectedQueueMessage);
 
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
@@ -593,12 +597,12 @@ namespace PeachtreeBus.Tests.Queues
             serializer.Setup(s => s.DeserializeMessage(It.IsAny<string>(), typeof(TestSagaMessage1)))
                 .Throws(new JsonException());
 
-            var message = await reader.GetNext("SourceQueue");
+            var message = await reader.GetNext(SourceQueue);
 
             Assert.IsTrue(ReferenceEquals(expectedQueueMessage, message!.MessageData));
             Assert.IsTrue(ReferenceEquals(expectedHeaders, message.Headers));
             Assert.IsNull(message.Message);
-            Assert.AreEqual("SourceQueue", message.SourceQueue);
+            Assert.AreEqual(SourceQueue, message.SourceQueue);
         }
 
         [TestMethod]

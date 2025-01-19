@@ -31,7 +31,9 @@ namespace PeachtreeBus.Tests.Sagas
     {
         public List<Tuple<QueueContext, object>> Invocations = [];
 
-        public override string SagaName => "TestSaga";
+        private static readonly SagaName _sagaName = new("TestSaga");
+
+        public override SagaName SagaName => _sagaName;
 
         public override void ConfigureMessageKeys(SagaMessageMap mapper)
         {

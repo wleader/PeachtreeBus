@@ -19,7 +19,7 @@ namespace PeachtreeBus.Tests.Sagas
             IHandleQueueMessage<NotASagaStartMessage>,
             IHandleSagaStartMessage<SagaStartMessage>
         {
-            public override string SagaName => throw new NotImplementedException();
+            public override SagaName SagaName => throw new NotImplementedException();
 
             public override void ConfigureMessageKeys(SagaMessageMap mapper)
             {

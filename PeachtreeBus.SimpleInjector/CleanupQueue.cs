@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Cleaners;
+using PeachtreeBus.Queues;
 using SimpleInjector;
 using System;
 
@@ -17,7 +18,7 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="ageLimit">Determines how long after completion or failure before the message can be cleaned.</param>
         /// <param name="interval">determines how much time to wait between searching for data to clean.</param>
         /// <returns></returns>
-        public static Container CleanupQueue(this Container container, string queueName,
+        public static Container CleanupQueue(this Container container, QueueName queueName,
             int maxDeleteCount, bool cleanCompleted, bool cleanFailed,
             TimeSpan ageLimit, TimeSpan interval)
         {

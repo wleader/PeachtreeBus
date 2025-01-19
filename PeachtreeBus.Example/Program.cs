@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Example.Data;
+using PeachtreeBus.Queues;
 using PeachtreeBus.Services;
 using PeachtreeBus.SimpleInjector;
 using SimpleInjector;
@@ -20,6 +22,9 @@ namespace PeachtreeBus.Example
         /// </summary>
         private static readonly Container _container = new();
 
+        private static readonly QueueName _queueName = new("SampleQueue");
+        private static readonly SchemaName _schemaName = new("PeachtreeBus");
+
         static void Main()
         {
             // setup a scoped lifestyle.
@@ -29,10 +34,10 @@ namespace PeachtreeBus.Example
             // Register common types required to run the bus,
             // configure which DB Schema, and which Queue will be used.
             // Register Startup tasks found in loaded assemblies.
-            _container.UsePeachtreeBus("PeachtreeBus");
+            _container.UsePeachtreeBus(_schemaName);
 
             // Register Queue handlers (and Sagas) found in loaded assemblies.
-            _container.UsePeachtreeBusQueue("SampleQueue");
+            _container.UsePeachtreeBusQueue(_queueName);
 
             // This will:
             // Register Subscription Handlers found in loaded assemblies.
@@ -54,7 +59,7 @@ namespace PeachtreeBus.Example
             // failed messages will not be cleaned,
             // messages that are 1 day old will be cleaned
             // cleanup code will not run for 1 minue when there is nothing to clean.
-            _container.CleanupQueue("SampleQueue", 10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));
+            _container.CleanupQueue(_queueName, 10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));
 
             // Same as above, but for subscribed messages.
             _container.CleanupSubscribed(10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));

@@ -10,7 +10,7 @@ namespace PeachtreeBus.Queues
     /// </summary>
     public interface IQueueWork : IUnitOfWork
     {
-        public string QueueName { get; set; }
+        public QueueName QueueName { get; set; }
     }
 
     /// <inheritdoc/>>
@@ -27,7 +27,7 @@ namespace PeachtreeBus.Queues
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly IQueuePipelineInvoker _pipelineInvoker = pipelineInvoker;
 
-        public string QueueName { get; set; } = string.Empty;
+        public QueueName QueueName { get; set; } = default!;
 
         private const string savepointName = "BeforeMessageHandler";
 

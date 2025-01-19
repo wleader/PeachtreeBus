@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeachtreeBus.Model
+namespace PeachtreeBus.Sagas
 {
 
     /// <summary>

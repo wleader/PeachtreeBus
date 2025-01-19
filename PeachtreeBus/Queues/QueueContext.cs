@@ -1,4 +1,4 @@
-﻿using PeachtreeBus.Model;
+﻿using PeachtreeBus.Sagas;
 
 namespace PeachtreeBus.Queues
 {
@@ -12,7 +12,7 @@ namespace PeachtreeBus.Queues
         /// <summary>
         /// Which Queue the message was read from.
         /// </summary>
-        public string SourceQueue { get; set; } = default!;
+        public QueueName SourceQueue { get; set; } = default!;
     }
 
     /// <summary>

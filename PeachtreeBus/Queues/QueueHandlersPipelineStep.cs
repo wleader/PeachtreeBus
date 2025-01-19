@@ -46,8 +46,7 @@ namespace PeachtreeBus.Queues
             // check that messageType is IQueueMessage
             // otherwise the MakeGenericMethod call below will throw an nasty exception
             // that won't make sense to someone debugging.
-            if (!typeof(IQueueMessage).IsAssignableFrom(messageType))
-                throw new MissingInterfaceException(messageType, typeof(IQueueMessage));
+            TypeIsNotIQueueMessageException.ThrowIfMissingInterface(messageType);
 
             // Get the message handlers for this message type from the Dependency Injection container.
             // the list will contain both regular handlers and sagas.

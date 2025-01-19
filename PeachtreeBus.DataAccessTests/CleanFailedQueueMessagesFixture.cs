@@ -151,27 +151,5 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(7, CountRowsInTable(QueueFailedTable));
         }
-
-        /// <summary>
-        /// Proves that statements are not executed if the schema contains
-        /// characters that are a SQL injection risk.
-        /// </summary>
-        [TestMethod]
-        public async Task CleanQueueFailed_ThrowsIfSchemaUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.CleanQueueFailed(DefaultQueue, DateTime.MinValue, 1));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
-        /// Proves that statements are not executed if the queue name contains
-        /// characters that are a SQL injection risk.
-        /// </summary>
-        [TestMethod]
-        public async Task CleanQueueFailed_ThrowsIfQueueNameUnsafe()
-        {
-            var action = new Func<string, Task>(async (s) => await dataAccess.CleanQueueFailed(s, DateTime.MinValue, 1));
-            await ActionThrowsIfParameterContainsPoisonChars(action);
-        }
     }
 }

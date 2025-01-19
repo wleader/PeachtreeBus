@@ -2,7 +2,6 @@
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
-using PeachtreeBus.Model;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Tests.Sagas;
 using System;
@@ -25,9 +24,10 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<ISystemClock> clock = default!;
 
         private QueueMessage AddedMessage = null!;
-        private string AddedToQueue = null!;
+        private QueueName AddedToQueue = default!;
         private Headers SerializedHeaders = null!;
         private readonly UtcDateTime _now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
+        private readonly QueueName queueName = new("QueueName");
 
         [TestInitialize]
         public void TestInitialize()
@@ -39,8 +39,8 @@ namespace PeachtreeBus.Tests.Queues
 
             clock.SetupGet(c => c.UtcNow).Returns(() => _now.Value);
 
-            dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueMessage>(), It.IsAny<string>()))
-                .Callback<QueueMessage, string>((msg, qn) =>
+            dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
+                .Callback<QueueMessage, QueueName>((msg, qn) =>
                 {
                     AddedMessage = msg;
                     AddedToQueue = qn;
@@ -66,7 +66,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_ThrowsWhenMessageIsNull()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 null!,
                 null);
@@ -81,53 +81,8 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_ThrowsWhenTypeIsNull()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 null!,
-                new TestSagaMessage1(),
-                null);
-        }
-
-        /// <summary>
-        /// Proves the queue name cannot be null.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public async Task WriteMessage_ThrowsWhenQueueNameIsNull()
-        {
-            await writer.WriteMessage(
-                null!,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
-        }
-
-        /// <summary>
-        /// proves the queue name can not be empty
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public async Task WriteMessage_ThrowsWhenQueueNameIsEmpty()
-        {
-            await writer.WriteMessage(
-                "",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
-        }
-
-        /// <summary>
-        /// proves the queue name cannot be whitespace
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public async Task WriteMessage_ThrowsWhenQueueNameIsWhitespace()
-        {
-            await writer.WriteMessage(
-                " ",
-                typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
         }
@@ -140,7 +95,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsMessageClassOfHeaders()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -157,7 +112,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_AssignsMessageId()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -174,7 +129,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_DefaultsNotBeforeToUtcNow()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -192,7 +147,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             UtcDateTime notBefore = DateTime.UtcNow;
             await writer.WriteMessage(
-                            "QueueName",
+                            queueName,
                             typeof(TestSagaMessage1),
                             new TestSagaMessage1(),
                             notBefore);
@@ -211,7 +166,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             var notBefore = new DateTime(2022, 2, 23, 10, 54, 11, DateTimeKind.Unspecified);
             await writer.WriteMessage(
-                            "QueueName",
+                            queueName,
                             typeof(TestSagaMessage1),
                             new TestSagaMessage1(),
                             notBefore);
@@ -225,7 +180,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsEnqueuedToUtcNow()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -242,7 +197,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsCompletedToNull()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -259,7 +214,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsFailedToNull()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -276,7 +231,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsRetriesToZero()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -293,7 +248,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_UsesHeadersFromSerializer()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -310,7 +265,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_UsesBodyFromSerializer()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -327,7 +282,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_CountSentMessages()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
@@ -343,12 +298,12 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_InvokesDataAccess()
         {
             await writer.WriteMessage(
-                "QueueName",
+                queueName,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
 
-            dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueMessage>(), "QueueName"), Times.Once);
+            dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueMessage>(), queueName), Times.Once);
         }
 
         /// <summary>
@@ -358,23 +313,23 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task WriteMessage_SendsToCorrectQueue()
         {
+            var expected = new QueueName("FooBazQueue");
             await writer.WriteMessage(
-                "FooBazQueue",
+                expected,
                 typeof(TestSagaMessage1),
                 new TestSagaMessage1(),
                 null);
-
-            Assert.AreEqual("FooBazQueue", AddedToQueue);
+            Assert.AreEqual(expected, AddedToQueue);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(MissingInterfaceException))]
         public async Task Given_MessageIsNotIQueuedMessage_When_WriteMessage_Then_ThrowsUsefulException()
         {
-            await writer.WriteMessage("FooBazQueue",
+            await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() =>
+                writer.WriteMessage(new("FooBazQueue"),
                 typeof(MessageWithoutInterface),
                 new MessageWithoutInterface(),
-                null);
+                null));
         }
     }
 }

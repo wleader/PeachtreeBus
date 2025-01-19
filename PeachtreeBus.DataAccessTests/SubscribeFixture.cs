@@ -138,19 +138,6 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Proves that unsafe schema is not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task Subscribe_ThrowsIfSchemaContainsUnsafe()
-        {
-            var subscriber = Guid.NewGuid();
-            var category = "TestCategory";
-            var until = DateTime.UtcNow.AddMinutes(30);
-            var action = new Func<Task>(() => dataAccess.Subscribe(subscriber, category, until));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
         /// proves that the subscriber ID cannot be empty.
         /// </summary>
         [TestMethod]

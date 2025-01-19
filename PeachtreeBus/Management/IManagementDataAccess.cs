@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Model;
+﻿using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace PeachtreeBus.Management
         /// <param name="queueName">Which queue to read from.</param>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<QueueMessage>> GetFailedQueueMessages(string queueName, int skip, int take);
+        Task<List<QueueMessage>> GetFailedQueueMessages(QueueName queueName, int skip, int take);
 
         /// <summary>
         /// Retrieves a list of completed Queue messages, most recent messages first.
@@ -20,7 +21,7 @@ namespace PeachtreeBus.Management
         /// <param name="queueName">Which queue to read from.</param>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<QueueMessage>> GetCompletedQueueMessages(string queueName, int skip, int take);
+        Task<List<QueueMessage>> GetCompletedQueueMessages(QueueName queueName, int skip, int take);
 
         /// <summary>
         /// Retrieves a list of pending Queue messages, most recent messages first.
@@ -28,21 +29,21 @@ namespace PeachtreeBus.Management
         /// <param name="queueName">Which queue to read from.</param>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<QueueMessage>> GetPendingQueueMessages(string queueName, int skip, int take);
+        Task<List<QueueMessage>> GetPendingQueueMessages(QueueName queueName, int skip, int take);
 
         /// <summary>
         /// Moves the specifed Queue message from Pending to Failed.
         /// </summary>
         /// <param name="queueName">Which Queue to interact with.</param>
         /// <param name="id">The ID of the message to move.</param>
-        Task CancelPendingQueueMessage(string queueName, long id);
+        Task CancelPendingQueueMessage(QueueName queueName, long id);
 
         /// <summary>
         /// Moves the specifed Queue message from Failed to Pending.
         /// </summary>
         /// <param name="queueName">Which Queue to interact with.</param>
         /// <param name="id">The ID of the message to move.</param>
-        Task RetryFailedQueueMessage(string queueName, long id);
+        Task RetryFailedQueueMessage(QueueName queueName, long id);
 
         /// <summary>
         /// Retrieves a list of failed Subscribed messages, most recent messages first.

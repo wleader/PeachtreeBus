@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Model;
+using PeachtreeBus.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -103,20 +103,6 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsTrue(actual1.Completed.HasValue);
             expected1.Completed = actual1.Completed;
             AssertSubscribedEquals(expected1, actual1);
-        }
-
-        /// <summary>
-        /// Proves that unsafe schema is not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task CompleteMessage_ThrowsIfSchemaContainsUnsafe()
-        {
-            var expected1 = CreateSubscribed();
-            expected1.SubscriberId = Guid.NewGuid();
-            expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-
-            var action = new Func<Task>(() => dataAccess.CompleteMessage(expected1));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
         }
     }
 }

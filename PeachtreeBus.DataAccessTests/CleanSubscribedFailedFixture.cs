@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.DataAccessTests
 {
     /// <summary>
-    /// Proves the behavior of DapperDataAcess.CleanSubscribedCompleted
+    /// Proves the behavior of DapperDataAcess.CleanSubscribedFailed
     /// </summary>
     [TestClass]
-    public class CleanSubscribedCompletedFixture : DapperDataAccessFixtureBase
+    public class CleanSubscribedFailedFixture : DapperDataAccessFixtureBase
     {
         private long lastId = 1000;
 
@@ -26,16 +26,16 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Adds a row for the test.
+        /// Adds a failed subscribed message for the tests.
         /// </summary>
-        /// <param name="completed">The Compelted time for the subscribed message.</param>
+        /// <param name="failed"></param>
         /// <returns></returns>
-        private async Task CreateTestRow(DateTime completed)
+        private async Task CreateTestRow(DateTime failed)
         {
             // puts a row in the completed table.
             var statement =
             """
-            INSERT INTO [{0}].[Subscribed_Completed]
+            INSERT INTO [{0}].[Subscribed_Failed]
             ([Id],[SubscriberId],[ValidUntil],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
             VALUES
             (@Id, @SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
@@ -51,8 +51,8 @@ namespace PeachtreeBus.DataAccessTests
             p.Add("@Priority", 0);
             p.Add("@NotBefore", DateTime.UtcNow.AddDays(-1));
             p.Add("@Enqueued", DateTime.UtcNow.AddDays(-1));
-            p.Add("@Completed", completed);
-            p.Add("@Failed", null);
+            p.Add("@Completed", null);
+            p.Add("@Failed", failed);
             p.Add("@Retries", 0);
             p.Add("@Headers", "");
             p.Add("@Body", "");
@@ -61,11 +61,11 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Proves the basic cleaning functionality.
+        /// Proves that rows get deleted.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task CleanSubscribedCompleted_Cleans()
+        public async Task CleanSubscribedFailed_Cleans()
         {
             var completed = DateTime.UtcNow.AddDays(-1);
             for (var i = 0; i < 10; i++)
@@ -73,21 +73,21 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedFailedTable));
             var olderthan = DateTime.UtcNow;
 
-            var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
+            var count = await dataAccess.CleanSubscribedFailed(olderthan, 10);
             Assert.AreEqual(10, count);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedFailedTable));
         }
 
         /// <summary>
-        /// Proves that cleanup is limited to the specified number of rows.
+        /// Proves that the number of rows deleted is limited.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task CleanSubscribedCompleted_CleansTopN()
+        public async Task CleanSubscribedFailed_CleansTopN()
         {
             var completed = DateTime.UtcNow.AddDays(-1);
             for (var i = 0; i < 10; i++)
@@ -95,21 +95,21 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedFailedTable));
             var olderthan = DateTime.UtcNow;
 
-            var count = await dataAccess.CleanSubscribedCompleted(olderthan, 5);
+            var count = await dataAccess.CleanSubscribedFailed(olderthan, 5);
             Assert.AreEqual(5, count);
 
-            Assert.AreEqual(5, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(5, CountRowsInTable(SubscribedFailedTable));
         }
 
         /// <summary>
-        /// Proves that cleanup will not delete rows that completed after the specified time.
+        /// Proves that only older rows are deleted.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task CleanSubscribedCompleted_RespectsOlderThan()
+        public async Task CleanSubscribedFailed_RespectsOlderThan()
         {
             var completed = DateTime.UtcNow;
             for (var i = 0; i < 10; i++)
@@ -117,21 +117,21 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedFailedTable));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
-            var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
+            var count = await dataAccess.CleanSubscribedFailed(olderthan, 10);
             Assert.AreEqual(0, count);
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedFailedTable));
         }
 
         /// <summary>
-        /// Proves that cleanup deletes old rows and not young ones.
+        /// Proves that younger rows are not deleted.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task CleanSubscribedCompleted_HandlesMix()
+        public async Task CleanSubscribedFailed_HandlesMix()
         {
             var completed = DateTime.UtcNow.AddDays(-1);
             for (var i = 0; i < 3; i++)
@@ -145,24 +145,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedFailedTable));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
-            var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
+            var count = await dataAccess.CleanSubscribedFailed(olderthan, 10);
             Assert.AreEqual(3, count);
 
-            Assert.AreEqual(7, CountRowsInTable(SubscribedCompletedTable));
-        }
-
-        /// <summary>
-        /// Proves that statements will not execute if the schema contains
-        /// characters that are a risk for SQL injection.
-        /// </summary>
-        [TestMethod]
-        public async Task CleanSubscribedCompleted_ThrowsIfSchemaUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.CleanSubscribedCompleted(DateTime.MinValue, 1));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
+            Assert.AreEqual(7, CountRowsInTable(SubscribedFailedTable));
         }
     }
 }

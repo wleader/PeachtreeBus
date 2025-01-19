@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Model;
+using PeachtreeBus.Data;
 using System;
 
-namespace PeachtreeBus.Tests.Model;
+namespace PeachtreeBus.Tests.Data;
 
 [TestClass]
 public class UtcDateTimeFixture

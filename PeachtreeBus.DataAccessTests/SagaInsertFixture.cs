@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -44,26 +43,6 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(1, sagas.Count);
 
             AssertSagaEquals(newSaga, sagas[0]);
-        }
-
-        /// <summary>
-        /// proves that unsafe schema are not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task InsertSaga_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(() => dataAccess.Insert(new Model.SagaData(), DefaultSagaName));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
-        /// proves that unsafe schema names are not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task InsertSaga_ThrowsIfSagaNameContainsUnsafe()
-        {
-            var action = new Func<string, Task>((s) => dataAccess.Insert(new Model.SagaData(), s));
-            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
     }
 }

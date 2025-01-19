@@ -24,7 +24,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestInitialize]
         public void TestInitialize()
         {
-            config = new QueueConfiguration("QueueName");
+            config = new QueueConfiguration(new("QueueName"));
 
             shutdown = new Mock<IProvideShutdownSignal>();
 

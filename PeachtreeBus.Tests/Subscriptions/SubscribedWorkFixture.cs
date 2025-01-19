@@ -141,7 +141,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             return new InternalSubscribedContext()
             {
-                MessageData = new PeachtreeBus.Model.SubscribedMessage
+                MessageData = new SubscribedMessage
                 {
                     MessageId = Guid.NewGuid(),
                 },

@@ -23,6 +23,6 @@ namespace PeachtreeBus.Subscriptions
         /// <summary>
         /// The message as read from the database.
         /// </summary>
-        public Model.SubscribedMessage MessageData { get; set; } = default!;
+        public SubscribedMessage MessageData { get; set; } = default!;
     }
 }

@@ -3,7 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Management;
-using PeachtreeBus.Model;
+using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 

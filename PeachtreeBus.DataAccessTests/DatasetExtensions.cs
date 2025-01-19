@@ -1,4 +1,7 @@
-﻿using System;
+﻿using PeachtreeBus.Queues;
+using PeachtreeBus.Sagas;
+using PeachtreeBus.Subscriptions;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -16,13 +19,13 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="dataset"></param>
         /// <returns></returns>
-        public static List<Model.QueueMessage> ToMessages(this DataSet dataset)
+        public static List<QueueMessage> ToMessages(this DataSet dataset)
         {
             return dataset.ToType(ToMessage);
         }
 
         // Converts a dataset to SagaDatas
-        public static List<Model.SagaData> ToSagas(this DataSet dataset)
+        public static List<SagaData> ToSagas(this DataSet dataset)
         {
             return dataset.ToType(ToSaga);
         }
@@ -42,7 +45,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="dataSet"></param>
         /// <returns></returns>
-        public static List<Model.SubscribedMessage> ToSubscribed(this DataSet dataSet)
+        public static List<SubscribedMessage> ToSubscribed(this DataSet dataSet)
         {
             return dataSet.ToType(ToSubscribedRow);
         }
@@ -72,9 +75,9 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public static Model.QueueMessage ToMessage(this DataRow row)
+        public static QueueMessage ToMessage(this DataRow row)
         {
-            return new Model.QueueMessage
+            return new QueueMessage
             {
                 Body = (string)row["Body"],
                 Completed = row.ToDateTimeNullable("Completed"),
@@ -93,9 +96,9 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public static Model.SagaData ToSaga(this DataRow row)
+        public static SagaData ToSaga(this DataRow row)
         {
-            return new Model.SagaData
+            return new SagaData
             {
                 Blocked = false, //table does not actually contain a blocked column.
                 Data = (string)row["Data"],
@@ -126,9 +129,9 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public static Model.SubscribedMessage ToSubscribedRow(this DataRow row)
+        public static SubscribedMessage ToSubscribedRow(this DataRow row)
         {
-            return new Model.SubscribedMessage
+            return new SubscribedMessage
             {
                 Body = (string)row["Body"],
                 Completed = row.ToDateTimeNullable("Completed"),

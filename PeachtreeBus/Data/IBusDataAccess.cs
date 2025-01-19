@@ -1,4 +1,6 @@
-﻿using PeachtreeBus.Model;
+﻿using PeachtreeBus.Queues;
+using PeachtreeBus.Sagas;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -50,44 +52,44 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        Task<QueueMessage?> GetPendingQueued(string queueName);
+        Task<QueueMessage?> GetPendingQueued(QueueName queueName);
 
         /// <summary>
         /// Inserts a new message into the database.
         /// </summary>
         /// <param name="message">The message to insert.</param>
-        Task<long> AddMessage(QueueMessage message, string queueName);
+        Task<long> AddMessage(QueueMessage message, QueueName queueName);
 
         /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>
-        Task CompleteMessage(QueueMessage message, string queueName);
+        Task CompleteMessage(QueueMessage message, QueueName queueName);
 
         /// <summary>
         /// Inserts the message into the error table, and removes if from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>
-        Task FailMessage(QueueMessage message, string queueName);
+        Task FailMessage(QueueMessage message, QueueName queueName);
 
         /// <summary>
         /// Updates a message.
         /// Only updates message properties that are allowed to change.
         /// </summary>
         /// <param name="message"></param>
-        Task Update(QueueMessage message, string queueName);
+        Task Update(QueueMessage message, QueueName queueName);
 
         /// <summary>
         /// Inserts Saga Data into the database.
         /// </summary>
         /// <param name="data">The saga data to insert.</param>
-        Task<long> Insert(SagaData data, string sagaName);
+        Task<long> Insert(SagaData data, SagaName sagaName);
 
         /// <summary>
         /// Updates the saga data in the database.
         /// </summary>
         /// <param name="data">The Data to update. Only updates properties that are allowed to change.</param>
-        Task Update(SagaData data, string sagaName);
+        Task Update(SagaData data, SagaName sagaName);
 
         /// <summary>
         /// Reads saga data from the database.
@@ -95,14 +97,14 @@ namespace PeachtreeBus.Data
         /// <param name="className">The saga's class name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
         /// <returns>Matching saga data.</returns>
-        Task<SagaData?> GetSagaData(string sagaName, string key);
+        Task<SagaData?> GetSagaData(SagaName sagaName, string key);
 
         /// <summary>
         /// Deletes data for completed sagas.
         /// </summary>
         /// <param name="className">The saga's class name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
-        Task DeleteSagaData(string sagaName, string key);
+        Task DeleteSagaData(SagaName sagaName, string key);
 
         /// <summary>
         /// Deletes Expired Subscriptions
@@ -172,7 +174,7 @@ namespace PeachtreeBus.Data
         /// <param name="olderthan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanQueueFailed(string queueName, DateTime olderthan, int maxCount);
+        Task<long> CleanQueueFailed(QueueName queueName, DateTime olderthan, int maxCount);
 
         /// <summary>
         /// removes old data from a queues completed messages
@@ -181,7 +183,7 @@ namespace PeachtreeBus.Data
         /// <param name="olderthan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanQueueCompleted(string queueName, DateTime olderthan, int maxCount);
+        Task<long> CleanQueueCompleted(QueueName queueName, DateTime olderthan, int maxCount);
 
         /// <summary>
         /// removes old data from subscribed completed messages.

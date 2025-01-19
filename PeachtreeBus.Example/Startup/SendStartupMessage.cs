@@ -17,17 +17,17 @@ namespace PeachtreeBus.Example.Startup
         private readonly IQueueWriter _queueWriter = queueWriter;
         private readonly IBusDataAccess _dataAccess = busDataAccess;
 
+        private static readonly QueueName _queueName = new("SampleQueue");
+
         public async Task Run()
         {
-            const string QueueName = "SampleQueue";
-
             // Sends a few Saga Start messages to kick off the processing of messages in the example program.
             for (var i = 0; i < 10; i++)
             {
                 _dataAccess.BeginTransaction();
                 for (var j = 0; j < 10; j++)
                 {
-                    await _queueWriter.WriteMessage(QueueName, new SampleSagaStart { AppId = Guid.NewGuid() });
+                    await _queueWriter.WriteMessage(_queueName, new SampleSagaStart { AppId = Guid.NewGuid() });
                 }
                 _dataAccess.CommitTransaction();
             }

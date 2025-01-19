@@ -1,6 +1,8 @@
-﻿using System;
+﻿using PeachtreeBus.Data;
+using PeachtreeBus.Queues;
+using System;
 
-namespace PeachtreeBus.Model
+namespace PeachtreeBus.Subscriptions
 {
     /// <summary>
     /// Represents a row in a subscription messages table.

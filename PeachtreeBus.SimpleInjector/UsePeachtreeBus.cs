@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Subscriptions;
+﻿using PeachtreeBus.Data;
+using PeachtreeBus.Subscriptions;
 using SimpleInjector;
 using System;
 
@@ -13,7 +14,7 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="dbSchema"></param>
         /// <param name="subscribedLifespan"></param>
         /// <returns></returns>
-        public static Container UsePeachtreeBus(this Container container, string dbSchema, TimeSpan? subscribedLifespan = null)
+        public static Container UsePeachtreeBus(this Container container, SchemaName dbSchema, TimeSpan? subscribedLifespan = null)
         {
             // register the bus classes.
             container.RegisterRequiredPeachtreeBus();

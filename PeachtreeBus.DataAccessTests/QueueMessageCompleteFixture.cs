@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Model;
+using PeachtreeBus.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -110,26 +110,5 @@ namespace PeachtreeBus.DataAccessTests
             AssertSqlDbDateTime(testMessage1.Enqueued, actual.Enqueued);
             Assert.AreEqual(testMessage1.Body, actual.Body, "Body should not change.");
         }
-
-        /// <summary>
-        /// Proves that unsafe schemas are not allowed
-        /// </summary>
-        [TestMethod]
-        public async Task CompleteMessage_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(() => dataAccess.CompleteMessage(new Model.QueueMessage(), DefaultQueue));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
-        /// Proves that unsafe queue names are not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task CompleteMessage_ThrowsIfQueueNameContainsUnsafe()
-        {
-            var action = new Func<string, Task>((s) => dataAccess.CompleteMessage(new Model.QueueMessage(), s));
-            await ActionThrowsIfParameterContainsPoisonChars(action);
-        }
-
     }
 }

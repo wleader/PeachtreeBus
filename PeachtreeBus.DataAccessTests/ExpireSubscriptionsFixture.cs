@@ -54,16 +54,5 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsNotNull(rows.Single(r => r.SubscriberId == guid1 && r.Category == category1));
             Assert.IsNotNull(rows.Single(r => r.SubscriberId == guid2 && r.Category == category2));
         }
-
-        /// <summary>
-        /// proves that statements do not execute if the Schema contains
-        /// characters that are a SQL injection risk.
-        /// </summary>
-        [TestMethod]
-        public async Task ExpireSubscriptions_ThrowsWhenSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(() => dataAccess.ExpireSubscriptions());
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
     }
 }

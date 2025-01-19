@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Model;
+using PeachtreeBus.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -147,26 +147,6 @@ namespace PeachtreeBus.DataAccessTests
             actual = await dataAccess.GetPendingQueued(DefaultQueue);
             Assert.IsNotNull(actual);
             AssertMessageEquals(testMessage, actual);
-        }
-
-        /// <summary>
-        /// Proves that unsafe schema are not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task GetPendingQueued_ThrowsIfSchemaContainsUnsafe()
-        {
-            var action = new Func<Task>(async () => await dataAccess.GetPendingQueued(DefaultQueue));
-            await ActionThrowsIfSchemaContainsPoisonChars(action);
-        }
-
-        /// <summary>
-        /// proves that unsafe queue names are not allowed.
-        /// </summary>
-        [TestMethod]
-        public async Task GetPendingQueued_ThrowsIfQueueNameContainsUnsafe()
-        {
-            var action = new Func<string, Task>(async (s) => await dataAccess.GetPendingQueued(s));
-            await ActionThrowsIfParameterContainsPoisonChars(action);
         }
 
         [TestMethod]
