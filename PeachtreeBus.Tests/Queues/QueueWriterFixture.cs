@@ -27,6 +27,7 @@ namespace PeachtreeBus.Tests.Queues
         private QueueMessage AddedMessage = null!;
         private string AddedToQueue = null!;
         private Headers SerializedHeaders = null!;
+        private readonly UtcDateTime _now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
 
         [TestInitialize]
         public void TestInitialize()
@@ -36,8 +37,7 @@ namespace PeachtreeBus.Tests.Queues
             serializer = new Mock<ISerializer>();
             clock = new Mock<ISystemClock>();
 
-            clock.SetupGet(c => c.UtcNow)
-                .Returns(new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc));
+            clock.SetupGet(c => c.UtcNow).Returns(() => _now.Value);
 
             dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueMessage>(), It.IsAny<string>()))
                 .Callback<QueueMessage, string>((msg, qn) =>
@@ -180,7 +180,7 @@ namespace PeachtreeBus.Tests.Queues
                 null);
 
             Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(clock.Object.UtcNow, AddedMessage.NotBefore);
+            Assert.AreEqual(_now, AddedMessage.NotBefore);
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task WriteMessage_UsesProvidedNotBefore()
         {
-            var notBefore = DateTime.UtcNow;
+            UtcDateTime notBefore = DateTime.UtcNow;
             await writer.WriteMessage(
                             "QueueName",
                             typeof(TestSagaMessage1),
@@ -231,7 +231,7 @@ namespace PeachtreeBus.Tests.Queues
                 null);
 
             Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(clock.Object.UtcNow, AddedMessage.Enqueued);
+            Assert.AreEqual(_now, AddedMessage.Enqueued);
         }
 
         /// <summary>

@@ -31,6 +31,8 @@ namespace PeachtreeBus.Tests.Subscriptions
         private readonly List<SubscribedMessage> AddedMessages = [];
         private Headers SerializedHeaders = default!;
 
+        private readonly UtcDateTime _now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
+
         private readonly List<Guid> cat1subscribers =
         [
             Guid.NewGuid()
@@ -53,8 +55,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             clock = new Mock<ISystemClock>();
 
-            clock.SetupGet(c => c.UtcNow)
-                .Returns(new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc));
+            clock.SetupGet(c => c.UtcNow).Returns(() => _now);
 
             dataAccess.Setup(d => d.GetSubscribers("cat1"))
                 .Returns(Task.FromResult<IEnumerable<Guid>>(cat1subscribers));
@@ -209,7 +210,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                             null);
 
             Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.NotBefore == clock.Object.UtcNow));
+            Assert.IsTrue(AddedMessages.TrueForAll(m => m.NotBefore == _now));
         }
 
         /// <summary>
@@ -219,7 +220,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task Publish_UsesProvidedNotBefore()
         {
-            var notBefore = DateTime.UtcNow;
+            UtcDateTime notBefore = DateTime.UtcNow;
             await publisher.Publish(
                 "cat1",
                 typeof(TestSubscribedMessage),
@@ -260,7 +261,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Enqueued == clock.Object.UtcNow));
+            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Enqueued == _now));
         }
 
         /// <summary>

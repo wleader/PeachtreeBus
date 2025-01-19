@@ -151,7 +151,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Delay_DelaysMessage()
         {
-            var now = clock.Object.UtcNow;
+            UtcDateTime now = clock.Object.UtcNow;
             var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
