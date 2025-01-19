@@ -139,6 +139,7 @@ namespace PeachtreeBus.Subscriptions
                 Message = message,
                 SubscriberId = subscriberId,
                 MessageId = subscriptionMessage.MessageId,
+                MessagePriority = subscriptionMessage.Priority,
             };
         }
     }

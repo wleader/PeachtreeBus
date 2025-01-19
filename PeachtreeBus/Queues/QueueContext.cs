@@ -1,5 +1,4 @@
 ﻿using PeachtreeBus.Model;
-using System;
 
 namespace PeachtreeBus.Queues
 {
@@ -23,11 +22,6 @@ namespace PeachtreeBus.Queues
     /// </summary>
     public class InternalQueueContext : QueueContext
     {
-        /// <summary>
-        /// Headers that were stored with the message.
-        /// </summary>
-        public Headers Headers { get; set; } = new();
-
         /// <summary>
         /// The Model of the message as was stored the database.
         /// </summary>

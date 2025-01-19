@@ -1,18 +1,25 @@
-﻿namespace PeachtreeBus
+﻿using System.Collections.Generic;
+
+namespace PeachtreeBus;
+
+/// <summary>
+/// Headers stored with the message.
+/// </summary>
+public class Headers
 {
     /// <summary>
-    /// Headers stored with the message.
+    /// the type the message was serialized from and to deserialize it to.
     /// </summary>
-    public class Headers
-    {
-        /// <summary>
-        /// the type the message was serialized from and to deserialize it to.
-        /// </summary>
-        public string MessageClass { get; set; } = string.Empty;
+    public string MessageClass { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Any exception details from a previous attempt to process the message.
-        /// </summary>
-        public string? ExceptionDetails { get; set; }
-    }
+    /// <summary>
+    /// Any exception details from a previous attempt to process the message.
+    /// </summary>
+    public string? ExceptionDetails { get; set; }
+
+    /// <summary>
+    /// A place for user code to store additional values along with the message.
+    /// </summary>
+    public Dictionary<string, string> UserHeaders { get; set; } = [];
 }
+

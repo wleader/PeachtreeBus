@@ -19,4 +19,14 @@ public abstract class BaseContext
     /// Experimmental. This may be removed in a future update.
     /// </summary>
     public IWrappedScope? Scope { get; set; }
+
+    /// <summary>
+    /// The priority value of the message being handled.
+    /// </summary>
+    public int MessagePriority { get; set; }
+
+    /// <summary>
+    /// Headers that were stored with the message.
+    /// </summary>
+    public Headers Headers { get; set; } = new();
 }

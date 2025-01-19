@@ -141,6 +141,7 @@ namespace PeachtreeBus.Queues
                 Headers = headers,
                 Message = message,
                 SourceQueue = queueName,
+                MessagePriority = queueMessage.Priority,
             };
         }
 
