@@ -26,7 +26,7 @@ namespace PeachtreeBus.Data
     {
         static DapperDataAccess()
         {
-            DateTimeHandler.AddTypeHandler();
+            UtcDateTimeHandler.AddTypeHandler();
         }
 
         private readonly ISharedDatabase _database = database;
@@ -64,8 +64,6 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.MessageId)}");
             if (message.NotBefore == null)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
-            if (message.NotBefore.Kind == DateTimeKind.Unspecified)
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.NotBefore)}.{nameof(message.NotBefore.Kind)} cannot be unspecified.");
             if (string.IsNullOrEmpty(message.Headers))
                 throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
             if (string.IsNullOrEmpty(message.Body))
@@ -76,7 +74,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@MessageId", message.MessageId);
             p.Add("@Priority", message.Priority);
-            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
+            p.Add("@NotBefore", message.NotBefore);
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
@@ -249,8 +247,6 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException(nameof(message));
             if (message.NotBefore == null)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
-            if (message.NotBefore.Kind == DateTimeKind.Unspecified)
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.NotBefore)}.{nameof(message.NotBefore.Kind)} cannot be unspecified.");
             if (string.IsNullOrEmpty(message.Headers))
                 throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
 
@@ -258,7 +254,7 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
-            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
+            p.Add("@NotBefore", message.NotBefore);
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
@@ -631,14 +627,10 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.MessageId)}");
             if (message.NotBefore == null)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
-            if (message.NotBefore.Kind == DateTimeKind.Unspecified)
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.NotBefore)}.{nameof(message.NotBefore.Kind)} cannot be unspecified.");
             if (message.ValidUntil == null)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.ValidUntil)}");
             if (message.SubscriberId == Guid.Empty)
                 throw new ArgumentException($"{nameof(message)}.{nameof(message.SubscriberId)} must not be Guid.Empty");
-            if (message.ValidUntil.Kind == DateTimeKind.Unspecified)
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.ValidUntil)}.{nameof(message.ValidUntil.Kind)} cannot be unspecified.");
             if (string.IsNullOrEmpty(message.Headers))
                 throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
             if (string.IsNullOrEmpty(message.Body))
@@ -650,8 +642,8 @@ namespace PeachtreeBus.Data
             p.Add("@MessageId", message.MessageId);
             p.Add("@Priority", message.Priority);
             p.Add("@SubscriberId", message.SubscriberId);
-            p.Add("@ValidUntil", message.ValidUntil.ToUniversalTime());
-            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
+            p.Add("@ValidUntil", message.ValidUntil);
+            p.Add("@NotBefore", message.NotBefore);
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
@@ -776,8 +768,6 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException(nameof(message));
             if (message.NotBefore == null)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
-            if (message.NotBefore.Kind == DateTimeKind.Unspecified)
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.NotBefore)}.{nameof(message.NotBefore.Kind)} cannot be unspecified.");
             if (string.IsNullOrEmpty(message.Headers))
                 throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
 
@@ -785,7 +775,7 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
-            p.Add("@NotBefore", message.NotBefore.ToUniversalTime());
+            p.Add("@NotBefore", message.NotBefore);
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 

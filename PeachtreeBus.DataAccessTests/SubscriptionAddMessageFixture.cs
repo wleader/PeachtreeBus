@@ -60,32 +60,6 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// proves that NotBefore must specify DateTimeKind
-        /// </summary>
-        [TestMethod]
-        public async Task AddMessage_ThowsIfNotBeforeDateTimeKindUnspecified()
-        {
-            var newMessage = CreateSubscribed();
-            newMessage.SubscriberId = Guid.NewGuid();
-            newMessage.NotBefore = DateTime.SpecifyKind(newMessage.NotBefore, DateTimeKind.Unspecified);
-            var action = new Func<Model.SubscribedMessage, Task>(async (m) => await dataAccess.AddMessage(m));
-            await ActionThrowsFor(action, newMessage);
-        }
-
-        /// <summary>
-        /// Proves that ValidUntil must specify DateTimeKind
-        /// </summary>
-        [TestMethod]
-        public async Task AddMessage_ThrowsIfValidUntilDateTimeKindUnspecified()
-        {
-            var newMessage = CreateSubscribed();
-            newMessage.SubscriberId = Guid.NewGuid();
-            newMessage.ValidUntil = DateTime.SpecifyKind(newMessage.ValidUntil, DateTimeKind.Unspecified);
-            var action = new Func<Model.SubscribedMessage, Task>(async (m) => await dataAccess.AddMessage(m));
-            await ActionThrowsFor(action, newMessage);
-        }
-
-        /// <summary>
         /// Proves that subscriber ID cannot be empty.
         /// </summary>
         [TestMethod]

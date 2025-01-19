@@ -20,7 +20,7 @@ namespace PeachtreeBus.Management
     {
         static ManagementDataAccess()
         {
-            DateTimeHandler.AddTypeHandler();
+            UtcDateTimeHandler.AddTypeHandler();
 
             typeFields = new(new Dictionary<Type, string>()
             {

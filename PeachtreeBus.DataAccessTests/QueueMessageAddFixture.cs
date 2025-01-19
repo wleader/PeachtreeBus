@@ -47,21 +47,6 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Proves that NotBefore must specify DateTimeKind.
-        /// </summary>
-        [TestMethod]
-        public async Task AddMessage_ThrowsIfDateTimeKindUnspecified()
-        {
-            var action = new Func<Model.QueueMessage, Task>(async (m) => await dataAccess.AddMessage(m, DefaultQueue));
-
-            // we check the not-before because not-before is the only time
-            // parameter used by Enqueue message.
-            var poisonNotBefore = CreateQueueMessage();
-            poisonNotBefore.NotBefore = DateTime.SpecifyKind(poisonNotBefore.NotBefore, DateTimeKind.Unspecified);
-            await ActionThrowsFor(action, poisonNotBefore);
-        }
-
-        /// <summary>
         /// Proves that statements do not execute if Schema contains 
         /// characters that are an SQL injection risk.
         /// </summary>
