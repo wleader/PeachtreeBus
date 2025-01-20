@@ -45,8 +45,8 @@ namespace PeachtreeBus.DataAccessTests
             // set changed values
             toUpdate.MessageId = Guid.NewGuid(); // this should never persist a change.
             toUpdate.Enqueued = toUpdate.Enqueued.AddMinutes(-1); // this should never change.
-            toUpdate.Body = "Changed Body"; // should never change.
-            toUpdate.Headers = "Changed Headers";
+            toUpdate.Body = new("Changed Body"); // should never change.
+            toUpdate.Headers = new("Changed Headers");
             toUpdate.NotBefore = toUpdate.NotBefore.AddMinutes(1);
             toUpdate.Completed = DateTime.UtcNow;
             toUpdate.Failed = DateTime.UtcNow;

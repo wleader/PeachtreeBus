@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PeachtreeBus.Data;
+using System;
 
 namespace PeachtreeBus.Sagas
 {
@@ -26,7 +27,7 @@ namespace PeachtreeBus.Sagas
         /// <summary>
         /// The serialized Saga Data.
         /// </summary>
-        public virtual string Data { get; set; } = string.Empty;
+        public virtual SerializedData Data { get; set; } = default;
 
         public virtual bool Blocked { get; set; }
     }

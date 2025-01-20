@@ -17,6 +17,8 @@ namespace PeachtreeBus.Tests.Queues
     {
         public class MessageWithoutInterface { }
 
+        private static readonly SerializedData MessageData = new("SerializedMessage");
+        private static readonly SerializedData HeaderData = new("SerializedHeaders");
         private QueueWriter writer = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
         private Mock<IPerfCounters> counters = default!;
@@ -49,10 +51,10 @@ namespace PeachtreeBus.Tests.Queues
 
             serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
                 .Callback<Headers>(h => SerializedHeaders = h)
-                .Returns("SerialziedHeaders");
+                .Returns(HeaderData);
 
             serializer.Setup(s => s.SerializeMessage(It.IsAny<object>(), It.IsAny<Type>()))
-                .Returns("SerialziedMessage");
+                .Returns(MessageData);
 
             writer = new QueueWriter(dataAccess.Object, counters.Object, serializer.Object, clock.Object);
         }
@@ -254,7 +256,7 @@ namespace PeachtreeBus.Tests.Queues
                 null);
 
             Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual("SerialziedHeaders", AddedMessage.Headers);
+            Assert.AreEqual(HeaderData, AddedMessage.Headers);
         }
 
         /// <summary>
@@ -271,7 +273,7 @@ namespace PeachtreeBus.Tests.Queues
                 null);
 
             Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual("SerialziedMessage", AddedMessage.Body);
+            Assert.AreEqual(MessageData, AddedMessage.Body);
         }
 
         /// <summary>

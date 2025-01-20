@@ -46,7 +46,7 @@ namespace PeachtreeBus.DataAccessTests
             {
                 Id = newSaga1.Id,
                 Blocked = true, // doesn't actually get stored.
-                Data = "NewData", // check this gets updated
+                Data = new("NewData"), // check this gets updated
                 Key = "NewKey", // check this doesn't update
                 SagaId = Guid.NewGuid() // check this doesn't update
             };

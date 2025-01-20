@@ -28,6 +28,7 @@ namespace PeachtreeBus.Data
         static DapperDataAccess()
         {
             UtcDateTimeHandler.AddTypeHandler();
+            SerializedDataHandler.AddTypeHandler();
         }
 
         private readonly ISharedDatabase _database = database;
@@ -59,10 +60,6 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.MessageId)}");
             if (message.NotBefore == null)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
-            if (string.IsNullOrEmpty(message.Headers))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
-            if (string.IsNullOrEmpty(message.Body))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Body)} must be not null and not empty.");
 
             string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -140,8 +137,6 @@ namespace PeachtreeBus.Data
 
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
-            if (string.IsNullOrEmpty(message.Headers))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
 
             string statement = string.Format(CompleteMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -182,8 +177,6 @@ namespace PeachtreeBus.Data
 
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
-            if (string.IsNullOrEmpty(message.Headers))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
 
             string statement = string.Format(FailMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -225,8 +218,6 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException(nameof(message));
             if (message.NotBefore == null)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
-            if (string.IsNullOrEmpty(message.Headers))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
 
             var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -272,8 +263,6 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException($"{nameof(data)}.{nameof(data.SagaId)}");
             if (string.IsNullOrEmpty(data.Key))
                 throw new ArgumentException($"{nameof(data)}.{nameof(data.Key)} must be not null and not empty.");
-            if (string.IsNullOrEmpty(data.Data))
-                throw new ArgumentException($"{nameof(data)}.{nameof(data.Data)} must be not null and not empty.");
 
             string statement = string.Format(InsertSagaStatement, _schemaConfig.Schema, sagaName);
 
@@ -312,8 +301,6 @@ namespace PeachtreeBus.Data
 
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
-            if (string.IsNullOrEmpty(data.Data))
-                throw new ArgumentException($"{nameof(data)}.{nameof(data.Data)} must be not null and not empty.");
 
             var statement = string.Format(UpdateSagaStatement, _schemaConfig.Schema, sagaName);
 
@@ -417,7 +404,7 @@ namespace PeachtreeBus.Data
                     SELECT -1 as [Id],
                            CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000') as [SagaId],
                            @Key as [Key],
-                           '' as [Data],
+                           'BLOCKED' as [Data],
                            1 as [Blocked]
                 END CATCH
                 """;
@@ -582,10 +569,6 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.ValidUntil)}");
             if (message.SubscriberId == Guid.Empty)
                 throw new ArgumentException($"{nameof(message)}.{nameof(message.SubscriberId)} must not be Guid.Empty");
-            if (string.IsNullOrEmpty(message.Headers))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
-            if (string.IsNullOrEmpty(message.Body))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Body)} must be not null and not empty.");
 
             string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema);
 
@@ -630,8 +613,6 @@ namespace PeachtreeBus.Data
 
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
-            if (string.IsNullOrEmpty(message.Headers))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
 
             string statement = string.Format(completeStatement, _schemaConfig.Schema);
 
@@ -671,8 +652,6 @@ namespace PeachtreeBus.Data
 
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
-            if (string.IsNullOrEmpty(message.Headers))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
 
             string statement = string.Format(FailMessageStatement, _schemaConfig.Schema);
 
@@ -713,8 +692,6 @@ namespace PeachtreeBus.Data
                 throw new ArgumentNullException(nameof(message));
             if (message.NotBefore == null)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
-            if (string.IsNullOrEmpty(message.Headers))
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.Headers)} must be not null and not empty.");
 
             var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema);
 

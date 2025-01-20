@@ -110,7 +110,7 @@ namespace PeachtreeBus.Queues
                 // this might not work, The body might deserialize but there won't be an
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
-                // this message woulld proably have to be removed from the database by hand?
+                // this message would proably have to be removed from the database by hand?
                 headers = new Headers { MessageClass = "System.Object" };
             }
 
@@ -163,7 +163,7 @@ namespace PeachtreeBus.Queues
             if (context.MessageData.Retries >= MaxRetries)
             {
                 _log.QueueReader_MessageExceededMaxRetries(context.MessageData.MessageId, context.SourceQueue, MaxRetries);
-                context.MessageData.Failed = DateTime.UtcNow;
+                context.MessageData.Failed = _clock.UtcNow;
                 _counters.FailMessage();
                 await _dataAccess.FailMessage(context.MessageData, context.SourceQueue);
                 await _failures.Failed(context, context.Message, exception);

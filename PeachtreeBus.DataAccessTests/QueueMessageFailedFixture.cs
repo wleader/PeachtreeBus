@@ -93,7 +93,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsNotNull(messageToFail);
             messageToFail.Failed = DateTime.UtcNow;
             // screw with the fields that shouldn't change.
-            messageToFail.Body = "NewBody";
+            messageToFail.Body = new("NewBody");
             messageToFail.Enqueued = messageToFail.Enqueued.AddMinutes(1);
             messageToFail.MessageId = Guid.NewGuid();
 

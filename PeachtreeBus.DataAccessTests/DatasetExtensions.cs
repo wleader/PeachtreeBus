@@ -79,11 +79,11 @@ namespace PeachtreeBus.DataAccessTests
         {
             return new QueueMessage
             {
-                Body = (string)row["Body"],
+                Body = new((string)row["Body"]),
                 Completed = row.ToDateTimeNullable("Completed"),
                 Enqueued = row.ToDateTime("Enqueued"),
                 Failed = row.ToDateTimeNullable("Failed"),
-                Headers = (string)row["Headers"],
+                Headers = new((string)row["Headers"]),
                 Id = (long)row["Id"],
                 MessageId = (Guid)row["MessageId"],
                 NotBefore = row.ToDateTime("NotBefore"),
@@ -101,7 +101,7 @@ namespace PeachtreeBus.DataAccessTests
             return new SagaData
             {
                 Blocked = false, //table does not actually contain a blocked column.
-                Data = (string)row["Data"],
+                Data = new((string)row["Data"]),
                 Id = (long)row["Id"],
                 Key = (string)row["Key"],
                 SagaId = (Guid)row["SagaId"]
@@ -133,11 +133,11 @@ namespace PeachtreeBus.DataAccessTests
         {
             return new SubscribedMessage
             {
-                Body = (string)row["Body"],
+                Body = new((string)row["Body"]),
                 Completed = row.ToDateTimeNullable("Completed"),
                 Enqueued = row.ToDateTime("Enqueued"),
                 Failed = row.ToDateTimeNullable("Failed"),
-                Headers = (string)row["Headers"],
+                Headers = new((string)row["Headers"]),
                 Id = (long)row["Id"],
                 MessageId = (Guid)row["MessageId"],
                 NotBefore = row.ToDateTime("NotBefore"),

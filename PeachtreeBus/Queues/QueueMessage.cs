@@ -52,10 +52,10 @@ public class QueueMessage
     /// <summary>
     /// Serialized Message Headers
     /// </summary>
-    public virtual string Headers { get; set; } = string.Empty;
+    public virtual SerializedData Headers { get; set; } = default;
 
     /// <summary>
     /// Serialized Message Body
     /// </summary>
-    public virtual string Body { get; set; } = string.Empty;
+    public virtual SerializedData Body { get; set; } = default;
 }

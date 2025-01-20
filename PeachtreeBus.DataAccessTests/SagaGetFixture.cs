@@ -59,7 +59,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task GetSagaData_ReturnBlockeWhenRowIsLocked()
+        public async Task GetSagaData_ReturnsBlockedWhenRowIsLocked()
         {
             var newSaga1 = CreateTestSagaData();
             newSaga1.Key = "1";

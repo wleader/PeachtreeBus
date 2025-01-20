@@ -331,11 +331,11 @@ namespace PeachtreeBus.DataAccessTests
         {
             return new QueueMessage
             {
-                Body = "Body",
+                Body = new("Body"),
                 Completed = null,
                 Failed = null,
                 Enqueued = DateTime.UtcNow,
-                Headers = "Headers",
+                Headers = new("Headers"),
                 MessageId = Guid.NewGuid(),
                 NotBefore = DateTime.UtcNow,
                 Retries = 0
@@ -350,11 +350,11 @@ namespace PeachtreeBus.DataAccessTests
         {
             return new SubscribedMessage
             {
-                Body = "Body",
+                Body = new("Body"),
                 Completed = null,
                 Failed = null,
                 Enqueued = DateTime.UtcNow,
-                Headers = "Headers",
+                Headers = new("Headers"),
                 MessageId = Guid.NewGuid(),
                 NotBefore = DateTime.UtcNow,
                 Retries = 0,
@@ -372,7 +372,7 @@ namespace PeachtreeBus.DataAccessTests
             return new SagaData
             {
                 Blocked = false,
-                Data = "Data",
+                Data = new("Data"),
                 SagaId = Guid.NewGuid(),
                 Key = "Key"
             };

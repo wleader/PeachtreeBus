@@ -7,7 +7,6 @@ using PeachtreeBus.Interfaces;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests.Sagas;
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Tests.Subscriptions
@@ -29,6 +28,12 @@ namespace PeachtreeBus.Tests.Subscriptions
         private SubscribedMessage UpdatedMessage = default!;
         private SubscribedMessage FailedMessage = default!;
         private SubscribedMessage CompletedMessage = default!;
+
+        private Guid SubscriberId = Guid.Parse("5d7ece7e-b9eb-4b97-91fa-af6bfe50394a");
+
+        private SubscribedMessage NextMessage = default!;
+        private Headers NextMessageHeaders = default!;
+        private TestSagaMessage1 NextUserMessage = default!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -71,6 +76,28 @@ namespace PeachtreeBus.Tests.Subscriptions
                 counters.Object,
                 clock.Object,
                 failures.Object);
+
+            NextMessage = new()
+            {
+                Id = 12345,
+                Priority = 24,
+            };
+
+            dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
+                .ReturnsAsync(() => NextMessage);
+
+            NextMessageHeaders = new()
+            {
+                MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
+            };
+
+
+            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<SerializedData>()))
+                .Returns(() => NextMessageHeaders);
+
+            NextUserMessage = new();
+            serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
+                .Returns(() => NextUserMessage);
         }
 
         /// <summary>
@@ -155,6 +182,14 @@ namespace PeachtreeBus.Tests.Subscriptions
             Assert.AreEqual(now, context.MessageData.Completed);
         }
 
+        [TestMethod]
+        public async Task GetNext_ReturnsNull()
+        {
+            dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
+                .ReturnsAsync((SubscribedMessage?)null);
+            Assert.IsNull(await reader.GetNext(SubscriberId));
+        }
+
         /// <summary>
         /// Proves reads good messages.
         /// </summary>
@@ -162,38 +197,15 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task GetNext_GetsGoodMessage()
         {
-            var messageClass = typeof(TestSagaMessage1).FullName + ", " + typeof(TestSagaMessage1).Assembly.GetName().Name;
+            var context = await reader.GetNext(SubscriberId);
 
-            var expectedMessage = new SubscribedMessage
-            {
-                Headers = "{ \"MessageClass\":\"" + messageClass + "\"}"
-            };
-
-            var expectedHeaders = new Headers
-            {
-                MessageClass = messageClass,
-                ExceptionDetails = null
-            };
-
-            var expectedUserMessage = new TestSagaMessage1();
-
-            var subscriberId = Guid.NewGuid();
-
-            dataAccess.Setup(d => d.GetPendingSubscribed(subscriberId))
-                .ReturnsAsync(expectedMessage);
-
-            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
-               .Returns(expectedHeaders);
-
-            serializer.Setup(s => s.DeserializeMessage(It.IsAny<string>(), typeof(TestSagaMessage1)))
-                .Returns(expectedUserMessage);
-
-            var context = await reader.GetNext(subscriberId);
             Assert.IsNotNull(context);
-            Assert.IsTrue(ReferenceEquals(expectedMessage, context.MessageData));
-            Assert.IsTrue(ReferenceEquals(expectedHeaders, context.Headers));
-            Assert.IsTrue(ReferenceEquals(expectedUserMessage, context.Message));
-            Assert.AreEqual(expectedMessage.MessageId, context.MessageId);
+            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.AreSame(NextMessage, context.MessageData);
+            Assert.AreSame(NextUserMessage, context.Message);
+            Assert.AreEqual(SubscriberId, context.SubscriberId);
+            Assert.AreEqual(NextMessage.MessageId, context.MessageId);
+            Assert.AreEqual(NextMessage.Priority, context.MessagePriority);
         }
 
         /// <summary>
@@ -203,37 +215,18 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task GetNext_HandlesUndeserializableHeaders()
         {
-            var messageClass = typeof(TestSagaMessage1).FullName + ", " + typeof(TestSagaMessage1).Assembly.GetName().Name;
+            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<SerializedData>()))
+               .Throws(new Exception("Test Exception"));
 
-            var expectedMessage = new SubscribedMessage
-            {
-                Headers = "{ \"MessageClass\":\"" + messageClass + "\"}"
-            };
+            var context = await reader.GetNext(SubscriberId);
 
-            var expectedHeaders = new Headers
-            {
-                MessageClass = messageClass,
-                ExceptionDetails = null
-            };
-
-            var expectedUserMessage = new TestSagaMessage1();
-
-            var subscriberId = Guid.NewGuid();
-
-            dataAccess.Setup(d => d.GetPendingSubscribed(subscriberId))
-                .ReturnsAsync(expectedMessage);
-
-            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
-               .Throws(new JsonException());
-
-            serializer.Setup(s => s.DeserializeMessage(It.IsAny<string>(), typeof(TestSagaMessage1)))
-                .Returns(expectedUserMessage);
-
-            var message = await reader.GetNext(subscriberId);
-            Assert.IsNotNull(message);
-            Assert.IsTrue(ReferenceEquals(expectedMessage, message.MessageData));
-            Assert.IsNotNull(message.Headers);
-            Assert.IsNull(message.Message);
+            Assert.IsNotNull(context);
+            Assert.AreSame("System.Object", context.Headers.MessageClass);
+            Assert.AreSame(NextMessage, context.MessageData);
+            Assert.IsNull(context.Message);
+            Assert.AreEqual(SubscriberId, context.SubscriberId);
+            Assert.AreEqual(NextMessage.MessageId, context.MessageId);
+            Assert.AreEqual(NextMessage.Priority, context.MessagePriority);
         }
 
         /// <summary>
@@ -243,35 +236,18 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task GetNext_HandlesUnrecognizedMessageClass()
         {
-            var messageClass = "PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, " + typeof(TestSagaMessage1).Assembly.GetName().Name;
+            NextMessageHeaders.MessageClass =
+                "PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, PeachtreeBus.Tests";
 
-            var expectedMessage = new SubscribedMessage
-            {
-                Headers = "{ \"MessageClass\":\"" + messageClass + "\"}"
-            };
+            var context = await reader.GetNext(SubscriberId);
 
-            var expectedHeaders = new Headers
-            {
-                MessageClass = messageClass,
-                ExceptionDetails = null
-            };
-
-            var expectedUserMessage = new TestSagaMessage1();
-
-            Guid subscriberId = Guid.NewGuid();
-
-            dataAccess.Setup(d => d.GetPendingSubscribed(subscriberId))
-                .ReturnsAsync(expectedMessage);
-
-            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
-               .Returns(expectedHeaders);
-
-            var message = await reader.GetNext(subscriberId);
-            Assert.IsNotNull(message);
-            serializer.Verify(s => s.DeserializeMessage(It.IsAny<string>(), It.IsAny<Type>()), Times.Never);
-            Assert.IsTrue(ReferenceEquals(expectedMessage, message.MessageData));
-            Assert.IsNotNull(message.Headers);
-            Assert.IsNull(message.Message);
+            Assert.IsNotNull(context);
+            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.AreSame(NextMessage, context.MessageData);
+            Assert.IsNull(context.Message);
+            Assert.AreEqual(SubscriberId, context.SubscriberId);
+            Assert.AreEqual(NextMessage.MessageId, context.MessageId);
+            Assert.AreEqual(NextMessage.Priority, context.MessagePriority);
         }
 
         /// <summary>
@@ -281,37 +257,18 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task GetNext_HandlesUnserializableMessageBody()
         {
-            var messageClass = typeof(TestSagaMessage1).FullName + ", " + typeof(TestSagaMessage1).Assembly.GetName().Name;
+            serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
+                .Throws(new Exception("Test Exception"));
 
-            var expectedMessage = new SubscribedMessage
-            {
-                Headers = "{ \"MessageClass\":\"" + messageClass + "\"}"
-            };
+            var context = await reader.GetNext(SubscriberId);
 
-            var expectedHeaders = new Headers
-            {
-                MessageClass = messageClass,
-                ExceptionDetails = null
-            };
-
-            var expectedUserMessage = new TestSagaMessage1();
-
-            var subscriberId = Guid.NewGuid();
-
-            dataAccess.Setup(d => d.GetPendingSubscribed(subscriberId))
-                .ReturnsAsync(expectedMessage);
-
-            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<string>()))
-               .Returns(expectedHeaders);
-
-            serializer.Setup(s => s.DeserializeMessage(It.IsAny<string>(), typeof(TestSagaMessage1)))
-                .Throws(new JsonException());
-
-            var message = await reader.GetNext(subscriberId);
-            Assert.IsNotNull(message);
-            Assert.IsTrue(ReferenceEquals(expectedMessage, message.MessageData));
-            Assert.IsTrue(ReferenceEquals(expectedHeaders, message.Headers));
-            Assert.IsNull(message.Message);
+            Assert.IsNotNull(context);
+            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.AreSame(NextMessage, context.MessageData);
+            Assert.IsNull(context.Message);
+            Assert.AreEqual(SubscriberId, context.SubscriberId);
+            Assert.AreEqual(NextMessage.MessageId, context.MessageId);
+            Assert.AreEqual(NextMessage.Priority, context.MessagePriority);
         }
 
 
@@ -330,7 +287,6 @@ namespace PeachtreeBus.Tests.Subscriptions
                 },
                 Message = new TestSagaMessage1()
             };
-
 
             var exception = new ApplicationException();
 

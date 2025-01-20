@@ -20,6 +20,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public class MessageWithoutInterface { }
         public class TestSubscribedMessage : ISubscribedMessage { }
 
+        private static readonly SerializedData SerializedMessageData = new("SerializedMessage");
+        private static readonly SerializedData SerializedHeadersData = new("SerializedHeaders");
+
         private SubscribedPublisher publisher = default!;
         private SubscribedLifespan lifespan = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
@@ -72,10 +75,10 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
                 .Callback<Headers>(h => SerializedHeaders = h)
-                .Returns("SerialziedHeaders");
+                .Returns(SerializedHeadersData);
 
             serializer.Setup(s => s.SerializeMessage(It.IsAny<object>(), It.IsAny<Type>()))
-                .Returns("SerialziedMessage");
+                .Returns(SerializedMessageData);
 
             //Writer = new QueueWriter(dataAccess.Object, counters.Object, serializer.Object, clock.Object);
             publisher = new SubscribedPublisher(
@@ -327,7 +330,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 new TestSubscribedMessage(),
                 null);
             Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Headers == "SerialziedHeaders"));
+            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Headers == SerializedHeadersData));
         }
 
         /// <summary>
@@ -344,7 +347,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Body == "SerialziedMessage"));
+            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Body == SerializedMessageData));
         }
 
         /// <summary>
