@@ -11,7 +11,6 @@ public abstract class PeachtreeBusException : Exception
     internal PeachtreeBusException(string message, Exception innerException)
         : base(message, innerException)
     { }
-
 }
 
 public abstract class MissingInterfaceException : PeachtreeBusException
