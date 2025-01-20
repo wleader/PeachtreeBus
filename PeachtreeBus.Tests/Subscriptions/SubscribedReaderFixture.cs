@@ -29,7 +29,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         private SubscribedMessage FailedMessage = default!;
         private SubscribedMessage CompletedMessage = default!;
 
-        private Guid SubscriberId = Guid.Parse("5d7ece7e-b9eb-4b97-91fa-af6bfe50394a");
+        private static readonly Guid SubscriberId = Guid.Parse("5d7ece7e-b9eb-4b97-91fa-af6bfe50394a");
 
         private SubscribedMessage NextMessage = default!;
         private Headers NextMessageHeaders = default!;

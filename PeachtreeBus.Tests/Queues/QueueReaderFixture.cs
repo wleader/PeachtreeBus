@@ -20,6 +20,7 @@ namespace PeachtreeBus.Tests.Queues
     {
         private static readonly SerializedData SerializedTestSagaData = new("SerializedTestSagaData");
         private static readonly SerializedData SerializedHeaderData = new("SerializedHeaderData");
+        private static readonly QueueName NextMessageQueue = new("NextMessageQueue");
 
         private QueueReader reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
@@ -31,10 +32,9 @@ namespace PeachtreeBus.Tests.Queues
 
         private InternalQueueContext Context = default!;
 
-        private QueueName NextMessageQueue = new("NextMessageQueue");
         private QueueMessage NextMessage = default!;
         private Headers NextMessageHeaders = default!;
-        private TestSagaMessage1 NextUserMessage = new();
+        private TestSagaMessage1 NextUserMessage = default!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -82,6 +82,8 @@ namespace PeachtreeBus.Tests.Queues
             {
                 MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
             };
+
+            NextUserMessage = new();
 
             dataAccess.Setup(d => d.GetPendingQueued(NextMessageQueue))
                 .ReturnsAsync(() => NextMessage);
