@@ -4,9 +4,9 @@ namespace PeachtreeBus.Queues
 {
     public class QueueMessageClassNotRecognizedException : PeachtreeBusException
     {
-        public Guid MessageId { get; private set; }
-        public string TypeName { get; private set; }
-        public QueueName SourceQueue { get; private set; }
+        public Guid MessageId { get; }
+        public string TypeName { get; }
+        public QueueName SourceQueue { get; }
 
         internal QueueMessageClassNotRecognizedException(Guid messageId, QueueName sourceQueue, string typeName)
             : base($"Message {messageId} from queue {sourceQueue} is a message class of {typeName} which was not a recognized type.")

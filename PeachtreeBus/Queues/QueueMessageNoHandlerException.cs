@@ -4,9 +4,9 @@ namespace PeachtreeBus.Queues
 {
     public class QueueMessageNoHandlerException : PeachtreeBusException
     {
-        public Guid MessageId { get; private set; }
-        public Type MessageType { get; private set; }
-        public QueueName SourceQueue { get; private set; }
+        public Guid MessageId { get; }
+        public Type MessageType { get; }
+        public QueueName SourceQueue { get; }
 
         internal QueueMessageNoHandlerException(Guid messageId, QueueName sourceQueue, Type messageType)
             : base($"Message {messageId} from queue {sourceQueue} is a message class of {messageType} for which no handlers were found.")

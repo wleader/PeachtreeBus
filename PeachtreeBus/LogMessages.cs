@@ -5,9 +5,11 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PeachtreeBus
 {
+    [ExcludeFromCodeCoverage]
 	public static class GeneratedLoggerMessages
 	{
         internal static readonly EventId PeachtreeBus_BaseThread_ThreadStart_Event

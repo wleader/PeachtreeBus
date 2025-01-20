@@ -21,6 +21,6 @@
         : IDbSchemaConfiguration
     {
         /// <inheritdoc/>
-        public SchemaName Schema { get; private set; } = schema ?? new("PeachtreeBus");
+        public SchemaName Schema { get; } = schema ?? new("PeachtreeBus");
     }
 }

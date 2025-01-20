@@ -6,6 +6,7 @@ using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Data
@@ -70,15 +71,9 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
-            try
-            {
-                return message.Id = await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(AddMessage), ex);
-                throw;
-            }
+            return message.Id = await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
+                nameof(AddMessage));
         }
 
         /// <summary>
@@ -104,15 +99,9 @@ namespace PeachtreeBus.Data
 
             var query = string.Format(GetOnePendingMessageStatement, _schemaConfig.Schema, queueName);
 
-            try
-            {
-                return await _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(GetPendingQueued), ex);
-                throw;
-            }
+            return await LogIfError(
+                _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction),
+                nameof(GetPendingQueued));
         }
 
         /// <summary>
@@ -144,15 +133,9 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(CompleteMessage), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(CompleteMessage));
         }
 
         /// <summary>
@@ -184,15 +167,9 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(FailMessage), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(FailMessage));
         }
 
         /// <summary>
@@ -227,15 +204,9 @@ namespace PeachtreeBus.Data
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(Update), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(Update));
         }
 
         /// <summary>
@@ -271,15 +242,9 @@ namespace PeachtreeBus.Data
             p.Add("@Key", data.Key);
             p.Add("@Data", data.Data);
 
-            try
-            {
-                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(Insert), ex);
-                throw;
-            }
+            return await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
+                nameof(Insert));
         }
 
         /// <summary>
@@ -308,15 +273,9 @@ namespace PeachtreeBus.Data
             p.Add("@Id", data.Id);
             p.Add("@Data", data.Data);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(Update), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(Update));
         }
 
         /// <summary>
@@ -341,15 +300,9 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(DeleteSagaData), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(DeleteSagaData));
         }
 
         /// <summary>
@@ -417,15 +370,9 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            try
-            {
-                return await _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(GetSagaData), ex);
-                throw;
-            }
+            return await LogIfError(
+                _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction),
+                nameof(GetSagaData));
         }
 
         /// <summary>
@@ -443,15 +390,9 @@ namespace PeachtreeBus.Data
 
             string statement = string.Format(ExpireSubscriptionsStatement, _schemaConfig.Schema);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, null, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(ExpireSubscriptions), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, null, _database.Transaction),
+                nameof(ExpireSubscriptions));
         }
 
         /// <summary>
@@ -489,15 +430,9 @@ namespace PeachtreeBus.Data
             p.Add("@Category", category);
             p.Add("@ValidUntil", until);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(Subscribe), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(Subscribe));
         }
 
         /// <summary>
@@ -530,15 +465,9 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
 
-            try
-            {
-                return await _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(GetPendingSubscribed), ex);
-                throw;
-            }
+            return await LogIfError(
+                _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction),
+                nameof(GetPendingSubscribed));
         }
 
         /// <summary>
@@ -581,15 +510,9 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
-            try
-            {
-                return message.Id = await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(AddMessage), ex);
-                throw;
-            }
+            return message.Id = await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
+                nameof(AddMessage));
         }
 
         /// <summary>
@@ -620,15 +543,9 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(CompleteMessage), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(CompleteMessage));
         }
 
         /// <summary>
@@ -659,15 +576,9 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(FailMessage), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(FailMessage));
         }
 
         /// <summary>
@@ -701,15 +612,9 @@ namespace PeachtreeBus.Data
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(Update), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(Update));
         }
 
         /// <summary>
@@ -733,15 +638,9 @@ namespace PeachtreeBus.Data
 
             var statement = string.Format(ExpireStatement, _schemaConfig.Schema);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, null, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(ExpireSubscriptionMessages), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, null, _database.Transaction),
+                nameof(ExpireSubscriptionMessages));
         }
 
         /// <summary>
@@ -765,15 +664,9 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Category", category);
 
-            try
-            {
-                return await _database.Connection.QueryAsync<Guid>(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(GetSubscribers), ex);
-                throw;
-            }
+            return await LogIfError(
+                _database.Connection.QueryAsync<Guid>(statement, p, _database.Transaction),
+                nameof(GetSubscribers));
         }
 
         /// <summary>
@@ -799,15 +692,9 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            try
-            {
-                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(CleanSubscribedCompleted), ex);
-                throw;
-            }
+            return await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
+                nameof(CleanSubscribedCompleted));
         }
 
         /// <summary>
@@ -833,15 +720,9 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            try
-            {
-                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(CleanSubscribedFailed), ex);
-                throw;
-            }
+            return await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
+                nameof(CleanSubscribedFailed));
         }
 
         /// <summary>
@@ -867,15 +748,9 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            try
-            {
-                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(CleanQueueCompleted), ex);
-                throw;
-            }
+            return await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
+                nameof(CleanQueueCompleted));
         }
 
         /// <summary>
@@ -901,13 +776,21 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
+            return await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
+                nameof(CleanQueueFailed));
+        }
+
+        [ExcludeFromCodeCoverage]
+        private async Task<T> LogIfError<T>(Task<T> task, string caller)
+        {
             try
             {
-                return await _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction);
+                return await task;
             }
             catch (Exception ex)
             {
-                _log.DapperDataAccess_DataAccessError(nameof(CleanQueueFailed), ex);
+                _log.DapperDataAccess_DataAccessError(caller, ex);
                 throw;
             }
         }

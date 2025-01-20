@@ -16,6 +16,6 @@
         QueueName queueName)
         : IQueueConfiguration
     {
-        public QueueName QueueName { get; private set; } = queueName;
+        public QueueName QueueName { get; } = queueName;
     }
 }
