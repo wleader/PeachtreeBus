@@ -46,10 +46,10 @@ namespace PeachtreeBus.Cleaners
         TimeSpan interval)
         : IBaseCleanupConfiguration
     {
-        public int MaxDeleteCount { get; set; } = maxDeleteCount;
+        public int MaxDeleteCount { get; } = maxDeleteCount;
         public bool CleanCompleted { get; set; } = cleanCompleted;
         public bool CleanFailed { get; set; } = cleanFailed;
-        public TimeSpan AgeLimit { get; set; } = ageLimit;
-        public TimeSpan Interval { get; set; } = interval;
+        public TimeSpan AgeLimit { get; } = ageLimit;
+        public TimeSpan Interval { get; } = interval;
     }
 }

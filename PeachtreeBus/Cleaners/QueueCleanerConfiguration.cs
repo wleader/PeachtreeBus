@@ -27,6 +27,6 @@ namespace PeachtreeBus.Cleaners
         : BaseCleanupConfiguration(maxDeleteCount, cleanCompleted, cleanFailed, ageLimit, interval)
         , IQueueCleanerConfiguration
     {
-        public QueueName QueueName { get; private set; } = queueName;
+        public QueueName QueueName { get; } = queueName;
     }
 }

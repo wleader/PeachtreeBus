@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace PeachtreeBus.Sagas
 {
-    public class SagaMapException(string message) : Exception(message)
+    public class SagaMapException(string message) : PeachtreeBusException(message)
     {
     }
 

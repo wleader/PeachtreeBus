@@ -11,7 +11,7 @@ namespace PeachtreeBus.Cleaners
     /// A unit of work that cleans up subscribed messages
     /// </summary>
     public class SubscribedCleanupWork(
-        IQueueCleanerConfiguration config,
+        ISubscribedCleanupConfiguration config,
         ISystemClock clock,
         ISubscribedCleaner cleaner)
         : BaseCleanupWork(config, clock, cleaner)

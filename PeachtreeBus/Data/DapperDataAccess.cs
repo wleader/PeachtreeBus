@@ -57,10 +57,8 @@ namespace PeachtreeBus.Data
 
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
-            if (message.MessageId == null)
+            if (message.MessageId == Guid.Empty)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.MessageId)}");
-            if (message.NotBefore == null)
-                throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
 
             string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -192,8 +190,6 @@ namespace PeachtreeBus.Data
 
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
-            if (message.NotBefore == null)
-                throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
 
             var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -229,8 +225,8 @@ namespace PeachtreeBus.Data
 
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
-            if (data.SagaId == null)
-                throw new ArgumentNullException($"{nameof(data)}.{nameof(data.SagaId)}");
+            if (data.SagaId == Guid.Empty)
+                throw new ArgumentException($"{nameof(data)}.{nameof(data.SagaId)} must not be an empty Guid");
             if (string.IsNullOrEmpty(data.Key))
                 throw new ArgumentException($"{nameof(data)}.{nameof(data.Key)} must be not null and not empty.");
 
@@ -489,12 +485,8 @@ namespace PeachtreeBus.Data
 
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
-            if (message.MessageId == null)
+            if (message.MessageId == Guid.Empty)
                 throw new ArgumentNullException($"{nameof(message)}.{nameof(message.MessageId)}");
-            if (message.NotBefore == null)
-                throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
-            if (message.ValidUntil == null)
-                throw new ArgumentNullException($"{nameof(message)}.{nameof(message.ValidUntil)}");
             if (message.SubscriberId == Guid.Empty)
                 throw new ArgumentException($"{nameof(message)}.{nameof(message.SubscriberId)} must not be Guid.Empty");
 
@@ -599,8 +591,6 @@ namespace PeachtreeBus.Data
 
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
-            if (message.NotBefore == null)
-                throw new ArgumentNullException($"{nameof(message)}.{nameof(message.NotBefore)}");
 
             var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema);
 
