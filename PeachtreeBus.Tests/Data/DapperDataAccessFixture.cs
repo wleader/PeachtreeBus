@@ -124,7 +124,7 @@ public class DapperDataAccessFixture
     public async Task Given_QueueMessageNull_When_Update_Then_Throws()
     {
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.Update(null!, QueueName)));
+            dataAccess.Update(null!, QueueName));
     }
 
     [TestMethod]
