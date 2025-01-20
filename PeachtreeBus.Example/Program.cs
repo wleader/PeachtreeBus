@@ -52,6 +52,9 @@ namespace PeachtreeBus.Example
             // disable Failed Message handling
             _container.UsePeachtreeBusDefaultErrorHandlers();
 
+            // use the default retry strategy
+            _container.UsePeachtreeBusDefaultRetryStrategy();
+
             // this will:
             // setup cleaning of the sample queue.
             // 10 to messages will be cleaned per run
