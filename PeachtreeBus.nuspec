@@ -11,7 +11,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <releaseNotes>Connect On Demand Release</releaseNotes>
         <description>
-        PeachtreeBus is intended to be a light weight message bus system focused integration with SQL server for its transport and persistence, while playing nicely with applications built using Inversion of Control and Dependency Injection.
+        PeachtreeBus is intended to be a light weight message bus system focused on integration with SQL server for its transport and persistence, while playing nicely with applications built using Inversion of Control and Dependency Injection.
         </description>
         <copyright>Copyright 2024 William Leader</copyright>
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
