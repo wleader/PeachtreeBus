@@ -29,22 +29,25 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<ISerializer> serializer = default!;
         private Mock<ISystemClock> clock = default!;
         private Mock<IQueueFailures> failures = default!;
+        private Mock<IQueueRetryStrategy> retryStrategy = default!;
 
         private InternalQueueContext Context = default!;
 
         private QueueMessage NextMessage = default!;
         private Headers NextMessageHeaders = default!;
         private TestSagaMessage1 NextUserMessage = default!;
+        private RetryResult RetryResult = new(true, TimeSpan.Zero);
 
         [TestInitialize]
         public void TestInitialize()
         {
-            dataAccess = new Mock<IBusDataAccess>();
-            log = new Mock<ILogger<QueueReader>>();
-            perfCounters = new Mock<IPerfCounters>();
-            serializer = new Mock<ISerializer>();
-            clock = new Mock<ISystemClock>();
+            dataAccess = new();
+            log = new();
+            perfCounters = new();
+            serializer = new();
+            clock = new();
             failures = new();
+            retryStrategy = new();
 
             clock.SetupGet(x => x.UtcNow)
                 .Returns(new DateTime(2022, 2, 22, 14, 22, 22, 222, DateTimeKind.Utc));
@@ -60,7 +63,8 @@ namespace PeachtreeBus.Tests.Queues
                 perfCounters.Object,
                 serializer.Object,
                 clock.Object,
-                failures.Object);
+                failures.Object,
+                retryStrategy.Object);
 
             Context = new()
             {
@@ -94,6 +98,8 @@ namespace PeachtreeBus.Tests.Queues
             serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
                 .Returns(() => NextUserMessage);
 
+            retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<QueueContext>(), It.IsAny<Exception>(), It.IsAny<int>()))
+                .Returns(() => RetryResult);
         }
 
         /// <summary>
@@ -297,11 +303,12 @@ namespace PeachtreeBus.Tests.Queues
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Fail_UpdatesMessage()
+        public async Task Given_RetryStrategyReturnsRetry_When_MessageFails_Then_MessageIsUpdated()
         {
-            var expectedRetries = (byte)(reader.MaxRetries - 1);
-
-            Context.MessageData.Retries = (byte)(reader.MaxRetries - 2);
+            var delay = TimeSpan.FromSeconds(5);
+            RetryResult = new(true, delay);
+            Context.MessageData.Retries = 0;
+            UtcDateTime expectedNotBefore = clock.Object.UtcNow.Add(delay);
 
             var exception = new ApplicationException();
 
@@ -315,8 +322,8 @@ namespace PeachtreeBus.Tests.Queues
             dataAccess.Setup(c => c.Update(Context.MessageData, Context.SourceQueue))
                 .Callback((QueueMessage m, QueueName n) =>
                 {
-                    Assert.AreEqual(expectedRetries, m.Retries);
-                    Assert.IsTrue(m.NotBefore >= clock.Object.UtcNow.AddSeconds(5));
+                    Assert.AreEqual(1, m.Retries);
+                    Assert.AreEqual(expectedNotBefore, m.NotBefore);
                     Assert.AreEqual(SerializedHeaderData, m.Headers);
                 })
                 .Returns(Task.CompletedTask);
@@ -332,11 +339,10 @@ namespace PeachtreeBus.Tests.Queues
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Fail_FailsMaxReties()
+        public async Task Given_RetryStrategyReturnsFail_When_Fail_Then_MessagesIsFailed()
         {
-            var expectedRetries = reader.MaxRetries;
-            Context.MessageData.Retries = (byte)(reader.MaxRetries - 1);
-
+            RetryResult = new(false, TimeSpan.FromHours(1));
+            var expectedMessageId = Context.MessageData.Id;
             var exception = new ApplicationException();
 
             serializer.Setup(s => s.SerializeHeaders(Context.Headers))
@@ -349,10 +355,8 @@ namespace PeachtreeBus.Tests.Queues
             dataAccess.Setup(c => c.FailMessage(Context.MessageData, Context.SourceQueue))
                 .Callback((QueueMessage m, QueueName n) =>
                 {
-                    Assert.AreEqual(expectedRetries, m.Retries);
-                    Assert.IsTrue(m.NotBefore >= clock.Object.UtcNow.AddSeconds(5));
+                    Assert.AreEqual(expectedMessageId, m.Id);
                     Assert.AreEqual(SerializedHeaderData, m.Headers);
-                    Assert.AreEqual(clock.Object.UtcNow, m.Failed);
                 })
                 .Returns(Task.CompletedTask);
 
@@ -487,21 +491,20 @@ namespace PeachtreeBus.Tests.Queues
         }
 
         [TestMethod]
-        public async Task Fail_InvokesFailHandlerOnMaxRetries()
+        public async Task Given_RetryStrategyReturnsFail_When_Fail_ThenErrorHandlerIsInvoked()
         {
             var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
-                    Retries = (byte)(reader.MaxRetries - 1),
                 },
                 Headers = new Headers
                 {
-
                 },
                 Message = new TestSagaMessage1()
             };
 
+            RetryResult = new(false, TimeSpan.Zero);
 
             var exception = new ApplicationException();
 
@@ -510,23 +513,22 @@ namespace PeachtreeBus.Tests.Queues
         }
 
         [TestMethod]
-        public async Task Fail_DoesNotInvokeFailHandlerBeforeMaxRetries()
+        public async Task Given_RetryStrategyReturnsRetry_When_Fail_ThenErrorHandlerIsNotInvoked()
         {
             var context = new InternalQueueContext
             {
                 MessageData = new QueueMessage
                 {
-                    Retries = (byte)(reader.MaxRetries - 2),
                 },
                 Headers = new Headers
                 {
-
                 },
                 Message = new TestSagaMessage1()
             };
 
-
             var exception = new ApplicationException();
+
+            RetryResult = new(true, TimeSpan.FromSeconds(5));
 
             await reader.Fail(context, exception);
             failures.Verify(f => f.Failed(context, context.Message, exception), Times.Never());

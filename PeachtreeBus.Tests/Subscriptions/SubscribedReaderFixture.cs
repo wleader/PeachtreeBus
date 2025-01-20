@@ -24,50 +24,30 @@ namespace PeachtreeBus.Tests.Subscriptions
         private Mock<ISerializer> serializer = default!;
         private Mock<ISystemClock> clock = default!;
         private Mock<ISubscribedFailures> failures = default!;
-
-        private SubscribedMessage UpdatedMessage = default!;
-        private SubscribedMessage FailedMessage = default!;
-        private SubscribedMessage CompletedMessage = default!;
+        private Mock<ISubscribedRetryStrategy> retryStrategy = default!;
 
         private static readonly Guid SubscriberId = Guid.Parse("5d7ece7e-b9eb-4b97-91fa-af6bfe50394a");
 
         private SubscribedMessage NextMessage = default!;
         private Headers NextMessageHeaders = default!;
         private TestSagaMessage1 NextUserMessage = default!;
+        private RetryResult RetryResult = default!;
+        private InternalSubscribedContext Context = default!;
+        private SerializedData SerializedHeaderData = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            dataAccess = new Mock<IBusDataAccess>();
-            log = new Mock<ILogger<SubscribedReader>>();
-            counters = new Mock<IPerfCounters>();
-            serializer = new Mock<ISerializer>();
-            clock = new Mock<ISystemClock>();
+            dataAccess = new();
+            log = new();
+            counters = new();
+            serializer = new();
+            clock = new();
             failures = new();
+            retryStrategy = new();
 
             clock.SetupGet(x => x.UtcNow)
                 .Returns(new DateTime(2022, 2, 22, 14, 22, 22, 222, DateTimeKind.Utc));
-
-            dataAccess.Setup(d => d.Update(It.IsAny<SubscribedMessage>()))
-                .Callback<SubscribedMessage>((m) =>
-                {
-                    UpdatedMessage = m;
-                })
-                .Returns(Task.CompletedTask);
-
-            dataAccess.Setup(d => d.FailMessage(It.IsAny<SubscribedMessage>()))
-                .Callback<SubscribedMessage>((d) =>
-                {
-                    FailedMessage = d;
-                })
-                .Returns(Task.CompletedTask);
-
-            dataAccess.Setup(d => d.CompleteMessage(It.IsAny<SubscribedMessage>()))
-                .Callback<SubscribedMessage>((d) =>
-                {
-                    CompletedMessage = d;
-                })
-                .Returns(Task.CompletedTask);
 
             reader = new SubscribedReader(
                 dataAccess.Object,
@@ -75,14 +55,14 @@ namespace PeachtreeBus.Tests.Subscriptions
                 log.Object,
                 counters.Object,
                 clock.Object,
-                failures.Object);
+                failures.Object,
+                retryStrategy.Object);
 
             NextMessage = new()
             {
                 Id = 12345,
                 Priority = 24,
             };
-
             dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
                 .ReturnsAsync(() => NextMessage);
 
@@ -90,14 +70,29 @@ namespace PeachtreeBus.Tests.Subscriptions
             {
                 MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
             };
-
-
             serializer.Setup(s => s.DeserializeHeaders(It.IsAny<SerializedData>()))
                 .Returns(() => NextMessageHeaders);
 
             NextUserMessage = new();
             serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
                 .Returns(() => NextUserMessage);
+
+            SerializedHeaderData = new("SerializedHeaderData");
+            serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
+                .Returns(() => SerializedHeaderData);
+
+            retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<SubscribedContext>(), It.IsAny<Exception>(), It.IsAny<int>()))
+                .Returns(() => RetryResult);
+
+            Context = new()
+            {
+                Headers = new(),
+                MessageData = new()
+                {
+                    Id = 1234,
+                    NotBefore = clock.Object.UtcNow,
+                }
+            };
         }
 
         /// <summary>
@@ -105,29 +100,36 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Fail_UpdatesMessage()
+        public async Task Given_RetryStrategyReturnsRetry_When_Fail_Then_MessageIsUpdated()
         {
-            var expectedRetries = (byte)(reader.MaxRetries - 1);
-            var context = new InternalSubscribedContext
-            {
-                MessageData = new SubscribedMessage
+            var delay = TimeSpan.FromSeconds(5);
+            RetryResult = new(true, delay);
+            UtcDateTime expectedNotBefore = clock.Object.UtcNow.Add(delay);
+            var expectedId = Context.MessageData.Id;
+
+            var exception = new ApplicationException();
+
+            serializer.Setup(s => s.SerializeHeaders(Context.Headers))
+                .Callback((Headers h) =>
                 {
-                    Retries = (byte)(reader.MaxRetries - 2),
-                },
-                Headers = new Headers
+                    Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
+                })
+                .Returns(() => SerializedHeaderData);
+
+            dataAccess.Setup(d => d.Update(Context.MessageData))
+                .Callback((SubscribedMessage m) =>
                 {
+                    Assert.AreEqual(expectedId, m.Id);
+                    Assert.AreEqual(1, m.Retries);
+                    Assert.AreEqual(expectedNotBefore, m.NotBefore);
+                    Assert.AreEqual(SerializedHeaderData, m.Headers);
+                });
 
-                }
-            };
+            await reader.Fail(Context, exception);
 
-            await reader.Fail(context, new ApplicationException());
-
-            Assert.AreEqual(expectedRetries, context.MessageData.Retries);
-            Assert.IsTrue(context.MessageData.NotBefore >= clock.Object.UtcNow.AddSeconds(5)); // 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(context.Headers.ExceptionDetails));
+            serializer.Verify(s => s.SerializeHeaders(Context.Headers), Times.Once);
             counters.Verify(c => c.RetryMessage(), Times.Once);
-            dataAccess.Verify(c => c.Update(It.IsAny<SubscribedMessage>()), Times.Once);
-            Assert.IsTrue(ReferenceEquals(context.MessageData, UpdatedMessage));
+            dataAccess.Verify(c => c.Update(Context.MessageData), Times.Once);
         }
 
         /// <summary>
@@ -135,29 +137,32 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Fail_FailsMaxReties()
+        public async Task Given_RetryStrategyReturnsFail_When_Fail_Then_MessageIsFailed()
         {
-            var expectedRetries = (byte)(reader.MaxRetries);
-            var context = new InternalSubscribedContext
-            {
-                MessageData = new SubscribedMessage
+            RetryResult = new(false, TimeSpan.Zero);
+            var exception = new ApplicationException();
+            var expectedId = Context.MessageData.Id;
+
+            serializer.Setup(s => s.SerializeHeaders(Context.Headers))
+                .Callback((Headers h) =>
                 {
-                    Retries = (byte)(reader.MaxRetries - 1),
-                },
-                Headers = new Headers
+                    Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
+                })
+                .Returns(() => SerializedHeaderData);
+
+            dataAccess.Setup(d => d.FailMessage(Context.MessageData))
+                .Callback((SubscribedMessage m) =>
                 {
+                    Assert.AreEqual(expectedId, m.Id);
+                    Assert.AreEqual(SerializedHeaderData, m.Headers);
+                });
 
-                },
-            };
+            await reader.Fail(Context, new ApplicationException());
 
-            await reader.Fail(context, new ApplicationException());
-
-            Assert.AreEqual(expectedRetries, context.MessageData.Retries);
-            Assert.IsTrue(context.MessageData.NotBefore >= clock.Object.UtcNow.AddSeconds(5)); // 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(context.Headers.ExceptionDetails));
             counters.Verify(c => c.FailMessage(), Times.Once);
+            serializer.Verify(s => s.SerializeHeaders(Context.Headers), Times.Once);
             dataAccess.Verify(c => c.FailMessage(It.IsAny<SubscribedMessage>()), Times.Once);
-            Assert.IsTrue(ReferenceEquals(context.MessageData, FailedMessage));
+            Assert.AreEqual(1, dataAccess.Invocations.Count);
         }
 
         /// <summary>
@@ -168,18 +173,20 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Complete_Completes()
         {
             var now = clock.Object.UtcNow;
-            var context = new InternalSubscribedContext
-            {
-                MessageData = new SubscribedMessage
-                {
-                    Id = 12345,
-                    NotBefore = now,
-                },
-            };
-            await reader.Complete(context);
+            var expectedMessageId = Context.MessageData.Id;
 
-            Assert.IsTrue(ReferenceEquals(context.MessageData, CompletedMessage));
-            Assert.AreEqual(now, context.MessageData.Completed);
+            dataAccess.Setup(d => d.CompleteMessage(Context.MessageData))
+                .Callback((SubscribedMessage m) =>
+                {
+                    Assert.AreEqual(expectedMessageId, m.Id);
+                    Assert.AreEqual(clock.Object.UtcNow, m.Completed);
+                });
+
+            await reader.Complete(Context);
+
+            dataAccess.Verify(d => d.CompleteMessage(Context.MessageData));
+
+            Assert.AreEqual(now, Context.MessageData.Completed);
         }
 
         [TestMethod]
@@ -273,48 +280,21 @@ namespace PeachtreeBus.Tests.Subscriptions
 
 
         [TestMethod]
-        public async Task Fail_InvokesFailHandlerOnMaxRetries()
+        public async Task Given_RetryStrategyRerturnsFail_When_Fail_Then_ErrorHanderIsInvoked()
         {
-            var context = new InternalSubscribedContext
-            {
-                MessageData = new SubscribedMessage
-                {
-                    Retries = (byte)(reader.MaxRetries - 1),
-                },
-                Headers = new Headers
-                {
-
-                },
-                Message = new TestSagaMessage1()
-            };
-
+            RetryResult = new(false, TimeSpan.Zero);
             var exception = new ApplicationException();
-
-            await reader.Fail(context, exception);
-            failures.Verify(f => f.Failed(context, context.Message, exception), Times.Once());
+            await reader.Fail(Context, exception);
+            failures.Verify(f => f.Failed(Context, Context.Message, exception), Times.Once());
         }
 
         [TestMethod]
-        public async Task Fail_DoesNotInvokeFailHandlerBeforeMaxRetries()
+        public async Task Given_RetryStrategyRerturnsRetry_When_Fail_Then_ErrorHanderIsNotInvoked()
         {
-            var context = new InternalSubscribedContext
-            {
-                MessageData = new SubscribedMessage
-                {
-                    Retries = (byte)(reader.MaxRetries - 2),
-                },
-                Headers = new Headers
-                {
-
-                },
-                Message = new TestSagaMessage1()
-            };
-
-
+            RetryResult = new(true, TimeSpan.FromSeconds(5));
             var exception = new ApplicationException();
-
-            await reader.Fail(context, exception);
-            failures.Verify(f => f.Failed(context, context.Message, exception), Times.Never());
+            await reader.Fail(Context, exception);
+            failures.Verify(f => f.Failed(Context, Context.Message, exception), Times.Never());
         }
     }
 }

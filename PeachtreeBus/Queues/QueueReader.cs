@@ -15,11 +15,6 @@ namespace PeachtreeBus.Queues
     public interface IQueueReader
     {
         /// <summary>
-        /// The maximum number of times a message can have an exception before it is considered to be failed.
-        /// </summary>
-        byte MaxRetries { get; set; }
-
-        /// <summary>
         /// Gets one message and deserializes it and its headers into a message context.
         /// </summary>
         /// <param name="queueId"></param>
@@ -78,7 +73,8 @@ namespace PeachtreeBus.Queues
         IPerfCounters counters,
         ISerializer serializer,
         ISystemClock clock,
-        IQueueFailures failures) : IQueueReader
+        IQueueFailures failures,
+        IQueueRetryStrategy retryStrategy) : IQueueReader
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly ILogger<QueueReader> _log = log;
@@ -86,8 +82,7 @@ namespace PeachtreeBus.Queues
         private readonly ISerializer _serializer = serializer;
         private readonly ISystemClock _clock = clock;
         private readonly IQueueFailures _failures = failures;
-
-        public byte MaxRetries { get; set; } = 5;
+        private readonly IQueueRetryStrategy _retryStrategy = retryStrategy;
 
         /// <inheritdoc/>
         public async Task<InternalQueueContext?> GetNext(QueueName queueName)
@@ -157,22 +152,25 @@ namespace PeachtreeBus.Queues
         public async Task Fail(InternalQueueContext context, Exception exception)
         {
             context.MessageData.Retries++;
-            context.MessageData.NotBefore = _clock.UtcNow.AddSeconds(5 * context.MessageData.Retries); // Wait longer between retries.
             context.Headers.ExceptionDetails = exception.ToString();
             context.MessageData.Headers = _serializer.SerializeHeaders(context.Headers);
-            if (context.MessageData.Retries >= MaxRetries)
+
+            var retryResult = _retryStrategy.DetermineRetry(context, exception, context.MessageData.Retries);
+
+            if (retryResult.ShouldRetry)
             {
-                _log.QueueReader_MessageExceededMaxRetries(context.MessageData.MessageId, context.SourceQueue, MaxRetries);
+                context.MessageData.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
+                _log.QueueReader_MessageWillBeRetried(context.MessageData.MessageId, context.SourceQueue, context.MessageData.NotBefore);
+                _counters.RetryMessage();
+                await _dataAccess.Update(context.MessageData, context.SourceQueue);
+            }
+            else
+            {
+                _log.QueueReader_MessageFailed(context.MessageData.MessageId, context.SourceQueue);
                 context.MessageData.Failed = _clock.UtcNow;
                 _counters.FailMessage();
                 await _dataAccess.FailMessage(context.MessageData, context.SourceQueue);
                 await _failures.Failed(context, context.Message, exception);
-            }
-            else
-            {
-                _log.QueueReader_MessageWillBeRetried(context.MessageData.MessageId, context.SourceQueue, context.MessageData.NotBefore);
-                _counters.RetryMessage();
-                await _dataAccess.Update(context.MessageData, context.SourceQueue);
             }
         }
 

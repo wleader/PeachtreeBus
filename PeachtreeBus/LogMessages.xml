@@ -33,8 +33,8 @@
             <Event name="MessageClassNotRecognized" level="Warning">
                 Message class '{MessageClass:string}' was not recognized for message {MessageId:Guid} from queue {QueueName:QueueName}.
             </Event>
-            <Event name="MessageExceededMaxRetries" level="Warning">
-                Message {MessageId:Guid} from queue {QueueName:QueueName} exceeded the maximum number of allowed retries ({MaxRetries:int}) and has failed.
+            <Event name="MessageFailed" level="Warning">
+                Message {MessageId:Guid} from queue {QueueName:QueueName} has failed and will not be retried.
             </Event>
             <Event name="MessageWillBeRetried" level="Warning">
                 Message {MessageId:Guid} from queue {QueueName:QueueName} will be retried after {NotBefore:DateTime}.
@@ -80,8 +80,8 @@
             </Event>
         </Class>
         <Class name="SubscribedReader">
-            <Event name="MessageExceededMaxRetries" level="Warning">
-                Message {MessageId:Guid} for Subscriber {SubscriberId:Guid} execeed the max number of retries ({MaxRetries:int}) and has failed.
+            <Event name="MessageFailed" level="Warning">
+                Message {MessageId:Guid} for Subscriber {SubscriberId:Guid} has failed and will not be retried.
             </Event>
             <Event name="HeaderNotDeserializable" level="Warning" exception="true">
                 Headers could not be deserialized for message {MessageId:Guid} for subscriber {SubscriberId:Guid}.

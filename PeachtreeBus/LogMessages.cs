@@ -108,17 +108,17 @@ namespace PeachtreeBus
         public static void QueueReader_MessageClassNotRecognized(this ILogger logger, string messageClass, Guid messageId, QueueName queueName)
             => PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Action(logger, messageClass, messageId, queueName, null!);
 
-        internal static readonly EventId PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Event
-            = new(3001004, "PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries");
-        internal static readonly Action<ILogger, Guid, QueueName, int, Exception> PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Action
-            = LoggerMessage.Define<Guid, QueueName, int>(LogLevel.Warning,
-                PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Event,
-                "Message {MessageId} from queue {QueueName} exceeded the maximum number of allowed retries ({MaxRetries}) and has failed.");
+        internal static readonly EventId PeachtreeBus_Queues_QueueReader_MessageFailed_Event
+            = new(3001004, "PeachtreeBus_Queues_QueueReader_MessageFailed");
+        internal static readonly Action<ILogger, Guid, QueueName, Exception> PeachtreeBus_Queues_QueueReader_MessageFailed_Action
+            = LoggerMessage.Define<Guid, QueueName>(LogLevel.Warning,
+                PeachtreeBus_Queues_QueueReader_MessageFailed_Event,
+                "Message {MessageId} from queue {QueueName} has failed and will not be retried.");
         /// <summary>
-        /// (3001004) Warning: Message {MessageId} from queue {QueueName} exceeded the maximum number of allowed retries ({MaxRetries}) and has failed.
+        /// (3001004) Warning: Message {MessageId} from queue {QueueName} has failed and will not be retried.
         /// </summary>
-        public static void QueueReader_MessageExceededMaxRetries(this ILogger logger, Guid messageId, QueueName queueName, int maxRetries)
-            => PeachtreeBus_Queues_QueueReader_MessageExceededMaxRetries_Action(logger, messageId, queueName, maxRetries, null!);
+        public static void QueueReader_MessageFailed(this ILogger logger, Guid messageId, QueueName queueName)
+            => PeachtreeBus_Queues_QueueReader_MessageFailed_Action(logger, messageId, queueName, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_MessageWillBeRetried_Event
             = new(3001005, "PeachtreeBus_Queues_QueueReader_MessageWillBeRetried");
@@ -264,17 +264,17 @@ namespace PeachtreeBus
         public static void SubscribedWork_MessageHandlerException(this ILogger logger, Guid messageId, Guid susbscriberId, Exception ex)
             => PeachtreeBus_Subscriptions_SubscribedWork_MessageHandlerException_Action(logger, messageId, susbscriberId, ex);
 
-        internal static readonly EventId PeachtreeBus_Subscriptions_SubscribedReader_MessageExceededMaxRetries_Event
-            = new(4002001, "PeachtreeBus_Subscriptions_SubscribedReader_MessageExceededMaxRetries");
-        internal static readonly Action<ILogger, Guid, Guid, int, Exception> PeachtreeBus_Subscriptions_SubscribedReader_MessageExceededMaxRetries_Action
-            = LoggerMessage.Define<Guid, Guid, int>(LogLevel.Warning,
-                PeachtreeBus_Subscriptions_SubscribedReader_MessageExceededMaxRetries_Event,
-                "Message {MessageId} for Subscriber {SubscriberId} execeed the max number of retries ({MaxRetries}) and has failed.");
+        internal static readonly EventId PeachtreeBus_Subscriptions_SubscribedReader_MessageFailed_Event
+            = new(4002001, "PeachtreeBus_Subscriptions_SubscribedReader_MessageFailed");
+        internal static readonly Action<ILogger, Guid, Guid, Exception> PeachtreeBus_Subscriptions_SubscribedReader_MessageFailed_Action
+            = LoggerMessage.Define<Guid, Guid>(LogLevel.Warning,
+                PeachtreeBus_Subscriptions_SubscribedReader_MessageFailed_Event,
+                "Message {MessageId} for Subscriber {SubscriberId} has failed and will not be retried.");
         /// <summary>
-        /// (4002001) Warning: Message {MessageId} for Subscriber {SubscriberId} execeed the max number of retries ({MaxRetries}) and has failed.
+        /// (4002001) Warning: Message {MessageId} for Subscriber {SubscriberId} has failed and will not be retried.
         /// </summary>
-        public static void SubscribedReader_MessageExceededMaxRetries(this ILogger logger, Guid messageId, Guid subscriberId, int maxRetries)
-            => PeachtreeBus_Subscriptions_SubscribedReader_MessageExceededMaxRetries_Action(logger, messageId, subscriberId, maxRetries, null!);
+        public static void SubscribedReader_MessageFailed(this ILogger logger, Guid messageId, Guid subscriberId)
+            => PeachtreeBus_Subscriptions_SubscribedReader_MessageFailed_Action(logger, messageId, subscriberId, null!);
 
         internal static readonly EventId PeachtreeBus_Subscriptions_SubscribedReader_HeaderNotDeserializable_Event
             = new(4002002, "PeachtreeBus_Subscriptions_SubscribedReader_HeaderNotDeserializable");

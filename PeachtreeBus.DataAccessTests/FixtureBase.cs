@@ -297,10 +297,14 @@ namespace PeachtreeBus.DataAccessTests
         /// <param name="allowDriftMs">Allows a minor difference in times.</param>
         protected void AssertSqlDbDateTime(DateTime? expected, DateTime? actual, int allowDriftMs = 100)
         {
+            // if they are both null, its ok.
             if (!expected.HasValue && !actual.HasValue) return;
+
+            // if one is null and the other is not its a failure.
             Assert.AreEqual(expected.HasValue, actual.HasValue, $"Expected {expected}, Actual {actual}");
+
             // both are not null, so compare deeper.
-            AssertSqlDbDateTime(expected.Value, actual.Value, allowDriftMs);
+            AssertSqlDbDateTime(expected!.Value, actual!.Value, allowDriftMs);
         }
 
         /// <summary>

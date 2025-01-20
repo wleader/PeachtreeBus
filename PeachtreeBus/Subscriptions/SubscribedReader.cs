@@ -32,7 +32,8 @@ namespace PeachtreeBus.Subscriptions
         ILogger<SubscribedReader> log,
         IPerfCounters counters,
         ISystemClock clock,
-        ISubscribedFailures failures)
+        ISubscribedFailures failures,
+        ISubscribedRetryStrategy retryStrategy)
         : ISubscribedReader
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
@@ -41,8 +42,7 @@ namespace PeachtreeBus.Subscriptions
         private readonly IPerfCounters _counters = counters;
         private readonly ISystemClock _clock = clock;
         private readonly ISubscribedFailures _failures = failures;
-
-        public byte MaxRetries { get; set; } = 5;
+        private readonly ISubscribedRetryStrategy _retryStrategy = retryStrategy;
 
         /// <summary>
         /// Completes a subscribed message
@@ -65,22 +65,25 @@ namespace PeachtreeBus.Subscriptions
         public async Task Fail(InternalSubscribedContext context, Exception exception)
         {
             context.MessageData.Retries++;
-            context.MessageData.NotBefore = _clock.UtcNow.AddSeconds(5 * context.MessageData.Retries); // Wait longer between retries.
             context.Headers.ExceptionDetails = exception.ToString();
             context.MessageData.Headers = _serializer.SerializeHeaders(context.Headers);
-            if (context.MessageData.Retries >= MaxRetries)
+
+            var retryResult = _retryStrategy.DetermineRetry(context, exception, context.MessageData.Retries);
+
+            if (retryResult.ShouldRetry)
             {
-                _log.SubscribedReader_MessageExceededMaxRetries(context.MessageData.MessageId, context.SubscriberId, MaxRetries);
+                context.MessageData.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
+                _log.SubscribedReader_MessageWillBeRetried(context.MessageData.MessageId, context.SubscriberId, context.MessageData.NotBefore);
+                _counters.RetryMessage();
+                await _dataAccess.Update(context.MessageData);
+            }
+            else
+            {
+                _log.SubscribedReader_MessageFailed(context.MessageData.MessageId, context.SubscriberId);
                 context.MessageData.Failed = _clock.UtcNow;
                 _counters.FailMessage();
                 await _dataAccess.FailMessage(context.MessageData);
                 await _failures.Failed(context, context.Message, exception);
-            }
-            else
-            {
-                _log.SubscribedReader_MessageWillBeRetried(context.MessageData.MessageId, context.SubscriberId, context.MessageData.NotBefore);
-                _counters.RetryMessage();
-                await _dataAccess.Update(context.MessageData);
             }
         }
 
