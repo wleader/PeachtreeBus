@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
@@ -56,8 +55,8 @@ namespace PeachtreeBus.DataAccessTests
         {
             var newMessage = CreateSubscribed();
             newMessage.SubscriberId = Guid.Empty;
-            var action = new Func<SubscribedMessage, Task>(async (m) => await dataAccess.AddMessage(m));
-            await ActionThrowsFor(action, newMessage);
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
+                dataAccess.AddMessage(newMessage));
         }
     }
 }

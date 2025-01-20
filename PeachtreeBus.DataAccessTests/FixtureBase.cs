@@ -9,7 +9,6 @@ using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
 {
@@ -376,25 +375,6 @@ namespace PeachtreeBus.DataAccessTests
                 SagaId = Guid.NewGuid(),
                 Key = "Key"
             };
-        }
-
-        /// <summary>
-        /// Helper method that tests that an action using 
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="message"></param>
-        protected async Task ActionThrowsFor<T>(Func<T, Task> action, T message)
-        {
-            var exceptionThrown = false;
-            try
-            {
-                await action.Invoke(message);
-            }
-            catch (ArgumentException)
-            {
-                exceptionThrown = true;
-            }
-            Assert.IsTrue(exceptionThrown, "Action did not throw an argument exception for poison message.");
         }
     }
 }
