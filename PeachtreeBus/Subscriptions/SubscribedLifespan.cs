@@ -19,6 +19,6 @@ namespace PeachtreeBus.Subscriptions
         TimeSpan duration)
         : ISubscribedLifespan
     {
-        public TimeSpan Duration { get; private set; } = duration;
+        public TimeSpan Duration { get; } = duration;
     }
 }

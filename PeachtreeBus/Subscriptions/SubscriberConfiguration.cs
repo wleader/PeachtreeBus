@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PeachtreeBus.Subscriptions
 {
@@ -23,8 +22,8 @@ namespace PeachtreeBus.Subscriptions
         params string[] categories)
         : ISubscriberConfiguration
     {
-        public Guid SubscriberId { get; private set; } = subscriberId;
-        public IList<string> Categories { get; private set; } = categories.ToList();
-        public TimeSpan Lifespan { get; private set; } = lifespan;
+        public Guid SubscriberId { get; } = subscriberId;
+        public IList<string> Categories { get; } = [.. categories];
+        public TimeSpan Lifespan { get; } = lifespan;
     }
 }

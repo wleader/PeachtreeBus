@@ -1,6 +1,7 @@
 ﻿using PeachtreeBus.Pipelines;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,6 +15,9 @@ namespace PeachtreeBus.Subscriptions
     {
         private readonly IFindSubscribedHandlers _findHandlers = findHandlers;
 
+        // This property isn't used as the handlers step is always last in the pipeline
+        // but it is requred by the interface.
+        [ExcludeFromCodeCoverage]
         public int Priority { get => 0; }
 
         public async Task Invoke(SubscribedContext subscribedcontext, Func<SubscribedContext, Task>? next)

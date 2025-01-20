@@ -3,6 +3,7 @@ using PeachtreeBus.Pipelines;
 using PeachtreeBus.Sagas;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,6 +31,9 @@ namespace PeachtreeBus.Queues
         private readonly ISagaMessageMapManager _sagaMessageMapManager = sagaMessageMapManager;
         private readonly IQueueReader _queueReader = queueReader;
 
+        // This property isn't used as the handlers step is always last in the pipeline
+        // but it is requred by the interface.
+        [ExcludeFromCodeCoverage]
         public int Priority { get => 0; }
 
         public async Task Invoke(QueueContext externalContext, Func<QueueContext, Task>? next)

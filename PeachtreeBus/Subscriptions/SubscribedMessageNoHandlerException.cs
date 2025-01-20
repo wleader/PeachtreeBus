@@ -8,7 +8,7 @@ namespace PeachtreeBus.Subscriptions
         public Type MessageType { get; private set; }
         public Guid SubscriberId { get; private set; }
 
-        internal SubscribedMessageNoHandlerException(Guid messageId, Guid subscriberId, Type messageType)
+        public SubscribedMessageNoHandlerException(Guid messageId, Guid subscriberId, Type messageType)
             : base($"Message {messageId} for subscriber {subscriberId} is a message class of {messageType} for which no handlers were found.")
         {
             MessageId = messageId;
