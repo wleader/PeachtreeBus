@@ -133,6 +133,34 @@ namespace PeachtreeBus.Tests.Queues
             dataAccess.Verify(d => d.CreateSavepoint("BeforeMessageHandler"), Times.Once);
         }
 
+        [TestMethod]
+        public async Task Given_SagaIsBlocked_When_DoWork_Then_MessageIsDelayed()
+        {
+            context.SagaData = new() { Blocked = true };
+
+            bool rolledBack = false;
+
+            dataAccess.Setup(d => d.RollbackToSavepoint("BeforeMessageHandler"))
+                .Callback((string s) =>
+                {
+                    rolledBack = true;
+                });
+
+            reader.Setup(r => r.DelayMessage(context, 250))
+                .Callback((InternalQueueContext c, int ms) =>
+                {
+                    Assert.IsTrue(rolledBack, "Rollback did not happen before delaying message.");
+                });
+
+            var result = await work.DoWork();
+
+            Assert.IsTrue(result);
+            counters.Verify(c => c.SagaBlocked(), Times.Once);
+            dataAccess.Verify(d => d.RollbackToSavepoint("BeforeMessageHandler"));
+            Assert.AreEqual("RollbackToSavepoint", dataAccess.Invocations[dataAccess.Invocations.Count - 1].Method.Name);
+            reader.Verify(r => r.DelayMessage(context, 250), Times.Once);
+        }
+
         private static InternalQueueContext CreateContext()
         {
             return new InternalQueueContext()
@@ -145,7 +173,7 @@ namespace PeachtreeBus.Tests.Queues
                 {
                     MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
                 },
-                Message = new TestSagaMessage1()
+                Message = new TestSagaMessage1(),
             };
         }
     }

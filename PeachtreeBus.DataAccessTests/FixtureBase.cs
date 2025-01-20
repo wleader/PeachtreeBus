@@ -233,7 +233,7 @@ namespace PeachtreeBus.DataAccessTests
         /// <param name="actual"></param>
         protected void AssertSagaEquals(SagaData expected, SagaData actual)
         {
-            if (expected == null && actual == null) return;
+            Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null");
             Assert.IsNotNull(actual, "Actual is null, expected is not.");
             Assert.IsNotNull(expected, "Expected is null, actual is not.");
             Assert.AreEqual(expected.Id, actual.Id);
@@ -252,7 +252,7 @@ namespace PeachtreeBus.DataAccessTests
         /// <param name="actual"></param>
         protected void AssertMessageEquals(QueueMessage expected, QueueMessage actual)
         {
-            if (expected == null && actual == null) return;
+            Assert.IsFalse(expected is null && actual is null, "Do not assert Null is Null.");
             Assert.IsNotNull(actual, "Actual is null, expected is not.");
             Assert.IsNotNull(expected, "Expected is null, actual is not.");
             Assert.AreEqual(expected.Headers, actual.Headers);
@@ -273,7 +273,7 @@ namespace PeachtreeBus.DataAccessTests
         /// <param name="actual"></param>
         protected void AssertSubscribedEquals(SubscribedMessage expected, SubscribedMessage actual)
         {
-            if (expected == null && actual == null) return;
+            Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
             Assert.IsNotNull(actual, "Actual is null, expected is not.");
             Assert.IsNotNull(expected, "Expected is null, actual is not.");
             Assert.AreEqual(expected.Headers, actual.Headers);
@@ -297,13 +297,10 @@ namespace PeachtreeBus.DataAccessTests
         /// <param name="allowDriftMs">Allows a minor difference in times.</param>
         protected void AssertSqlDbDateTime(DateTime? expected, DateTime? actual, int allowDriftMs = 100)
         {
-            if (expected.HasValue && actual.HasValue)
-                AssertSqlDbDateTime(expected.Value, actual.Value, allowDriftMs);
-
-            if (expected.HasValue != actual.HasValue)
-                Assert.Fail($"Expected {expected}, Actual {actual}");
-
-            // else both are null and match.
+            if (!expected.HasValue && !actual.HasValue) return;
+            Assert.AreEqual(expected.HasValue, actual.HasValue, $"Expected {expected}, Actual {actual}");
+            // both are not null, so compare deeper.
+            AssertSqlDbDateTime(expected.Value, actual.Value, allowDriftMs);
         }
 
         /// <summary>

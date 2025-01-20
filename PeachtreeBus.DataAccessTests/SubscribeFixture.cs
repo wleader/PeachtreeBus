@@ -42,7 +42,7 @@ namespace PeachtreeBus.DataAccessTests
             subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
 
             Assert.AreEqual(1, subscriptions.Count);
-
+            Assert.AreNotEqual(0, subscriptions[0].Id);
             Assert.AreEqual(subscriber, subscriptions[0].SubscriberId);
             Assert.AreEqual(category, subscriptions[0].Category);
             AssertSqlDbDateTime(until, subscriptions[0].ValidUntil);
@@ -141,10 +141,10 @@ namespace PeachtreeBus.DataAccessTests
         /// proves that the subscriber ID cannot be empty.
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public async Task Subscribe_ThrowsIfSubscriberIdIsGuidEmpty()
         {
-            await dataAccess.Subscribe(Guid.Empty, "TestCategory", DateTime.UtcNow.AddMinutes(30));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
+                dataAccess.Subscribe(Guid.Empty, "TestCategory", DateTime.UtcNow.AddMinutes(30)));
         }
     }
 }
