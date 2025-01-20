@@ -131,7 +131,6 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
-            p.Add("@Headers", message.Headers);
 
             await LogIfError(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
@@ -541,7 +540,6 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
-            p.Add("@Headers", message.Headers);
 
             await LogIfError(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction),

@@ -11,7 +11,7 @@ namespace PeachtreeBus.DatabaseSharing
     public class SqlConnectionProxy(string connectionString) : ISqlConnection
     {
         public bool Disposed { get; private set; } = false;
-        public SqlConnection Connection { get; private set; } = new(connectionString);
+        public SqlConnection Connection { get; } = new(connectionString);
         public System.Data.ConnectionState State { get => Connection.State; }
 
         public void Open() => Connection.Open();
