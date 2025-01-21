@@ -11,7 +11,7 @@ namespace PeachtreeBus.Errors;
 public abstract class DefaultRetryStrategy<TContext> : IRetryStrategy<TContext>
     where TContext : BaseContext
 {
-    public static int MaxRetries { get; set; } = 5;
+    public int MaxRetries { get; set; } = 5;
 
     public RetryResult DetermineRetry(TContext context, Exception exception, int failureCount)
     {

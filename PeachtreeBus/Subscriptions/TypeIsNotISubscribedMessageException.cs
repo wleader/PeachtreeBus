@@ -4,7 +4,7 @@ namespace PeachtreeBus.Subscriptions;
 
 public class TypeIsNotISubscribedMessageException : MissingInterfaceException
 {
-    internal TypeIsNotISubscribedMessageException(Type classType) : base(classType, typeof(ISubscribedMessage)) { }
+    public TypeIsNotISubscribedMessageException(Type classType) : base(classType, typeof(ISubscribedMessage)) { }
 
     public static void ThrowIfMissingInterface(Type type)
     {

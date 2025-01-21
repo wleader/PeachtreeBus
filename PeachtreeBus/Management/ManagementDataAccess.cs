@@ -6,7 +6,7 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,24 +22,19 @@ namespace PeachtreeBus.Management
         {
             UtcDateTimeHandler.AddTypeHandler();
             SerializedDataHandler.AddTypeHandler();
-
-            typeFields = new(new Dictionary<Type, string>()
-            {
-                {typeof(QueueMessage), "[Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]"},
-                {typeof(SubscribedMessage), "[Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]"},
-            });
         }
 
         private readonly IDbSchemaConfiguration _schemaConfig = schemaConfig;
         private readonly ISharedDatabase _database = database;
         private readonly ILogger<ManagementDataAccess> _log = log;
 
+        private const string QueueFields = "[Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
+        private const string SubscribedFields = "[Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
+
         private static readonly TableName Failed = new("Failed");
         private static readonly TableName Completed = new("Completed");
         private static readonly TableName Pending = new("Pending");
         private static readonly QueueName Subscribed = new("Subscribed");
-
-        private static readonly ReadOnlyDictionary<Type, string> typeFields;
 
         private readonly record struct TableName
         {
@@ -53,8 +48,7 @@ namespace PeachtreeBus.Management
             public override string ToString() => Value ?? throw new DbSafeNameException($"{nameof(TableName)} is not initialized.");
         }
 
-
-        private async Task<List<T>> GetMessages<T>(QueueName queueName, TableName table, int skip, int take)
+        private async Task<List<T>> GetMessages<T>(string fields, QueueName queueName, TableName table, int skip, int take)
         {
             const string template =
                 """
@@ -65,54 +59,45 @@ namespace PeachtreeBus.Management
                     FETCH NEXT @Take ROWS ONLY
                 """;
 
-            if (!typeFields.TryGetValue(typeof(T), out string fields))
-                throw new ArgumentException($"Type not supported{typeof(T)}");
-
             string statement = string.Format(template, _schemaConfig.Schema, queueName, table, fields);
 
             var p = new DynamicParameters();
             p.Add("@Skip", skip);
             p.Add("@Take", take);
 
-            try
-            {
-                return (await _database.Connection.QueryAsync<T>(statement, p, _database.Transaction)).ToList();
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(GetMessages), ex);
-                throw;
-            }
+            return (await LogIfError(
+                _database.Connection.QueryAsync<T>(statement, p, _database.Transaction),
+                nameof(GetMessages))).ToList();
         }
 
         public Task<List<QueueMessage>> GetFailedQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueMessage>(queueName, Failed, skip, take);
+            return GetMessages<QueueMessage>(QueueFields, queueName, Failed, skip, take);
         }
 
         public Task<List<QueueMessage>> GetCompletedQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueMessage>(queueName, Completed, skip, take);
+            return GetMessages<QueueMessage>(QueueFields, queueName, Completed, skip, take);
         }
 
         public Task<List<QueueMessage>> GetPendingQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueMessage>(queueName, Pending, skip, take);
+            return GetMessages<QueueMessage>(QueueFields, queueName, Pending, skip, take);
         }
 
         public Task<List<SubscribedMessage>> GetFailedSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedMessage>(Subscribed, Failed, skip, take);
+            return GetMessages<SubscribedMessage>(SubscribedFields, Subscribed, Failed, skip, take);
         }
 
         public Task<List<SubscribedMessage>> GetCompletedSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedMessage>(Subscribed, Completed, skip, take);
+            return GetMessages<SubscribedMessage>(SubscribedFields, Subscribed, Completed, skip, take);
         }
 
         public Task<List<SubscribedMessage>> GetPendingSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedMessage>(Subscribed, Pending, skip, take);
+            return GetMessages<SubscribedMessage>(SubscribedFields, Subscribed, Pending, skip, take);
         }
 
         public async Task CancelPendingQueueMessage(QueueName queueName, long id)
@@ -132,15 +117,9 @@ namespace PeachtreeBus.Management
             var p = new DynamicParameters();
             p.Add("@Id", id);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(CancelPendingQueueMessage), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(CancelPendingQueueMessage));
         }
 
         public async Task CancelPendingSubscribedMessage(long id)
@@ -160,15 +139,9 @@ namespace PeachtreeBus.Management
             var p = new DynamicParameters();
             p.Add("@Id", id);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(CancelPendingSubscribedMessage), ex);
-                throw;
-            }
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(CancelPendingSubscribedMessage));
         }
 
         public async Task RetryFailedQueueMessage(QueueName queueName, long id)
@@ -188,15 +161,9 @@ namespace PeachtreeBus.Management
             var p = new DynamicParameters();
             p.Add("@Id", id);
 
-            try
-            {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
-            }
-            catch (Exception ex)
-            {
-                _log.DapperDataAccess_DataAccessError(nameof(RetryFailedQueueMessage), ex);
-                throw;
-            }
+            await LogIfError(
+            _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(RetryFailedQueueMessage));
         }
 
         public async Task RetryFailedSubscribedMessage(long id)
@@ -216,13 +183,21 @@ namespace PeachtreeBus.Management
             var p = new DynamicParameters();
             p.Add("@Id", id);
 
+            await LogIfError(
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
+                nameof(RetryFailedSubscribedMessage));
+        }
+
+        [ExcludeFromCodeCoverage]
+        private async Task<T> LogIfError<T>(Task<T> task, string caller)
+        {
             try
             {
-                await _database.Connection.ExecuteAsync(statement, p, _database.Transaction);
+                return await task;
             }
             catch (Exception ex)
             {
-                _log.DapperDataAccess_DataAccessError(nameof(RetryFailedSubscribedMessage), ex);
+                _log.DapperDataAccess_DataAccessError(caller, ex);
                 throw;
             }
         }
