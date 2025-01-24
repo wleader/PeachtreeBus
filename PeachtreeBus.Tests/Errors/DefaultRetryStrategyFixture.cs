@@ -14,7 +14,7 @@ public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
     protected TContext Context = default!;
     protected TStrategy TestSubject = default!;
 
-    private static readonly ApplicationException exception = new ApplicationException();
+    private static readonly ApplicationException exception = new();
 
     [TestInitialize]
     public void Intialize()

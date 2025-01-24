@@ -2,10 +2,9 @@
 
 namespace PeachtreeBus.Queues;
 
-public class TypeIsNotIQueueMessageException : MissingInterfaceException
+public class TypeIsNotIQueueMessageException(Type classType)
+    : MissingInterfaceException(classType, typeof(IQueueMessage))
 {
-    public TypeIsNotIQueueMessageException(Type classType) : base(classType, typeof(IQueueMessage)) { }
-
     public static void ThrowIfMissingInterface(Type type)
     {
         if (!typeof(IQueueMessage).IsAssignableFrom(type))

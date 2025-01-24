@@ -41,7 +41,7 @@ namespace PeachtreeBus.Sagas
                     var mapper = new SagaMessageMap();
                     var parameterTypes = new[] { typeof(SagaMessageMap) };
                     var configureMethod = sagaType.GetMethod("ConfigureMessageKeys", parameterTypes);
-                    configureMethod.Invoke(saga, new object[] { mapper });
+                    configureMethod.Invoke(saga, [mapper]);
                     Maps.Add(sagaType, mapper);
 
                     // todo, check that ConfigureMessageKeys mapped all message types that the saga has interfaces for, 

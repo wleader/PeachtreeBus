@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Subscriptions;
-using System;
 using System.Collections.Generic;
 
 namespace PeachtreeBus.Tests.Subscriptions
@@ -33,8 +32,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public void Given_NoPipelineStepsAreProvided_When_Build_Then_OnlyHandlerStepIsAdded()
         {
-
-            _findSteps.Setup(f => f.FindSteps()).Returns(Array.Empty<ISubscribedPipelineStep>());
+            _findSteps.Setup(f => f.FindSteps()).Returns([]);
 
             var result = _factory.Build();
 

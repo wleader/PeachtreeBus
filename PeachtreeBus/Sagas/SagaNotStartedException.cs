@@ -3,22 +3,18 @@ using System;
 
 namespace PeachtreeBus.Sagas
 {
-    public class SagaNotStartedException : PeachtreeBusException
+    public class SagaNotStartedException(
+        Guid messageId,
+        QueueName sourceQueue,
+        Type messageType,
+        Type sagaType,
+        string sagaKey)
+        : PeachtreeBusException($"Message {messageId} from queue {sourceQueue} is a message class of {messageType} for which a saga of type {sagaType} with a saga key {sagaKey} has not been started.")
     {
-        public Guid MessageId { get; }
-        public Type MessageType { get; }
-        public Type SagaType { get; }
-        public QueueName SourceQueue { get; }
-        public string SagaKey { get; }
-
-        public SagaNotStartedException(Guid messageId, QueueName sourceQueue, Type messageType, Type sagaType, string sagaKey)
-            : base($"Message {messageId} from queue {sourceQueue} is a message class of {messageType} for which a saga of type {sagaType} with a saga key {sagaKey} has not been started.")
-        {
-            MessageId = messageId;
-            MessageType = messageType;
-            SourceQueue = sourceQueue;
-            SagaType = sagaType;
-            SagaKey = sagaKey;
-        }
+        public Guid MessageId { get; } = messageId;
+        public Type MessageType { get; } = messageType;
+        public Type SagaType { get; } = sagaType;
+        public QueueName SourceQueue { get; } = sourceQueue;
+        public string SagaKey { get; } = sagaKey;
     }
 }

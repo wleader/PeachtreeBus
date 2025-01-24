@@ -48,9 +48,9 @@ namespace PeachtreeBus.Sagas
             }
 
             var function = MapFunctions[messageType];
-            var funcType = typeof(Func<,>).MakeGenericType(new Type[] { messageType, typeof(string) });
+            var funcType = typeof(Func<,>).MakeGenericType([messageType, typeof(string)]);
             var invokeMethod = funcType.GetMethod("Invoke");
-            var result = invokeMethod.Invoke(function, new[] { message });
+            var result = invokeMethod.Invoke(function, [message]);
             return result is string stringResult
                 ? stringResult
                 : throw new SagaMapException("Map function did not return a string.");

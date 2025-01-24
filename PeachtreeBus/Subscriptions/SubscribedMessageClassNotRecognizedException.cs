@@ -2,18 +2,14 @@
 
 namespace PeachtreeBus.Subscriptions
 {
-    public class SubscribedMessageClassNotRecognizedException : PeachtreeBusException
+    public class SubscribedMessageClassNotRecognizedException(
+        Guid messageId,
+        Guid subscriberId,
+        string? typeName)
+        : PeachtreeBusException($"Message {messageId} for subscriber {subscriberId} is a message class of {typeName} which was not a recognized type.")
     {
-        public Guid MessageId { get; }
-        public string? TypeName { get; }
-        public Guid SubscriberId { get; }
-
-        public SubscribedMessageClassNotRecognizedException(Guid messageId, Guid subscriberId, string? typeName)
-            : base($"Message {messageId} for subscriber {subscriberId} is a message class of {typeName} which was not a recognized type.")
-        {
-            MessageId = messageId;
-            TypeName = typeName;
-            SubscriberId = subscriberId;
-        }
+        public Guid MessageId { get; } = messageId;
+        public string? TypeName { get; } = typeName;
+        public Guid SubscriberId { get; } = subscriberId;
     }
 }
