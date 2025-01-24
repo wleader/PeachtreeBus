@@ -4,7 +4,7 @@ namespace PeachtreeBus;
 
 public abstract class PeachtreeBusException : Exception
 {
-    internal PeachtreeBusException(string message)
+    protected PeachtreeBusException(string message)
         : base(message)
     { }
 }

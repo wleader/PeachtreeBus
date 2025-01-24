@@ -1,7 +1,6 @@
 ﻿using PeachtreeBus.Queues;
 using SimpleInjector;
 using System;
-using System.Linq;
 using System.Reflection;
 
 namespace PeachtreeBus.SimpleInjector
@@ -41,16 +40,12 @@ namespace PeachtreeBus.SimpleInjector
                 var concreteMessageHandlerTypes = container.GetTypesToRegister(genericMessageHandlerType, assemblies);
                 // collection register them so the Message Processor can find the handlers.
                 container.Collection.Register(genericMessageHandlerType, concreteMessageHandlerTypes, Lifestyle.Transient);
-
-                foreach (var ct in concreteMessageHandlerTypes)
-                {
-                    if (container.GetCurrentRegistrations().Any(ip => ip.ImplementationType == ct)) continue;
-                    container.Register(ct, ct, Lifestyle.Transient);
-                }
+                container.RegisterConcreteTypesIfNeeded(concreteMessageHandlerTypes, Lifestyle.Transient);
             }
 
             return container;
         }
+
 
     }
 }

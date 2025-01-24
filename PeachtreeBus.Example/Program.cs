@@ -80,7 +80,7 @@ namespace PeachtreeBus.Example
             {
                 builder.AddSimpleConsole();
             });
-            _container.RegisterInstance<ILoggerFactory>(loggerFactory);
+            _container.RegisterInstance(loggerFactory);
             _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
 
             // read the DB connection string from an appsettings.json.

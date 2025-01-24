@@ -1,7 +1,6 @@
 ﻿using PeachtreeBus.Subscriptions;
 using SimpleInjector;
 using System;
-using System.Linq;
 using System.Reflection;
 
 namespace PeachtreeBus.SimpleInjector
@@ -31,13 +30,7 @@ namespace PeachtreeBus.SimpleInjector
         {
             var foundTypes = container.GetTypesToRegister(typeof(ISubscribedPipelineStep), assemblies);
             container.Collection.Register(typeof(ISubscribedPipelineStep), foundTypes, Lifestyle.Transient);
-
-            // Register the concrete types. This allows the container to do the DI later.
-            foreach (var t in foundTypes)
-            {
-                if (container.GetCurrentRegistrations().Any(ip => ip.ImplementationType == t)) continue;
-                container.Register(t, t, Lifestyle.Transient);
-            }
+            container.RegisterConcreteTypesIfNeeded(foundTypes, Lifestyle.Transient);
             return container;
         }
 

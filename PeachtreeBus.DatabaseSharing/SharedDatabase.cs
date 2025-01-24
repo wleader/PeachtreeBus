@@ -87,13 +87,13 @@ namespace PeachtreeBus.DatabaseSharing
     /// share the same DB transaction.
     /// </summary>
     [DebuggerDisplay("SharedDatabase [{InstanceId}]")]
-    public class SharedDatabase : ISharedDatabase
+    public class SharedDatabase(ISqlConnectionFactory connectionFactory) : ISharedDatabase
     {
         /// <summary>
         /// Give each instance a different ID.
         /// Helps with diagnosing which instances are the same and different.
         /// </summary>
-        public Guid InstanceId { get; private set; } = Guid.NewGuid();
+        public Guid InstanceId { get; } = Guid.NewGuid();
 
         /// <inheritdoc/>
         public bool DenyDispose { get; set; } = false;
@@ -111,18 +111,19 @@ namespace PeachtreeBus.DatabaseSharing
         /// <inheritdoc/>
         public SqlTransaction? Transaction { get => _transaction?.Transaction; }
 
-        public SqlConnection Connection { get => (_connection ?? _connectionFactory.GetConnection()).Connection; }
+        public SqlConnection Connection
+        {
+            get
+            {
+                _connection ??= _connectionFactory.GetConnection();
+                return _connection.Connection;
+            }
+        }
 
         private ISqlConnection? _connection;
         private ISqlTransaction? _transaction;
 
-        private readonly ISqlConnectionFactory _connectionFactory;
-
-        public SharedDatabase(ISqlConnectionFactory connectionFactory)
-        {
-            _connectionFactory = connectionFactory;
-            _connection = _connectionFactory.GetConnection();
-        }
+        private readonly ISqlConnectionFactory _connectionFactory = connectionFactory;
 
         /// <inheritdoc/>
         public void BeginTransaction()
@@ -135,7 +136,9 @@ namespace PeachtreeBus.DatabaseSharing
                     Reconnect();
                 }
 
-                if (Transaction != null) throw new SharedDatabaseException("There is already a transaction. Use CreateSavePoint instead of nested transactions.");
+                if (_transaction != null)
+                    throw new SharedDatabaseException("There is already a transaction. Use CreateSavePoint instead of nested transactions.");
+
                 _transaction = _connection.BeginTransaction();
             }
             TransactionStarted?.Invoke(this, null);
@@ -146,7 +149,9 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (_transaction == null) throw new SharedDatabaseException("There is no transaction to commit.");
+                if (_transaction == null)
+                    throw new SharedDatabaseException("There is no transaction to commit.");
+
                 _transaction.Commit();
                 _transaction = null;
             }
@@ -158,7 +163,8 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (_transaction == null) throw new SharedDatabaseException("There is no transaction to create a save point in.");
+                if (_transaction == null)
+                    throw new SharedDatabaseException("There is no transaction to create a save point in.");
 
                 _transaction.Save(name);
             }
@@ -179,7 +185,9 @@ namespace PeachtreeBus.DatabaseSharing
         {
             lock (_lock)
             {
-                if (_transaction == null) throw new SharedDatabaseException("There is no transaction to roll back.");
+                if (_transaction == null)
+                    throw new SharedDatabaseException("There is no transaction to roll back.");
+
                 _transaction.Rollback();
                 _transaction = null;
             }

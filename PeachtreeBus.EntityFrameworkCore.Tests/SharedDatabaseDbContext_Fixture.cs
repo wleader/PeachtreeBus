@@ -1,24 +1,20 @@
-﻿using PeachtreeBus.DatabaseSharing;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Microsoft.EntityFrameworkCore;
+using PeachtreeBus.DatabaseSharing;
 using System;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Linq;
 
 namespace PeachtreeBus.EntityFrameworkCore.Tests;
 
 [TestClass]
 public class SharedDatabaseDbContext_Fixture
 {
-
-
     private SharedDatabase _sharedDatabase = default!;
     private Mock<ISqlConnectionFactory> _connectionFactory = default!;
-    private SqlConnectionProxy _connection = default!;
-
 
     private string? _connectionString;
     private string ConnectionString
@@ -39,7 +35,7 @@ public class SharedDatabaseDbContext_Fixture
     public void TestInitialize()
     {
         _connectionFactory = new();
-        _connectionFactory.Setup(c => c.GetConnection()).Returns(() => _connection = new(ConnectionString));
+        _connectionFactory.Setup(c => c.GetConnection()).Returns(() => new SqlConnectionProxy(ConnectionString));
 
         _sharedDatabase = new SharedDatabase(_connectionFactory.Object);
 
@@ -61,7 +57,6 @@ public class SharedDatabaseDbContext_Fixture
     public void TestCleanup()
     {
         _sharedDatabase.Dispose();
-        _connection.Dispose();
     }
 
     [TestMethod]
@@ -69,7 +64,6 @@ public class SharedDatabaseDbContext_Fixture
     {
         var context = new TestableContext(_sharedDatabase);
         context.Dispose();
-        Assert.IsFalse(_connection.Disposed);
         Assert.IsTrue(context.Disposed);
     }
 

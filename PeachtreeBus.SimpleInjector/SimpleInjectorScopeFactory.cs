@@ -22,6 +22,7 @@ namespace PeachtreeBus.SimpleInjector
 
             // create a wrapped scope inside the native scope.
             var wrapped = scope.GetInstance<IWrappedScope>();
+
             if (wrapped is SimpleInjectorScope siWrappedScoped)
             {
                 // put the native scope inside the wrapped scope,

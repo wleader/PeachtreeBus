@@ -63,6 +63,9 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="container"></param>
         public static void RunPeachtreeBusStartupTasks(this Container container)
         {
+            MissingRegistrationException.ThrowIfNotRegistered<IWrappedScopeFactory>(container,
+                $"Use {nameof(UsePeachtreeBus)}.");
+
             Task.WaitAll([.. container.PeachtreeBusStartupTasks()]);
         }
     }

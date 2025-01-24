@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PeachtreeBus.Interfaces\PeachtreeBus.Interfaces.csproj" />
-    <ProjectReference Include="..\PeachtreeBus.Services\PeachtreeBus.Services.csproj" />
     <ProjectReference Include="..\PeachtreeBus.SimpleInjector\PeachtreeBus.SimpleInjector.csproj" />
     <ProjectReference Include="..\PeachtreeBus\PeachtreeBus.csproj" />
   </ItemGroup>

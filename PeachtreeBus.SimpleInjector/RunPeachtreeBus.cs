@@ -1,4 +1,6 @@
 ﻿using PeachtreeBus.Cleaners;
+using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using SimpleInjector;
@@ -53,6 +55,8 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="concurrency"></param>
         public static void RunPeachtreeBus(this Container container, int? concurrency = null)
         {
+            container.CheckRequirements();
+
             var c = concurrency ?? System.Environment.ProcessorCount * 2;
 
             var tasks = container.PeachtreeBusThreadTasks(c).ToArray();
@@ -69,6 +73,26 @@ namespace PeachtreeBus.SimpleInjector
             {
                 thread.Join();
             }
+        }
+
+        private static void CheckRequirements(this Container container)
+        {
+            // check for things that Container.Verify can miss because they aren't obtained via constructor injection.
+
+            MissingRegistrationException.ThrowIfNotRegistered<IHandleFailedQueueMessages>(container,
+                $"Use {nameof(UsePeachtreeBusFailedQueueMessageHandler)} or {nameof(UsePeachtreeBusDefaultErrorHandlers)}.");
+
+            MissingRegistrationException.ThrowIfNotRegistered<IHandleFailedSubscribedMessages>(container,
+                $"Use {nameof(UsePeachtreeBusFailedSubscribedMessageHandler)} or {nameof(UsePeachtreeBusDefaultErrorHandlers)}.");
+
+            MissingRegistrationException.ThrowIfNotRegistered<IShareObjectsBetweenScopes>(container,
+                $"Use {nameof(UsePeachtreeBus)}.");
+
+            MissingRegistrationException.ThrowIfNotRegistered<IWrappedScopeFactory>(container,
+                $"Use {nameof(UsePeachtreeBus)}.");
+
+            MissingRegistrationException.ThrowIfNotRegistered<ISqlConnectionFactory>(container,
+                $"Use {nameof(UsePeachtreeBus)}.");
         }
     }
 }
