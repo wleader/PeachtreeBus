@@ -452,8 +452,8 @@ namespace PeachtreeBus.Data
                 (@SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
                 """;
 
-            UniqueIdentityException.ThrowIfInvalid(message.MessageId.Value);
             ArgumentNullException.ThrowIfNull(message);
+            UniqueIdentityException.ThrowIfInvalid(message.MessageId.Value);
             SubscriberIdException.ThrowIfInvalid(message.SubscriberId.Value);
 
             string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema);

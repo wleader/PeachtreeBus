@@ -36,7 +36,8 @@ namespace PeachtreeBus.Tests.Subscriptions
             reader = new Mock<ISubscribedReader>();
             dataAccess = new Mock<IBusDataAccess>();
 
-            context = CreateContext();
+            context = TestData.CreateSubscribedContext();
+
             reader.Setup(r => r.GetNext(It.IsAny<SubscriberId>()))
                 .ReturnsAsync(context);
 
@@ -135,18 +136,6 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             List<string> expected = ["Rollback", "Fail"];
             CollectionAssert.AreEqual(expected, invocations);
-        }
-
-        private static InternalSubscribedContext CreateContext()
-        {
-            return new InternalSubscribedContext()
-            {
-                MessageData = TestData.CreateSubscribedMessage(),
-                Headers = new Headers()
-                {
-                    MessageClass = "PeachtreeBus.Tests.Subscriptions.SubscribedWorkFixture+TestMessage, PeachtreeBus.Tests",
-                }
-            };
         }
     }
 }

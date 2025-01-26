@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -35,7 +34,7 @@ namespace PeachtreeBus.Tests.Queues
             reader = new Mock<IQueueReader>();
             dataAccess = new Mock<IBusDataAccess>();
 
-            context = CreateContext();
+            context = TestData.CreateQueueContext();
 
             reader.Setup(r => r.GetNext(testQueue))
                 .ReturnsAsync(context);
@@ -165,27 +164,6 @@ namespace PeachtreeBus.Tests.Queues
             dataAccess.Verify(d => d.RollbackToSavepoint("BeforeMessageHandler"));
             Assert.AreEqual("RollbackToSavepoint", dataAccess.Invocations[dataAccess.Invocations.Count - 1].Method.Name);
             reader.Verify(r => r.DelayMessage(context, 250), Times.Once);
-        }
-
-        private static InternalQueueContext CreateContext()
-        {
-            return new InternalQueueContext()
-            {
-                MessageData = new QueueMessage
-                {
-                    MessageId = UniqueIdentity.New(),
-                    Priority = 0,
-                    NotBefore = DateTime.UtcNow,
-                    Enqueued = DateTime.UtcNow,
-                    Headers = new("Headers"),
-                    Body = new("Body")
-                },
-                Headers = new Headers
-                {
-                    MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
-                },
-                Message = new TestSagaMessage1(),
-            };
         }
     }
 }

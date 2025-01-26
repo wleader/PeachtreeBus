@@ -13,8 +13,7 @@ namespace PeachtreeBus.Tests.Pipeline
         [TestMethod]
         public async Task Given_PipelineStepsAreProvided_When_Invoked_Then_PipelineStepsAreInvokedInOrder()
         {
-            var context = new QueueContext();
-
+            var context = TestData.CreateQueueContext();
 
             var invocations = new List<string>();
 

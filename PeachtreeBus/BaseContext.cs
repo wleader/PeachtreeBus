@@ -7,12 +7,12 @@ public abstract class BaseContext
     /// <summary>
     /// The message itself.
     /// </summary>
-    public object Message { get; set; } = default!;
+    public required object Message { get; set; } = default!;
 
     /// <summary>
     /// A unique Id for the message.
     /// </summary>
-    public UniqueIdentity MessageId { get; set; }
+    public required UniqueIdentity MessageId { get; set; }
 
     /// <summary>
     /// Exposes the Dependency Injection Scope for the message being handled.

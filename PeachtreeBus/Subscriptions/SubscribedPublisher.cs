@@ -59,10 +59,7 @@ namespace PeachtreeBus.Subscriptions
             var subscribers = await _dataAccess.GetSubscribers(category);
 
             // note the type in the headers so it can be deserialized.
-            var headers = new Headers
-            {
-                MessageClass = type.FullName + ", " + type.Assembly.GetName().Name
-            };
+            var headers = new Headers(type);
 
             var validUntil = notBefore.HasValue
                 ? notBefore.Value.ToUniversalTime().Add(_subscribedLifespan.Duration)

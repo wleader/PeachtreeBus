@@ -67,11 +67,8 @@ namespace PeachtreeBus.Tests.Queues
                 failures.Object,
                 retryStrategy.Object);
 
-            Context = new()
-            {
-                SourceQueue = new("SourceQueue"),
-                MessageData = TestData.CreateQueueMessage(id: new(12345), notBefore: clock.Object.UtcNow),
-            };
+            Context = TestData.CreateQueueContext(
+                messageData: TestData.CreateQueueMessage(id: new(12345), notBefore: clock.Object.UtcNow));
 
             NextMessage = TestData.CreateQueueMessage(id: new(678890), priority: 12);
 
@@ -489,14 +486,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Given_RetryStrategyReturnsFail_When_Fail_ThenErrorHandlerIsInvoked()
         {
-            var context = new InternalQueueContext
-            {
-                MessageData = TestData.CreateQueueMessage(),
-                Headers = new Headers
-                {
-                },
-                Message = new TestSagaMessage1()
-            };
+            var context = TestData.CreateQueueContext();
 
             RetryResult = new(false, TimeSpan.Zero);
 
@@ -509,14 +499,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Given_RetryStrategyReturnsRetry_When_Fail_ThenErrorHandlerIsNotInvoked()
         {
-            var context = new InternalQueueContext
-            {
-                MessageData = TestData.CreateQueueMessage(),
-                Headers = new Headers
-                {
-                },
-                Message = new TestSagaMessage1()
-            };
+            var context = TestData.CreateQueueContext();
 
             var exception = new ApplicationException();
 

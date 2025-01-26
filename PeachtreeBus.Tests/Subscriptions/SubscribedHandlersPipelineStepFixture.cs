@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Subscriptions;
-using PeachtreeBus.Tests.Sagas;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -27,13 +26,8 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task Given_MessageIsNotISubscribedMessage_Then_ThrowsUsefulException()
         {
-            var context = new InternalSubscribedContext
-            {
-                Headers = new()
-                {
-                    MessageClass = typeof(MessageWithoutInterface).AssemblyQualifiedName!
-                }
-            };
+            var context = TestData.CreateSubscribedContext(
+                headers: new(typeof(MessageWithoutInterface)));
             await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
                 _testSubject.Invoke(context, null));
         }
@@ -49,7 +43,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             _findSubscribed.Setup(f => f.FindHandlers<TestMessage>()).Returns(handlers);
 
-            var context = GetContext<TestMessage>();
+            var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
             await _testSubject.Invoke(context, null);
 
@@ -67,7 +61,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             _findSubscribed.Setup(f => f.FindHandlers<TestMessage>())
                 .Returns([]);
 
-            var context = GetContext<TestMessage>();
+            var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
             await Assert.ThrowsExceptionAsync<SubscribedMessageNoHandlerException>(() =>
                 _testSubject.Invoke(context, null));
@@ -80,7 +74,8 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task Given_AMessageContextWithAnUnrecognizedMessageType_When_Invoke_Then_Throws()
         {
-            var context = CreateContextWithUnrecognizedMessageType();
+            var context = TestData.CreateSubscribedContext(
+                headers: TestData.CreateHeadersWithUnrecognizedMessageClass());
             await Assert.ThrowsExceptionAsync<SubscribedMessageClassNotRecognizedException>(() =>
                 _testSubject.Invoke(context, null));
         }
@@ -88,7 +83,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task Given_AMessageThatDoesNotImplementISubscribedMessage_When_Invoke_Then_Throws()
         {
-            var context = GetContext<object>();// object does not implement IQueueMessage
+            var context = TestData.CreateSubscribedContext(userMessage: new object());// object does not implement IQueueMessage
             await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
                 _testSubject.Invoke(context, null));
         }
@@ -99,39 +94,10 @@ namespace PeachtreeBus.Tests.Subscriptions
             _findSubscribed.Setup(f => f.FindHandlers<TestMessage>())
                 .Returns((IEnumerable<IHandleSubscribedMessage<TestMessage>>)null!);
 
-            var context = GetContext<TestMessage>();
+            var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
             await Assert.ThrowsExceptionAsync<IncorrectImplementationException>(() =>
                 _testSubject.Invoke(context, null));
         }
-
-        private static InternalSubscribedContext GetContext<TMessage>()
-            where TMessage : new()
-        {
-            var type = typeof(TMessage);
-            return new InternalSubscribedContext()
-            {
-                Headers = new()
-                {
-                    MessageClass = type.FullName + ", " + type.Assembly.GetName().Name,
-                },
-                Message = new TMessage(),
-                MessageData = TestData.CreateSubscribedMessage(),
-            };
-        }
-
-        private static InternalSubscribedContext CreateContextWithUnrecognizedMessageType()
-        {
-            return new InternalSubscribedContext()
-            {
-                MessageData = TestData.CreateSubscribedMessage(),
-                Headers = new Headers
-                {
-                    MessageClass = "PeachtreeBus.Tests.Subscribed.NotARealMessageType, PeachtreeBus.Tests"
-                },
-                Message = new TestSagaMessage1()
-            };
-        }
-
     }
 }

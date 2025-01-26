@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PeachtreeBus;
 
@@ -7,10 +8,20 @@ namespace PeachtreeBus;
 /// </summary>
 public class Headers
 {
+    public Headers()
+    {
+        MessageClass = string.Empty;
+    }
+
+    public Headers(Type userMessageType)
+    {
+        MessageClass = GetMessageClassString(userMessageType);
+    }
+
     /// <summary>
     /// the type the message was serialized from and to deserialize it to.
     /// </summary>
-    public string MessageClass { get; set; } = string.Empty;
+    public string MessageClass { get; set; }
 
     /// <summary>
     /// Any exception details from a previous attempt to process the message.
@@ -21,5 +32,10 @@ public class Headers
     /// A place for user code to store additional values along with the message.
     /// </summary>
     public Dictionary<string, string> UserHeaders { get; set; } = [];
+
+    public static string GetMessageClassString(Type type)
+    {
+        return type.FullName + ", " + type.Assembly.GetName().Name;
+    }
 }
 

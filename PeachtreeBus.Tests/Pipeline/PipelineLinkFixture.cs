@@ -15,7 +15,7 @@ public class PipelineLinkFixture
         var step = new Mock<IPipelineStep<QueueContext>>();
         var link = new PipelineLink<QueueContext>(step.Object);
         link.SetNext(null!);
-        var context = new QueueContext();
+        var context = TestData.CreateQueueContext();
 
         await link.Invoke(context);
 
@@ -25,7 +25,7 @@ public class PipelineLinkFixture
     [TestMethod]
     public void When_NullNext_Then_Nothing()
     {
-        var context = new QueueContext();
+        var context = TestData.CreateQueueContext();
         var result = PipelineLink<QueueContext>.NullNext(context);
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsCompleted);

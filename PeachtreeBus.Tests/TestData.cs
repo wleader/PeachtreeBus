@@ -1,6 +1,8 @@
-﻿using PeachtreeBus.Data;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -14,6 +16,7 @@ public static class TestData
     public static readonly SerializedData DefaultBody = new("{}");
     public static readonly Identity DefaultId = new(1);
     public static readonly Category DefaultCategory = new(nameof(DefaultCategory));
+    public static readonly QueueName DefaultQueueName = new("DefaultQueue");
 
     public static readonly SubscriberId UnintializedSubscriberId = (SubscriberId)RuntimeHelpers.GetUninitializedObject(typeof(SubscriberId));
 
@@ -60,6 +63,61 @@ public static class TestData
             ValidUntil = validUntil ?? DateTime.UtcNow.AddMinutes(5),
             Headers = headers ?? DefaultHeaders,
             Body = body ?? DefaultBody
+        };
+    }
+
+    public static TestSagaMessage1 CreateUserMessage()
+    {
+        return new();
+    }
+
+    public static Headers CreateHeaders(object? userMessage)
+    {
+        userMessage ??= CreateUserMessage();
+        return new(userMessage.GetType());
+    }
+
+    public static Headers CreateHeadersWithUnrecognizedMessageClass()
+    {
+        const string UnrecognizedMessageClass = "PeachtreeBus.Tests.Sagas.NotARealMessageType, PeachtreeBus.Tests";
+        Assert.IsNull(Type.GetType(UnrecognizedMessageClass), "A message class that was not supposed to exist, exists.");
+        return new() { MessageClass = UnrecognizedMessageClass };
+    }
+
+    public static InternalQueueContext CreateQueueContext(
+        object? userMessage = null,
+        QueueMessage? messageData = null,
+        QueueName? sourceQueue = null,
+        Headers? headers = null)
+    {
+        userMessage ??= CreateUserMessage();
+        messageData ??= CreateQueueMessage();
+        headers ??= CreateHeaders(userMessage);
+
+        return new InternalQueueContext()
+        {
+            Message = userMessage,
+            MessageId = messageData.MessageId,
+            MessageData = messageData,
+            SourceQueue = sourceQueue ?? DefaultQueueName,
+            Headers = headers,
+        };
+    }
+
+    public static InternalSubscribedContext CreateSubscribedContext(
+        object? userMessage = null,
+        SubscribedMessage? messageData = null,
+        Headers? headers = null)
+    {
+        userMessage ??= CreateUserMessage();
+        messageData ??= CreateSubscribedMessage();
+        headers ??= CreateHeaders(userMessage);
+        return new()
+        {
+            Message = userMessage,
+            MessageId = messageData.MessageId,
+            MessageData = messageData,
+            Headers = headers,
         };
     }
 }

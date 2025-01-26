@@ -43,10 +43,7 @@ namespace PeachtreeBus.Queues
             TypeIsNotIQueueMessageException.ThrowIfMissingInterface(type);
 
             // note the type in the headers so it can be deserialized.
-            var headers = new Headers
-            {
-                MessageClass = type.FullName + ", " + type.Assembly.GetName().Name
-            };
+            var headers = new Headers(type);
 
             // create the message entity, serializing the headers and body.
             var qm = new QueueMessage

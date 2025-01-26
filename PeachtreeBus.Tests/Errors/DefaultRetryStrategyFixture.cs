@@ -8,7 +8,7 @@ namespace PeachtreeBus.Tests.Errors;
 
 
 public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
-    where TContext : BaseContext, new()
+    where TContext : BaseContext
     where TStrategy : DefaultRetryStrategy<TContext>, new()
 {
     protected TContext Context = default!;
@@ -19,9 +19,10 @@ public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
     [TestInitialize]
     public void Intialize()
     {
-        Context = new();
+        Context = CreateContext();
         TestSubject = new();
     }
+    protected abstract TContext CreateContext();
 
     /// <summary>
     /// Interesting note, a negative would result in a not-before in the past
@@ -53,9 +54,13 @@ public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
 [TestClass]
 public class DefaultQueueRetryStrategyFixture
     : DefaultRetryStrategyFixture<QueueContext, DefaultQueueRetryStrategy>
-{ }
+{
+    protected override QueueContext CreateContext() => TestData.CreateQueueContext();
+}
 
 [TestClass]
 public class DefaultSubscribedRetryStrategyFixture
     : DefaultRetryStrategyFixture<SubscribedContext, DefaultSubscribedRetryStrategy>
-{ }
+{
+    protected override SubscribedContext CreateContext() => TestData.CreateSubscribedContext();
+}

@@ -81,11 +81,8 @@ namespace PeachtreeBus.Tests.Subscriptions
             retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<SubscribedContext>(), It.IsAny<Exception>(), It.IsAny<int>()))
                 .Returns(() => RetryResult);
 
-            Context = new()
-            {
-                Headers = new(),
-                MessageData = TestData.CreateSubscribedMessage(id: new(1234), notBefore: clock.Object.UtcNow),
-            };
+            Context = TestData.CreateSubscribedContext(
+                messageData: TestData.CreateSubscribedMessage(id: new(1234), notBefore: clock.Object.UtcNow));
         }
 
         /// <summary>

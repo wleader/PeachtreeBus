@@ -4,7 +4,6 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
 
@@ -39,11 +38,10 @@ namespace PeachtreeBus.Tests.Errors
             handlerFactory.Setup(f => f.GetHandler())
                 .Throws(new Exception("Activator Exception"));
 
-            var context = new QueueContext();
-            var message = new TestSagaMessage1();
+            var context = TestData.CreateQueueContext();
             var exception = new ApplicationException();
 
-            await _testSubject.Failed(context, message, exception);
+            await _testSubject.Failed(context, context.Message, exception);
 
             dataAccess.Verify(d => d.CreateSavepoint(It.IsAny<string>()), Times.Never());
 
@@ -58,15 +56,14 @@ namespace PeachtreeBus.Tests.Errors
         [TestMethod]
         public async Task When_FactoryReturns_Then_HandlerInvoked()
         {
-            var context = new QueueContext();
-            var message = new TestSagaMessage1();
+            var context = TestData.CreateQueueContext();
             var exception = new ApplicationException();
 
-            await _testSubject.Failed(context, message, exception);
+            await _testSubject.Failed(context, context.Message, exception);
 
             dataAccess.Verify(d => d.CreateSavepoint(It.IsAny<string>()), Times.Once());
 
-            handler.Verify(h => h.Handle(context, message, exception), Times.Once());
+            handler.Verify(h => h.Handle(context, context.Message, exception), Times.Once());
 
             dataAccess.Verify(d => d.RollbackToSavepoint(It.IsAny<string>()), Times.Never());
         }
@@ -74,8 +71,7 @@ namespace PeachtreeBus.Tests.Errors
         [TestMethod]
         public async Task When_HandlerThrows_Then_Rollback()
         {
-            var context = new QueueContext();
-            var message = new TestSagaMessage1();
+            var context = TestData.CreateQueueContext();
             var exception = new ApplicationException();
 
             handler.Setup(h => h.Handle(
@@ -84,11 +80,11 @@ namespace PeachtreeBus.Tests.Errors
                 It.IsAny<Exception>()))
                 .Throws(new ApplicationException());
 
-            await _testSubject.Failed(context, message, exception);
+            await _testSubject.Failed(context, context.Message, exception);
 
             dataAccess.Verify(d => d.CreateSavepoint(It.IsAny<string>()), Times.Once());
 
-            handler.Verify(h => h.Handle(context, message, exception), Times.Once());
+            handler.Verify(h => h.Handle(context, context.Message, exception), Times.Once());
 
             dataAccess.Verify(d => d.RollbackToSavepoint(It.IsAny<string>()), Times.Once());
         }

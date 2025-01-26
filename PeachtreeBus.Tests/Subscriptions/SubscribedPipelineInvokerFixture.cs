@@ -42,7 +42,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             _invoker = new(_scopeFactory.Object, _sharedDatabase.Object);
 
-            _context = new();
+            _context = TestData.CreateSubscribedContext();
         }
 
         [TestMethod]
