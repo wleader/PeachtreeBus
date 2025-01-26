@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Subscriptions;
 using System;
 
 namespace PeachtreeBus.Example
@@ -48,11 +49,11 @@ namespace PeachtreeBus.Example
             StartingTasksAction(logger, sagaId, null);
         }
 
-        private static readonly Action<ILogger, Guid, Guid, Exception?> SubscribedSagaCompleteAction =
-            LoggerMessage.Define<Guid, Guid>(LogLevel.Information, 6,
+        private static readonly Action<ILogger, SubscriberId, Guid, Exception?> SubscribedSagaCompleteAction =
+            LoggerMessage.Define<SubscriberId, Guid>(LogLevel.Information, 6,
                 "Subscriber {SubscriberId} got a Saga complete announcement {SagaId}");
 
-        internal static void SubscribedSagaComplete(this ILogger logger, Guid subscriberId, Guid sagaId)
+        internal static void SubscribedSagaComplete(this ILogger logger, SubscriberId subscriberId, Guid sagaId)
         {
             SubscribedSagaCompleteAction(logger, subscriberId, sagaId, null);
         }

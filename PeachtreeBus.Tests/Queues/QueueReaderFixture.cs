@@ -21,6 +21,7 @@ namespace PeachtreeBus.Tests.Queues
         private static readonly SerializedData SerializedTestSagaData = new("SerializedTestSagaData");
         private static readonly SerializedData SerializedHeaderData = new("SerializedHeaderData");
         private static readonly QueueName NextMessageQueue = new("NextMessageQueue");
+        private static readonly SagaKey SagaKey = new("SagaKey");
 
         private QueueReader reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
@@ -69,18 +70,10 @@ namespace PeachtreeBus.Tests.Queues
             Context = new()
             {
                 SourceQueue = new("SourceQueue"),
-                MessageData = new()
-                {
-                    Id = 12345,
-                    NotBefore = clock.Object.UtcNow,
-                }
+                MessageData = TestData.CreateQueueMessage(id: new(12345), notBefore: clock.Object.UtcNow),
             };
 
-            NextMessage = new()
-            {
-                Id = 67890,
-                Priority = 12,
-            };
+            NextMessage = TestData.CreateQueueMessage(id: new(678890), priority: 12);
 
             NextMessageHeaders = new()
             {
@@ -156,7 +149,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task SaveSaga_DeletesCompleteSaga()
         {
-            Context.SagaKey = "SagaKey";
+            Context.SagaKey = SagaKey;
 
             var testSaga = new TestSaga { SagaComplete = true };
 
@@ -172,7 +165,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task SaveSaga_InsertsNewSagaData()
         {
-            Context.SagaKey = "SagaKey";
+            Context.SagaKey = SagaKey;
             Context.SagaData = null;
 
             var testSaga = new TestSaga { SagaComplete = false };
@@ -181,10 +174,9 @@ namespace PeachtreeBus.Tests.Queues
                 .Callback((SagaData d, SagaName n) =>
                 {
                     Assert.AreEqual(SerializedTestSagaData, d.Data);
-                    Assert.AreEqual("SagaKey", d.Key);
-                    Assert.AreNotEqual(Guid.Empty, d.SagaId);
+                    Assert.AreEqual(SagaKey, d.Key);
                 })
-                .Returns(Task.FromResult<long>(1));
+                .Returns(Task.FromResult<Identity>(new(1)));
 
             await reader.SaveSaga(testSaga, Context);
 
@@ -200,14 +192,16 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task SaveSaga_UpdatesExistingSagaData()
         {
-            var sagaDataId = 100;
+            var sagaDataId = new Identity(100);
 
-            Context.SagaKey = "SagaKey";
+            Context.SagaKey = SagaKey;
             Context.SagaData = new()
             {
                 Key = Context.SagaKey,
                 Data = new("DataToBeReplaced"),
                 Id = sagaDataId,
+                SagaId = UniqueIdentity.New(),
+                Blocked = false,
             };
 
             var testSaga = new TestSaga { SagaComplete = false };
@@ -231,7 +225,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task LoadSaga_InitializesWhenNew()
         {
             var testSaga = new TestSaga() { Data = null! };
-            Context.SagaKey = "SagaKey";
+            Context.SagaKey = SagaKey;
 
             dataAccess.Setup(d => d.GetSagaData(testSaga.SagaName, Context.SagaKey))
                 .ReturnsAsync((SagaData)null!);
@@ -250,13 +244,14 @@ namespace PeachtreeBus.Tests.Queues
         {
             var testSaga = new TestSaga { };
 
-            Context.SagaKey = "SagaKey";
+            Context.SagaKey = SagaKey;
 
             var sagaData = new SagaData()
             {
                 Blocked = false,
                 Data = SerializedTestSagaData,
                 Key = Context.SagaKey,
+                SagaId = UniqueIdentity.New(),
             };
 
             dataAccess.Setup(d => d.GetSagaData(testSaga.SagaName, Context.SagaKey))
@@ -277,7 +272,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task LoadSaga_ReturnsWhenBlocked()
         {
-            Context.SagaKey = "SagaKey";
+            Context.SagaKey = SagaKey;
 
             var testSaga = new TestSaga { Data = default! };
 
@@ -285,7 +280,8 @@ namespace PeachtreeBus.Tests.Queues
             {
                 Blocked = true,
                 Data = SerializedTestSagaData,
-                Key = "SagaKey",
+                Key = SagaKey,
+                SagaId = UniqueIdentity.New(),
             };
 
             dataAccess.Setup(d => d.GetSagaData(testSaga.SagaName, Context.SagaKey))
@@ -495,9 +491,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             var context = new InternalQueueContext
             {
-                MessageData = new QueueMessage
-                {
-                },
+                MessageData = TestData.CreateQueueMessage(),
                 Headers = new Headers
                 {
                 },
@@ -517,9 +511,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             var context = new InternalQueueContext
             {
-                MessageData = new QueueMessage
-                {
-                },
+                MessageData = TestData.CreateQueueMessage(),
                 Headers = new Headers
                 {
                 },

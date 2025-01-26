@@ -34,7 +34,7 @@ namespace PeachtreeBus.DataAccessTests
 
             newSaga.Id = await dataAccess.Insert(newSaga, DefaultSagaName);
 
-            Assert.IsTrue(newSaga.Id > 0);
+            Assert.IsTrue(newSaga.Id.Value > 0);
 
             var data = GetTableContent(DefaultSagaTable);
             Assert.IsNotNull(data);

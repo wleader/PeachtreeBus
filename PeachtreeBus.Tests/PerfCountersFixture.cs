@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
@@ -57,6 +58,7 @@ namespace PeachtreeBus.Tests
         /// <summary>
         /// recieves event data from teh performance counters system
         /// </summary>
+        [ExcludeFromCodeCoverage]
         internal class PeachtreeBusEventListener : EventListener
         {
             private bool enabled;
@@ -66,11 +68,14 @@ namespace PeachtreeBus.Tests
             protected override void OnEventWritten(EventWrittenEventArgs eventData)
             {
                 base.OnEventWritten(eventData);
-                if (!enabled) return;
-                if (eventData.EventName != "EventCounters") return;
+                if (!enabled)
+                    return;
+                if (eventData.EventName != "EventCounters")
+                    return;
                 var payload = eventData.Payload!.First();
                 var data = new EventData(payload!);
-                if (data.Name != ListenFor) return;
+                if (data.Name != ListenFor)
+                    return;
                 LastData = data;
             }
 

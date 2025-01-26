@@ -58,7 +58,5 @@ namespace PeachtreeBus.Tests.Pipeline
             var expected = new List<string>() { "step1", "step2", "step3", "handler", "post3", "post2", "post1" };
             CollectionAssert.AreEqual(expected, invocations);
         }
-
-
     }
 }

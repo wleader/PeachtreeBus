@@ -23,9 +23,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public void TestInitialize()
         {
             config = new SubscriberConfiguration(
-                Guid.NewGuid(),
+                SubscriberId.New(),
                 TimeSpan.FromSeconds(30),
-                "cat1", "cat2");
+                new("cat1"), new("cat2"));
             dataAccess = new Mock<IBusDataAccess>();
             clock = new Mock<ISystemClock>();
 
@@ -80,8 +80,8 @@ namespace PeachtreeBus.Tests.Subscriptions
             await Updater.DoWork();
 
             var unitl = clock.Object.UtcNow.Add(config.Lifespan);
-            dataAccess.Verify(d => d.Subscribe(config.SubscriberId, "cat1", unitl), Times.Once);
-            dataAccess.Verify(d => d.Subscribe(config.SubscriberId, "cat2", unitl), Times.Once);
+            dataAccess.Verify(d => d.Subscribe(config.SubscriberId, new("cat1"), unitl), Times.Once);
+            dataAccess.Verify(d => d.Subscribe(config.SubscriberId, new("cat2"), unitl), Times.Once);
         }
 
     }

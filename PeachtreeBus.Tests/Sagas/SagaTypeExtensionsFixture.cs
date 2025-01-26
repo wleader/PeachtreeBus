@@ -2,6 +2,7 @@
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Tests.Sagas
@@ -15,6 +16,7 @@ namespace PeachtreeBus.Tests.Sagas
         private class NotASagaStartMessage : IQueueMessage { }
         private class SagaStartMessage : IQueueMessage { }
 
+        [ExcludeFromCodeCoverage]
         private class Saga1 : Saga<object>,
             IHandleQueueMessage<NotASagaStartMessage>,
             IHandleSagaStartMessage<SagaStartMessage>
@@ -42,6 +44,10 @@ namespace PeachtreeBus.Tests.Sagas
         private class TotallyNotASaga { }
 
         private class StillNotASaga : TotallyNotASaga { }
+
+        private class GenericNotASaga<T> { }
+
+        private class InheritsGenericNotASaga<T> : GenericNotASaga<T> { }
 
         /// <summary>
         /// Proves when directly inehriting saga
@@ -88,5 +94,24 @@ namespace PeachtreeBus.Tests.Sagas
         {
             Assert.IsFalse(typeof(Saga1).IsSagaStartHandler(typeof(NotASagaStartMessage)));
         }
+
+
+        /// <summary>
+        /// proves when not a saga
+        /// </summary>
+        [TestMethod]
+        public void IsSubClassOfSaga_WhenGenericAndNotSaga()
+        {
+            Assert.IsFalse(typeof(GenericNotASaga<object>).IsSubclassOfSaga());
+            Assert.IsFalse(typeof(InheritsGenericNotASaga<object>).IsSubclassOfSaga());
+        }
+
+        [TestMethod]
+        public void IsSubClassOfSaga_WhenNull()
+        {
+            Type? type = null;
+            Assert.IsFalse(type.IsSubclassOfSaga());
+        }
+
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PeachtreeBus.Subscriptions
+﻿namespace PeachtreeBus.Subscriptions
 {
     /// <summary>
     /// Stores contextual data about the subscription message being handled,
@@ -11,7 +9,7 @@ namespace PeachtreeBus.Subscriptions
         /// <summary>
         /// The Subscriber that the message was sent to.
         /// </summary>
-        public Guid SubscriberId { get; set; }
+        public SubscriberId SubscriberId { get; set; }
     }
 
     /// <summary>

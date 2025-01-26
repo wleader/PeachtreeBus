@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -31,12 +32,12 @@ namespace PeachtreeBus.DataAccessTests
         {
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
 
-            var newMessage = CreateSubscribed();
-            newMessage.SubscriberId = Guid.NewGuid();
+            var newMessage = TestData.CreateSubscribedMessage();
+            newMessage.SubscriberId = SubscriberId.New();
 
             newMessage.Id = await dataAccess.AddMessage(newMessage);
 
-            Assert.IsTrue(newMessage.Id > 0);
+            Assert.IsTrue(newMessage.Id.Value > 0);
 
             var data = GetTableContent(SubscribedPendingTable);
             Assert.IsNotNull(data);
@@ -47,16 +48,6 @@ namespace PeachtreeBus.DataAccessTests
             AssertSubscribedEquals(newMessage, messages[0]);
         }
 
-        /// <summary>
-        /// Proves that subscriber ID cannot be empty.
-        /// </summary>
-        [TestMethod]
-        public async Task AddMessage_ThrowsIfSubscriberIdIsGuidEmpty()
-        {
-            var newMessage = CreateSubscribed();
-            newMessage.SubscriberId = Guid.Empty;
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-                dataAccess.AddMessage(newMessage));
-        }
+
     }
 }

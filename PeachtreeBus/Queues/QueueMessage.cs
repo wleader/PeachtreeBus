@@ -1,5 +1,4 @@
 ﻿using PeachtreeBus.Data;
-using System;
 
 namespace PeachtreeBus.Queues;
 
@@ -11,28 +10,28 @@ public class QueueMessage
     /// <summary>
     /// Primary Key Identity
     /// </summary>
-    public virtual long Id { get; set; }
+    public virtual Identity Id { get; set; }
 
     /// <summary>
     /// A Uniuque ID. Maybe redundant, but good for logging.
     /// </summary>
-    public virtual Guid MessageId { get; set; }
+    public required virtual UniqueIdentity MessageId { get; set; }
 
     /// <summary>
     /// Used to prioritize which messages are processed first.
     /// Higher numbers are are processed before lower numbers.
     /// </summary>
-    public virtual int Priority { get; set; }
+    public required virtual int Priority { get; set; }
 
     /// <summary>
     /// Set to a time in the future to delay processing of the message.
     /// </summary>
-    public virtual UtcDateTime NotBefore { get; set; }
+    public required virtual UtcDateTime NotBefore { get; set; }
 
     /// <summary>
     /// When the message was enqueued.
     /// </summary>
-    public virtual UtcDateTime Enqueued { get; set; }
+    public required virtual UtcDateTime Enqueued { get; set; }
 
     /// <summary>
     /// When the message was successfully processed.
@@ -52,10 +51,10 @@ public class QueueMessage
     /// <summary>
     /// Serialized Message Headers
     /// </summary>
-    public virtual SerializedData Headers { get; set; } = default;
+    public required virtual SerializedData Headers { get; set; } = default;
 
     /// <summary>
     /// Serialized Message Body
     /// </summary>
-    public virtual SerializedData Body { get; set; } = default;
+    public required virtual SerializedData Body { get; set; } = default;
 }

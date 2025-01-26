@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Sagas;
 
 namespace PeachtreeBus.Tests;
 
@@ -58,7 +57,7 @@ public class DefaultSerializerFixture
         Assert.AreEqual(message.Bar, deserialized.Bar);
     }
 
-    public class UserSaga : SagaData
+    public class UserSaga
     {
         public string Foo { get; set; } = string.Empty;
         public int Bar { get; set; }

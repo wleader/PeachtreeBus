@@ -141,7 +141,7 @@ namespace PeachtreeBus.DatabaseSharing
 
                 _transaction = _connection.BeginTransaction();
             }
-            TransactionStarted?.Invoke(this, null);
+            TransactionStarted?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc/>
@@ -155,7 +155,7 @@ namespace PeachtreeBus.DatabaseSharing
                 _transaction.Commit();
                 _transaction = null;
             }
-            TransactionConsumed?.Invoke(this, null);
+            TransactionConsumed?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc/>
@@ -191,7 +191,7 @@ namespace PeachtreeBus.DatabaseSharing
                 _transaction.Rollback();
                 _transaction = null;
             }
-            TransactionConsumed?.Invoke(this, null);
+            TransactionConsumed?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc/>
@@ -203,7 +203,7 @@ namespace PeachtreeBus.DatabaseSharing
                 {
                     _transaction.Dispose();
                     _transaction = null;
-                    TransactionConsumed?.Invoke(this, null);
+                    TransactionConsumed?.Invoke(this, EventArgs.Empty);
                 }
 
                 _connection?.Close();
@@ -222,7 +222,7 @@ namespace PeachtreeBus.DatabaseSharing
                 {
                     _transaction.Dispose();
                     _transaction = null;
-                    TransactionConsumed?.Invoke(this, null);
+                    TransactionConsumed?.Invoke(this, EventArgs.Empty);
                 }
                 _connection?.Close();
                 _connection?.Dispose();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Tests.Sagas;
-using System;
 
 namespace PeachtreeBus.Tests.Queues;
 
@@ -11,7 +11,7 @@ public class QueueMessageNoHandlerExceptionFixture
     [TestMethod]
     public void When_New_Then_PropertiesAreSet()
     {
-        var expectedMessageId = Guid.NewGuid();
+        var expectedMessageId = UniqueIdentity.New();
         var expectedQueueName = new QueueName("TestQueue");
         var expectedType = typeof(TestSagaMessage1);
         var e = new QueueMessageNoHandlerException(expectedMessageId, expectedQueueName, expectedType);

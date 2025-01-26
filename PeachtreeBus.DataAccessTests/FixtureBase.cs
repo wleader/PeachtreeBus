@@ -324,46 +324,6 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Creates a new QueueMessage
-        /// </summary>
-        /// <returns></returns>
-        protected QueueMessage CreateQueueMessage()
-        {
-            return new QueueMessage
-            {
-                Body = new("Body"),
-                Completed = null,
-                Failed = null,
-                Enqueued = DateTime.UtcNow,
-                Headers = new("Headers"),
-                MessageId = Guid.NewGuid(),
-                NotBefore = DateTime.UtcNow,
-                Retries = 0
-            };
-        }
-
-        /// <summary>
-        /// Creates a new SubscribedMessage
-        /// </summary>
-        /// <returns></returns>
-        protected SubscribedMessage CreateSubscribed()
-        {
-            return new SubscribedMessage
-            {
-                Body = new("Body"),
-                Completed = null,
-                Failed = null,
-                Enqueued = DateTime.UtcNow,
-                Headers = new("Headers"),
-                MessageId = Guid.NewGuid(),
-                NotBefore = DateTime.UtcNow,
-                Retries = 0,
-                SubscriberId = Guid.Empty,
-                ValidUntil = DateTime.UtcNow.AddDays(1)
-            };
-        }
-
-        /// <summary>
         /// Creates a new SagaData
         /// </summary>
         /// <returns></returns>
@@ -373,8 +333,8 @@ namespace PeachtreeBus.DataAccessTests
             {
                 Blocked = false,
                 Data = new("Data"),
-                SagaId = Guid.NewGuid(),
-                Key = "Key"
+                SagaId = UniqueIdentity.New(),
+                Key = new("Key")
             };
         }
     }

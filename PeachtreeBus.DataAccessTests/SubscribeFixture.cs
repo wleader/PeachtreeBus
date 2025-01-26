@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,8 +34,8 @@ namespace PeachtreeBus.DataAccessTests
             var subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
-            var subscriber = Guid.NewGuid();
-            var category = "TestCategory";
+            var subscriber = SubscriberId.New();
+            var category = new Category("TestCategory");
             var until = DateTime.UtcNow.AddMinutes(30);
 
             await dataAccess.Subscribe(subscriber, category, until);
@@ -42,7 +43,7 @@ namespace PeachtreeBus.DataAccessTests
             subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
 
             Assert.AreEqual(1, subscriptions.Count);
-            Assert.AreNotEqual(0, subscriptions[0].Id);
+            Assert.AreNotEqual(0, subscriptions[0].Id.Value);
             Assert.AreEqual(subscriber, subscriptions[0].SubscriberId);
             Assert.AreEqual(category, subscriptions[0].Category);
             AssertSqlDbDateTime(until, subscriptions[0].ValidUntil);
@@ -59,13 +60,13 @@ namespace PeachtreeBus.DataAccessTests
             var subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
-            var subscriber = Guid.NewGuid();
-            var category = "TestCategory";
+            var subscriber = SubscriberId.New();
+            var category = new Category("TestCategory");
             var until = DateTime.UtcNow.AddMinutes(30);
 
             await dataAccess.Subscribe(subscriber, category, until);
 
-            var category2 = "TestCategory2";
+            var category2 = new Category("TestCategory2");
             await dataAccess.Subscribe(subscriber, category2, until);
 
             subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
@@ -89,13 +90,13 @@ namespace PeachtreeBus.DataAccessTests
             var subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
-            var subscriber = Guid.NewGuid();
-            var category = "TestCategory";
+            var subscriber = SubscriberId.New();
+            var category = new Category("TestCategory");
             var until = DateTime.UtcNow.AddMinutes(30);
 
             await dataAccess.Subscribe(subscriber, category, until);
 
-            var subscriber2 = Guid.NewGuid(); ;
+            var subscriber2 = SubscriberId.New();
             await dataAccess.Subscribe(subscriber2, category, until);
 
             subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
@@ -119,8 +120,8 @@ namespace PeachtreeBus.DataAccessTests
             var subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
-            var subscriber = Guid.NewGuid();
-            var category = "TestCategory";
+            var subscriber = SubscriberId.New();
+            var category = new Category("TestCategory");
             var until = DateTime.UtcNow.AddMinutes(30);
 
             await dataAccess.Subscribe(subscriber, category, until);
@@ -137,14 +138,6 @@ namespace PeachtreeBus.DataAccessTests
             AssertSqlDbDateTime(until2, subscriptions[0].ValidUntil);
         }
 
-        /// <summary>
-        /// proves that the subscriber ID cannot be empty.
-        /// </summary>
-        [TestMethod]
-        public async Task Subscribe_ThrowsIfSubscriberIdIsGuidEmpty()
-        {
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-                dataAccess.Subscribe(Guid.Empty, "TestCategory", DateTime.UtcNow.AddMinutes(30)));
-        }
+
     }
 }

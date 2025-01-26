@@ -10,7 +10,7 @@ namespace PeachtreeBus.Subscriptions
     /// </summary>
     public interface ISubscribedPublisher
     {
-        Task Publish(string category, Type type, object message, DateTime? notBefore = null, int priority = 0);
+        Task Publish(Category category, Type type, object message, DateTime? notBefore = null, int priority = 0);
     }
 
     /// <summary>
@@ -40,10 +40,9 @@ namespace PeachtreeBus.Subscriptions
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public async Task Publish(string category, Type type, object message, DateTime? notBefore = null, int priority = 0)
+        public async Task Publish(Category category, Type type, object message, DateTime? notBefore = null, int priority = 0)
         {
             if (message == null) throw new ArgumentNullException(nameof(message), $"{nameof(message)} must not be null.");
-            if (string.IsNullOrWhiteSpace(category)) throw new ArgumentException($"{nameof(category)} must not be null and not empty.");
             if (type == null) throw new ArgumentNullException(nameof(type), $"{nameof(type)} must not be null.");
 
             if (notBefore.HasValue && notBefore.Value.Kind == DateTimeKind.Unspecified)
@@ -81,7 +80,7 @@ namespace PeachtreeBus.Subscriptions
                 {
                     ValidUntil = validUntil,
                     SubscriberId = subscriber,
-                    MessageId = Guid.NewGuid(),
+                    MessageId = UniqueIdentity.New(),
                     Priority = priority,
                     NotBefore = nb,
                     Enqueued = _clock.UtcNow,
@@ -110,7 +109,7 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="notBefore"></param>
         /// <returns></returns>
         public static async Task PublishMessage<T>(this ISubscribedPublisher publisher,
-           string category, T message, DateTime? notBefore = null, int priority = 0)
+           Category category, T message, DateTime? notBefore = null, int priority = 0)
             where T : notnull
         {
             await publisher.Publish(category, typeof(T), message, notBefore, priority);

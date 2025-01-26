@@ -7,6 +7,7 @@ using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Data
@@ -28,8 +29,7 @@ namespace PeachtreeBus.Data
     {
         static DapperDataAccess()
         {
-            UtcDateTimeHandler.AddTypeHandler();
-            SerializedDataHandler.AddTypeHandler();
+            DapperTypeHandlers.AddHandlers();
         }
 
         private readonly ISharedDatabase _database = database;
@@ -44,7 +44,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<long> AddMessage(QueueMessage message, QueueName queueName)
+        public async Task<Identity> AddMessage(QueueMessage message, QueueName queueName)
         {
             const string EnqueueMessageStatement =
                 """
@@ -55,10 +55,7 @@ namespace PeachtreeBus.Data
                 (@MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
                 """;
 
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
-            if (message.MessageId == Guid.Empty)
-                throw new ArgumentNullException($"{nameof(message)}.{nameof(message.MessageId)}");
+            ArgumentNullException.ThrowIfNull(message);
 
             string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -70,8 +67,7 @@ namespace PeachtreeBus.Data
             p.Add("@Body", message.Body);
 
             return message.Id = await LogIfError(
-                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
-                nameof(AddMessage));
+                _database.Connection.QueryFirstAsync<Identity>(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -98,8 +94,7 @@ namespace PeachtreeBus.Data
             var query = string.Format(GetOnePendingMessageStatement, _schemaConfig.Schema, queueName);
 
             return await LogIfError(
-                _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction),
-                nameof(GetPendingQueued));
+                _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction));
         }
 
         /// <summary>
@@ -122,8 +117,7 @@ namespace PeachtreeBus.Data
                       WHERE [Id] = @Id) D
                 """;
 
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
+            ArgumentNullException.ThrowIfNull(message);
 
             string statement = string.Format(CompleteMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -131,8 +125,7 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(CompleteMessage));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -155,8 +148,7 @@ namespace PeachtreeBus.Data
                       WHERE [Id] = @Id) D
                 """;
 
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
+            ArgumentNullException.ThrowIfNull(message);
 
             string statement = string.Format(FailMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -165,8 +157,7 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(FailMessage));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -188,8 +179,7 @@ namespace PeachtreeBus.Data
                 WHERE [Id] = @Id
                 """;
 
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
+            ArgumentNullException.ThrowIfNull(message);
 
             var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema, queueName);
 
@@ -200,8 +190,7 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(Update));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -212,7 +201,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<long> Insert(SagaData data, SagaName sagaName)
+        public async Task<Identity> Insert(SagaData data, SagaName sagaName)
         {
             const string InsertSagaStatement =
                 """
@@ -223,12 +212,7 @@ namespace PeachtreeBus.Data
                 (@SagaId, @Key, @Data)
                 """;
 
-            if (data == null)
-                throw new ArgumentNullException(nameof(data));
-            if (data.SagaId == Guid.Empty)
-                throw new ArgumentException($"{nameof(data)}.{nameof(data.SagaId)} must not be an empty Guid");
-            if (string.IsNullOrEmpty(data.Key))
-                throw new ArgumentException($"{nameof(data)}.{nameof(data.Key)} must be not null and not empty.");
+            ArgumentNullException.ThrowIfNull(data);
 
             string statement = string.Format(InsertSagaStatement, _schemaConfig.Schema, sagaName);
 
@@ -238,8 +222,7 @@ namespace PeachtreeBus.Data
             p.Add("@Data", data.Data);
 
             return await LogIfError(
-                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
-                nameof(Insert));
+                _database.Connection.QueryFirstAsync<Identity>(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -259,8 +242,7 @@ namespace PeachtreeBus.Data
                 WHERE [Id] = @Id
                 """;
 
-            if (data == null)
-                throw new ArgumentNullException(nameof(data));
+            ArgumentNullException.ThrowIfNull(data);
 
             var statement = string.Format(UpdateSagaStatement, _schemaConfig.Schema, sagaName);
 
@@ -269,8 +251,7 @@ namespace PeachtreeBus.Data
             p.Add("@Data", data.Data);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(Update));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -280,7 +261,7 @@ namespace PeachtreeBus.Data
         /// <param name="key"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task DeleteSagaData(SagaName sagaName, string key)
+        public async Task DeleteSagaData(SagaName sagaName, SagaKey key)
         {
             const string DeleteSagaStatement =
                 """
@@ -288,16 +269,12 @@ namespace PeachtreeBus.Data
                 WHERE [Key] = @Key
                 """;
 
-            if (string.IsNullOrEmpty(key))
-                throw new ArgumentException($"{nameof(key)} must be not null and not empty.");
-
             string statement = string.Format(DeleteSagaStatement, _schemaConfig.Schema, sagaName);
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(DeleteSagaData));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -307,7 +284,7 @@ namespace PeachtreeBus.Data
         /// <param name="key"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<SagaData?> GetSagaData(SagaName sagaName, string key)
+        public async Task<SagaData?> GetSagaData(SagaName sagaName, SagaKey key)
         {
             // This is a multi-step operation.
             // First we try to select and lock the target row into variables with an UPDLOCK and NOWAIT.
@@ -349,7 +326,7 @@ namespace PeachtreeBus.Data
                 END TRY
                 BEGIN CATCH
                     IF (ERROR_NUMBER() != 1222) THROW
-                    SELECT -1 as [Id],
+                    SELECT CAST(0 as BIGINT) as [Id],
                            CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000') as [SagaId],
                            @Key as [Key],
                            'BLOCKED' as [Data],
@@ -357,17 +334,13 @@ namespace PeachtreeBus.Data
                 END CATCH
                 """;
 
-            if (string.IsNullOrEmpty(key))
-                throw new ArgumentException($"{nameof(key)} must be not null and not empty.");
-
             var query = string.Format(GetSagaDataStatement, _schemaConfig.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
             return await LogIfError(
-                _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction),
-                nameof(GetSagaData));
+                _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction));
         }
 
         /// <summary>
@@ -386,8 +359,7 @@ namespace PeachtreeBus.Data
             string statement = string.Format(ExpireSubscriptionsStatement, _schemaConfig.Schema);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, null, _database.Transaction),
-                nameof(ExpireSubscriptions));
+                _database.Connection.ExecuteAsync(statement, null, _database.Transaction));
         }
 
         /// <summary>
@@ -398,7 +370,7 @@ namespace PeachtreeBus.Data
         /// <param name="until"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task Subscribe(Guid subscriberId, string category, DateTime until)
+        public async Task Subscribe(SubscriberId subscriberId, Category category, UtcDateTime until)
         {
             const string SubscribeStatement =
                 """
@@ -415,8 +387,8 @@ namespace PeachtreeBus.Data
                 END
                 """;
 
-            if (subscriberId == Guid.Empty)
-                throw new ArgumentException($"{nameof(subscriberId)} must not be Guid.Empty");
+            SubscriberIdException.ThrowIfInvalid(subscriberId.Value);
+            CategoryException.ThrowIfInvalid(category.Value);
 
             string statement = string.Format(SubscribeStatement, _schemaConfig.Schema);
 
@@ -426,8 +398,7 @@ namespace PeachtreeBus.Data
             p.Add("@ValidUntil", until);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(Subscribe));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -436,7 +407,7 @@ namespace PeachtreeBus.Data
         /// <param name="subscriberId"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<SubscribedMessage?> GetPendingSubscribed(Guid subscriberId)
+        public async Task<SubscribedMessage?> GetPendingSubscribed(SubscriberId subscriberId)
         {
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.
@@ -452,8 +423,7 @@ namespace PeachtreeBus.Data
                     ORDER BY [Priority] DESC
                 """;
 
-            if (subscriberId == Guid.Empty)
-                throw new ArgumentException($"{nameof(subscriberId)} must not be Guid.Empty");
+            SubscriberIdException.ThrowIfInvalid(subscriberId.Value);
 
             var query = string.Format(statement, _schemaConfig.Schema);
 
@@ -461,8 +431,7 @@ namespace PeachtreeBus.Data
             p.Add("@SubscriberId", subscriberId);
 
             return await LogIfError(
-                _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction),
-                nameof(GetPendingSubscribed));
+                _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction));
         }
 
         /// <summary>
@@ -472,7 +441,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<long> AddMessage(SubscribedMessage message)
+        public async Task<Identity> AddMessage(SubscribedMessage message)
         {
             const string EnqueueMessageStatement =
                 """
@@ -483,12 +452,9 @@ namespace PeachtreeBus.Data
                 (@SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
                 """;
 
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
-            if (message.MessageId == Guid.Empty)
-                throw new ArgumentNullException($"{nameof(message)}.{nameof(message.MessageId)}");
-            if (message.SubscriberId == Guid.Empty)
-                throw new ArgumentException($"{nameof(message)}.{nameof(message.SubscriberId)} must not be Guid.Empty");
+            UniqueIdentityException.ThrowIfInvalid(message.MessageId.Value);
+            ArgumentNullException.ThrowIfNull(message);
+            SubscriberIdException.ThrowIfInvalid(message.SubscriberId.Value);
 
             string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema);
 
@@ -502,8 +468,7 @@ namespace PeachtreeBus.Data
             p.Add("@Body", message.Body);
 
             return message.Id = await LogIfError(
-                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
-                nameof(AddMessage));
+                _database.Connection.QueryFirstAsync<Identity>(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -525,8 +490,8 @@ namespace PeachtreeBus.Data
                         WHERE [Id] = @Id) D
                 """;
 
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
+            ArgumentNullException.ThrowIfNull(message);
+            IdentityException.ThrowIfInvalid(message.Id.Value);
 
             string statement = string.Format(completeStatement, _schemaConfig.Schema);
 
@@ -534,8 +499,7 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(CompleteMessage));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -557,8 +521,8 @@ namespace PeachtreeBus.Data
                         WHERE [Id] = @Id) D
                 """;
 
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
+            ArgumentNullException.ThrowIfNull(message);
+            IdentityException.ThrowIfInvalid(message.Id.Value);
 
             string statement = string.Format(FailMessageStatement, _schemaConfig.Schema);
 
@@ -567,8 +531,7 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(FailMessage));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -589,8 +552,8 @@ namespace PeachtreeBus.Data
                 WHERE [Id] = @Id
                 """;
 
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
+            ArgumentNullException.ThrowIfNull(message);
+            IdentityException.ThrowIfInvalid(message.Id.Value);
 
             var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema);
 
@@ -601,8 +564,7 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(Update));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -627,8 +589,7 @@ namespace PeachtreeBus.Data
             var statement = string.Format(ExpireStatement, _schemaConfig.Schema);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, null, _database.Transaction),
-                nameof(ExpireSubscriptionMessages));
+                _database.Connection.ExecuteAsync(statement, null, _database.Transaction));
         }
 
         /// <summary>
@@ -637,7 +598,7 @@ namespace PeachtreeBus.Data
         /// <param name="category"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<IEnumerable<Guid>> GetSubscribers(string category)
+        public async Task<IEnumerable<SubscriberId>> GetSubscribers(Category category)
         {
             const string GetStatement =
                 """
@@ -653,8 +614,7 @@ namespace PeachtreeBus.Data
             p.Add("@Category", category);
 
             return await LogIfError(
-                _database.Connection.QueryAsync<Guid>(statement, p, _database.Transaction),
-                nameof(GetSubscribers));
+                _database.Connection.QueryAsync<SubscriberId>(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -664,7 +624,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<long> CleanSubscribedCompleted(DateTime olderthan, int maxCount)
+        public async Task<long> CleanSubscribedCompleted(UtcDateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 """
@@ -681,8 +641,7 @@ namespace PeachtreeBus.Data
             p.Add("@OlderThan", olderthan);
 
             return await LogIfError(
-                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
-                nameof(CleanSubscribedCompleted));
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -692,7 +651,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<long> CleanSubscribedFailed(DateTime olderthan, int maxCount)
+        public async Task<long> CleanSubscribedFailed(UtcDateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 """
@@ -709,8 +668,7 @@ namespace PeachtreeBus.Data
             p.Add("@OlderThan", olderthan);
 
             return await LogIfError(
-                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
-                nameof(CleanSubscribedFailed));
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -721,7 +679,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<long> CleanQueueCompleted(QueueName queueName, DateTime olderthan, int maxCount)
+        public async Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 """
@@ -737,8 +695,7 @@ namespace PeachtreeBus.Data
             p.Add("@OlderThan", olderthan);
 
             return await LogIfError(
-                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
-                nameof(CleanQueueCompleted));
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -749,7 +706,7 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<long> CleanQueueFailed(QueueName queueName, DateTime olderthan, int maxCount)
+        public async Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderthan, int maxCount)
         {
             const string statementTemplate =
                 """
@@ -765,12 +722,11 @@ namespace PeachtreeBus.Data
             p.Add("@OlderThan", olderthan);
 
             return await LogIfError(
-                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction),
-                nameof(CleanQueueFailed));
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
         [ExcludeFromCodeCoverage]
-        private async Task<T> LogIfError<T>(Task<T> task, string caller)
+        private async Task<T> LogIfError<T>(Task<T> task, [CallerMemberName] string caller = "Unnamed")
         {
             try
             {

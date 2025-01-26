@@ -6,14 +6,9 @@ namespace PeachtreeBus.SimpleInjector
     /// <summary>
     /// An Implementation of IWrappedScopeFactory that uses Simple Injector
     /// </summary>
-    public class SimpleInjectorScopeFactory : IWrappedScopeFactory
+    public class SimpleInjectorScopeFactory(Container container) : IWrappedScopeFactory
     {
-        private readonly Container _container;
-
-        public SimpleInjectorScopeFactory(Container container)
-        {
-            _container = container;
-        }
+        private readonly Container _container = container;
 
         public IWrappedScope Create()
         {

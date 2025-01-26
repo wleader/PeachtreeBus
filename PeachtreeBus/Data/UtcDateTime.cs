@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace PeachtreeBus.Data;
 
+[JsonConverter(typeof(UtcDateTimeJsonConverter))]
 public readonly record struct UtcDateTime
 {
     public DateTime Value { get; }
@@ -16,6 +18,9 @@ public readonly record struct UtcDateTime
 
     public static implicit operator DateTime(UtcDateTime utcDateTime) => utcDateTime.Value.ToUniversalTime();
     public static implicit operator UtcDateTime(DateTime dateTime) => new(dateTime);
+
+    public class UtcDateTimeJsonConverter() : PeachtreeBusJsonConverter<UtcDateTime, DateTime>(
+        u => new(u), u => u.Value);
 }
 
 public static class UtcDateTimeExtensions

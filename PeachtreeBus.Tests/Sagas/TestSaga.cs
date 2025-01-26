@@ -3,6 +3,7 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,10 +36,11 @@ namespace PeachtreeBus.Tests.Sagas
 
         public override SagaName SagaName => _sagaName;
 
+        [ExcludeFromCodeCoverage]
         public override void ConfigureMessageKeys(SagaMessageMap mapper)
         {
-            mapper.Add<TestSagaMessage1>(m => "TestSagaKey");
-            mapper.Add<TestSagaMessage2>(m => "TestSagaKey");
+            mapper.Add<TestSagaMessage1>(m => new("TestSagaKey"));
+            mapper.Add<TestSagaMessage2>(m => new("TestSagaKey"));
         }
 
         public Task Handle(QueueContext context, TestSagaMessage1 message)

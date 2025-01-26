@@ -84,10 +84,11 @@ namespace PeachtreeBus.DataAccessTests
                 Enqueued = row.ToDateTime("Enqueued"),
                 Failed = row.ToDateTimeNullable("Failed"),
                 Headers = new((string)row["Headers"]),
-                Id = (long)row["Id"],
-                MessageId = (Guid)row["MessageId"],
+                Id = new((long)row["Id"]),
+                MessageId = new((Guid)row["MessageId"]),
                 NotBefore = row.ToDateTime("NotBefore"),
-                Retries = (byte)row["Retries"]
+                Retries = (byte)row["Retries"],
+                Priority = 0,
             };
         }
 
@@ -102,9 +103,9 @@ namespace PeachtreeBus.DataAccessTests
             {
                 Blocked = false, //table does not actually contain a blocked column.
                 Data = new((string)row["Data"]),
-                Id = (long)row["Id"],
-                Key = (string)row["Key"],
-                SagaId = (Guid)row["SagaId"]
+                Id = new((long)row["Id"]),
+                Key = new((string)row["Key"]),
+                SagaId = new((Guid)row["SagaId"])
             };
         }
 
@@ -117,9 +118,9 @@ namespace PeachtreeBus.DataAccessTests
         {
             return new SubscriptionsRow
             {
-                Id = (long)row["Id"],
-                SubscriberId = (Guid)row["SubscriberId"],
-                Category = (string)row["Category"],
+                Id = new((long)row["Id"]),
+                SubscriberId = new((Guid)row["SubscriberId"]),
+                Category = new((string)row["Category"]),
                 ValidUntil = row.ToDateTime("ValidUntil")
             };
         }
@@ -138,12 +139,13 @@ namespace PeachtreeBus.DataAccessTests
                 Enqueued = row.ToDateTime("Enqueued"),
                 Failed = row.ToDateTimeNullable("Failed"),
                 Headers = new((string)row["Headers"]),
-                Id = (long)row["Id"],
-                MessageId = (Guid)row["MessageId"],
+                Id = new((long)row["Id"]),
+                MessageId = new((Guid)row["MessageId"]),
                 NotBefore = row.ToDateTime("NotBefore"),
                 Retries = (byte)row["Retries"],
-                SubscriberId = (Guid)row["SubscriberId"],
-                ValidUntil = row.ToDateTime("ValidUntil")
+                SubscriberId = new((Guid)row["SubscriberId"]),
+                ValidUntil = row.ToDateTime("ValidUntil"),
+                Priority = (int)row["Priority"],
             };
         }
 

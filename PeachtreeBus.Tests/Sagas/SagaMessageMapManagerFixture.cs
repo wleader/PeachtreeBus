@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
-using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PeachtreeBus.Tests.Sagas
 {
@@ -13,12 +13,12 @@ namespace PeachtreeBus.Tests.Sagas
     {
         private class MockMessage1 : IQueueMessage
         {
-            public string Key { get; set; } = string.Empty;
+            public SagaKey Key { get; set; }
         }
 
         private class MockMessage2 : IQueueMessage
         {
-            public string Key { get; set; } = string.Empty;
+            public SagaKey Key { get; set; }
         }
 
         private class MockSagaData { }
@@ -27,7 +27,8 @@ namespace PeachtreeBus.Tests.Sagas
         {
             public int ConfigureMessageKeysCount = 0;
 
-            public override SagaName SagaName => throw new NotImplementedException();
+            [ExcludeFromCodeCoverage]
+            public override SagaName SagaName { get; } = new("MockSaga");
 
             public override void ConfigureMessageKeys(SagaMessageMap mapper)
             {
@@ -52,16 +53,18 @@ namespace PeachtreeBus.Tests.Sagas
         public void GetKey_ConfiguresOnlyOnce_AndUsesProvidedFunctions()
         {
             var saga = new MockSaga();
-            var message1 = new MockMessage1() { Key = "FooKey" };
-            var message2 = new MockMessage2() { Key = "BazKey" };
+            SagaKey FooKey = new("FooKey");
+            SagaKey BazKey = new("BazKey");
+            var message1 = new MockMessage1() { Key = FooKey };
+            var message2 = new MockMessage2() { Key = BazKey };
 
             Assert.AreEqual(0, saga.ConfigureMessageKeysCount);
 
             var result1 = manager.GetKey(saga, message1);
             var result2 = manager.GetKey(saga, message2);
 
-            Assert.AreEqual("FooKey", result1);
-            Assert.AreEqual("BazKey", result2);
+            Assert.AreEqual(FooKey, result1);
+            Assert.AreEqual(BazKey, result2);
             Assert.AreEqual(1, saga.ConfigureMessageKeysCount);
         }
     }

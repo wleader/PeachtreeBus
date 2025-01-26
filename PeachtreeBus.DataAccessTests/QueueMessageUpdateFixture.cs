@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,9 +34,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task Update_UpdatesPendingTable()
         {
             // Add two messages;
-            var testMessage1 = CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueMessage();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueMessage();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -43,7 +44,7 @@ namespace PeachtreeBus.DataAccessTests
             var toUpdate = await dataAccess.GetPendingQueued(DefaultQueue);
             Assert.IsNotNull(toUpdate);
             // set changed values
-            toUpdate.MessageId = Guid.NewGuid(); // this should never persist a change.
+            toUpdate.MessageId = UniqueIdentity.New(); // this should never persist a change.
             toUpdate.Enqueued = toUpdate.Enqueued.AddMinutes(-1); // this should never change.
             toUpdate.Body = new("Changed Body"); // should never change.
             toUpdate.Headers = new("Changed Headers");

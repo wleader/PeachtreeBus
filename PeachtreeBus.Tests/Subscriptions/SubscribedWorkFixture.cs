@@ -37,7 +37,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             dataAccess = new Mock<IBusDataAccess>();
 
             context = CreateContext();
-            reader.Setup(r => r.GetNext(It.IsAny<Guid>()))
+            reader.Setup(r => r.GetNext(It.IsAny<SubscriberId>()))
                 .ReturnsAsync(context);
 
             pipelineInvoker = new();
@@ -57,10 +57,10 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task Given_NoPendingMessages_When_DoWork_Then_ReturnFalse()
         {
-            reader.Setup(r => r.GetNext(It.IsAny<Guid>()))
+            reader.Setup(r => r.GetNext(It.IsAny<SubscriberId>()))
                 .ReturnsAsync((InternalSubscribedContext)null!);
 
-            work.SubscriberId = Guid.NewGuid();
+            work.SubscriberId = SubscriberId.New();
             var result = await work.DoWork();
 
             Assert.IsFalse(result);
@@ -73,7 +73,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task Given_AMessage_When_DoWork_Then_IncrementCounters()
         {
-            work.SubscriberId = Guid.NewGuid();
+            work.SubscriberId = SubscriberId.New();
             var result = await work.DoWork();
 
             counters.Verify(c => c.StartMessage(), Times.Once);
@@ -87,7 +87,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task Given_AMessage_When_DoWork_Then_CreatesSavepoint()
         {
-            work.SubscriberId = Guid.NewGuid();
+            work.SubscriberId = SubscriberId.New();
             var result = await work.DoWork();
 
             dataAccess.Verify(d => d.CreateSavepoint("BeforeSubscriptionHandler"), Times.Once);
@@ -141,10 +141,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             return new InternalSubscribedContext()
             {
-                MessageData = new SubscribedMessage
-                {
-                    MessageId = Guid.NewGuid(),
-                },
+                MessageData = TestData.CreateSubscribedMessage(),
                 Headers = new Headers()
                 {
                     MessageClass = "PeachtreeBus.Tests.Subscriptions.SubscribedWorkFixture+TestMessage, PeachtreeBus.Tests",

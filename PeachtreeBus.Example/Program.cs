@@ -3,9 +3,11 @@ using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Example.Data;
+using PeachtreeBus.Example.Services;
+using PeachtreeBus.Example.Subsciptions;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Services;
 using PeachtreeBus.SimpleInjector;
+using PeachtreeBus.Subscriptions;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;
@@ -45,9 +47,9 @@ namespace PeachtreeBus.Example
             // provide subscription configuration.
             // in this case the subscriber ID is always the same, but in a real
             // application each instance will need a different ID. 
-            var subscriberId = Guid.Parse("E00E876C-A9F4-46C4-B0E7-2B27C525FA98");
+            var subscriberId = new SubscriberId(Guid.Parse("E00E876C-A9F4-46C4-B0E7-2B27C525FA98"));
             _container.UsePeachtreeBusSubscriptions(new Subscriptions.SubscriberConfiguration(
-                subscriberId, TimeSpan.FromSeconds(60), "Announcements"));
+                subscriberId, TimeSpan.FromSeconds(60), Categories.Announcements));
 
             // disable Failed Message handling
             _container.UsePeachtreeBusDefaultErrorHandlers();

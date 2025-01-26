@@ -10,17 +10,20 @@ namespace PeachtreeBus.Sagas
         /// </summary>
         /// <param name="toCheck"></param>
         /// <returns></returns>
-        public static bool IsSubclassOfSaga(this Type toCheck)
+        public static bool IsSubclassOfSaga(this Type? toCheck)
         {
-            while (toCheck != null && toCheck != typeof(object))
+            if (toCheck is null)
+                return false;
+
+            do
             {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
                 if (typeof(Saga<>) == cur)
-                {
                     return true;
-                }
+
                 toCheck = toCheck.BaseType;
             }
+            while (toCheck is not null);
             return false;
         }
 

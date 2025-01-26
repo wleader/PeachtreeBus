@@ -2,6 +2,8 @@
 using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 

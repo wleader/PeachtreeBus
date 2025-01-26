@@ -1,7 +1,9 @@
 ﻿using PeachtreeBus.Data;
+using System.Text.Json.Serialization;
 
 namespace PeachtreeBus.Sagas;
 
+[JsonConverter(typeof(SagaNameJsonConverter))]
 public readonly record struct SagaName
 {
     public string Value { get; }
@@ -14,4 +16,8 @@ public readonly record struct SagaName
 
     public override string ToString() => Value
         ?? throw new DbSafeNameException($"{nameof(SagaName)} is not initialized.");
+
+    public class SagaNameJsonConverter()
+        : PeachtreeBusJsonConverter<SagaName, string>(v => new(v!), v => v.Value);
+
 }

@@ -3,8 +3,10 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
+using System;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 
@@ -18,7 +20,7 @@ public class SimpleInjectorExtensionsFixture
     private ILoggerFactory _loggerFactory = default!;
     private readonly Mock<IProvideDbConnectionString> _provideDBConnectionString = new();
     private Mock<IProvideShutdownSignal> _provideShutdownSignal = default!;
-    private static readonly Guid subscriberId = Guid.Parse("38dff5e2-b66d-4e01-a5ae-e7fb236708bb");
+    private static readonly SubscriberId subscriberId = new(Guid.Parse("38dff5e2-b66d-4e01-a5ae-e7fb236708bb"));
 
     [TestInitialize]
     public void Intialize()
@@ -67,8 +69,8 @@ public class SimpleInjectorExtensionsFixture
         // retry strategies are required for subscribed message handling.
         _container.UsePeachtreeBusDefaultRetryStrategy();
 
-        _container.UsePeachtreeBusSubscriptions(new Subscriptions.SubscriberConfiguration(
-            subscriberId, TimeSpan.FromSeconds(60), "Announcements"));
+        _container.UsePeachtreeBusSubscriptions(new SubscriberConfiguration(
+            subscriberId, TimeSpan.FromSeconds(60), new Category("Announcements")));
 
         _container.Verify();
     }

@@ -47,7 +47,7 @@ namespace PeachtreeBus.Tests.Queues
                     AddedMessage = msg;
                     AddedToQueue = qn;
                 })
-                .Returns(Task.FromResult<long>(12345));
+                .Returns(Task.FromResult<Identity>(new(12345)));
 
             serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
                 .Callback<Headers>(h => SerializedHeaders = h)
@@ -64,14 +64,14 @@ namespace PeachtreeBus.Tests.Queues
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task WriteMessage_ThrowsWhenMessageIsNull()
         {
-            await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                null!,
-                null);
+            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+                writer.WriteMessage(
+                    queueName,
+                    typeof(TestSagaMessage1),
+                    null!,
+                    null));
         }
 
         /// <summary>
@@ -79,14 +79,14 @@ namespace PeachtreeBus.Tests.Queues
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task WriteMessage_ThrowsWhenTypeIsNull()
         {
-            await writer.WriteMessage(
-                queueName,
-                null!,
-                new TestSagaMessage1(),
-                null);
+            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+                writer.WriteMessage(
+                    queueName,
+                    null!,
+                    new TestSagaMessage1(),
+                    null));
         }
 
         /// <summary>
@@ -104,23 +104,6 @@ namespace PeachtreeBus.Tests.Queues
 
             Assert.IsNotNull(SerializedHeaders);
             Assert.AreEqual("PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests", SerializedHeaders.MessageClass);
-        }
-
-        /// <summary>
-        /// Proves tha a message ID is generated
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_AssignsMessageId()
-        {
-            await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
-
-            Assert.IsNotNull(AddedMessage);
-            Assert.AreNotEqual(Guid.Empty, AddedMessage.MessageId);
         }
 
         /// <summary>
@@ -163,15 +146,15 @@ namespace PeachtreeBus.Tests.Queues
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public async Task WriteMessage_ThrowsWhenNotBeforeKindUnspecified()
         {
             var notBefore = new DateTime(2022, 2, 23, 10, 54, 11, DateTimeKind.Unspecified);
-            await writer.WriteMessage(
-                            queueName,
-                            typeof(TestSagaMessage1),
-                            new TestSagaMessage1(),
-                            notBefore);
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
+                writer.WriteMessage(
+                    queueName,
+                    typeof(TestSagaMessage1),
+                    new TestSagaMessage1(),
+                    notBefore));
         }
 
         /// <summary>

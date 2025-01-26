@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,13 +35,13 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
             Assert.AreEqual(0, CountRowsInTable(SubscribedFailedTable));
 
-            var expected1 = CreateSubscribed();
-            expected1.SubscriberId = Guid.NewGuid();
+            var expected1 = TestData.CreateSubscribedMessage();
+            expected1.SubscriberId = SubscriberId.New();
             expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
             expected1.Id = await dataAccess.AddMessage(expected1);
 
-            var expected2 = CreateSubscribed();
-            expected2.SubscriberId = Guid.NewGuid();
+            var expected2 = TestData.CreateSubscribedMessage();
+            expected2.SubscriberId = SubscriberId.New();
             expected2.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
             expected2.Id = await dataAccess.AddMessage(expected2);
 
@@ -68,13 +70,13 @@ namespace PeachtreeBus.DataAccessTests
         public async Task ExpireMessages_DeletesFromPending()
         {
 
-            var expected1 = CreateSubscribed();
-            expected1.SubscriberId = Guid.NewGuid();
+            var expected1 = TestData.CreateSubscribedMessage();
+            expected1.SubscriberId = SubscriberId.New();
             expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
             expected1.Id = await dataAccess.AddMessage(expected1);
 
-            var expected2 = CreateSubscribed();
-            expected2.SubscriberId = Guid.NewGuid();
+            var expected2 = TestData.CreateSubscribedMessage();
+            expected2.SubscriberId = SubscriberId.New();
             expected2.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
             expected2.Id = await dataAccess.AddMessage(expected2);
 

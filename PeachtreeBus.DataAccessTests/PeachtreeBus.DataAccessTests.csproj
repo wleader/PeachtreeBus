@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
@@ -21,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
     <ProjectReference Include="..\PeachtreeBus.Database\PeachtreeBus.Database.sqlproj" />
+    <ProjectReference Include="..\PeachtreeBus.Tests\PeachtreeBus.Tests.csproj" />
     <ProjectReference Include="..\PeachtreeBus\PeachtreeBus.csproj" />
   </ItemGroup>
   <ItemGroup>

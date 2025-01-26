@@ -29,7 +29,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetSagaData_ReturnsUnblockedWhenRowIsNotLocked()
         {
             var newSaga1 = CreateTestSagaData();
-            newSaga1.Key = "1";
+            newSaga1.Key = new("1");
 
             newSaga1.Id = await dataAccess.Insert(newSaga1, DefaultSagaName);
 
@@ -50,7 +50,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetSagaData_ReturnsNullWhenDoesntExist()
         {
             Assert.AreEqual(0, CountRowsInTable(DefaultSagaTable));
-            var sagadata = await dataAccess.GetSagaData(DefaultSagaName, "1");
+            var sagadata = await dataAccess.GetSagaData(DefaultSagaName, new("1"));
             Assert.IsNull(sagadata);
         }
 
@@ -62,7 +62,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetSagaData_ReturnsBlockedWhenRowIsLocked()
         {
             var newSaga1 = CreateTestSagaData();
-            newSaga1.Key = "1";
+            newSaga1.Key = new("1");
 
             newSaga1.Id = await dataAccess.Insert(newSaga1, DefaultSagaName);
 

@@ -9,8 +9,10 @@
 //------------------------------------------------------
 // This is a generated file. Do not make manual changes.
 //------------------------------------------------------
+using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.Subscriptions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;

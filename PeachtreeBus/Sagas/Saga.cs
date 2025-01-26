@@ -4,7 +4,7 @@
     /// A base class for all sagas to inherit
     /// </summary>
     /// <typeparam name="TSagaData">A class that holds Saga data that will automatically be saved and loaded when processing saga messages.</typeparam>
-    public abstract class Saga<TSagaData> where TSagaData : new()
+    public abstract class Saga<TSagaData> where TSagaData : class, new()
     {
         /// <summary>
         /// Each saga must have a unique name in the system.

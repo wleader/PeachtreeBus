@@ -10,9 +10,7 @@ public class UtcDateTimeFixture
     [TestMethod]
     public void Given_UnspecifiedDateTime_When_Constructor_Then_Throws()
     {
-        Assert.ThrowsException<ArgumentException>(() =>
-        {
-            _ = new UtcDateTime(DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified));
-        });
+        Func<UtcDateTime> func = new(() => new UtcDateTime(DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified)));
+        Assert.ThrowsException<ArgumentException>(() => func());
     }
 }

@@ -25,75 +25,75 @@
     <Namespace name="PeachtreeBus_Queues">
         <Class name="QueueReader">
             <Event name="HeaderNotDeserializable" level="Warning" exception="true">
-                Headers could not be deserialized for message {MessageId:Guid} from queue {QueueName:QueueName}.
+                Headers could not be deserialized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
             <Event name="BodyNotDeserializable" level="Warning" exception="true">
-                Body could not be deserialized for message {MessageId:Guid} from queue {QueueName:QueueName}.
+                Body could not be deserialized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
             <Event name="MessageClassNotRecognized" level="Warning">
-                Message class '{MessageClass:string}' was not recognized for message {MessageId:Guid} from queue {QueueName:QueueName}.
+                Message class '{MessageClass:string}' was not recognized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
             <Event name="MessageFailed" level="Warning">
-                Message {MessageId:Guid} from queue {QueueName:QueueName} has failed and will not be retried.
+                Message {MessageId:UniqueIdentity} from queue {QueueName:QueueName} has failed and will not be retried.
             </Event>
             <Event name="MessageWillBeRetried" level="Warning">
-                Message {MessageId:Guid} from queue {QueueName:QueueName} will be retried after {NotBefore:DateTime}.
+                Message {MessageId:UniqueIdentity} from queue {QueueName:QueueName} will be retried after {NotBefore:DateTime}.
             </Event>
             <Event name="LoadingSagaData" level="Information">
-                Loading saga data for {SagaName:SagaName} - {SagaKey:string}.
+                Loading saga data for {SagaName:SagaName} - {SagaKey:SagaKey}.
             </Event>
             <Event name="DeletingSagaData" level="Information">
-                Deleting saga data for {SagaName:SagaName} - {SagaKey:string}.
+                Deleting saga data for {SagaName:SagaName} - {SagaKey:SagaKey}.
             </Event>
             <Event name="SavingSagaData" level="Information">
-                Saving saga data for {SagaName:SagaName} - {SagaKey:string}.
+                Saving saga data for {SagaName:SagaName} - {SagaKey:SagaKey}.
             </Event>
         </Class>
         <Class name="QueueWork">
             <Event name="ProcessingMessage" level="Debug">
-                Processing Message {MessageId:Guid}, Type: {MessageClass:string}.
+                Processing Message {MessageId:UniqueIdentity}, Type: {MessageClass:string}.
             </Event>
             <Event name="LoadingSaga">
-                Saga Loading {SagaType:string} {SagaKey:string}.
+                Saga Loading {SagaType:string} {SagaKey:SagaKey}.
             </Event>
             <Event name="SagaBlocked" level="Information">
-                The saga {SagaType:string} for key {SagaKey:string} is blocked. The current message will be delayed and retried.
+                The saga {SagaType:string} for key {SagaKey:SagaKey} is blocked. The current message will be delayed and retried.
             </Event>
             <Event name="InvokeHandler" level="Debug">
-                Handling message {MessageId:Guid} of type {MessageClass:string} with {HandlerType:string}.
+                Handling message {MessageId:UniqueIdentity} of type {MessageClass:string} with {HandlerType:string}.
             </Event>
             <Event name="SagaSaved" level="Debug">
-                Saga Saved {SagaType:string} {SagaKey:string}.
+                Saga Saved {SagaType:string} {SagaKey:SagaKey}.
             </Event>
             <Event name="HandlerException" level="Warning" exception="true">
-                There was an exception in {HandlerType:string} when handling Message {MessageId:Guid} of type {MessageType:string}.
+                There was an exception in {HandlerType:string} when handling Message {MessageId:UniqueIdentity} of type {MessageType:string}.
             </Event>
         </Class>
     </Namespace>
     <Namespace name="PeachtreeBus_Subscriptions">
         <Class name="SubscribedWork">
             <Event name="ProcessingMessage" level="Debug">
-                Processing message {MessageId:Guid} for subscriber {SubscriberId:Guid}.
+                Processing message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
             </Event>
             <Event name="MessageHandlerException" level="Warning" exception="true">
-                There was an exception while processing message {MessageId:Guid} for subscriber {SusbscriberId:Guid}.
+                There was an exception while processing message {MessageId:UniqueIdentity} for subscriber {SusbscriberId:SubscriberId}.
             </Event>
         </Class>
         <Class name="SubscribedReader">
             <Event name="MessageFailed" level="Warning">
-                Message {MessageId:Guid} for Subscriber {SubscriberId:Guid} has failed and will not be retried.
+                Message {MessageId:UniqueIdentity} for Subscriber {SubscriberId:SubscriberId} has failed and will not be retried.
             </Event>
             <Event name="HeaderNotDeserializable" level="Warning" exception="true">
-                Headers could not be deserialized for message {MessageId:Guid} for subscriber {SubscriberId:Guid}.
+                Headers could not be deserialized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
             </Event>
             <Event name="BodyNotDeserializable" level="Warning" exception="true">
-                Message Body could not be deserialized for message {MessageId:Guid} for subscriber {SubscriberId:Guid}.
+                Message Body could not be deserialized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
             </Event>
             <Event name="MessageClassNotRecognized" level="Warning">
-                Message class '{MessageClass:string}' was not recognized for message {MessageId:Guid} for subscriber {SubscriberId:Guid}.
+                Message class '{MessageClass:string}' was not recognized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
             </Event>
             <Event name="MessageWillBeRetried" level="Warning">
-                Message {MessageId:Guid} from Subscriber {SubscriberId:Guid} will be retried after {NotBefore:DateTime}.
+                Message {MessageId:UniqueIdentity} from Subscriber {SubscriberId:SubscriberId} will be retried after {NotBefore:DateTime}.
             </Event>
         </Class>
     </Namespace>

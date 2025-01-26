@@ -18,7 +18,7 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        Task<InternalSubscribedContext?> GetNext(Guid subscriberId);
+        Task<InternalSubscribedContext?> GetNext(SubscriberId subscriberId);
         Task Complete(InternalSubscribedContext subsriptionContext);
         Task Fail(InternalSubscribedContext subsriptionContext, Exception ex);
     }
@@ -92,7 +92,7 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="subscriberId"></param>
         /// <returns></returns>
-        public async Task<InternalSubscribedContext?> GetNext(Guid subscriberId)
+        public async Task<InternalSubscribedContext?> GetNext(SubscriberId subscriberId)
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.

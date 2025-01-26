@@ -2,7 +2,7 @@
 using PeachtreeBus.DatabaseSharing;
 using System;
 
-namespace PeachtreeBus.Services
+namespace PeachtreeBus.Example.Services
 {
     /// <summary>
     /// An implementation of IProvideDbConnectionString that reads it from

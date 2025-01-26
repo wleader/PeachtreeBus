@@ -1,4 +1,6 @@
-﻿namespace PeachtreeBus.Data;
+﻿using System.Text.Json.Serialization;
+
+namespace PeachtreeBus.Data;
 
 public class SerializedDataException : PeachtreeBusException
 {
@@ -12,6 +14,7 @@ public class SerializedDataException : PeachtreeBusException
     }
 }
 
+[JsonConverter(typeof(SerializedDataJsonConverter))]
 public readonly record struct SerializedData
 {
     public string Value { get; }
@@ -23,4 +26,7 @@ public readonly record struct SerializedData
     }
 
     public override string ToString() => Value ?? throw new SerializedDataException("SerializedData is not initialized.");
+
+    public class SerializedDataJsonConverter()
+        : PeachtreeBusJsonConverter<SerializedData, string>(s => new(s!), d => d.Value);
 }

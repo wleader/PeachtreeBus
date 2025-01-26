@@ -6,10 +6,12 @@ namespace PeachtreeBus.Tests.Data;
 [TestClass]
 public class SchemaNameFixture : DbSafeNameFixtureBase
 {
+    private SchemaName Create(string value) => new(value);
+
     [TestMethod]
     public void Given_UnsafeValues_When_New_Then_Throws()
     {
-        AssertActionThrowsForDbUnsafeValues((s) => { _ = new SchemaName(s); });
+        AssertFunctionThrowsForDbUnsafeValues(Create);
     }
 
     [TestMethod]
@@ -20,8 +22,8 @@ public class SchemaNameFixture : DbSafeNameFixtureBase
     }
 
     [TestMethod]
-    public void Given_EmptyString_When_New_Then_Throws()
+    public void Given_Value_When_New_Then_Result()
     {
-        Assert.ThrowsException<DbSafeNameException>(() => { _ = new SchemaName(string.Empty); });
+        Assert.AreEqual("SchemaName", Create("SchemaName").Value);
     }
 }

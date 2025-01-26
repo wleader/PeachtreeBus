@@ -49,7 +49,7 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
     {
         var message = new QueueMessage
         {
-            MessageId = Guid.NewGuid(),
+            MessageId = UniqueIdentity.New(),
             Body = new SerializedData("Foo"),
             Headers = new SerializedData("Baz"),
             Priority = 0,

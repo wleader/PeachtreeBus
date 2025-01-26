@@ -1,6 +1,5 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
-using System;
 
 namespace PeachtreeBus.Subscriptions
 {
@@ -12,12 +11,12 @@ namespace PeachtreeBus.Subscriptions
         /// <summary>
         /// The subscriber the message has been published for.
         /// </summary>
-        public virtual Guid SubscriberId { get; set; }
+        public required virtual SubscriberId SubscriberId { get; set; }
 
         /// <summary>
         /// The time at which the message is considered abandonded
         /// and may be deleted.
         /// </summary>
-        public virtual UtcDateTime ValidUntil { get; set; }
+        public required virtual UtcDateTime ValidUntil { get; set; }
     }
 }

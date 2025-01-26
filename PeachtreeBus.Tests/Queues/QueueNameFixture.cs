@@ -8,10 +8,18 @@ namespace PeachtreeBus.Tests.Queues;
 [TestClass]
 public class QueueNameFixture : DbSafeNameFixtureBase
 {
+    private QueueName CreateQueueName(string value) => new QueueName(value);
+
+    [TestMethod]
+    public void Given_AllowedValue_When_New_Then_Result()
+    {
+        Assert.AreEqual("QueueName", CreateQueueName("QueueName").Value);
+    }
+
     [TestMethod]
     public void Given_ForbiddenCharacters_When_New_Then_Throws()
     {
-        AssertActionThrowsForDbUnsafeValues((s) => { _ = new QueueName(s); });
+        AssertFunctionThrowsForDbUnsafeValues(CreateQueueName);
     }
 
     [TestMethod]
@@ -19,11 +27,5 @@ public class QueueNameFixture : DbSafeNameFixtureBase
     {
         QueueName queueName = default!;
         Assert.ThrowsException<DbSafeNameException>(() => _ = queueName.ToString());
-    }
-
-    [TestMethod]
-    public void Given_EmptyString_When_New_Then_Throws()
-    {
-        Assert.ThrowsException<DbSafeNameException>(() => { _ = new QueueName(string.Empty); });
     }
 }

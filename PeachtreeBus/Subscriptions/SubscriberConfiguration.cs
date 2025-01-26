@@ -8,8 +8,8 @@ namespace PeachtreeBus.Subscriptions
     /// </summary>
     public interface ISubscriberConfiguration
     {
-        Guid SubscriberId { get; }
-        IList<string> Categories { get; }
+        SubscriberId SubscriberId { get; }
+        IList<Category> Categories { get; }
         TimeSpan Lifespan { get; }
     }
 
@@ -17,13 +17,13 @@ namespace PeachtreeBus.Subscriptions
     /// default implementation of ISubscriberConfiguration
     /// </summary>
     public class SubscriberConfiguration(
-        Guid subscriberId,
+        SubscriberId subscriberId,
         TimeSpan lifespan,
-        params string[] categories)
+        params Category[] categories)
         : ISubscriberConfiguration
     {
-        public Guid SubscriberId { get; } = subscriberId;
-        public IList<string> Categories { get; } = [.. categories];
+        public SubscriberId SubscriberId { get; } = subscriberId;
+        public IList<Category> Categories { get; } = [.. categories];
         public TimeSpan Lifespan { get; } = lifespan;
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using PeachtreeBus.Data;
 
 namespace PeachtreeBus;
 
@@ -12,7 +12,7 @@ public abstract class BaseContext
     /// <summary>
     /// A unique Id for the message.
     /// </summary>
-    public Guid MessageId { get; set; }
+    public UniqueIdentity MessageId { get; set; }
 
     /// <summary>
     /// Exposes the Dependency Injection Scope for the message being handled.

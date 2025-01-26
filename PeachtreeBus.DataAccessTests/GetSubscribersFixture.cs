@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,34 +32,34 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetSubscribers_GetsCorrectSubscriptions()
         {
             // assumes Subscribe method behaves as intended.
-            var guid1 = Guid.NewGuid();
-            var guid2 = Guid.NewGuid();
-            var guid3 = Guid.NewGuid();
-            var category1 = "TestCategory";
-            var category2 = "TestCategory2";
-            var category3 = "TestCategory3";
+            var subscriber1 = SubscriberId.New();
+            var subscriber2 = SubscriberId.New();
+            var subscriber3 = SubscriberId.New();
+            var category1 = new Category("TestCategory1");
+            var category2 = new Category("TestCategory2");
+            var category3 = new Category("TestCategory3");
 
             var future = DateTime.UtcNow.AddHours(1);
             var expired = DateTime.UtcNow.AddHours(-1);
 
-            await dataAccess.Subscribe(guid1, category1, future); // want this 
-            await dataAccess.Subscribe(guid1, category2, future); // exclude wrong category
-            await dataAccess.Subscribe(guid1, category3, expired); // exclude expired
+            await dataAccess.Subscribe(subscriber1, category1, future); // want this 
+            await dataAccess.Subscribe(subscriber1, category2, future); // exclude wrong category
+            await dataAccess.Subscribe(subscriber1, category3, expired); // exclude expired
 
-            await dataAccess.Subscribe(guid2, category1, future); // want this
-            await dataAccess.Subscribe(guid2, category2, future); // exclude wrong category
-            await dataAccess.Subscribe(guid2, category3, expired); // expired
+            await dataAccess.Subscribe(subscriber2, category1, future); // want this
+            await dataAccess.Subscribe(subscriber2, category2, future); // exclude wrong category
+            await dataAccess.Subscribe(subscriber2, category3, expired); // expired
 
-            await dataAccess.Subscribe(guid3, category2, future); // wrong category
-            await dataAccess.Subscribe(guid3, category3, expired); // expired
+            await dataAccess.Subscribe(subscriber3, category2, future); // wrong category
+            await dataAccess.Subscribe(subscriber3, category3, expired); // expired
 
 
             var actual = (await dataAccess.GetSubscribers(category1)).ToArray();
 
             Assert.AreEqual(2, actual.Length);
-            CollectionAssert.Contains(actual, guid1);
-            CollectionAssert.Contains(actual, guid2);
-            CollectionAssert.DoesNotContain(actual, guid3);
+            CollectionAssert.Contains(actual, subscriber1);
+            CollectionAssert.Contains(actual, subscriber2);
+            CollectionAssert.DoesNotContain(actual, subscriber3);
         }
     }
 }

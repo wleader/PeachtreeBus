@@ -179,8 +179,19 @@ namespace PeachtreeBus.Queues
         {
             // work out the class name of the saga.
             var sagaType = saga.GetType();
-            var nameProperty = sagaType.GetProperty("SagaName");
-            var sagaName = (SagaName)nameProperty.GetValue(saga);
+            var nameProperty = sagaType.GetProperty("SagaName", typeof(SagaName));
+            nameProperty = UnreachableException.ThrowIfNull(nameProperty,
+                message: "Saga<> must have a SagaName property of type SagaName.");
+
+            var sagaNameObject = nameProperty.GetValue(saga);
+            sagaNameObject = UnreachableException.ThrowIfNull(sagaNameObject,
+                message: "The SagaName Type must not be a nullable type.");
+
+            var sagaName = (SagaName)sagaNameObject;
+            IncorrectImplementationException.ThrowIfNull(sagaName.Value,
+                sagaType,
+                typeof(Saga<>),
+                message: "Saga<>.SagaName must not return an uninitialized SagaName.");
 
             // fetch the data from the DB.
             _log.QueueReader_LoadingSagaData(sagaName, context.SagaKey);
@@ -194,13 +205,18 @@ namespace PeachtreeBus.Queues
 
             // determine the type to deserialze to or create.
             var dataProperty = sagaType.GetProperty("Data");
+            dataProperty = UnreachableException.ThrowIfNull(dataProperty,
+                message: "Saga<> must have a Data Property.");
+
             var sagaDataType = dataProperty.PropertyType;
 
-            object dataObject;
+            object? dataObject;
             if (context.SagaData == null)
             {
                 // no data in the DB, create a new object.
                 dataObject = Activator.CreateInstance(sagaDataType);
+                dataObject = UnreachableException.ThrowIfNull(dataObject,
+                    message: "Saga<TSagaData> type parameter must be a reference type (where TSagaData : class, new()).");
             }
             else
             {
@@ -219,11 +235,25 @@ namespace PeachtreeBus.Queues
         public async Task SaveSaga(object saga, InternalQueueContext context)
         {
             var sagaType = saga.GetType();
-            var nameProperty = sagaType.GetProperty("SagaName");
-            var sagaName = (SagaName)nameProperty.GetValue(saga);
+            var nameProperty = sagaType.GetProperty("SagaName", typeof(SagaName));
+            nameProperty = UnreachableException.ThrowIfNull(nameProperty,
+                message: "Saga<> must have a SagaName property of type SagaName.");
+
+            var sagaNameObject = nameProperty.GetValue(saga);
+            sagaNameObject = UnreachableException.ThrowIfNull(sagaNameObject,
+                message: "The SagaName type must not be a nullable type.");
+
+            var sagaName = (SagaName)sagaNameObject;
+            IncorrectImplementationException.ThrowIfNull(sagaName.Value,
+                sagaType,
+                typeof(Saga<>),
+                message: "Saga<>.SagaName must not return an uninitialized SagaName.");
 
             // if the saga is complete, we can delete the data.
-            var completeProperty = sagaType.GetProperty("SagaComplete");
+            var completeProperty = sagaType.GetProperty("SagaComplete", typeof(bool));
+            completeProperty = UnreachableException.ThrowIfNull(completeProperty,
+                message: "Saga<> must have a SagaComplete property that is of type bool.");
+
             bool IsComplete = completeProperty.GetValue(saga) is bool completeValue && completeValue;
             if (IsComplete)
             {
@@ -236,8 +266,14 @@ namespace PeachtreeBus.Queues
 
             // the saga is not complete, serialize it.
             var dataProperty = sagaType.GetProperty("Data");
+            dataProperty = UnreachableException.ThrowIfNull(dataProperty,
+                message: "Saga<> implmentations must have a Data property.");
+
             var dataObject = dataProperty.GetValue(saga);
             dataObject ??= Activator.CreateInstance(dataProperty.PropertyType);
+            dataObject = UnreachableException.ThrowIfNull(dataObject,
+                message: "Saga<TSagaData> type parameter must be a reference type (where TSagaData : class, new()).");
+
             var serializedData = _serializer.SerializeSaga(dataObject, dataProperty.PropertyType);
 
             if (context.SagaData == null)
@@ -246,9 +282,10 @@ namespace PeachtreeBus.Queues
                 // create a new row in the DB.
                 context.SagaData = new SagaData
                 {
-                    SagaId = Guid.NewGuid(),
+                    SagaId = UniqueIdentity.New(),
                     Key = context.SagaKey,
-                    Data = serializedData
+                    Data = serializedData,
+                    Blocked = false,
                 };
 
                 // if two start messages are processed at the same time, two inserts could occur on different threads.

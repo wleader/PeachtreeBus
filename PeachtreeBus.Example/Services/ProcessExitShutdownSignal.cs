@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeachtreeBus.Services
+namespace PeachtreeBus.Example.Services
 {
 
     /// <summary>

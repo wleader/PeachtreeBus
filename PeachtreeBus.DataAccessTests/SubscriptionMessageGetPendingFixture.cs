@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,8 +34,8 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_DoesNotReturnDelayedMessage()
         {
             // Add one message;
-            var testMessage = CreateSubscribed();
-            testMessage.SubscriberId = Guid.NewGuid();
+            var testMessage = TestData.CreateSubscribedMessage();
+            testMessage.SubscriberId = SubscriberId.New();
             testMessage.NotBefore = testMessage.NotBefore.AddHours(1);
             testMessage.Id = await dataAccess.AddMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
@@ -49,8 +51,8 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_DoesNotReturnLocked()
         {
             // Add one message;
-            var testMessage = CreateSubscribed();
-            testMessage.SubscriberId = Guid.NewGuid();
+            var testMessage = TestData.CreateSubscribedMessage();
+            testMessage.SubscriberId = SubscriberId.New();
             testMessage.Id = await dataAccess.AddMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -78,8 +80,8 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_DoesReturnDelayedAfterWait()
         {
             // Add one message;
-            var testMessage = CreateSubscribed();
-            testMessage.SubscriberId = Guid.NewGuid();
+            var testMessage = TestData.CreateSubscribedMessage();
+            testMessage.SubscriberId = SubscriberId.New();
             testMessage.NotBefore = testMessage.NotBefore.AddMilliseconds(200);
             testMessage.Id = await dataAccess.AddMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
@@ -99,8 +101,8 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_GetsMessage()
         {
             // Add one message;
-            var testMessage = CreateSubscribed();
-            testMessage.SubscriberId = Guid.NewGuid();
+            var testMessage = TestData.CreateSubscribedMessage();
+            testMessage.SubscriberId = SubscriberId.New();
             testMessage.Id = await dataAccess.AddMessage(testMessage);
 
             await Task.Delay(10); // wait for the rows to be ready
@@ -118,11 +120,11 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_LocksTheMessage()
         {
             // Add two messages;
-            var testMessage1 = CreateSubscribed();
-            testMessage1.SubscriberId = Guid.NewGuid();
+            var testMessage1 = TestData.CreateSubscribedMessage();
+            testMessage1.SubscriberId = SubscriberId.New();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1);
-            var testMessage2 = CreateSubscribed();
-            testMessage2.SubscriberId = Guid.NewGuid();
+            var testMessage2 = TestData.CreateSubscribedMessage();
+            testMessage2.SubscriberId = SubscriberId.New();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2);
 
             await Task.Delay(10); // wait for the rows to be ready
@@ -154,29 +156,20 @@ namespace PeachtreeBus.DataAccessTests
             }
         }
 
-        /// <summary>
-        /// Proves that the subscribed id cannot be empty.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingSubscriptionMessage_ThrowsIfSubscriberIsGuidEmpty()
-        {
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-                dataAccess.GetPendingSubscribed(Guid.Empty));
-        }
+
 
         [TestMethod]
         public async Task GetPendingSubscriptionMessage_ReturnsHigherPriorityMessage()
         {
-            var subscriber = Guid.NewGuid();
+            var subscriber = SubscriberId.New();
 
-            var lowMessage = CreateSubscribed();
+            var lowMessage = TestData.CreateSubscribedMessage();
             lowMessage.Priority = 1;
             lowMessage.NotBefore = DateTime.UtcNow.AddMinutes(-2);
             lowMessage.SubscriberId = subscriber;
             lowMessage.Id = await dataAccess.AddMessage(lowMessage);
 
-            var highMessage = CreateSubscribed();
+            var highMessage = TestData.CreateSubscribedMessage();
             highMessage.Priority = 2;
             highMessage.NotBefore = DateTime.UtcNow.AddMinutes(-1);
             highMessage.SubscriberId = subscriber;

@@ -38,14 +38,14 @@ namespace PeachtreeBus.Queues
         /// The Saga instance Key for the messge.
         /// (Null when the message is not part of a saga.
         /// </summary>
-        public string SagaKey { get; set; } = string.Empty;
+        public SagaKey SagaKey { get; set; }
 
         /// <summary>
         /// What message handler was last used on the message.
         /// Used to generate exceptions and logs that point to specific
         /// handlers.
         /// </summary>
-        public string? CurrentHandler { get; set; } = default;
+        public string CurrentHandler { get; set; } = string.Empty;
 
         /// <summary>
         /// Indicates if the SagaData row was in the database was locked

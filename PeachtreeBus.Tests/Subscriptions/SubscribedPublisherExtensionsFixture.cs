@@ -17,9 +17,10 @@ public class SubscribedPublisherExtensionsFixture
         var publisher = new Mock<ISubscribedPublisher>();
         var message = new TestMessage();
         var notBefore = DateTime.UtcNow;
+        Category cat = new("Cat");
 
-        await publisher.Object.PublishMessage("Cat", message, notBefore, 100);
+        await publisher.Object.PublishMessage(cat, message, notBefore, 100);
 
-        publisher.Verify(p => p.Publish("Cat", typeof(TestMessage), message, notBefore, 100), Times.Once);
+        publisher.Verify(p => p.Publish(cat, typeof(TestMessage), message, notBefore, 100), Times.Once);
     }
 }

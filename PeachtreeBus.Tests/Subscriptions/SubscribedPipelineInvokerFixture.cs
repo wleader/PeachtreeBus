@@ -103,35 +103,38 @@ namespace PeachtreeBus.Tests.Subscriptions
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
+        public async Task Given_NothingThrows_When_Invoke_ScopeIsDisposed()
+        {
+            await VerifyScopeDisposedOnException();
+            _scope.Verify(s => s.Dispose(), Times.Once);
+        }
+
+        [TestMethod]
         public async Task Given_GetSharedDatabaseProviderWillThrow_When_Invoke_ScopeIsDisposed()
         {
             _scope.Setup(s => s.GetInstance<IShareObjectsBetweenScopes>()).Throws<TestException>();
-            await VerifyScopeDisposedOnException();
+            await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public async Task Given_GetPipelineFactoryWillThrow_When_Invoke_ScopeIsDisposed()
         {
             _scope.Setup(s => s.GetInstance(typeof(ISubscribedPipelineFactory))).Throws<TestException>();
-            await VerifyScopeDisposedOnException();
+            await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public async Task Given_FactoryBuildWillThrow_When_Invoke_ScopeIsDisposed()
         {
             _pipelineFactory.Setup(f => f.Build()).Throws<TestException>();
-            await VerifyScopeDisposedOnException();
+            await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public async Task Given_PipelineInvokeWillThrow_When_Invoke_ScopeIsDisposed()
         {
             _pipeline.Setup(p => p.Invoke(It.IsAny<SubscribedContext>())).Throws<TestException>();
-            await VerifyScopeDisposedOnException();
+            await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]

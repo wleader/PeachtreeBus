@@ -29,9 +29,9 @@ namespace PeachtreeBus.Tests.Subscriptions
             updater = new Mock<ISubscriptionUpdateWork>();
 
             config = new SubscriberConfiguration(
-                Guid.NewGuid(),
+                SubscriberId.New(),
                 TimeSpan.FromSeconds(30),
-                "cat1", "cat2");
+                new("cat1"), new("cat2"));
 
             shutdown = new Mock<IProvideShutdownSignal>();
 
@@ -66,7 +66,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Run_CallsWorkDoDork()
         {
             await thread.Run();
-            work.VerifySet(p => p.SubscriberId = It.IsAny<Guid>(), Times.Once);
+            work.VerifySet(p => p.SubscriberId = It.IsAny<SubscriberId>(), Times.Once);
             work.Verify(p => p.DoWork(), Times.Once);
         }
     }

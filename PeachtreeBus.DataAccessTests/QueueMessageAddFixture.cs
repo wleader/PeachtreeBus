@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Tests;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -28,13 +29,13 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task AddMessage_StoresTheMessage()
         {
-            var newMessage = CreateQueueMessage();
+            var newMessage = TestData.CreateQueueMessage();
 
             Assert.AreEqual(0, CountRowsInTable(QueuePendingTable));
 
             newMessage.Id = await dataAccess.AddMessage(newMessage, DefaultQueue);
 
-            Assert.IsTrue(newMessage.Id > 0);
+            Assert.IsTrue(newMessage.Id.Value > 0);
 
             var data = GetTableContent(QueuePendingTable);
             Assert.IsNotNull(data);

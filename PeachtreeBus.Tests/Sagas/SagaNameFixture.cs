@@ -8,10 +8,18 @@ namespace PeachtreeBus.Tests.Queues;
 [TestClass]
 public class SagaNameFixture : DbSafeNameFixtureBase
 {
+    private SagaName CreateSagaName(string value) => new(value);
+
+    [TestMethod]
+    public void Given_AllowedValue_When_New_Then_Result()
+    {
+        Assert.AreEqual("SagaName", CreateSagaName("SagaName").Value);
+    }
+
     [TestMethod]
     public void Given_ForbiddenCharacters_When_New_Then_Throws()
     {
-        AssertActionThrowsForDbUnsafeValues((s) => { _ = new SagaName(s); });
+        AssertFunctionThrowsForDbUnsafeValues(CreateSagaName);
     }
 
     [TestMethod]
@@ -19,11 +27,5 @@ public class SagaNameFixture : DbSafeNameFixtureBase
     {
         SagaName sagaName = default!;
         Assert.ThrowsException<DbSafeNameException>(() => _ = sagaName.ToString());
-    }
-
-    [TestMethod]
-    public void Given_EmptyString_When_New_Then_Throws()
-    {
-        Assert.ThrowsException<DbSafeNameException>(() => { _ = new SagaName(string.Empty); });
     }
 }

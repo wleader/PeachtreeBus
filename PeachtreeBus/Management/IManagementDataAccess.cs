@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Queues;
+﻿using PeachtreeBus.Data;
+using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -36,14 +37,14 @@ namespace PeachtreeBus.Management
         /// </summary>
         /// <param name="queueName">Which Queue to interact with.</param>
         /// <param name="id">The ID of the message to move.</param>
-        Task CancelPendingQueueMessage(QueueName queueName, long id);
+        Task CancelPendingQueueMessage(QueueName queueName, Identity id);
 
         /// <summary>
         /// Moves the specifed Queue message from Failed to Pending.
         /// </summary>
         /// <param name="queueName">Which Queue to interact with.</param>
         /// <param name="id">The ID of the message to move.</param>
-        Task RetryFailedQueueMessage(QueueName queueName, long id);
+        Task RetryFailedQueueMessage(QueueName queueName, Identity id);
 
         /// <summary>
         /// Retrieves a list of failed Subscribed messages, most recent messages first.
@@ -70,12 +71,12 @@ namespace PeachtreeBus.Management
         /// Moves the specifed Subscribed message from Pending to Failed.
         /// </summary>
         /// <param name="id">The ID of the message to move.</param>
-        Task CancelPendingSubscribedMessage(long id);
+        Task CancelPendingSubscribedMessage(Identity id);
 
         /// <summary>
         /// Moves the specifed Subscribed message from Failed to Pending.
         /// </summary>
         /// <param name="id">The ID of the message to move.</param>
-        Task RetryFailedSubscribedMessage(long id);
+        Task RetryFailedSubscribedMessage(Identity id);
     }
 }

@@ -1,5 +1,6 @@
 ﻿<Project>
     <PropertyGroup>
+        <TargetFrameworks>net8.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <Version>0.10.4</Version>
         <Nullable>enable</Nullable>

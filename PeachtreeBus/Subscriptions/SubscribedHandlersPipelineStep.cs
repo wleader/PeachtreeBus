@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions
@@ -38,25 +37,29 @@ namespace PeachtreeBus.Subscriptions
             // the list will contain both regular handlers and sagas.
             // if a message has mulitple handlers, we'll get multiple handlers.
             var method = typeof(IFindSubscribedHandlers).GetMethod("FindHandlers");
+            method = UnreachableException.ThrowIfNull(method,
+                message: " IFindSubscribedHandlers must have a FindHandlers method.");
+
             var genericMethod = method.MakeGenericMethod(messageType);
             var handlers = genericMethod.Invoke(_findHandlers, null);
-            var castHandlers = (handlers as IEnumerable<object>).ToArray();
 
-            // sanity check that the Depenency Injection container found at least one handler.
-            // we shouldn't process a message that has no handlers.
-            if (castHandlers.Length < 1)
-            {
-                throw new SubscribedMessageNoHandlerException(context.MessageData.MessageId,
-                    context.SubscriberId,
-                    messageType);
-            }
+            if (handlers is not IEnumerable<object> castHandlers)
+                throw new IncorrectImplementationException("The FindHandlers method should not return null.",
+                    _findHandlers.GetType(), typeof(IFindSubscribedHandlers));
 
+            int handlerCount = 0;
             // invoke each of the handlers.
             foreach (var handler in castHandlers)
             {
+                handlerCount++;
+
                 // find the right method on the handler.
                 var parameterTypes = new[] { typeof(SubscribedContext), messageType };
                 var handleMethod = handler.GetType().GetMethod("Handle", parameterTypes);
+                // A handler must have a Handle method, so GetMethod should never ruturn null
+                // unless the interface changed.
+                handleMethod = UnreachableException.ThrowIfNull(handleMethod,
+                    message: "IHandleSubscribedMessage<> must have a Handle method.");
 
                 // Invoke and await the method.
                 // should it have a seperate try-catch around this and treat it differently?
@@ -64,9 +67,23 @@ namespace PeachtreeBus.Subscriptions
                 // does that mater for the retry?
                 {
                     var taskObject = handleMethod.Invoke(handler, [context, context.Message]);
-                    var castTask = (Task)taskObject;
+                    var castTask = taskObject as Task;
+                    // The handle method must return a task.
+                    castTask = IncorrectImplementationException.ThrowIfNull(castTask,
+                        handler.GetType(),
+                        typeof(IHandleSubscribedMessage<>),
+                        message: "Handle must return a not null Task.");
                     await castTask;
                 }
+            }
+
+            if (handlerCount < 1)
+            {
+                // sanity check that the Depenency Injection container found at least one handler.
+                // we shouldn't process a message that has no handlers.
+                throw new SubscribedMessageNoHandlerException(context.MessageData.MessageId,
+                    context.SubscriberId,
+                    messageType);
             }
         }
     }

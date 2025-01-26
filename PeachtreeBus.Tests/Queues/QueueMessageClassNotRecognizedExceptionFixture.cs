@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
-using System;
 
 namespace PeachtreeBus.Tests.Queues;
 
@@ -10,7 +10,7 @@ public class QueueMessageClassNotRecognizedExceptionFixture
     [TestMethod]
     public void When_New_Then_PropertiesAreSet()
     {
-        var expectedMessageId = Guid.NewGuid();
+        var expectedMessageId = UniqueIdentity.New();
         var expectedQueueName = new QueueName("TestQueue");
         var expectedType = "Type Name";
         var e = new QueueMessageClassNotRecognizedException(expectedMessageId, expectedQueueName, expectedType);

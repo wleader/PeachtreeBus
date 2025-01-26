@@ -51,7 +51,7 @@ namespace PeachtreeBus.Queues
             // create the message entity, serializing the headers and body.
             var qm = new QueueMessage
             {
-                MessageId = Guid.NewGuid(),
+                MessageId = UniqueIdentity.New(),
                 Priority = priority,
                 NotBefore = notBefore ?? _clock.UtcNow,
                 Enqueued = _clock.UtcNow,

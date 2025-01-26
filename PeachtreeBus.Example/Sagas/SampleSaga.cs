@@ -45,8 +45,8 @@ namespace PeachtreeBus.Example.Sagas
         public override void ConfigureMessageKeys(SagaMessageMap mapper)
         {
             // each of these maps should return the same string value for a given instance of the saga.
-            mapper.Add<SampleSagaStart>(m => m.AppId.ToString());
-            mapper.Add<SampleDistributedTaskResponse>(m => m.AppId.ToString());
+            mapper.Add<SampleSagaStart>(m => new(m.AppId.ToString()));
+            mapper.Add<SampleDistributedTaskResponse>(m => new(m.AppId.ToString()));
         }
 
         /// <summary>

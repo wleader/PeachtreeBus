@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,9 +33,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task CompleteMessage_InsertsIntoCompleteTable()
         {
             // Add two messages;
-            var testMessage1 = CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueMessage();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueMessage();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -59,9 +60,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task CompleteMessage_DeletesFromPendingTable()
         {
             // Add two messages;
-            var testMessage1 = CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueMessage();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueMessage();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -84,7 +85,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task CompleteMessage_CantMutateFields()
         {
             // Add two messages;
-            var testMessage1 = CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueMessage();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -95,7 +96,7 @@ namespace PeachtreeBus.DataAccessTests
             // screw with the fields that shouldn't change.
             messageToComplete.Body = new("NewBody");
             messageToComplete.Enqueued = messageToComplete.Enqueued.AddMinutes(1);
-            messageToComplete.MessageId = Guid.NewGuid();
+            messageToComplete.MessageId = UniqueIdentity.New();
 
             await dataAccess.CompleteMessage(messageToComplete, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready

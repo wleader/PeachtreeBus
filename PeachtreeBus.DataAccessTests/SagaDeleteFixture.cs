@@ -29,9 +29,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task DeleteSaga_DeletesTheCorrectSaga()
         {
             var newSaga1 = CreateTestSagaData();
-            newSaga1.Key = "1";
+            newSaga1.Key = new("1");
             var newSaga2 = CreateTestSagaData();
-            newSaga2.Key = "2";
+            newSaga2.Key = new("2");
 
             newSaga1.Id = await dataAccess.Insert(newSaga1, DefaultSagaName);
             newSaga2.Id = await dataAccess.Insert(newSaga2, DefaultSagaName);

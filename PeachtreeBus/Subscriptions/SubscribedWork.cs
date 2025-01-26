@@ -10,7 +10,7 @@ namespace PeachtreeBus.Subscriptions
     /// </summary>
     public interface ISubscribedWork : IUnitOfWork
     {
-        Guid SubscriberId { get; set; }
+        SubscriberId SubscriberId { get; set; }
     }
 
     /// <summary>
@@ -30,7 +30,7 @@ namespace PeachtreeBus.Subscriptions
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly ISubscribedPipelineInvoker _pipelineInvoker = pipelineInvoker;
 
-        public Guid SubscriberId { get; set; }
+        public SubscriberId SubscriberId { get; set; }
 
         /// <summary>
         /// Actually does the work of processing a subscription message

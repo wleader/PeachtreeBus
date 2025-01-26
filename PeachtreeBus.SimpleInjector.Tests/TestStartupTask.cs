@@ -1,4 +1,6 @@
-﻿namespace PeachtreeBus.SimpleInjector.Tests;
+﻿using System.Threading.Tasks;
+
+namespace PeachtreeBus.SimpleInjector.Tests;
 
 public class TestStartupTask : IRunOnStartup
 {

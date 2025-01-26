@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,8 +33,8 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task FailMessage_CantMutateFields()
         {
-            var testMessage1 = CreateSubscribed();
-            testMessage1.SubscriberId = Guid.NewGuid();
+            var testMessage1 = TestData.CreateSubscribedMessage();
+            testMessage1.SubscriberId = SubscriberId.New();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -43,7 +45,7 @@ namespace PeachtreeBus.DataAccessTests
             // screw with the fields that shouldn't change.
             messageToComplete.Body = new("NewBody");
             messageToComplete.Enqueued = messageToComplete.Enqueued.AddMinutes(1);
-            messageToComplete.MessageId = Guid.NewGuid();
+            messageToComplete.MessageId = UniqueIdentity.New();
 
             await dataAccess.FailMessage(messageToComplete);
             await Task.Delay(10); // wait for the rows to be ready
@@ -66,8 +68,8 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task FailMessage_DeletesFromPendingTable()
         {
-            var expected1 = CreateSubscribed();
-            expected1.SubscriberId = Guid.NewGuid();
+            var expected1 = TestData.CreateSubscribedMessage();
+            expected1.SubscriberId = SubscriberId.New();
             expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
             expected1.Id = await dataAccess.AddMessage(expected1);
 
@@ -88,8 +90,8 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
             Assert.AreEqual(0, CountRowsInTable(SubscribedFailedTable));
 
-            var expected1 = CreateSubscribed();
-            expected1.SubscriberId = Guid.NewGuid();
+            var expected1 = TestData.CreateSubscribedMessage();
+            expected1.SubscriberId = SubscriberId.New();
             expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
             expected1.Id = await dataAccess.AddMessage(expected1);
 

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Management
@@ -20,8 +21,7 @@ namespace PeachtreeBus.Management
     {
         static ManagementDataAccess()
         {
-            UtcDateTimeHandler.AddTypeHandler();
-            SerializedDataHandler.AddTypeHandler();
+            DapperTypeHandlers.AddHandlers();
         }
 
         private readonly IDbSchemaConfiguration _schemaConfig = schemaConfig;
@@ -66,8 +66,7 @@ namespace PeachtreeBus.Management
             p.Add("@Take", take);
 
             return (await LogIfError(
-                _database.Connection.QueryAsync<T>(statement, p, _database.Transaction),
-                nameof(GetMessages))).ToList();
+                _database.Connection.QueryAsync<T>(statement, p, _database.Transaction))).ToList();
         }
 
         public Task<List<QueueMessage>> GetFailedQueueMessages(QueueName queueName, int skip, int take)
@@ -100,7 +99,7 @@ namespace PeachtreeBus.Management
             return GetMessages<SubscribedMessage>(SubscribedFields, Subscribed, Pending, skip, take);
         }
 
-        public async Task CancelPendingQueueMessage(QueueName queueName, long id)
+        public async Task CancelPendingQueueMessage(QueueName queueName, Identity id)
         {
             const string CancelPendingQueuedStatement =
                 """
@@ -118,11 +117,10 @@ namespace PeachtreeBus.Management
             p.Add("@Id", id);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(CancelPendingQueueMessage));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
-        public async Task CancelPendingSubscribedMessage(long id)
+        public async Task CancelPendingSubscribedMessage(Identity id)
         {
             const string CancelPendingSubscribedStatement =
                 """
@@ -140,11 +138,10 @@ namespace PeachtreeBus.Management
             p.Add("@Id", id);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(CancelPendingSubscribedMessage));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
-        public async Task RetryFailedQueueMessage(QueueName queueName, long id)
+        public async Task RetryFailedQueueMessage(QueueName queueName, Identity id)
         {
             const string RetryFailedQueuedStatement =
                 """
@@ -162,11 +159,10 @@ namespace PeachtreeBus.Management
             p.Add("@Id", id);
 
             await LogIfError(
-            _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(RetryFailedQueueMessage));
+            _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
-        public async Task RetryFailedSubscribedMessage(long id)
+        public async Task RetryFailedSubscribedMessage(Identity id)
         {
             const string RetryFailedSubscribedStatement =
                 """
@@ -184,12 +180,11 @@ namespace PeachtreeBus.Management
             p.Add("@Id", id);
 
             await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction),
-                nameof(RetryFailedSubscribedMessage));
+                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
         [ExcludeFromCodeCoverage]
-        private async Task<T> LogIfError<T>(Task<T> task, string caller)
+        private async Task<T> LogIfError<T>(Task<T> task, [CallerMemberName] string caller = "Unnammed")
         {
             try
             {

@@ -9,17 +9,17 @@ public abstract class DbSafeNameFixtureBase
     private static readonly char[] ForbiddenChars =
         ['\\', ';', '@', '-', '/', '*', '\r', '\n', '\t', ' '];
 
-    protected static void AssertActionThrowsForDbUnsafeValues(Action<string> action)
+    protected static void AssertFunctionThrowsForDbUnsafeValues<T>(Func<string, T> func)
     {
         // DB safe names can not be null.
-        Assert.ThrowsException<DbSafeNameException>(() => action(null!));
+        Assert.ThrowsException<DbSafeNameException>(() => func(null!));
 
         // DB safe names can not be empty strings 
-        Assert.ThrowsException<DbSafeNameException>(() => action(string.Empty));
+        Assert.ThrowsException<DbSafeNameException>(() => func(string.Empty));
 
         foreach (var c in ForbiddenChars)
         {
-            Assert.ThrowsException<DbSafeNameException>(() => action(c.ToString()));
+            Assert.ThrowsException<DbSafeNameException>(() => func(c.ToString()));
         }
     }
 }

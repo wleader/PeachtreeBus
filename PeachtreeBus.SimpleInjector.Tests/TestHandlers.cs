@@ -1,6 +1,7 @@
 ﻿using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 

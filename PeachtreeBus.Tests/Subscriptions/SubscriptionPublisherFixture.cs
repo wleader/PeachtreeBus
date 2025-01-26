@@ -22,6 +22,8 @@ namespace PeachtreeBus.Tests.Subscriptions
 
         private static readonly SerializedData SerializedMessageData = new("SerializedMessage");
         private static readonly SerializedData SerializedHeadersData = new("SerializedHeaders");
+        private static readonly Category Cat1 = new("Cat1");
+        private static readonly Category Cat2 = new("Cat2");
 
         private SubscribedPublisher publisher = default!;
         private SubscribedLifespan lifespan = default!;
@@ -35,15 +37,15 @@ namespace PeachtreeBus.Tests.Subscriptions
 
         private readonly UtcDateTime _now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
 
-        private readonly List<Guid> cat1subscribers =
+        private readonly List<SubscriberId> cat1subscribers =
         [
-            Guid.NewGuid()
+            SubscriberId.New()
         ];
 
-        private readonly List<Guid> cat2subscribers =
+        private readonly List<SubscriberId> cat2subscribers =
         [
-            Guid.NewGuid(),
-            Guid.NewGuid()
+            SubscriberId.New(),
+            SubscriberId.New()
         ];
 
         [TestInitialize]
@@ -59,11 +61,11 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             clock.SetupGet(c => c.UtcNow).Returns(() => _now);
 
-            dataAccess.Setup(d => d.GetSubscribers("cat1"))
-                .Returns(Task.FromResult<IEnumerable<Guid>>(cat1subscribers));
+            dataAccess.Setup(d => d.GetSubscribers(Cat1))
+                .Returns(Task.FromResult<IEnumerable<SubscriberId>>(cat1subscribers));
 
-            dataAccess.Setup(d => d.GetSubscribers("cat2"))
-                .Returns(Task.FromResult<IEnumerable<Guid>>(cat2subscribers));
+            dataAccess.Setup(d => d.GetSubscribers(Cat2))
+                .Returns(Task.FromResult<IEnumerable<SubscriberId>>(cat2subscribers));
 
 
             dataAccess.Setup(d => d.AddMessage(It.IsAny<SubscribedMessage>()))
@@ -71,7 +73,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 {
                     AddedMessages.Add(msg);
                 })
-                .Returns(Task.FromResult<long>(12345));
+                .Returns(Task.FromResult<Identity>(new(12345)));
 
             serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
                 .Callback<Headers>(h => SerializedHeaders = h)
@@ -94,14 +96,14 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task Publish_ThrowsWhenMessageIsNull()
         {
-            await publisher.Publish(
-                "cat2",
-                typeof(TestSagaMessage1),
-                null!,
-                null);
+            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+                publisher.Publish(
+                    Cat2,
+                    typeof(TestSagaMessage1),
+                    null!,
+                    null));
         }
 
         /// <summary>
@@ -109,59 +111,14 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public async Task Publish_ThrowsWhenTypeIsNull()
         {
-            await publisher.Publish(
-                "cat2",
-                null!,
-                new TestSagaMessage1(),
-                null);
-        }
-
-        /// <summary>
-        /// Proves category cannot be null
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task Publish_ThrowsWhenCategoryIsNull()
-        {
-            await publisher.Publish(
-                null!,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
-        }
-
-        /// <summary>
-        /// Proves category cannot be empty.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task Publish_ThrowsWhenCategoryIsEmpty()
-        {
-            await publisher.Publish(
-                "",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
-        }
-
-        /// <summary>
-        /// Proves category cannot be whitespace
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task Publish_ThrowsWhenCategoryIsWhitespace()
-        {
-            await publisher.Publish(
-                " ",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+                publisher.Publish(
+                    Cat2,
+                    null!,
+                    new TestSagaMessage1(),
+                    null));
         }
 
         /// <summary>
@@ -172,30 +129,13 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsMessageClassOfHeaders()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
 
             Assert.IsNotNull(SerializedHeaders);
             Assert.AreEqual("PeachtreeBus.Tests.Subscriptions.SubscriptionPublisherFixture+TestSubscribedMessage, PeachtreeBus.Tests", SerializedHeaders.MessageClass);
-        }
-
-        /// <summary>
-        /// Proves message id is assigned
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_AssignsMessageId()
-        {
-            await publisher.Publish(
-                "cat1",
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
-                null);
-
-            Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.MessageId != Guid.Empty));
         }
 
         /// <summary>
@@ -206,7 +146,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_DefaultsNotBeforeToUtcNow()
         {
             await publisher.Publish(
-                            "cat1",
+                            Cat1,
                             typeof(TestSubscribedMessage),
                             new TestSubscribedMessage(),
                             null);
@@ -224,7 +164,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             UtcDateTime notBefore = DateTime.UtcNow;
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 notBefore);
@@ -238,15 +178,15 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public async Task Publish_ThrowsWhenNotBeforeKindUnspecified()
         {
             var notBefore = new DateTime(2022, 2, 23, 10, 54, 11, DateTimeKind.Unspecified);
-            await publisher.Publish(
-                "cat1",
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                notBefore);
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
+                publisher.Publish(
+                    Cat1,
+                    typeof(TestSagaMessage1),
+                    new TestSagaMessage1(),
+                    notBefore));
         }
 
         /// <summary>
@@ -257,7 +197,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsEnqueuedToUtcNow()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -274,7 +214,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsCompletedToNull()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -291,7 +231,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsFailedToNull()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -308,7 +248,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsRetriesToZero()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -325,7 +265,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_UsesHeadersFromSerializer()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -341,7 +281,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_UsesBodyFromSerializer()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -358,7 +298,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_CountSentMessages()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -374,7 +314,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_InvokesDataAccess()
         {
             await publisher.Publish(
-                "cat1",
+                Cat1,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -390,7 +330,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_PublishesMultiples()
         {
             await publisher.Publish(
-                "cat2",
+                Cat2,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -413,7 +353,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_ExpiresSubscriptions()
         {
             await publisher.Publish(
-                "cat2",
+                Cat2,
                 typeof(TestSubscribedMessage),
                 new TestSubscribedMessage(),
                 null);
@@ -424,7 +364,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Given_MessageIsNotISubscribedMessage_When_WriteMessage_Then_ThrowsUsefulException()
         {
             await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
-                publisher.Publish("cat2", typeof(MessageWithoutInterface), new MessageWithoutInterface(), null));
+                publisher.Publish(Cat2, typeof(MessageWithoutInterface), new MessageWithoutInterface(), null));
         }
     }
 }

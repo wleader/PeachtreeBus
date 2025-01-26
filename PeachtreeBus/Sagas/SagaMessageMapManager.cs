@@ -5,7 +5,7 @@ namespace PeachtreeBus.Sagas
 {
     public interface ISagaMessageMapManager
     {
-        string GetKey(object saga, object message);
+        SagaKey GetKey(object saga, object message);
     }
 
 
@@ -24,7 +24,7 @@ namespace PeachtreeBus.Sagas
         /// <param name="saga"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public string GetKey(object saga, object message)
+        public SagaKey GetKey(object saga, object message)
         {
             var sagaType = saga.GetType();
 
@@ -39,12 +39,17 @@ namespace PeachtreeBus.Sagas
                     // create the map.
 
                     var mapper = new SagaMessageMap();
-                    var parameterTypes = new[] { typeof(SagaMessageMap) };
+                    Type[] parameterTypes = [typeof(SagaMessageMap)];
+
+                    // A saga always has a ConfigureMessageKeys method as its required by the abstract class.
                     var configureMethod = sagaType.GetMethod("ConfigureMessageKeys", parameterTypes);
+                    configureMethod = UnreachableException.ThrowIfNull(configureMethod,
+                        message: "Saga<> must have a ConfigureMessageKeys method.");
+
                     configureMethod.Invoke(saga, [mapper]);
                     Maps.Add(sagaType, mapper);
 
-                    // todo, check that ConfigureMessageKeys mapped all message types that the saga has interfaces for, 
+                    // Future Enhancement, check that ConfigureMessageKeys mapped all message types that the saga has interfaces for, 
                     // and only those message types.
                 }
             }

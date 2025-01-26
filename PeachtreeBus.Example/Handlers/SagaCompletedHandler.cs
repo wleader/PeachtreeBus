@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Example.Data;
 using PeachtreeBus.Example.Messages;
+using PeachtreeBus.Example.Subsciptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace PeachtreeBus.Example.Handlers
             _log.DistributedSagaComplete();
 
             // send an announcement message to all that have subscribed.
-            await _publisher.PublishMessage("Announcements", new AnnounceSagaCompleted
+            await _publisher.PublishMessage(Categories.Announcements, new AnnounceSagaCompleted
             {
                 AppId = message.AppId
             });

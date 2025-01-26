@@ -25,7 +25,7 @@ namespace PeachtreeBus.Sagas
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="MapFunction"></param>
-        public void Add<TMessage>(Func<TMessage, string> MapFunction) where TMessage : IQueueMessage
+        public void Add<TMessage>(Func<TMessage, SagaKey> MapFunction) where TMessage : IQueueMessage
         {
             lock (MapFunction)
             {
@@ -39,21 +39,22 @@ namespace PeachtreeBus.Sagas
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public string GetKey(object message)
+        public SagaKey GetKey(object message)
         {
             var messageType = message.GetType();
-            if (!MapFunctions.ContainsKey(messageType))
-            {
-                throw new SagaMapException($"The SagaMessageMap does not contain a mapping for message type {messageType}.");
-            }
 
-            var function = MapFunctions[messageType];
-            var funcType = typeof(Func<,>).MakeGenericType([messageType, typeof(string)]);
-            var invokeMethod = funcType.GetMethod("Invoke");
+            if (!MapFunctions.TryGetValue(messageType, out object? function))
+                throw new SagaMapException($"The SagaMessageMap does not contain a mapping for message type {messageType}.");
+
+            var funcType = typeof(Func<,>).MakeGenericType([messageType, typeof(SagaKey)]);
+
+            var invokeMethod = UnreachableException.ThrowIfNull(funcType.GetMethod("Invoke"),
+                message: "Func<,> must have an Invoke method.");
+
             var result = invokeMethod.Invoke(function, [message]);
-            return result is string stringResult
-                ? stringResult
-                : throw new SagaMapException("Map function did not return a string.");
+            return result is SagaKey sagaKey
+                ? sagaKey
+                : throw new SagaMapException("Map function did not return a SagaKey.");
         }
     }
 }

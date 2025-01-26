@@ -5,7 +5,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Management;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
-using System;
+using PeachtreeBus.Tests;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -34,8 +34,8 @@ namespace PeachtreeBus.DataAccessTests
 
         protected async Task<SubscribedMessage> CreatePendingSubscribed()
         {
-            var message = CreateSubscribed();
-            message.SubscriberId = Guid.NewGuid();
+            var message = TestData.CreateSubscribedMessage();
+            message.SubscriberId = SubscriberId.New();
             message.Id = await BusAccess.AddMessage(message);
             await Task.Delay(10); // make sure that messages get sequential enqueued times.
             return message;
@@ -57,7 +57,7 @@ namespace PeachtreeBus.DataAccessTests
 
         protected async Task<QueueMessage> CreatePendingQueued()
         {
-            var message = CreateQueueMessage();
+            var message = TestData.CreateQueueMessage();
             message.Id = await BusAccess.AddMessage(message, DefaultQueue);
             await Task.Delay(10); // make sure that messages get sequential enqueued times.
             return message;

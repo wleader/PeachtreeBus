@@ -1,6 +1,5 @@
 ﻿using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
@@ -13,19 +12,12 @@ namespace PeachtreeBus.Tests.Pipeline
         , IQueuePipelineStep
     { }
 
-    public class FakeSubscribedPipelineStep(
-        int priority = 0,
-        Func<SubscribedContext, Func<SubscribedContext, Task>, Task>? handler = null)
-        : FakePipelineStep<SubscribedContext>(priority, handler)
-        , ISubscribedPipelineStep
-    { }
-
     public class FakePipelineStep<TContext>(
         int priority = 0,
         Func<TContext, Func<TContext, Task>, Task>? handler = null)
         : IPipelineStep<TContext>
     {
-        public int Priority { get; set; } = priority;
+        public int Priority { get; } = priority;
 
         readonly Func<TContext, Func<TContext, Task>, Task>? _handler = handler;
 

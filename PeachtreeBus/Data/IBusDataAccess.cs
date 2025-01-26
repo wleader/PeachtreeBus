@@ -1,7 +1,6 @@
 ﻿using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -58,7 +57,7 @@ namespace PeachtreeBus.Data
         /// Inserts a new message into the database.
         /// </summary>
         /// <param name="message">The message to insert.</param>
-        Task<long> AddMessage(QueueMessage message, QueueName queueName);
+        Task<Identity> AddMessage(QueueMessage message, QueueName queueName);
 
         /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.
@@ -83,7 +82,7 @@ namespace PeachtreeBus.Data
         /// Inserts Saga Data into the database.
         /// </summary>
         /// <param name="data">The saga data to insert.</param>
-        Task<long> Insert(SagaData data, SagaName sagaName);
+        Task<Identity> Insert(SagaData data, SagaName sagaName);
 
         /// <summary>
         /// Updates the saga data in the database.
@@ -97,14 +96,14 @@ namespace PeachtreeBus.Data
         /// <param name="className">The saga's class name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
         /// <returns>Matching saga data.</returns>
-        Task<SagaData?> GetSagaData(SagaName sagaName, string key);
+        Task<SagaData?> GetSagaData(SagaName sagaName, SagaKey key);
 
         /// <summary>
         /// Deletes data for completed sagas.
         /// </summary>
         /// <param name="className">The saga's class name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
-        Task DeleteSagaData(SagaName sagaName, string key);
+        Task DeleteSagaData(SagaName sagaName, SagaKey key);
 
         /// <summary>
         /// Deletes Expired Subscriptions
@@ -119,7 +118,7 @@ namespace PeachtreeBus.Data
         /// <param name="Category">What category of messages the subscriber wants.</param>
         /// <param name="until">After what time is the subscription no longer valid.</param>
         /// <returns></returns>
-        Task Subscribe(Guid SubscriberId, string Category, DateTime until);
+        Task Subscribe(SubscriberId SubscriberId, Category Category, UtcDateTime until);
 
         /// <summary>
         /// Gets one message, locking it for update.
@@ -127,13 +126,13 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        Task<SubscribedMessage?> GetPendingSubscribed(Guid subscriberId);
+        Task<SubscribedMessage?> GetPendingSubscribed(SubscriberId subscriberId);
 
         /// <summary>
         /// Inserts a new message into the database.
         /// </summary>
         /// <param name="message">The message to insert.</param>
-        Task<long> AddMessage(SubscribedMessage message);
+        Task<Identity> AddMessage(SubscribedMessage message);
 
         /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.
@@ -165,7 +164,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        Task<IEnumerable<Guid>> GetSubscribers(string category);
+        Task<IEnumerable<SubscriberId>> GetSubscribers(Category category);
 
         /// <summary>
         /// removes old data from a queue's failed messages.
@@ -174,7 +173,7 @@ namespace PeachtreeBus.Data
         /// <param name="olderthan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanQueueFailed(QueueName queueName, DateTime olderthan, int maxCount);
+        Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderthan, int maxCount);
 
         /// <summary>
         /// removes old data from a queues completed messages
@@ -183,7 +182,7 @@ namespace PeachtreeBus.Data
         /// <param name="olderthan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanQueueCompleted(QueueName queueName, DateTime olderthan, int maxCount);
+        Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderthan, int maxCount);
 
         /// <summary>
         /// removes old data from subscribed completed messages.
@@ -191,7 +190,7 @@ namespace PeachtreeBus.Data
         /// <param name="olderthan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanSubscribedCompleted(DateTime olderthan, int maxCount);
+        Task<long> CleanSubscribedCompleted(UtcDateTime olderthan, int maxCount);
 
         /// <summary>
         /// removes old data from subscribed failed messages.
@@ -199,6 +198,6 @@ namespace PeachtreeBus.Data
         /// <param name="olderthan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanSubscribedFailed(DateTime olderthan, int maxCount);
+        Task<long> CleanSubscribedFailed(UtcDateTime olderthan, int maxCount);
     }
 }

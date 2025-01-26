@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,9 +33,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task FailMessage_InsertsIntoFailedTable()
         {
             // Add two messages;
-            var testMessage1 = CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueMessage();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueMessage();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -59,9 +60,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task FailMessage_DeletesFromPendingTable()
         {
             // Add two messages;
-            var testMessage1 = CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueMessage();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueMessage();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -84,7 +85,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task FailMessage_CantMutateFields()
         {
             // Add two messages;
-            var testMessage1 = CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueMessage();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -95,7 +96,7 @@ namespace PeachtreeBus.DataAccessTests
             // screw with the fields that shouldn't change.
             messageToFail.Body = new("NewBody");
             messageToFail.Enqueued = messageToFail.Enqueued.AddMinutes(1);
-            messageToFail.MessageId = Guid.NewGuid();
+            messageToFail.MessageId = UniqueIdentity.New();
 
             await dataAccess.FailMessage(messageToFail, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready

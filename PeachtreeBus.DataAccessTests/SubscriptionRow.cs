@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PeachtreeBus.Data;
+using PeachtreeBus.Subscriptions;
+using System;
 
 namespace PeachtreeBus.DataAccessTests
 {
@@ -8,9 +10,9 @@ namespace PeachtreeBus.DataAccessTests
     /// </summary>
     public class SubscriptionsRow
     {
-        public virtual long Id { get; set; }
-        public virtual Guid SubscriberId { get; set; }
-        public virtual string Category { get; set; } = string.Empty;
+        public virtual Identity Id { get; set; }
+        public virtual SubscriberId SubscriberId { get; set; }
+        public virtual Category Category { get; set; }
         public virtual DateTime ValidUntil { get; set; }
     }
 }

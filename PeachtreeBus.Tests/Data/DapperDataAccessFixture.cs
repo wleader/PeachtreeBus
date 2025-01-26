@@ -5,6 +5,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
@@ -74,8 +75,8 @@ public class DapperDataAccessFixture
     [DataRow("")]
     public async Task Given_SagaKey_When_GetSagaData_Then_Throws(string sagaKey)
     {
-        await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-            dataAccess.GetSagaData(SagaName, sagaKey));
+        await Assert.ThrowsExceptionAsync<SagaKeyException>(() =>
+            dataAccess.GetSagaData(SagaName, new(sagaKey)));
     }
 
     [TestMethod]
@@ -83,22 +84,8 @@ public class DapperDataAccessFixture
     [DataRow("")]
     public async Task Given_SagaKey_When_DeleteSagaData_Then_Throws(string sagaKey)
     {
-        await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-            dataAccess.DeleteSagaData(SagaName, sagaKey));
-    }
-
-    [TestMethod]
-    [DataRow((string)null!)]
-    [DataRow("")]
-    public async Task Given_SagaKey_When_InsertSagaData_Then_Throws(string sagaKey)
-    {
-        var sagaData = new SagaData()
-        {
-            Key = sagaKey,
-            SagaId = Guid.NewGuid(),
-        };
-        await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-            dataAccess.Insert(sagaData, SagaName));
+        await Assert.ThrowsExceptionAsync<SagaKeyException>(() =>
+            dataAccess.DeleteSagaData(SagaName, new(sagaKey)));
     }
 
     [TestMethod]
@@ -106,18 +93,6 @@ public class DapperDataAccessFixture
     {
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
             dataAccess.Insert(null!, SagaName));
-    }
-
-    [TestMethod]
-    public async Task Given_EmptySagaId_When_InsertSagaData_Then_Throws()
-    {
-        var sagaData = new SagaData()
-        {
-            Key = "SagaKey",
-            SagaId = Guid.Empty,
-        };
-        await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-            dataAccess.Insert(sagaData, SagaName));
     }
 
     [TestMethod]
@@ -148,18 +123,26 @@ public class DapperDataAccessFixture
             dataAccess.AddMessage(null!));
     }
 
-
     [TestMethod]
-    public async Task Given_QueueMessageIdEmpty_When_AddMessage_Then_Thow()
+    public async Task Given_UninitializedSubscriberId_When_Subscribe_Then_Throws()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.AddMessage(new() { MessageId = Guid.Empty }, QueueName));
+        await Assert.ThrowsExceptionAsync<SubscriberIdException>(() =>
+            dataAccess.Subscribe(TestData.UnintializedSubscriberId, TestData.DefaultCategory, DateTime.UtcNow.AddMinutes(30)));
     }
 
     [TestMethod]
-    public async Task Given_SubscribedMessageMessageIdEmpty_When_AddMessage_Then_Thow()
+    public async Task Given_UninitializedSubscriberId_When_AddMessage_Then_Throws()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.AddMessage(new() { MessageId = Guid.Empty }));
+        var newMessage = TestData.CreateSubscribedMessage(
+            subscriberId: TestData.UnintializedSubscriberId);
+        await Assert.ThrowsExceptionAsync<SubscriberIdException>(() =>
+            dataAccess.AddMessage(newMessage));
+    }
+
+    [TestMethod]
+    public async Task GetPendingSubscriptionMessage_ThrowsIfSubscriberIsGuidEmpty()
+    {
+        await Assert.ThrowsExceptionAsync<SubscriberIdException>(() =>
+            dataAccess.GetPendingSubscribed(TestData.UnintializedSubscriberId));
     }
 }

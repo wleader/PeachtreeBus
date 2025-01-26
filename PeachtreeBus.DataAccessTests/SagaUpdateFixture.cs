@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Data;
 using PeachtreeBus.Sagas;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,9 +32,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task UpdateSaga_Updates()
         {
             var newSaga1 = CreateTestSagaData();
-            newSaga1.Key = "1";
+            newSaga1.Key = new("1");
             var newSaga2 = CreateTestSagaData();
-            newSaga2.Key = "2";
+            newSaga2.Key = new("2");
 
             newSaga1.Id = await dataAccess.Insert(newSaga1, DefaultSagaName);
             newSaga2.Id = await dataAccess.Insert(newSaga2, DefaultSagaName);
@@ -47,8 +47,8 @@ namespace PeachtreeBus.DataAccessTests
                 Id = newSaga1.Id,
                 Blocked = true, // doesn't actually get stored.
                 Data = new("NewData"), // check this gets updated
-                Key = "NewKey", // check this doesn't update
-                SagaId = Guid.NewGuid() // check this doesn't update
+                Key = new("NewKey"), // check this doesn't update
+                SagaId = UniqueIdentity.New() // check this doesn't update
             };
 
             await dataAccess.Update(updatedSaga, DefaultSagaName);

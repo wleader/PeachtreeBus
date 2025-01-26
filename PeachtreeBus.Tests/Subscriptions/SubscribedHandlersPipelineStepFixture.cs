@@ -2,7 +2,6 @@
 using Moq;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests.Sagas;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -63,7 +62,6 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(SubscribedMessageNoHandlerException))]
         public async Task Given_MessageHasNoHandlers_When_Invoke_Then_Throws()
         {
             _findSubscribed.Setup(f => f.FindHandlers<TestMessage>())
@@ -71,7 +69,8 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             var context = GetContext<TestMessage>();
 
-            await _testSubject.Invoke(context, null);
+            await Assert.ThrowsExceptionAsync<SubscribedMessageNoHandlerException>(() =>
+                _testSubject.Invoke(context, null));
         }
 
         /// <summary>
@@ -79,11 +78,11 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(SubscribedMessageClassNotRecognizedException))]
         public async Task Given_AMessageContextWithAnUnrecognizedMessageType_When_Invoke_Then_Throws()
         {
             var context = CreateContextWithUnrecognizedMessageType();
-            await _testSubject.Invoke(context, null);
+            await Assert.ThrowsExceptionAsync<SubscribedMessageClassNotRecognizedException>(() =>
+                _testSubject.Invoke(context, null));
         }
 
         [TestMethod]
@@ -91,6 +90,18 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             var context = GetContext<object>();// object does not implement IQueueMessage
             await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
+                _testSubject.Invoke(context, null));
+        }
+
+        [TestMethod]
+        public async Task Given_FindHandlersReturnsNull_When_Invoke_Then_Throws()
+        {
+            _findSubscribed.Setup(f => f.FindHandlers<TestMessage>())
+                .Returns((IEnumerable<IHandleSubscribedMessage<TestMessage>>)null!);
+
+            var context = GetContext<TestMessage>();
+
+            await Assert.ThrowsExceptionAsync<IncorrectImplementationException>(() =>
                 _testSubject.Invoke(context, null));
         }
 
@@ -105,7 +116,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                     MessageClass = type.FullName + ", " + type.Assembly.GetName().Name,
                 },
                 Message = new TMessage(),
-                MessageData = new(),
+                MessageData = TestData.CreateSubscribedMessage(),
             };
         }
 
@@ -113,10 +124,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             return new InternalSubscribedContext()
             {
-                MessageData = new SubscribedMessage
-                {
-                    MessageId = Guid.NewGuid(),
-                },
+                MessageData = TestData.CreateSubscribedMessage(),
                 Headers = new Headers
                 {
                     MessageClass = "PeachtreeBus.Tests.Subscribed.NotARealMessageType, PeachtreeBus.Tests"

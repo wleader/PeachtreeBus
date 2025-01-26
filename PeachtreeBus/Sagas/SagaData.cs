@@ -1,5 +1,4 @@
 ﻿using PeachtreeBus.Data;
-using System;
 
 namespace PeachtreeBus.Sagas
 {
@@ -12,23 +11,23 @@ namespace PeachtreeBus.Sagas
         /// <summary>
         /// Primary key, Identity
         /// </summary>
-        public virtual long Id { get; set; }
+        public virtual Identity Id { get; set; }
 
         /// <summary>
         /// A Uniuque ID. Maybe redundant, but good for logging.
         /// </summary>
-        public virtual Guid SagaId { get; set; }
+        public required virtual UniqueIdentity SagaId { get; set; }
 
         /// <summary>
         /// What instance of the Saga class is the data related to.
         /// </summary>
-        public virtual string Key { get; set; } = string.Empty;
+        public required virtual SagaKey Key { get; set; }
 
         /// <summary>
         /// The serialized Saga Data.
         /// </summary>
-        public virtual SerializedData Data { get; set; } = default;
+        public required virtual SerializedData Data { get; set; } = default;
 
-        public virtual bool Blocked { get; set; }
+        public required virtual bool Blocked { get; set; }
     }
 }

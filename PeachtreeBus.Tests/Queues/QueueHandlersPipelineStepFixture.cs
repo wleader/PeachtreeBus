@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Tests.Sagas;
@@ -65,7 +66,10 @@ namespace PeachtreeBus.Tests.Queues
                 {
                     c.SagaData = new SagaData
                     {
-                        Blocked = false
+                        SagaId = UniqueIdentity.New(),
+                        Blocked = false,
+                        Key = new("SagaKey"),
+                        Data = new("Data")
                     };
                 });
 
@@ -96,7 +100,10 @@ namespace PeachtreeBus.Tests.Queues
                 {
                     c.SagaData = new SagaData
                     {
-                        Blocked = false
+                        SagaId = UniqueIdentity.New(),
+                        Blocked = false,
+                        Key = new("SagaKey"),
+                        Data = new("Data")
                     };
                 });
 
@@ -132,7 +139,10 @@ namespace PeachtreeBus.Tests.Queues
                 {
                     c.SagaData = new SagaData
                     {
-                        Blocked = true
+                        SagaId = UniqueIdentity.New(),
+                        Blocked = true,
+                        Key = new("SagaKey"),
+                        Data = new("Data")
                     };
                 });
 
@@ -156,7 +166,6 @@ namespace PeachtreeBus.Tests.Queues
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(SagaNotStartedException))]
         public async Task Given_SagaNotStarted_And_MessageIsNotAStart_When_Invoke_Then_Throw()
         {
             // message is handled by the saga
@@ -171,10 +180,12 @@ namespace PeachtreeBus.Tests.Queues
                 .Callback<object, InternalQueueContext>((s, c) =>
                 {
                     c.SagaData = null;
+                    c.SagaKey = new("SagaKey");
                 });
 
             // this should throw
-            await _testSubject.Invoke(context, null);
+            await Assert.ThrowsExceptionAsync<SagaNotStartedException>(() =>
+                _testSubject.Invoke(context, null));
         }
 
         /// <summary>
@@ -182,14 +193,15 @@ namespace PeachtreeBus.Tests.Queues
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(QueueMessageNoHandlerException))]
         public async Task Given_MessageHasNoHandlers_When_Invoke_Then_Throws()
         {
             _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
                 .Returns(() => []);
 
             var context = GetContext<TestSagaMessage1>();
-            await _testSubject.Invoke(context, null);
+
+            await Assert.ThrowsExceptionAsync<QueueMessageNoHandlerException>(() =>
+                _testSubject.Invoke(context, null));
         }
 
         /// <summary>
@@ -197,11 +209,11 @@ namespace PeachtreeBus.Tests.Queues
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        [ExpectedException(typeof(QueueMessageClassNotRecognizedException))]
         public async Task Given_AMessageContextWithAnUnrecognizedMessageType_When_Invoke_Then_Throws()
         {
             var context = CreateContextWithUnrecognizedMessageType();
-            await _testSubject.Invoke(context, null);
+            await Assert.ThrowsExceptionAsync<QueueMessageClassNotRecognizedException>(() =>
+                _testSubject.Invoke(context, null));
         }
 
         [TestMethod]
@@ -209,6 +221,18 @@ namespace PeachtreeBus.Tests.Queues
         {
             var context = GetContext<object>();// object does not implement IQueueMessage
             await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() => _testSubject.Invoke(context, null));
+        }
+
+        [TestMethod]
+        public async Task Given_FindHandlerReturnsNull_When_Invoke_Then_Throws()
+        {
+            _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
+                .Returns((IEnumerable<IHandleQueueMessage<TestSagaMessage1>>)null!);
+
+            var context = GetContext<TestSagaMessage1>();
+
+            await Assert.ThrowsExceptionAsync<IncorrectImplementationException>(() =>
+                _testSubject.Invoke(context, null));
         }
 
         private static InternalQueueContext GetContext<TMessage>()
@@ -222,7 +246,15 @@ namespace PeachtreeBus.Tests.Queues
                     MessageClass = type.FullName + ", " + type.Assembly.GetName().Name,
                 },
                 Message = new TMessage(),
-                MessageData = new(),
+                MessageData = new()
+                {
+                    MessageId = UniqueIdentity.New(),
+                    Priority = 0,
+                    Enqueued = DateTime.UtcNow,
+                    NotBefore = DateTime.UtcNow,
+                    Body = new("Body"),
+                    Headers = new("Headers"),
+                },
                 SourceQueue = new("SourceQueue"),
             };
         }
@@ -231,10 +263,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             return new InternalQueueContext()
             {
-                MessageData = new QueueMessage
-                {
-                    MessageId = Guid.NewGuid(),
-                },
+                MessageData = TestData.CreateQueueMessage(),
                 Headers = new Headers
                 {
                     MessageClass = "PeachtreeBus.Tests.Sagas.NotARealMessageType, PeachtreeBus.Tests"

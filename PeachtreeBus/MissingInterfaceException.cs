@@ -2,13 +2,6 @@
 
 namespace PeachtreeBus;
 
-public abstract class PeachtreeBusException : Exception
-{
-    protected PeachtreeBusException(string message)
-        : base(message)
-    { }
-}
-
 public abstract class MissingInterfaceException : PeachtreeBusException
 {
     public Type ClassType { get; }

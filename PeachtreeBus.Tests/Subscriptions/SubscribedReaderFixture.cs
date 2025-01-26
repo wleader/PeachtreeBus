@@ -26,7 +26,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         private Mock<ISubscribedFailures> failures = default!;
         private Mock<ISubscribedRetryStrategy> retryStrategy = default!;
 
-        private static readonly Guid SubscriberId = Guid.Parse("5d7ece7e-b9eb-4b97-91fa-af6bfe50394a");
+        private static readonly SubscriberId SubscriberId = new(Guid.Parse("5d7ece7e-b9eb-4b97-91fa-af6bfe50394a"));
 
         private SubscribedMessage NextMessage = default!;
         private Headers NextMessageHeaders = default!;
@@ -58,11 +58,8 @@ namespace PeachtreeBus.Tests.Subscriptions
                 failures.Object,
                 retryStrategy.Object);
 
-            NextMessage = new()
-            {
-                Id = 12345,
-                Priority = 24,
-            };
+            NextMessage = TestData.CreateSubscribedMessage(id: new(12345), priority: 24);
+
             dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
                 .ReturnsAsync(() => NextMessage);
 
@@ -87,11 +84,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             Context = new()
             {
                 Headers = new(),
-                MessageData = new()
-                {
-                    Id = 1234,
-                    NotBefore = clock.Object.UtcNow,
-                }
+                MessageData = TestData.CreateSubscribedMessage(id: new(1234), notBefore: clock.Object.UtcNow),
             };
         }
 

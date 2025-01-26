@@ -2,10 +2,9 @@
 
 namespace PeachtreeBus.Subscriptions;
 
-public class TypeIsNotISubscribedMessageException : MissingInterfaceException
+public class TypeIsNotISubscribedMessageException(Type classType)
+    : MissingInterfaceException(classType, typeof(ISubscribedMessage))
 {
-    public TypeIsNotISubscribedMessageException(Type classType) : base(classType, typeof(ISubscribedMessage)) { }
-
     public static void ThrowIfMissingInterface(Type type)
     {
         if (!typeof(ISubscribedMessage).IsAssignableFrom(type))

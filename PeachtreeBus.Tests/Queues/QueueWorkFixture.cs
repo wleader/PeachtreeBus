@@ -136,7 +136,13 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Given_SagaIsBlocked_When_DoWork_Then_MessageIsDelayed()
         {
-            context.SagaData = new() { Blocked = true };
+            context.SagaData = new()
+            {
+                Blocked = true,
+                Data = new("Data"),
+                Key = new("SagaKey"),
+                SagaId = UniqueIdentity.New(),
+            };
 
             bool rolledBack = false;
 
@@ -167,7 +173,12 @@ namespace PeachtreeBus.Tests.Queues
             {
                 MessageData = new QueueMessage
                 {
-                    MessageId = Guid.NewGuid(),
+                    MessageId = UniqueIdentity.New(),
+                    Priority = 0,
+                    NotBefore = DateTime.UtcNow,
+                    Enqueued = DateTime.UtcNow,
+                    Headers = new("Headers"),
+                    Body = new("Body")
                 },
                 Headers = new Headers
                 {
