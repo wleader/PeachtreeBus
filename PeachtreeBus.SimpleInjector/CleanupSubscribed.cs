@@ -37,9 +37,13 @@ namespace PeachtreeBus.SimpleInjector
         /// <returns></returns>
         public static Container CleanupSubscribed(this Container container, ISubscribedCleanupConfiguration config)
         {
+            container.Register<ISubscriptionCleanupThread, SubscriptionCleanupThread>(Lifestyle.Scoped);
+            container.Register<ISubscriptionCleanupWork, SubscriptionCleanupWork>(Lifestyle.Scoped);
+
             container.Register<ISubscribedCleanupThread, SubscribedCleanupThread>(Lifestyle.Scoped);
             container.Register<ISubscribedCleanupWork, SubscribedCleanupWork>(Lifestyle.Scoped);
             container.Register<ISubscribedCleaner, SubscribedCleaner>(Lifestyle.Scoped);
+
             container.RegisterSingleton(() => config);
             return container;
         }

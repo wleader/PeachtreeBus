@@ -75,7 +75,7 @@ namespace PeachtreeBus.Subscriptions
                 context.MessageData.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
                 _log.SubscribedReader_MessageWillBeRetried(context.MessageData.MessageId, context.SubscriberId, context.MessageData.NotBefore);
                 _counters.RetryMessage();
-                await _dataAccess.Update(context.MessageData);
+                await _dataAccess.UpdateMessage(context.MessageData);
             }
             else
             {

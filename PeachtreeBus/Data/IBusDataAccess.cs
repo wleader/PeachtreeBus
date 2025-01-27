@@ -76,19 +76,19 @@ namespace PeachtreeBus.Data
         /// Only updates message properties that are allowed to change.
         /// </summary>
         /// <param name="message"></param>
-        Task Update(QueueMessage message, QueueName queueName);
+        Task UpdateMessage(QueueMessage message, QueueName queueName);
 
         /// <summary>
         /// Inserts Saga Data into the database.
         /// </summary>
         /// <param name="data">The saga data to insert.</param>
-        Task<Identity> Insert(SagaData data, SagaName sagaName);
+        Task<Identity> InsertSagaData(SagaData data, SagaName sagaName);
 
         /// <summary>
         /// Updates the saga data in the database.
         /// </summary>
         /// <param name="data">The Data to update. Only updates properties that are allowed to change.</param>
-        Task Update(SagaData data, SagaName sagaName);
+        Task UpdateSagaData(SagaData data, SagaName sagaName);
 
         /// <summary>
         /// Reads saga data from the database.
@@ -109,7 +109,7 @@ namespace PeachtreeBus.Data
         /// Deletes Expired Subscriptions
         /// </summary>
         /// <returns></returns>
-        Task ExpireSubscriptions();
+        Task<long> ExpireSubscriptions(int maxCount);
 
         /// <summary>
         /// Adds or updates subscriptions.
@@ -151,13 +151,14 @@ namespace PeachtreeBus.Data
         /// Only updates message properties that are allowed to change.
         /// </summary>
         /// <param name="message"></param>
-        Task Update(SubscribedMessage message);
+        Task UpdateMessage(SubscribedMessage message);
 
         /// <summary>
         /// Moves Subscription Messages from Pending to Error that are not longer valid
         /// </summary>
+        /// <param name="maxCount">The maximum number of rows to Expire</param>
         /// <returns></returns>
-        Task ExpireSubscriptionMessages();
+        Task<long> ExpireSubscriptionMessages(int maxCount);
 
         /// <summary>
         /// Gets the current subscribers for a category

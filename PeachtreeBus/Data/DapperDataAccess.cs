@@ -168,7 +168,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task Update(QueueMessage message, QueueName queueName)
+        public async Task UpdateMessage(QueueMessage message, QueueName queueName)
         {
             const string UpdateMessageStatement =
                 """
@@ -201,7 +201,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<Identity> Insert(SagaData data, SagaName sagaName)
+        public async Task<Identity> InsertSagaData(SagaData data, SagaName sagaName)
         {
             const string InsertSagaStatement =
                 """
@@ -233,7 +233,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task Update(SagaData data, SagaName sagaName)
+        public async Task UpdateSagaData(SagaData data, SagaName sagaName)
         {
             const string UpdateSagaStatement =
                 """
@@ -348,18 +348,22 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task ExpireSubscriptions()
+        public async Task<long> ExpireSubscriptions(int maxCount)
         {
             const string ExpireSubscriptionsStatement =
                 """
-                DELETE FROM [{0}].[Subscriptions] WITH (ROWLOCK, READPAST)
+                DELETE TOP (@MaxCount) FROM [{0}].[Subscriptions] WITH (ROWLOCK, READPAST)
                 WHERE [ValidUntil] < SYSUTCDATETIME()
+                SELECT @@ROWCOUNT
                 """;
 
             string statement = string.Format(ExpireSubscriptionsStatement, _schemaConfig.Schema);
 
-            await LogIfError(
-                _database.Connection.ExecuteAsync(statement, null, _database.Transaction));
+            var p = new DynamicParameters();
+            p.Add("@MaxCount", maxCount);
+
+            return await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
         /// <summary>
@@ -541,7 +545,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task Update(SubscribedMessage message)
+        public async Task UpdateMessage(SubscribedMessage message)
         {
             const string UpdateMessageStatement =
                 """
@@ -572,7 +576,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task ExpireSubscriptionMessages()
+        public async Task<long> ExpireSubscriptionMessages(int maxCount)
         {
             // move to failed based on ValidUntil.
 
@@ -581,15 +585,19 @@ namespace PeachtreeBus.Data
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)
                 ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
                 SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
-                    (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
+                    (DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [ValidUntil] < SYSUTCDATETIME()) D
+                SELECT @@ROWCOUNT
                 """;
 
             var statement = string.Format(ExpireStatement, _schemaConfig.Schema);
 
-            await LogIfError(
-                _database.Connection.ExecuteAsync(statement, null, _database.Transaction));
+            var p = new DynamicParameters();
+            p.Add("@MaxCount", maxCount);
+
+            return await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
         /// <summary>

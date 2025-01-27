@@ -31,7 +31,7 @@ namespace PeachtreeBus.DataAccessTests
             var newSaga1 = CreateTestSagaData();
             newSaga1.Key = new("1");
 
-            newSaga1.Id = await dataAccess.Insert(newSaga1, DefaultSagaName);
+            newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, DefaultSagaName);
 
             await Task.Delay(10);
             Assert.AreEqual(1, CountRowsInTable(DefaultSagaTable));
@@ -64,7 +64,7 @@ namespace PeachtreeBus.DataAccessTests
             var newSaga1 = CreateTestSagaData();
             newSaga1.Key = new("1");
 
-            newSaga1.Id = await dataAccess.Insert(newSaga1, DefaultSagaName);
+            newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, DefaultSagaName);
 
             await Task.Delay(10);
             Assert.AreEqual(1, CountRowsInTable(DefaultSagaTable));

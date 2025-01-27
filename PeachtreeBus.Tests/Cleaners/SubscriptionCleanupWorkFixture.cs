@@ -14,13 +14,20 @@ namespace PeachtreeBus.Tests.Cleaners
     public class SubscriptionCleanupWorkFixture
     {
         private Mock<IBusDataAccess> dataAccess = default!;
+        private Mock<ISubscribedCleanupConfiguration> configuration = default!;
         private SubscriptionCleanupWork work = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            dataAccess = new Mock<IBusDataAccess>();
-            work = new SubscriptionCleanupWork(dataAccess.Object);
+            dataAccess = new();
+            configuration = new();
+
+            configuration.SetupGet(c => c.MaxDeleteCount).Returns(100);
+
+            work = new SubscriptionCleanupWork(
+                dataAccess.Object,
+                configuration.Object);
         }
 
         /// <summary>
@@ -31,7 +38,8 @@ namespace PeachtreeBus.Tests.Cleaners
         public async Task DoWork_DoesWork()
         {
             await work.DoWork();
-            dataAccess.Verify(d => d.ExpireSubscriptions(), Times.Once);
+            dataAccess.Verify(d => d.ExpireSubscriptions(100), Times.Once);
+            dataAccess.Verify(d => d.ExpireSubscriptionMessages(100), Times.Once);
         }
     }
 }

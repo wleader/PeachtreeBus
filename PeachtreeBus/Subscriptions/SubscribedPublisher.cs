@@ -50,11 +50,6 @@ namespace PeachtreeBus.Subscriptions
 
             TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(type);
 
-            // expire any out of data subscribers so we don't waste resources
-            // sending to subscribers that are not renewing their subscriptions.
-
-            await _dataAccess.ExpireSubscriptions();
-
             // get a list of all subscribers for the category
             var subscribers = await _dataAccess.GetSubscribers(category);
 

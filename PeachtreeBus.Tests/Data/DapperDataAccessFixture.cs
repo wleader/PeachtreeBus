@@ -39,7 +39,7 @@ public class DapperDataAccessFixture
     public async Task Given_NullSagaData_When_Update_Then_Throws()
     {
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.Update((SagaData)null!, SagaName));
+            dataAccess.UpdateSagaData((SagaData)null!, SagaName));
     }
 
     [TestMethod]
@@ -92,21 +92,21 @@ public class DapperDataAccessFixture
     public async Task Given_NullSagaData_When_InsertSagaData_Then_Throws()
     {
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.Insert(null!, SagaName));
+            dataAccess.InsertSagaData(null!, SagaName));
     }
 
     [TestMethod]
     public async Task Given_QueueMessageNull_When_Update_Then_Throws()
     {
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.Update(null!, QueueName));
+            dataAccess.UpdateMessage(null!, QueueName));
     }
 
     [TestMethod]
     public async Task Given_SubscribedMessageNull_When_Update_Then_Throws()
     {
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.Update(null!));
+            dataAccess.UpdateMessage(null!));
     }
 
     [TestMethod]

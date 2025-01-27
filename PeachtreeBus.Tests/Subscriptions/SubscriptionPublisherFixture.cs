@@ -344,22 +344,6 @@ namespace PeachtreeBus.Tests.Subscriptions
                 AddedMessages.Select(m => m.SubscriberId).ToList());
         }
 
-        /// <summary>
-        /// Proves that subscriptions are expired so messages are not sent
-        /// to invalid subscribers.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_ExpiresSubscriptions()
-        {
-            await publisher.Publish(
-                Cat2,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
-                null);
-            dataAccess.Verify(d => d.ExpireSubscriptions(), Times.Once);
-        }
-
         [TestMethod]
         public async Task Given_MessageIsNotISubscribedMessage_When_WriteMessage_Then_ThrowsUsefulException()
         {

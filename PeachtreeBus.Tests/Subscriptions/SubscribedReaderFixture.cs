@@ -106,7 +106,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 })
                 .Returns(() => SerializedHeaderData);
 
-            dataAccess.Setup(d => d.Update(Context.MessageData))
+            dataAccess.Setup(d => d.UpdateMessage(Context.MessageData))
                 .Callback((SubscribedMessage m) =>
                 {
                     Assert.AreEqual(expectedId, m.Id);
@@ -119,7 +119,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             serializer.Verify(s => s.SerializeHeaders(Context.Headers), Times.Once);
             counters.Verify(c => c.RetryMessage(), Times.Once);
-            dataAccess.Verify(c => c.Update(Context.MessageData), Times.Once);
+            dataAccess.Verify(c => c.UpdateMessage(Context.MessageData), Times.Once);
         }
 
         /// <summary>

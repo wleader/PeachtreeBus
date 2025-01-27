@@ -87,17 +87,6 @@ public class SimpleInjectorExtensionsFixture
     }
 
     [TestMethod]
-    public void When_CleanupSubscriptions_Then_ContainerIsvalid()
-    {
-        // base components are needed for subscribed message handling.
-        _container.UsePeachtreeBus(_schemaName);
-
-        _container.CleanupSubscriptions();
-
-        _container.Verify();
-    }
-
-    [TestMethod]
     public void When_CleanupQueue_Then_ContainerIsvalid()
     {
         // base components are needed for subscribed message handling.

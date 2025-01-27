@@ -162,7 +162,7 @@ namespace PeachtreeBus.Queues
                 context.MessageData.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
                 _log.QueueReader_MessageWillBeRetried(context.MessageData.MessageId, context.SourceQueue, context.MessageData.NotBefore);
                 _counters.RetryMessage();
-                await _dataAccess.Update(context.MessageData, context.SourceQueue);
+                await _dataAccess.UpdateMessage(context.MessageData, context.SourceQueue);
             }
             else
             {
@@ -290,13 +290,13 @@ namespace PeachtreeBus.Queues
 
                 // if two start messages are processed at the same time, two inserts could occur on different threads.
                 // if that happens, the second insert is expected to throw a duplicate key constraint violation.
-                await _dataAccess.Insert(context.SagaData, sagaName);
+                await _dataAccess.InsertSagaData(context.SagaData, sagaName);
             }
             else
             {
                 // update the existing row.
                 context.SagaData.Data = serializedData;
-                await _dataAccess.Update(context.SagaData, sagaName);
+                await _dataAccess.UpdateSagaData(context.SagaData, sagaName);
             }
         }
 
@@ -305,7 +305,7 @@ namespace PeachtreeBus.Queues
         {
             messageContext.MessageData.NotBefore = _clock.UtcNow.AddMilliseconds(milliseconds);
             _counters.DelayMessage();
-            await _dataAccess.Update(messageContext.MessageData, messageContext.SourceQueue);
+            await _dataAccess.UpdateMessage(messageContext.MessageData, messageContext.SourceQueue);
         }
     }
 }

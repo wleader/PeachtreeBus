@@ -45,7 +45,7 @@ namespace PeachtreeBus.DataAccessTests
             expected2.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
             expected2.Id = await dataAccess.AddMessage(expected2);
 
-            await dataAccess.ExpireSubscriptionMessages();
+            await dataAccess.ExpireSubscriptionMessages(1000);
 
             var failed = GetTableContent(SubscribedFailedTable).ToSubscribed();
 
@@ -82,7 +82,31 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(2, CountRowsInTable(SubscribedPendingTable));
 
-            await dataAccess.ExpireSubscriptionMessages();
+            await dataAccess.ExpireSubscriptionMessages(1000);
+
+            Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
+        }
+
+        [TestMethod]
+        public async Task ExpireMessage_LimitsToMaxCount()
+        {
+            var expected1 = TestData.CreateSubscribedMessage();
+            expected1.SubscriberId = SubscriberId.New();
+            expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
+            expected1.Id = await dataAccess.AddMessage(expected1);
+
+            var expected2 = TestData.CreateSubscribedMessage();
+            expected2.SubscriberId = SubscriberId.New();
+            expected2.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
+            expected2.Id = await dataAccess.AddMessage(expected2);
+
+            Assert.AreEqual(2, CountRowsInTable(SubscribedPendingTable));
+
+            await dataAccess.ExpireSubscriptionMessages(1);
+
+            Assert.AreEqual(1, CountRowsInTable(SubscribedPendingTable));
+
+            await dataAccess.ExpireSubscriptionMessages(1);
 
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
         }

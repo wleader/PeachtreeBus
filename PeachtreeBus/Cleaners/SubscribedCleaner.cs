@@ -7,7 +7,7 @@ namespace PeachtreeBus.Cleaners
     /// <summary>
     /// A Cleaner that cleans subscribed messages.
     /// </summary>
-    public interface ISubscribedCleaner : IBaseCleaner { }
+    public interface ISubscribedCleaner : IBaseCleaner;
 
     /// <summary>
     /// A Default implmentation of ISubscribedCleaner

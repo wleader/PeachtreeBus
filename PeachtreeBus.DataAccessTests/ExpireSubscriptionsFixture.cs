@@ -47,7 +47,7 @@ namespace PeachtreeBus.DataAccessTests
             await dataAccess.Subscribe(subscriber3, category1, expired);
             await dataAccess.Subscribe(subscriber4, category2, expired);
 
-            await dataAccess.ExpireSubscriptions();
+            await dataAccess.ExpireSubscriptions(100);
 
             var rows = GetTableContent("Subscriptions").ToSubscriptions();
 

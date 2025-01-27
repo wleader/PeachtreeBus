@@ -111,7 +111,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Delay_ThrowsWhenDataAccessThrows()
         {
-            dataAccess.Setup(d => d.Update(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
+            dataAccess.Setup(d => d.UpdateMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
                 .Throws(new ApplicationException());
             await Assert.ThrowsExceptionAsync<ApplicationException>(() =>
                 reader.DelayMessage(Context, 1000));
@@ -126,7 +126,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             var expectedTime = Context.MessageData.NotBefore.AddMilliseconds(1000);
 
-            dataAccess.Setup(x => x.Update(Context.MessageData, Context.SourceQueue))
+            dataAccess.Setup(x => x.UpdateMessage(Context.MessageData, Context.SourceQueue))
                 .Callback((QueueMessage m, QueueName n) =>
                 {
                     Assert.AreEqual(expectedTime, m.NotBefore);
@@ -135,7 +135,7 @@ namespace PeachtreeBus.Tests.Queues
 
             await reader.DelayMessage(Context, 1000);
 
-            dataAccess.Verify(x => x.Update(Context.MessageData, Context.SourceQueue), Times.Once);
+            dataAccess.Verify(x => x.UpdateMessage(Context.MessageData, Context.SourceQueue), Times.Once);
             Assert.AreEqual(1, dataAccess.Invocations.Count);
         }
 
@@ -167,7 +167,7 @@ namespace PeachtreeBus.Tests.Queues
 
             var testSaga = new TestSaga { SagaComplete = false };
 
-            dataAccess.Setup(d => d.Insert(It.IsAny<SagaData>(), testSaga.SagaName))
+            dataAccess.Setup(d => d.InsertSagaData(It.IsAny<SagaData>(), testSaga.SagaName))
                 .Callback((SagaData d, SagaName n) =>
                 {
                     Assert.AreEqual(SerializedTestSagaData, d.Data);
@@ -179,7 +179,7 @@ namespace PeachtreeBus.Tests.Queues
 
             Assert.IsNotNull(Context.SagaData);
 
-            dataAccess.Verify(d => d.Insert(Context.SagaData, testSaga.SagaName), Times.Once);
+            dataAccess.Verify(d => d.InsertSagaData(Context.SagaData, testSaga.SagaName), Times.Once);
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace PeachtreeBus.Tests.Queues
 
             await reader.SaveSaga(testSaga, Context);
 
-            dataAccess.Verify(d => d.Update(
+            dataAccess.Verify(d => d.UpdateSagaData(
                 It.Is((SagaData s) =>
                     s.Data == SerializedTestSagaData &&
                     s.Id == sagaDataId &&
@@ -312,7 +312,7 @@ namespace PeachtreeBus.Tests.Queues
                 })
                 .Returns(SerializedHeaderData);
 
-            dataAccess.Setup(c => c.Update(Context.MessageData, Context.SourceQueue))
+            dataAccess.Setup(c => c.UpdateMessage(Context.MessageData, Context.SourceQueue))
                 .Callback((QueueMessage m, QueueName n) =>
                 {
                     Assert.AreEqual(1, m.Retries);
@@ -323,7 +323,7 @@ namespace PeachtreeBus.Tests.Queues
 
             await reader.Fail(Context, exception);
 
-            dataAccess.Verify(d => d.Update(Context.MessageData, Context.SourceQueue), Times.Once);
+            dataAccess.Verify(d => d.UpdateMessage(Context.MessageData, Context.SourceQueue), Times.Once);
             Assert.AreEqual(1, dataAccess.Invocations.Count);
         }
 

@@ -53,7 +53,7 @@ namespace PeachtreeBus.DataAccessTests
             toUpdate.Failed = DateTime.UtcNow;
             toUpdate.Retries = 10;
 
-            await dataAccess.Update(toUpdate, DefaultQueue);
+            await dataAccess.UpdateMessage(toUpdate, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the error table.

@@ -32,7 +32,7 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(0, CountRowsInTable(DefaultSagaTable));
 
-            newSaga.Id = await dataAccess.Insert(newSaga, DefaultSagaName);
+            newSaga.Id = await dataAccess.InsertSagaData(newSaga, DefaultSagaName);
 
             Assert.IsTrue(newSaga.Id.Value > 0);
 

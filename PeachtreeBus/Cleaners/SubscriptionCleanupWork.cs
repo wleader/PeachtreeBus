@@ -12,14 +12,17 @@ namespace PeachtreeBus.Cleaners
     /// A unit of work that cleans up expired subscriptions.
     /// </summary>
     public class SubscriptionCleanupWork(
-        IBusDataAccess dataAccess)
+        IBusDataAccess dataAccess,
+        ISubscribedCleanupConfiguration configuration)
         : ISubscriptionCleanupWork
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
+        private readonly ISubscribedCleanupConfiguration configuration = configuration;
 
         public async Task<bool> DoWork()
         {
-            await _dataAccess.ExpireSubscriptions();
+            await _dataAccess.ExpireSubscriptionMessages(configuration.MaxDeleteCount);
+            await _dataAccess.ExpireSubscriptions(configuration.MaxDeleteCount);
             return true;
         }
     }
