@@ -67,10 +67,8 @@ namespace PeachtreeBus.Example
             _container.CleanupQueue(_queueName, 10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));
 
             // Same as above, but for subscribed messages.
+            // this will also keep the subscriptions table clean from subscribers that forgot about themselves.
             _container.CleanupSubscribed(10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));
-
-            // this will keep the subscriptions table clean from subscribers that forgot about themselves.
-            _container.CleanupSubscriptions();
 
             // Register some services that are needed by PeachtreeBus
             // These are things you may want to replace in your application.
