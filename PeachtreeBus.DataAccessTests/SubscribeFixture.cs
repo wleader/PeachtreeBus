@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -138,6 +139,11 @@ namespace PeachtreeBus.DataAccessTests
             AssertSqlDbDateTime(until2, subscriptions[0].ValidUntil);
         }
 
-
+        [TestMethod]
+        public async Task Given_UninitializedSubscriberId_When_Subscribe_Then_Throws()
+        {
+            await Assert.ThrowsExceptionAsync<SubscriberIdException>(() =>
+                dataAccess.Subscribe(TestData.UnintializedSubscriberId, TestData.DefaultCategory, DateTime.UtcNow.AddMinutes(30)));
+        }
     }
 }

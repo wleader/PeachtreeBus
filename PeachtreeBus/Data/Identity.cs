@@ -32,3 +32,12 @@ public class IdentityException(string message) : PeachtreeBusException(message)
             throw new IdentityException($"Valid Identity range is 1 to {long.MaxValue}");
     }
 }
+
+public static class IdentityExtensions
+{
+    public static Identity RequireValid(this Identity identity)
+    {
+        IdentityException.ThrowIfInvalid(identity.Value);
+        return identity;
+    }
+}

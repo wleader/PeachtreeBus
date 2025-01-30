@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests.Sagas;
 using System;
@@ -17,6 +18,7 @@ public static class TestData
     public static readonly Identity DefaultId = new(1);
     public static readonly Category DefaultCategory = new(nameof(DefaultCategory));
     public static readonly QueueName DefaultQueueName = new("DefaultQueue");
+    public static readonly SagaName DefaultSagaName = new("DefaultSagaName");
 
     public static readonly SubscriberId UnintializedSubscriberId = (SubscriberId)RuntimeHelpers.GetUninitializedObject(typeof(SubscriberId));
 

@@ -29,3 +29,13 @@ public class SubscriberIdException(string message) : PeachtreeBusException(messa
                 $"A SubscriberId cannot be {Guid.Empty}.");
     }
 }
+
+public static class SubscriberIdExtensions
+{
+    public static SubscriberId RequreValid(this SubscriberId subscriberId)
+    {
+        SubscriberIdException.ThrowIfInvalid(subscriberId.Value);
+        return subscriberId;
+    }
+}
+

@@ -391,9 +391,6 @@ namespace PeachtreeBus.Data
                 END
                 """;
 
-            SubscriberIdException.ThrowIfInvalid(subscriberId.Value);
-            CategoryException.ThrowIfInvalid(category.Value);
-
             string statement = string.Format(SubscribeStatement, _schemaConfig.Schema);
 
             var p = new DynamicParameters();
@@ -427,8 +424,6 @@ namespace PeachtreeBus.Data
                     ORDER BY [Priority] DESC
                 """;
 
-            SubscriberIdException.ThrowIfInvalid(subscriberId.Value);
-
             var query = string.Format(statement, _schemaConfig.Schema);
 
             var p = new DynamicParameters();
@@ -457,8 +452,6 @@ namespace PeachtreeBus.Data
                 """;
 
             ArgumentNullException.ThrowIfNull(message);
-            UniqueIdentityException.ThrowIfInvalid(message.MessageId.Value);
-            SubscriberIdException.ThrowIfInvalid(message.SubscriberId.Value);
 
             string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema);
 
@@ -495,7 +488,6 @@ namespace PeachtreeBus.Data
                 """;
 
             ArgumentNullException.ThrowIfNull(message);
-            IdentityException.ThrowIfInvalid(message.Id.Value);
 
             string statement = string.Format(completeStatement, _schemaConfig.Schema);
 
@@ -526,7 +518,6 @@ namespace PeachtreeBus.Data
                 """;
 
             ArgumentNullException.ThrowIfNull(message);
-            IdentityException.ThrowIfInvalid(message.Id.Value);
 
             string statement = string.Format(FailMessageStatement, _schemaConfig.Schema);
 
@@ -557,7 +548,6 @@ namespace PeachtreeBus.Data
                 """;
 
             ArgumentNullException.ThrowIfNull(message);
-            IdentityException.ThrowIfInvalid(message.Id.Value);
 
             var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema);
 

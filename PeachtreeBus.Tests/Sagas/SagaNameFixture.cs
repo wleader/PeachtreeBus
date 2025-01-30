@@ -25,7 +25,14 @@ public class SagaNameFixture : DbSafeNameFixtureBase
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        SagaName sagaName = default!;
-        Assert.ThrowsException<DbSafeNameException>(() => _ = sagaName.ToString());
+        Assert.ThrowsException<DbSafeNameException>(() =>
+            _ = ((SagaName)default).ToString());
+    }
+
+    [TestMethod]
+    public void Given_Uninitialized_When_GetValue_Then_Throws()
+    {
+        Assert.ThrowsException<DbSafeNameException>(() =>
+            _ = ((SagaName)default).Value);
     }
 }

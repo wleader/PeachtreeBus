@@ -6,11 +6,15 @@ namespace PeachtreeBus.Subscriptions;
 public readonly record struct Category
 {
     public const int MaxLength = 128;
-    public string Value { get; }
+    private readonly string _value;
+
+    public string Value => _value
+        ?? throw new CategoryException("Category is not initialized.");
+
     public Category(string value)
     {
         CategoryException.ThrowIfInvalid(value);
-        Value = value;
+        _value = value;
     }
 
     public override string ToString() => Value;

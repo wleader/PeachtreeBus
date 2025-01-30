@@ -17,15 +17,18 @@ public class SerializedDataException : PeachtreeBusException
 [JsonConverter(typeof(SerializedDataJsonConverter))]
 public readonly record struct SerializedData
 {
-    public string Value { get; }
+    private readonly string _value;
+
+    public string Value => _value
+         ?? throw new SerializedDataException("SerializedData is not initialized.");
 
     public SerializedData(string value)
     {
         SerializedDataException.ThrowIfInvalid(value);
-        Value = value;
+        _value = value;
     }
 
-    public override string ToString() => Value ?? throw new SerializedDataException("SerializedData is not initialized.");
+    public override string ToString() => Value;
 
     public class SerializedDataJsonConverter()
         : PeachtreeBusJsonConverter<SerializedData, string>(s => new(s!), d => d.Value);

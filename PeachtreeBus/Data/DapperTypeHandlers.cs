@@ -81,7 +81,7 @@ internal class IdentityHandler : SqlMapper.TypeHandler<Identity>
     public override void SetValue(IDbDataParameter parameter, Identity value)
     {
         parameter.DbType = DbType.Int64;
-        parameter.Value = value.Value;
+        parameter.Value = value.RequireValid().Value;
     }
 }
 
@@ -96,7 +96,7 @@ internal class UniqueIdentityHandler : SqlMapper.TypeHandler<UniqueIdentity>
     public override void SetValue(IDbDataParameter parameter, UniqueIdentity value)
     {
         parameter.DbType = DbType.Guid;
-        parameter.Value = value.Value;
+        parameter.Value = value.RequireValid().Value;
     }
 }
 
@@ -107,7 +107,7 @@ internal class SubscriberIdHandler : SqlMapper.TypeHandler<SubscriberId>
     public override void SetValue(IDbDataParameter parameter, SubscriberId value)
     {
         parameter.DbType = DbType.Guid;
-        parameter.Value = value.Value;
+        parameter.Value = value.RequreValid().Value;
     }
 }
 

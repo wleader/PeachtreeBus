@@ -5,16 +5,18 @@ namespace PeachtreeBus.Data;
 [JsonConverter(typeof(SchemaNameJsonConverter))]
 public readonly record struct SchemaName
 {
-    public string Value { get; }
+    private readonly string _value;
+
+    public string Value => _value
+        ?? throw new DbSafeNameException($"{nameof(SchemaName)} is not initialized.");
 
     public SchemaName(string value)
     {
         DbSafeNameException.ThrowIfNotSafe(value, nameof(SchemaName));
-        Value = value;
+        _value = value;
     }
 
-    public override string ToString() => Value
-         ?? throw new DbSafeNameException($"{nameof(SchemaName)} is not initialized.");
+    public override string ToString() => Value;
 
     public class SchemaNameJsonConverter()
         : PeachtreeBusJsonConverter<SchemaName, string>(s => new(s!), s => s.Value);

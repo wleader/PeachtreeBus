@@ -6,16 +6,18 @@ namespace PeachtreeBus.Sagas;
 [JsonConverter(typeof(SagaNameJsonConverter))]
 public readonly record struct SagaName
 {
-    public string Value { get; }
+    private readonly string _value;
+
+    public string Value => _value
+        ?? throw new DbSafeNameException($"{nameof(SagaName)} is not initialized.");
 
     public SagaName(string value)
     {
         DbSafeNameException.ThrowIfNotSafe(value, nameof(SagaName));
-        Value = value;
+        _value = value;
     }
 
-    public override string ToString() => Value
-        ?? throw new DbSafeNameException($"{nameof(SagaName)} is not initialized.");
+    public override string ToString() => Value;
 
     public class SagaNameJsonConverter()
         : PeachtreeBusJsonConverter<SagaName, string>(v => new(v!), v => v.Value);

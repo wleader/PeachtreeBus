@@ -36,3 +36,12 @@ public class UniqueIdentityException(string message) : PeachtreeBusException(mes
                 $"A UniqueIdentity cannot be {Guid.Empty}.");
     }
 }
+
+public static class UniqueIdentityExtensions
+{
+    public static UniqueIdentity RequireValid(this UniqueIdentity identity)
+    {
+        UniqueIdentityException.ThrowIfInvalid(identity.Value);
+        return identity;
+    }
+}

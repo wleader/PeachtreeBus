@@ -48,6 +48,13 @@ namespace PeachtreeBus.DataAccessTests
             AssertSubscribedEquals(newMessage, messages[0]);
         }
 
-
+        [TestMethod]
+        public async Task Given_UninitializedSubscriberId_When_AddMessage_Then_Throws()
+        {
+            var newMessage = TestData.CreateSubscribedMessage(
+                subscriberId: TestData.UnintializedSubscriberId);
+            await Assert.ThrowsExceptionAsync<SubscriberIdException>(() =>
+                dataAccess.AddMessage(newMessage));
+        }
     }
 }

@@ -6,15 +6,18 @@ namespace PeachtreeBus.Sagas;
 public readonly record struct SagaKey
 {
     public const int MaxLength = 128;
-    public string Value { get; }
+    private readonly string _value;
+
+    public string Value => _value
+        ?? throw new SagaKeyException("SagaKey is not intialized");
+
     public SagaKey(string value)
     {
         SagaKeyException.ThrowIfInvalid(value);
-        Value = value;
+        _value = value;
     }
 
-    public override string ToString() => Value
-        ?? throw new SagaKeyException("SagaKey is not intialized");
+    public override string ToString() => Value;
 
     public class SagaKeyJsonConverter()
         : PeachtreeBusJsonConverter<SagaKey, string>(v => new(v!), v => v.Value);

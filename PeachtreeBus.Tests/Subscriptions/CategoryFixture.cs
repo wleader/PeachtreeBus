@@ -40,4 +40,18 @@ public class CategoryFixture
         Assert.AreEqual(expected, actual.ToString());
         Assert.AreEqual(expected, actual.Value);
     }
+
+    [TestMethod]
+    public void Given_Uninitialized_When_ToString_Then_Throws()
+    {
+        Assert.ThrowsException<CategoryException>(() =>
+        _ = ((Category)default).ToString());
+    }
+
+    [TestMethod]
+    public void Given_Uninitialized_When_GetValue_Then_Throws()
+    {
+        Assert.ThrowsException<CategoryException>(() =>
+        _ = ((Category)default).Value);
+    }
 }

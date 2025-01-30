@@ -17,8 +17,8 @@ public class SchemaNameFixture : DbSafeNameFixtureBase
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        SchemaName schemaName = default;
-        Assert.ThrowsException<DbSafeNameException>(() => _ = schemaName.ToString());
+        Assert.ThrowsException<DbSafeNameException>(() =>
+            _ = ((SchemaName)default).ToString());
     }
 
     [TestMethod]
@@ -26,4 +26,12 @@ public class SchemaNameFixture : DbSafeNameFixtureBase
     {
         Assert.AreEqual("SchemaName", Create("SchemaName").Value);
     }
+
+    [TestMethod]
+    public void Given_Uninitialized_When_GetValue_Then_Throws()
+    {
+        Assert.ThrowsException<DbSafeNameException>(() =>
+            _ = ((SchemaName)default).Value);
+    }
+
 }

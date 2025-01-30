@@ -181,5 +181,12 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsNotNull(actual);
             AssertSubscribedEquals(highMessage, actual);
         }
+
+        [TestMethod]
+        public async Task GetPendingSubscriptionMessage_ThrowsIfSubscriberIsGuidEmpty()
+        {
+            await Assert.ThrowsExceptionAsync<SubscriberIdException>(() =>
+                dataAccess.GetPendingSubscribed(TestData.UnintializedSubscriberId));
+        }
     }
 }
