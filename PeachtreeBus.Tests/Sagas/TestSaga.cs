@@ -12,17 +12,17 @@ namespace PeachtreeBus.Tests.Sagas
     /// <summary>
     /// A message for unit tests
     /// </summary>
-    public class TestSagaMessage1 : IQueueMessage { }
+    public class TestSagaMessage1 : IQueueMessage;
 
     /// <summary>
     /// A message for unit tests
     /// </summary>
-    public class TestSagaMessage2 : IQueueMessage { }
+    public class TestSagaMessage2 : IQueueMessage;
 
     /// <summary>
     /// Saga Data for tests
     /// </summary>
-    public class TestSagaData { }
+    public class TestSagaData;
 
     /// <summary>
     /// A Saga for unit tests

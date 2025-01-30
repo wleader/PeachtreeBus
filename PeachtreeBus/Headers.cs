@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace PeachtreeBus;
 
+public class UserHeaders : Dictionary<string, string>;
+
 /// <summary>
 /// Headers stored with the message.
 /// </summary>
@@ -11,11 +13,13 @@ public class Headers
     public Headers()
     {
         MessageClass = string.Empty;
+        UserHeaders = [];
     }
 
-    public Headers(Type userMessageType)
+    public Headers(Type userMessageType, UserHeaders? userHeaders = null)
     {
         MessageClass = GetMessageClassString(userMessageType);
+        UserHeaders = userHeaders ?? [];
     }
 
     /// <summary>
@@ -31,7 +35,7 @@ public class Headers
     /// <summary>
     /// A place for user code to store additional values along with the message.
     /// </summary>
-    public Dictionary<string, string> UserHeaders { get; set; } = [];
+    public UserHeaders UserHeaders { get; set; }
 
     public static string GetMessageClassString(Type type)
     {

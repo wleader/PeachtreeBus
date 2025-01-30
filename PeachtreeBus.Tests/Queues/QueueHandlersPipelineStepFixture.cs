@@ -13,8 +13,6 @@ namespace PeachtreeBus.Tests.Queues
     [TestClass]
     public class QueueHandlersPipelineStepFixture
     {
-        public class MessageWithoutInterface { };
-
         private QueueHandlersPipelineStep _testSubject = default!;
         private Mock<IFindQueueHandlers> _findHandlers = default!;
         private Mock<ILogger<QueueHandlersPipelineStep>> _log = default!;
@@ -40,7 +38,8 @@ namespace PeachtreeBus.Tests.Queues
                 _sagaMessageMapManager.Object,
                 _queueReader.Object);
 
-            context = TestData.CreateQueueContext();
+            context = TestData.CreateQueueContext(
+                userMessageFunc: () => new TestSagaMessage1());
 
             Assert.AreEqual(typeof(TestSagaMessage1), context.Message.GetType(),
                 "This test suite expects the default user message type to be TestSagaMessage1");
@@ -50,7 +49,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task Given_MessageIsNotIQueuedMessage_Then_ThrowsUsefulException()
         {
             context = TestData.CreateQueueContext(
-                headers: new(typeof(MessageWithoutInterface)));
+                headers: new(typeof(object)));
             await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() => _testSubject.Invoke(context, null));
         }
 
@@ -217,7 +216,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task Given_AMessageThatDoesNotImplementIQueueMessage_When_Invoke_Then_Throws()
         {
             var context = TestData.CreateQueueContext(
-                userMessage: new object()); // object does not implement IQueueMessage
+                userMessageFunc: () => new object()); // object does not implement IQueueMessage
             await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() => _testSubject.Invoke(context, null));
         }
 

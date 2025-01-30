@@ -10,7 +10,13 @@ namespace PeachtreeBus.Subscriptions
     /// </summary>
     public interface ISubscribedPublisher
     {
-        Task Publish(Category category, Type type, object message, DateTime? notBefore = null, int priority = 0);
+        Task Publish(
+            Category category,
+            Type type,
+            object message,
+            DateTime? notBefore = null,
+            int priority = 0,
+            UserHeaders? userHeaders = null);
     }
 
     /// <summary>
@@ -37,10 +43,18 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="type"></param>
         /// <param name="message"></param>
         /// <param name="notBefore"></param>
+        /// <param name="priority"></param>
+        /// <param name="userHeaders"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public async Task Publish(Category category, Type type, object message, DateTime? notBefore = null, int priority = 0)
+        public async Task Publish(
+            Category category,
+            Type type,
+            object message,
+            DateTime? notBefore = null,
+            int priority = 0,
+            UserHeaders? userHeaders = null)
         {
             if (message == null) throw new ArgumentNullException(nameof(message), $"{nameof(message)} must not be null.");
             if (type == null) throw new ArgumentNullException(nameof(type), $"{nameof(type)} must not be null.");
@@ -54,7 +68,7 @@ namespace PeachtreeBus.Subscriptions
             var subscribers = await _dataAccess.GetSubscribers(category);
 
             // note the type in the headers so it can be deserialized.
-            var headers = new Headers(type);
+            var headers = new Headers(type, userHeaders);
 
             var validUntil = notBefore.HasValue
                 ? notBefore.Value.ToUniversalTime().Add(_subscribedLifespan.Duration)
@@ -100,11 +114,16 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="message"></param>
         /// <param name="notBefore"></param>
         /// <returns></returns>
-        public static async Task PublishMessage<T>(this ISubscribedPublisher publisher,
-           Category category, T message, DateTime? notBefore = null, int priority = 0)
+        public static async Task PublishMessage<T>(
+            this ISubscribedPublisher publisher,
+            Category category,
+            T message,
+            DateTime? notBefore = null,
+            int priority = 0,
+            UserHeaders? userHeaders = null)
             where T : notnull
         {
-            await publisher.Publish(category, typeof(T), message, notBefore, priority);
+            await publisher.Publish(category, typeof(T), message, notBefore, priority, userHeaders);
         }
     }
 }

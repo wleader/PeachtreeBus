@@ -3,6 +3,7 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests.Fakes;
 using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Collections.Generic;
@@ -17,25 +18,20 @@ namespace PeachtreeBus.Tests.Subscriptions
     [TestClass]
     public class SubscriptionPublisherFixture
     {
-        public class MessageWithoutInterface { }
-        public class TestSubscribedMessage : ISubscribedMessage { }
-
-        private static readonly SerializedData SerializedMessageData = new("SerializedMessage");
-        private static readonly SerializedData SerializedHeadersData = new("SerializedHeaders");
-        private static readonly Category Cat1 = new("Cat1");
-        private static readonly Category Cat2 = new("Cat2");
-
+        // the class under test.
         private SubscribedPublisher publisher = default!;
-        private SubscribedLifespan lifespan = default!;
+
+        // Dependencies
         private Mock<IBusDataAccess> dataAccess = default!;
         private Mock<IPerfCounters> counters = default!;
-        private Mock<ISerializer> serializer = default!;
+        private FakeSerializer serializer = default!;
         private Mock<ISystemClock> clock = default!;
 
-        private readonly List<SubscribedMessage> AddedMessages = [];
-        private Headers SerializedHeaders = default!;
+        // a message to send.
+        private TestData.TestSubscribedMessage userMessage = default!;
 
-        private readonly UtcDateTime _now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
+        // stores the parameters to the AddMessage calls.
+        private readonly List<SubscribedMessage> AddedMessages = [];
 
         private readonly List<SubscriberId> cat1subscribers =
         [
@@ -51,22 +47,18 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestInitialize]
         public void TestInitialize()
         {
-            dataAccess = new Mock<IBusDataAccess>();
-            counters = new Mock<IPerfCounters>();
-            serializer = new Mock<ISerializer>();
+            dataAccess = new();
+            counters = new();
+            serializer = new();
+            clock = new();
 
-            lifespan = new SubscribedLifespan(TimeSpan.FromSeconds(60));
+            clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
 
-            clock = new Mock<ISystemClock>();
-
-            clock.SetupGet(c => c.UtcNow).Returns(() => _now);
-
-            dataAccess.Setup(d => d.GetSubscribers(Cat1))
+            dataAccess.Setup(d => d.GetSubscribers(TestData.DefaultCategory))
                 .Returns(Task.FromResult<IEnumerable<SubscriberId>>(cat1subscribers));
 
-            dataAccess.Setup(d => d.GetSubscribers(Cat2))
+            dataAccess.Setup(d => d.GetSubscribers(TestData.DefaultCategory2))
                 .Returns(Task.FromResult<IEnumerable<SubscriberId>>(cat2subscribers));
-
 
             dataAccess.Setup(d => d.AddMessage(It.IsAny<SubscribedMessage>()))
                 .Callback<SubscribedMessage>((msg) =>
@@ -75,17 +67,11 @@ namespace PeachtreeBus.Tests.Subscriptions
                 })
                 .Returns(Task.FromResult<Identity>(new(12345)));
 
-            serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
-                .Callback<Headers>(h => SerializedHeaders = h)
-                .Returns(SerializedHeadersData);
+            userMessage = TestData.CreateSubscribedUserMessage();
 
-            serializer.Setup(s => s.SerializeMessage(It.IsAny<object>(), It.IsAny<Type>()))
-                .Returns(SerializedMessageData);
-
-            //Writer = new QueueWriter(dataAccess.Object, counters.Object, serializer.Object, clock.Object);
             publisher = new SubscribedPublisher(
                 dataAccess.Object,
-                lifespan,
+                TestData.DefaultSubscribedLifespan,
                 serializer.Object,
                 counters.Object,
                 clock.Object);
@@ -100,8 +86,8 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
                 publisher.Publish(
-                    Cat2,
-                    typeof(TestSagaMessage1),
+                    TestData.DefaultCategory2,
+                    userMessage.GetType(),
                     null!,
                     null));
         }
@@ -115,7 +101,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
                 publisher.Publish(
-                    Cat2,
+                    TestData.DefaultCategory2,
                     null!,
                     new TestSagaMessage1(),
                     null));
@@ -129,13 +115,14 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsMessageClassOfHeaders()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
                 null);
 
-            Assert.IsNotNull(SerializedHeaders);
-            Assert.AreEqual("PeachtreeBus.Tests.Subscriptions.SubscriptionPublisherFixture+TestSubscribedMessage, PeachtreeBus.Tests", SerializedHeaders.MessageClass);
+            Assert.AreEqual(1, serializer.SerializedHeaders.Count);
+            Assert.AreEqual("PeachtreeBus.Tests.TestData+TestSubscribedMessage, PeachtreeBus.Tests",
+                serializer.SerializedHeaders[0].MessageClass);
         }
 
         /// <summary>
@@ -146,13 +133,13 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_DefaultsNotBeforeToUtcNow()
         {
             await publisher.Publish(
-                            Cat1,
-                            typeof(TestSubscribedMessage),
-                            new TestSubscribedMessage(),
-                            null);
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
+                null);
 
             Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.NotBefore == _now));
+            Assert.IsTrue(AddedMessages.TrueForAll(m => m.NotBefore == TestData.Now));
         }
 
         /// <summary>
@@ -164,9 +151,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             UtcDateTime notBefore = DateTime.UtcNow;
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
                 notBefore);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -183,7 +170,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var notBefore = new DateTime(2022, 2, 23, 10, 54, 11, DateTimeKind.Unspecified);
             await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 publisher.Publish(
-                    Cat1,
+                    TestData.DefaultCategory,
                     typeof(TestSagaMessage1),
                     new TestSagaMessage1(),
                     notBefore));
@@ -197,13 +184,13 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsEnqueuedToUtcNow()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+               userMessage,
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Enqueued == _now));
+            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Enqueued == TestData.Now));
         }
 
         /// <summary>
@@ -214,9 +201,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsCompletedToNull()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -231,9 +218,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsFailedToNull()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+               userMessage,
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -248,9 +235,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsRetriesToZero()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
@@ -265,12 +252,12 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_UsesHeadersFromSerializer()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
                 null);
             Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Headers == SerializedHeadersData));
+            Assert.AreEqual(serializer.SerializeHeadersResult, AddedMessages[0].Headers);
         }
 
         /// <summary>
@@ -281,13 +268,16 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_UsesBodyFromSerializer()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
                 null);
 
             Assert.AreEqual(1, AddedMessages.Count);
-            Assert.IsTrue(AddedMessages.TrueForAll(m => m.Body == SerializedMessageData));
+            Assert.AreEqual(1, serializer.SerializedMessages.Count);
+            Assert.AreEqual(serializer.SerializeMessageResult, AddedMessages[0].Body);
+            Assert.AreEqual(userMessage.GetType(), serializer.SerializedMessages[0].Type);
+            Assert.AreEqual(userMessage, serializer.SerializedMessages[0].Object);
         }
 
         /// <summary>
@@ -298,9 +288,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_CountSentMessages()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
                 null);
 
             counters.Verify(c => c.SentMessage(), Times.Once);
@@ -314,9 +304,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_InvokesDataAccess()
         {
             await publisher.Publish(
-                Cat1,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
                 null);
 
             dataAccess.Verify(d => d.AddMessage(It.IsAny<SubscribedMessage>()), Times.Once);
@@ -330,9 +320,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_PublishesMultiples()
         {
             await publisher.Publish(
-                Cat2,
-                typeof(TestSubscribedMessage),
-                new TestSubscribedMessage(),
+                TestData.DefaultCategory2,
+                userMessage.GetType(),
+                userMessage,
                 null);
 
             Assert.AreEqual(2, AddedMessages.Count);
@@ -342,13 +332,43 @@ namespace PeachtreeBus.Tests.Subscriptions
             CollectionAssert.AreEquivalent(
                 cat2subscribers,
                 AddedMessages.Select(m => m.SubscriberId).ToList());
+
+            Assert.AreEqual(1, serializer.SerializedHeaders.Count, "Headers only need to be serialized once.");
+            Assert.AreEqual(1, serializer.SerializedMessages.Count, "Body only needs to be serialzied once.");
         }
 
         [TestMethod]
         public async Task Given_MessageIsNotISubscribedMessage_When_WriteMessage_Then_ThrowsUsefulException()
         {
             await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
-                publisher.Publish(Cat2, typeof(MessageWithoutInterface), new MessageWithoutInterface(), null));
+                publisher.Publish(TestData.DefaultCategory2, typeof(object), new object(), null));
+        }
+
+
+        [TestMethod]
+        public async Task Given_Priority_When_Publish_Then_PriorityIsSet()
+        {
+            await publisher.Publish(
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
+                priority: 100);
+
+            Assert.AreEqual(1, AddedMessages.Count);
+            Assert.AreEqual(100, AddedMessages[0].Priority);
+        }
+
+        [TestMethod]
+        public async Task Given_UserHeaders_When_Publish_Then_UserHeadersAreUsed()
+        {
+            await publisher.Publish(
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage,
+                userHeaders: TestData.DefaultUserHeaders);
+
+            Assert.AreEqual(1, serializer.SerializedHeaders.Count);
+            Assert.AreSame(TestData.DefaultUserHeaders, serializer.SerializedHeaders[0].UserHeaders);
         }
     }
 }

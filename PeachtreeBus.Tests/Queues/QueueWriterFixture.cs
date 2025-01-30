@@ -3,7 +3,7 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Interfaces;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Tests.Sagas;
+using PeachtreeBus.Tests.Fakes;
 using System;
 using System.Threading.Tasks;
 
@@ -17,29 +17,25 @@ namespace PeachtreeBus.Tests.Queues
     {
         public class MessageWithoutInterface { }
 
-        private static readonly SerializedData MessageData = new("SerializedMessage");
-        private static readonly SerializedData HeaderData = new("SerializedHeaders");
         private QueueWriter writer = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
         private Mock<IPerfCounters> counters = default!;
-        private Mock<ISerializer> serializer = default!;
+        private FakeSerializer serializer = default!;
         private Mock<ISystemClock> clock = default!;
 
-        private QueueMessage AddedMessage = null!;
-        private QueueName AddedToQueue = default!;
-        private Headers SerializedHeaders = null!;
-        private readonly UtcDateTime _now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
-        private readonly QueueName queueName = new("QueueName");
+        private QueueMessage? AddedMessage = null;
+        private QueueName? AddedToQueue = default;
+        private object userMessage = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            dataAccess = new Mock<IBusDataAccess>();
-            counters = new Mock<IPerfCounters>();
-            serializer = new Mock<ISerializer>();
-            clock = new Mock<ISystemClock>();
+            dataAccess = new();
+            counters = new();
+            serializer = new();
+            clock = new();
 
-            clock.SetupGet(c => c.UtcNow).Returns(() => _now.Value);
+            clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
 
             dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
                 .Callback<QueueMessage, QueueName>((msg, qn) =>
@@ -49,12 +45,7 @@ namespace PeachtreeBus.Tests.Queues
                 })
                 .Returns(Task.FromResult<Identity>(new(12345)));
 
-            serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
-                .Callback<Headers>(h => SerializedHeaders = h)
-                .Returns(HeaderData);
-
-            serializer.Setup(s => s.SerializeMessage(It.IsAny<object>(), It.IsAny<Type>()))
-                .Returns(MessageData);
+            userMessage = TestData.CreateQueueUserMessage();
 
             writer = new QueueWriter(dataAccess.Object, counters.Object, serializer.Object, clock.Object);
         }
@@ -68,10 +59,9 @@ namespace PeachtreeBus.Tests.Queues
         {
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
                 writer.WriteMessage(
-                    queueName,
-                    typeof(TestSagaMessage1),
-                    null!,
-                    null));
+                    TestData.DefaultQueueName,
+                    userMessage.GetType(),
+                    null!));
         }
 
         /// <summary>
@@ -83,10 +73,9 @@ namespace PeachtreeBus.Tests.Queues
         {
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
                 writer.WriteMessage(
-                    queueName,
+                    TestData.DefaultQueueName,
                     null!,
-                    new TestSagaMessage1(),
-                    null));
+                    userMessage));
         }
 
         /// <summary>
@@ -97,13 +86,12 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsMessageClassOfHeaders()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
-
-            Assert.IsNotNull(SerializedHeaders);
-            Assert.AreEqual("PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests", SerializedHeaders.MessageClass);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
+            Assert.AreEqual(1, serializer.SerializedHeaders.Count);
+            Assert.AreEqual("PeachtreeBus.Tests.TestData+TestQueuedMessage, PeachtreeBus.Tests",
+                serializer.SerializedHeaders[0].MessageClass);
         }
 
         /// <summary>
@@ -114,13 +102,12 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_DefaultsNotBeforeToUtcNow()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
 
             Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(_now, AddedMessage.NotBefore);
+            Assert.AreEqual(TestData.Now, AddedMessage.NotBefore);
         }
 
         /// <summary>
@@ -132,10 +119,10 @@ namespace PeachtreeBus.Tests.Queues
         {
             UtcDateTime notBefore = DateTime.UtcNow;
             await writer.WriteMessage(
-                            queueName,
-                            typeof(TestSagaMessage1),
-                            new TestSagaMessage1(),
-                            notBefore);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage,
+                notBefore: notBefore);
 
             Assert.IsNotNull(AddedMessage);
             Assert.AreEqual(notBefore, AddedMessage.NotBefore);
@@ -151,10 +138,10 @@ namespace PeachtreeBus.Tests.Queues
             var notBefore = new DateTime(2022, 2, 23, 10, 54, 11, DateTimeKind.Unspecified);
             await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 writer.WriteMessage(
-                    queueName,
-                    typeof(TestSagaMessage1),
-                    new TestSagaMessage1(),
-                    notBefore));
+                    TestData.DefaultQueueName,
+                    userMessage.GetType(),
+                    userMessage,
+                    notBefore: notBefore));
         }
 
         /// <summary>
@@ -165,13 +152,13 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsEnqueuedToUtcNow()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage,
+                notBefore: null);
 
             Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(_now, AddedMessage.Enqueued);
+            Assert.AreEqual(TestData.Now, AddedMessage.Enqueued);
         }
 
         /// <summary>
@@ -182,10 +169,9 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsCompletedToNull()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
 
             Assert.IsNotNull(AddedMessage);
             Assert.IsFalse(AddedMessage.Completed.HasValue);
@@ -199,10 +185,9 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsFailedToNull()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
 
             Assert.IsNotNull(AddedMessage);
             Assert.IsFalse(AddedMessage.Failed.HasValue);
@@ -216,10 +201,9 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_SetsRetriesToZero()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
 
             Assert.IsNotNull(AddedMessage);
             Assert.AreEqual(0, AddedMessage.Retries);
@@ -233,13 +217,12 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_UsesHeadersFromSerializer()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
 
             Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(HeaderData, AddedMessage.Headers);
+            Assert.AreEqual(serializer.SerializeHeadersResult, AddedMessage.Headers);
         }
 
         /// <summary>
@@ -250,13 +233,12 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_UsesBodyFromSerializer()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
 
             Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(MessageData, AddedMessage.Body);
+            Assert.AreEqual(serializer.SerializeMessageResult, AddedMessage.Body);
         }
 
         /// <summary>
@@ -267,10 +249,9 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_CountSentMessages()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
 
             counters.Verify(c => c.SentMessage(), Times.Once);
         }
@@ -283,12 +264,11 @@ namespace PeachtreeBus.Tests.Queues
         public async Task WriteMessage_InvokesDataAccess()
         {
             await writer.WriteMessage(
-                queueName,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage);
 
-            dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueMessage>(), queueName), Times.Once);
+            dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueMessage>(), TestData.DefaultQueueName), Times.Once);
         }
 
         /// <summary>
@@ -301,9 +281,8 @@ namespace PeachtreeBus.Tests.Queues
             var expected = new QueueName("FooBazQueue");
             await writer.WriteMessage(
                 expected,
-                typeof(TestSagaMessage1),
-                new TestSagaMessage1(),
-                null);
+                userMessage.GetType(),
+                userMessage);
             Assert.AreEqual(expected, AddedToQueue);
         }
 
@@ -312,9 +291,34 @@ namespace PeachtreeBus.Tests.Queues
         {
             await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() =>
                 writer.WriteMessage(new("FooBazQueue"),
-                typeof(MessageWithoutInterface),
-                new MessageWithoutInterface(),
-                null));
+                typeof(object),
+                new object()));
+        }
+
+        [TestMethod]
+        public async Task Given_Priority_When_Publish_Then_PriorityIsSet()
+        {
+            await writer.WriteMessage(
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage,
+                priority: 100);
+
+            Assert.IsNotNull(AddedMessage);
+            Assert.AreEqual(100, AddedMessage.Priority);
+        }
+
+        [TestMethod]
+        public async Task Given_UserHeaders_When_Publish_Then_UserHeadersAreUsed()
+        {
+            await writer.WriteMessage(
+                TestData.DefaultQueueName,
+                userMessage.GetType(),
+                userMessage,
+                userHeaders: TestData.DefaultUserHeaders);
+
+            Assert.AreEqual(1, serializer.SerializedHeaders.Count);
+            Assert.AreSame(TestData.DefaultUserHeaders, serializer.SerializedHeaders[0].UserHeaders);
         }
     }
 }

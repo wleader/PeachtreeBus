@@ -3,7 +3,6 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
-using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -11,14 +10,27 @@ namespace PeachtreeBus.Tests;
 
 public static class TestData
 {
+    public class TestQueuedMessage : IQueueMessage;
+    public class TestSubscribedMessage : ISubscribedMessage;
+
     public static readonly UniqueIdentity DefaultMessageId = new(Guid.Parse("36dcb8bb-8717-4307-927d-4947ee1ea1ad"));
     public static readonly SubscriberId DefaultSubscriberId = new(Guid.Parse("e8291248-c4fb-4b7e-ab7d-86df2bcea319"));
     public static readonly SerializedData DefaultHeaders = new("{}");
     public static readonly SerializedData DefaultBody = new("{}");
+    public static readonly SerializedData DefaultSagaData = new("{}");
     public static readonly Identity DefaultId = new(1);
     public static readonly Category DefaultCategory = new(nameof(DefaultCategory));
-    public static readonly QueueName DefaultQueueName = new("DefaultQueue");
-    public static readonly SagaName DefaultSagaName = new("DefaultSagaName");
+    public static readonly Category DefaultCategory2 = new(nameof(DefaultCategory2));
+    public static readonly QueueName DefaultQueueName = new(nameof(DefaultQueueName));
+    public static readonly SagaName DefaultSagaName = new(nameof(DefaultSagaName));
+    public static readonly UtcDateTime Now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
+    public static readonly SubscribedLifespan DefaultSubscribedLifespan = new(TimeSpan.FromMinutes(5));
+
+    public static readonly UserHeaders DefaultUserHeaders = new()
+    {
+        { "Key1", "Value1" },
+        { "Key2", "Value2" }
+    };
 
     public static readonly SubscriberId UnintializedSubscriberId = (SubscriberId)RuntimeHelpers.GetUninitializedObject(typeof(SubscriberId));
 
@@ -68,14 +80,12 @@ public static class TestData
         };
     }
 
-    public static TestSagaMessage1 CreateUserMessage()
-    {
-        return new();
-    }
+    public static TestQueuedMessage CreateQueueUserMessage() => new();
+    public static TestSubscribedMessage CreateSubscribedUserMessage() => new();
 
     public static Headers CreateHeaders(object? userMessage)
     {
-        userMessage ??= CreateUserMessage();
+        userMessage ??= CreateQueueUserMessage();
         return new(userMessage.GetType());
     }
 
@@ -87,18 +97,18 @@ public static class TestData
     }
 
     public static InternalQueueContext CreateQueueContext(
-        object? userMessage = null,
+        Func<object>? userMessageFunc = null,
         QueueMessage? messageData = null,
         QueueName? sourceQueue = null,
         Headers? headers = null)
     {
-        userMessage ??= CreateUserMessage();
+        var messageObject = userMessageFunc?.Invoke() ?? CreateQueueUserMessage();
         messageData ??= CreateQueueMessage();
-        headers ??= CreateHeaders(userMessage);
+        headers ??= CreateHeaders(messageObject);
 
         return new InternalQueueContext()
         {
-            Message = userMessage,
+            Message = messageObject,
             MessageId = messageData.MessageId,
             MessageData = messageData,
             SourceQueue = sourceQueue ?? DefaultQueueName,
@@ -111,7 +121,7 @@ public static class TestData
         SubscribedMessage? messageData = null,
         Headers? headers = null)
     {
-        userMessage ??= CreateUserMessage();
+        userMessage ??= CreateQueueUserMessage();
         messageData ??= CreateSubscribedMessage();
         headers ??= CreateHeaders(userMessage);
         return new()

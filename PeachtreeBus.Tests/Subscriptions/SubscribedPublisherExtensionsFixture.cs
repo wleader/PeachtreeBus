@@ -9,18 +9,34 @@ namespace PeachtreeBus.Tests.Subscriptions;
 [TestClass]
 public class SubscribedPublisherExtensionsFixture
 {
-    public class TestMessage : ISubscribedMessage { }
+    private Mock<ISubscribedPublisher> _publisher = default!;
+
+    [TestInitialize]
+    public void Initialize()
+    {
+        _publisher = new();
+    }
 
     [TestMethod]
     public async Task When_PublishMessage_Then_ParametersArePassedToISubscribedPublisher()
     {
-        var publisher = new Mock<ISubscribedPublisher>();
-        var message = new TestMessage();
+        var message = TestData.CreateQueueUserMessage();
         var notBefore = DateTime.UtcNow;
-        Category cat = new("Cat");
 
-        await publisher.Object.PublishMessage(cat, message, notBefore, 100);
+        await _publisher.Object.PublishMessage(
+            TestData.DefaultCategory,
+            message,
+            notBefore,
+            100,
+            TestData.DefaultUserHeaders);
 
-        publisher.Verify(p => p.Publish(cat, typeof(TestMessage), message, notBefore, 100), Times.Once);
+        _publisher.Verify(p => p.Publish(
+            TestData.DefaultCategory,
+            message.GetType(),
+            message,
+            notBefore,
+            100,
+            TestData.DefaultUserHeaders),
+            Times.Once);
     }
 }

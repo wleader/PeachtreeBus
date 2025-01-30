@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
 
@@ -13,24 +12,37 @@ namespace PeachtreeBus.Tests.Queues
     [TestClass]
     public class QueueWriterExtensionsFixture
     {
-        private readonly QueueName TestQueue = new("TestQueue");
+        private Mock<IQueueWriter> _writer = default!;
 
-        /// <summary>
-        /// Proves WriteMessage, writes the message.
-        /// </summary>
+        [TestInitialize]
+        public void Intialize()
+        {
+            _writer = new();
+        }
+
         [TestMethod]
         public async Task WriteMessage_ForwardsToInterface()
         {
-            var writer = new Mock<IQueueWriter>();
-
-            var message = new TestSagaMessage1();
+            var message = TestData.CreateQueueUserMessage();
             var notBefore = DateTime.UtcNow;
 
-            writer.Setup(w => w.WriteMessage(TestQueue, typeof(TestSagaMessage1), message, notBefore, 10)).Verifiable();
+            _writer.Setup(w => w.WriteMessage(
+                TestData.DefaultQueueName,
+                message.GetType(),
+                message,
+                notBefore,
+                10,
+                TestData.DefaultUserHeaders
+                )).Verifiable();
 
-            await writer.Object.WriteMessage(TestQueue, message, notBefore, 10);
+            await _writer.Object.WriteMessage(
+                TestData.DefaultQueueName,
+                message,
+                notBefore,
+                10,
+                TestData.DefaultUserHeaders);
 
-            writer.Verify();
+            _writer.Verify();
 
         }
     }

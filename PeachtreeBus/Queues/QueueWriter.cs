@@ -14,12 +14,20 @@ namespace PeachtreeBus.Queues
         /// <summary>
         /// Writes a message to a queue
         /// </summary>
-        /// <param name="queueName"></param>
-        /// <param name="type"></param>
-        /// <param name="message"></param>
-        /// <param name="notBefore"></param>
+        /// <param name="queueName">Which queue to write to.</param>
+        /// <param name="type">The Type of the message.</param>
+        /// <param name="message">an instance of an IQueueMessage.</param>
+        /// <param name="notBefore">Indicates when this message can be processed. Will default to 'Now' if not provided.</param>
+        /// <param name="priority">A priority for the message. Higher priorities are processed first.</param>
+        /// <param name="userHeaders">Any user headers to be included with the message.</param>
         /// <returns></returns>
-        Task WriteMessage(QueueName queueName, Type type, object message, DateTime? notBefore = null, int priority = 0);
+        Task WriteMessage(
+            QueueName queueName,
+            Type type,
+            object message,
+            DateTime? notBefore = null,
+            int priority = 0,
+            UserHeaders? userHeaders = null);
     }
 
     /// <summary>
@@ -35,7 +43,13 @@ namespace PeachtreeBus.Queues
         private readonly ISerializer _serializer = serializer;
         private readonly ISystemClock _clock = clock;
 
-        public async Task WriteMessage(QueueName queueName, Type type, object message, DateTime? notBefore = null, int priority = 0)
+        public async Task WriteMessage(
+            QueueName queueName,
+            Type type,
+            object message,
+            DateTime? notBefore = null,
+            int priority = 0,
+            UserHeaders? userHeaders = null)
         {
             if (message == null) throw new ArgumentNullException(nameof(message), $"{nameof(message)} must not be null.");
             if (type == null) throw new ArgumentNullException(nameof(type), $"{nameof(type)} must not be null.");
@@ -43,7 +57,7 @@ namespace PeachtreeBus.Queues
             TypeIsNotIQueueMessageException.ThrowIfMissingInterface(type);
 
             // note the type in the headers so it can be deserialized.
-            var headers = new Headers(type);
+            var headers = new Headers(type, userHeaders);
 
             // create the message entity, serializing the headers and body.
             var qm = new QueueMessage
@@ -72,10 +86,16 @@ namespace PeachtreeBus.Queues
         /// <summary>
         /// Writes a message to a queue
         /// </summary>
-        public static async Task WriteMessage<T>(this IQueueWriter writer, QueueName queueName, T message, DateTime? NotBefore = null, int priority = 0)
+        public static async Task WriteMessage<T>(
+            this IQueueWriter writer,
+            QueueName queueName,
+            T message,
+            DateTime? NotBefore = null,
+            int priority = 0,
+            UserHeaders? userHeaders = null)
             where T : notnull
         {
-            await writer.WriteMessage(queueName, typeof(T), message, NotBefore, priority);
+            await writer.WriteMessage(queueName, typeof(T), message, NotBefore, priority, userHeaders);
         }
     }
 
