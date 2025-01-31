@@ -135,6 +135,14 @@ namespace PeachtreeBus.Data
         Task<Identity> AddMessage(SubscribedMessage message);
 
         /// <summary>
+        /// Adds a Subscribed message for each subscriber of the category.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        Task<long> Publish(SubscribedMessage message, Category category);
+
+        /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>

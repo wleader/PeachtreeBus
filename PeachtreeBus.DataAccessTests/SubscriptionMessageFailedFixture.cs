@@ -97,7 +97,7 @@ namespace PeachtreeBus.DataAccessTests
 
             await dataAccess.FailMessage(expected1);
 
-            var failed = GetTableContent(SubscribedFailedTable).ToSubscribed();
+            var failed = GetSubscribedFailed();
 
             Assert.AreEqual(1, failed.Count);
 

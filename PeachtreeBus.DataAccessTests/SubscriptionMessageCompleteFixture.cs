@@ -97,7 +97,7 @@ namespace PeachtreeBus.DataAccessTests
 
             await dataAccess.CompleteMessage(expected1);
 
-            var completed = GetTableContent(SubscribedCompletedTable).ToSubscribed();
+            var completed = GetSubscribedCompleted();
 
             Assert.AreEqual(1, completed.Count);
 

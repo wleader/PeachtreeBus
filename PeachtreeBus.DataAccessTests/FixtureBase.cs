@@ -8,6 +8,7 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace PeachtreeBus.DataAccessTests
@@ -289,6 +290,22 @@ namespace PeachtreeBus.DataAccessTests
             AssertSqlDbDateTime(expected.ValidUntil, actual.ValidUntil);
         }
 
+        protected void AssertPublishedEquals(SubscribedMessage expected, SubscribedMessage actual)
+        {
+            Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
+            Assert.IsNotNull(actual, "Actual is null, expected is not.");
+            Assert.IsNotNull(expected, "Expected is null, actual is not.");
+            Assert.AreEqual(expected.Headers, actual.Headers);
+            AssertSqlDbDateTime(expected.NotBefore, actual.NotBefore);
+            Assert.AreEqual(expected.Id, actual.Id);
+            Assert.AreEqual(expected.Body, actual.Body);
+            AssertSqlDbDateTime(expected.Completed, actual.Completed);
+            AssertSqlDbDateTime(expected.Enqueued, actual.Enqueued);
+            AssertSqlDbDateTime(expected.Failed, actual.Failed);
+            Assert.AreEqual(expected.Retries, actual.Retries);
+            AssertSqlDbDateTime(expected.ValidUntil, actual.ValidUntil);
+        }
+
         /// <summary>
         /// Tests that two nullable DateTime values are equal.
         /// </summary>
@@ -337,5 +354,10 @@ namespace PeachtreeBus.DataAccessTests
                 Key = new("Key")
             };
         }
+
+        protected List<SubscriptionsRow> GetSubscriptions() => GetTableContent(SubscriptionsTable).ToSubscriptions();
+        protected List<SubscribedMessage> GetSubscribedPending() => GetTableContent(SubscribedPendingTable).ToSubscribed();
+        protected List<SubscribedMessage> GetSubscribedFailed() => GetTableContent(SubscribedFailedTable).ToSubscribed();
+        protected List<SubscribedMessage> GetSubscribedCompleted() => GetTableContent(SubscribedCompletedTable).ToSubscribed();
     }
 }

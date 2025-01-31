@@ -49,7 +49,7 @@ namespace PeachtreeBus.DataAccessTests
 
             await dataAccess.ExpireSubscriptions(100);
 
-            var rows = GetTableContent("Subscriptions").ToSubscriptions();
+            var rows = GetSubscriptions();
 
             Assert.AreEqual(2, rows.Count);
             Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber1 && r.Category == category1));

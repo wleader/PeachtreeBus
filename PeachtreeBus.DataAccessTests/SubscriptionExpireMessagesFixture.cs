@@ -47,8 +47,7 @@ namespace PeachtreeBus.DataAccessTests
 
             await dataAccess.ExpireSubscriptionMessages(1000);
 
-            var failed = GetTableContent(SubscribedFailedTable).ToSubscribed();
-
+            var failed = GetSubscribedFailed();
             Assert.AreEqual(2, failed.Count);
 
             var actual1 = failed.Single(s => s.SubscriberId == expected1.SubscriberId);

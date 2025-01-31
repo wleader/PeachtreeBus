@@ -468,6 +468,35 @@ namespace PeachtreeBus.Data
                 _database.Connection.QueryFirstAsync<Identity>(statement, p, _database.Transaction));
         }
 
+        public async Task<long> Publish(SubscribedMessage message, Category category)
+        {
+            const string PublishStatement =
+                """
+                INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
+                ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT [SubscriberId], @ValidUntil, NEWID(), @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body
+                FROM [{0}].[Subscriptions]
+                WHERE Category = @Category
+                AND ValidUntil > SYSUTCDATETIME()
+                SELECT @@ROWCOUNT
+                """;
+
+            ArgumentNullException.ThrowIfNull(message);
+
+            string statement = string.Format(PublishStatement, _schemaConfig.Schema);
+
+            var p = new DynamicParameters();
+            p.Add("@Priority", message.Priority);
+            p.Add("@ValidUntil", message.ValidUntil);
+            p.Add("@NotBefore", message.NotBefore);
+            p.Add("@Headers", message.Headers);
+            p.Add("@Body", message.Body);
+            p.Add("@Category", category);
+
+            return await LogIfError(
+                _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
+        }
+
         /// <summary>
         /// Moves a subscribed message from the pending table to the compelted table.
         /// </summary>

@@ -39,13 +39,9 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.IsTrue(newMessage.Id.Value > 0);
 
-            var data = GetTableContent(SubscribedPendingTable);
-            Assert.IsNotNull(data);
-
-            var messages = data.ToSubscribed();
-            Assert.AreEqual(1, messages.Count);
-
-            AssertSubscribedEquals(newMessage, messages[0]);
+            var actual = GetSubscribedPending();
+            Assert.AreEqual(1, actual.Count);
+            AssertSubscribedEquals(newMessage, actual[0]);
         }
 
         [TestMethod]

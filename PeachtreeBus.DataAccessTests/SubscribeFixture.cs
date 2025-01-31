@@ -32,7 +32,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task Subscribe_AddsRowWhenSubscriberAndCategoryDoNotExist()
         {
-            var subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
+            var subscriptions = GetSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
             var subscriber = SubscriberId.New();
@@ -41,7 +41,7 @@ namespace PeachtreeBus.DataAccessTests
 
             await dataAccess.Subscribe(subscriber, category, until);
 
-            subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
+            subscriptions = GetSubscriptions();
 
             Assert.AreEqual(1, subscriptions.Count);
             Assert.AreNotEqual(0, subscriptions[0].Id.Value);
@@ -58,7 +58,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task Subscribe_AddsRowWhenSubscriberExistsAndCategoryDoesNot()
         {
-            var subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
+            var subscriptions = GetSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
             var subscriber = SubscriberId.New();
@@ -70,7 +70,7 @@ namespace PeachtreeBus.DataAccessTests
             var category2 = new Category("TestCategory2");
             await dataAccess.Subscribe(subscriber, category2, until);
 
-            subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
+            subscriptions = GetSubscriptions();
             Assert.AreEqual(2, subscriptions.Count);
 
             subscriptions.ForEach(s => Assert.AreEqual(subscriber, s.SubscriberId));
@@ -88,7 +88,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task Subscribe_AddsRowWhenSubscriberDoesNotExistAndCategoryExists()
         {
-            var subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
+            var subscriptions = GetSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
             var subscriber = SubscriberId.New();
@@ -100,7 +100,7 @@ namespace PeachtreeBus.DataAccessTests
             var subscriber2 = SubscriberId.New();
             await dataAccess.Subscribe(subscriber2, category, until);
 
-            subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
+            subscriptions = GetSubscriptions();
             Assert.AreEqual(2, subscriptions.Count);
 
             subscriptions.ForEach(s => Assert.AreEqual(category, s.Category));
@@ -118,7 +118,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task Subscribe_UpdatesWhenSubscriberAndCategoryAlreadyExist()
         {
-            var subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
+            var subscriptions = GetSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
             var subscriber = SubscriberId.New();
@@ -130,7 +130,7 @@ namespace PeachtreeBus.DataAccessTests
             var until2 = until.AddHours(1);
             await dataAccess.Subscribe(subscriber, category, until2);
 
-            subscriptions = GetTableContent("Subscriptions").ToSubscriptions();
+            subscriptions = GetSubscriptions();
 
             Assert.AreEqual(1, subscriptions.Count);
 
