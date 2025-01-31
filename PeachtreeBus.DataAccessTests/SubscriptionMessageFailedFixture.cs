@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
-using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests;
 using System;
 using System.Linq;
@@ -34,8 +33,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task FailMessage_CantMutateFields()
         {
             var testMessage1 = TestData.CreateSubscribedMessage();
-            testMessage1.SubscriberId = SubscriberId.New();
-            testMessage1.Id = await dataAccess.AddMessage(testMessage1);
+            await InsertSubscribedMessage(testMessage1);
             await Task.Delay(10); // wait for the rows to be ready
 
             // get and complete a message.
@@ -68,10 +66,9 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task FailMessage_DeletesFromPendingTable()
         {
-            var expected1 = TestData.CreateSubscribedMessage();
-            expected1.SubscriberId = SubscriberId.New();
-            expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-            expected1.Id = await dataAccess.AddMessage(expected1);
+            var expected1 = TestData.CreateSubscribedMessage(
+                validUntil: DateTime.UtcNow.AddMinutes(-1));
+            await InsertSubscribedMessage(expected1);
 
             Assert.AreEqual(1, CountRowsInTable(SubscribedPendingTable));
 
@@ -90,10 +87,9 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
             Assert.AreEqual(0, CountRowsInTable(SubscribedFailedTable));
 
-            var expected1 = TestData.CreateSubscribedMessage();
-            expected1.SubscriberId = SubscriberId.New();
-            expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-            expected1.Id = await dataAccess.AddMessage(expected1);
+            var expected1 = TestData.CreateSubscribedMessage(
+                validUntil: DateTime.UtcNow.AddMinutes(-1));
+            await InsertSubscribedMessage(expected1);
 
             await dataAccess.FailMessage(expected1);
 
@@ -101,7 +97,7 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(1, failed.Count);
 
-            var actual1 = failed.Single(s => s.SubscriberId == expected1.SubscriberId);
+            var actual1 = failed.Single(s => s.Id == expected1.Id);
             Assert.IsTrue(actual1.Failed.HasValue);
             expected1.Failed = actual1.Failed;
             AssertSubscribedEquals(expected1, actual1);

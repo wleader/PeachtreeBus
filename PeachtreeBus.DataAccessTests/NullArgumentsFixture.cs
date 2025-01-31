@@ -94,13 +94,6 @@ public class NullArgumentsFixture
     }
 
     [TestMethod]
-    public async Task Given_NullSubscribedMessage_When_AddMessage_Then_Thows()
-    {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.AddMessage(null!));
-    }
-
-    [TestMethod]
     public async Task Given_NullMessage_When_Publish_Then_Throws()
     {
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>

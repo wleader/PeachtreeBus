@@ -14,6 +14,7 @@ namespace PeachtreeBus
         void FailMessage();
         void DelayMessage();
         void SentMessage();
+        void PublishMessage(long count);
     }
 
     [EventSource(Name = "PeachtreeBus")]
@@ -65,6 +66,9 @@ namespace PeachtreeBus
         // how many messages were sent to the pending queue in the interval.
         private readonly IncrementingEventCounter _messagesSent;
 
+        // how many messages were published to subscribers.
+        private readonly IncrementingEventCounter _messagesPublished;
+
         // how many messages were delayed because a needed resource was locked.
         // Saga blocking, etc.
         private readonly IncrementingEventCounter _messagesDelayed;
@@ -80,6 +84,7 @@ namespace PeachtreeBus
             _messagesFailed = new IncrementingEventCounter("messages-failed", this);
             _messagesComplete = new IncrementingEventCounter("messages-complete", this);
             _messagesSent = new IncrementingEventCounter("messages-sent", this);
+            _messagesPublished = new IncrementingEventCounter("messages-published", this);
             _messagesDelayed = new IncrementingEventCounter("messages-delayed", this);
         }
 
@@ -150,6 +155,11 @@ namespace PeachtreeBus
         public void SentMessage()
         {
             _messagesSent.Increment();
+        }
+
+        public void PublishMessage(long count)
+        {
+            _messagesPublished.Increment(count);
         }
 
         /// <summary>

@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests;
 using System;
 using System.Linq;
@@ -35,27 +34,25 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
             Assert.AreEqual(0, CountRowsInTable(SubscribedFailedTable));
 
-            var expected1 = TestData.CreateSubscribedMessage();
-            expected1.SubscriberId = SubscriberId.New();
-            expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-            expected1.Id = await dataAccess.AddMessage(expected1);
+            var expected1 = TestData.CreateSubscribedMessage(
+                validUntil: DateTime.UtcNow.AddMinutes(-1));
+            await InsertSubscribedMessage(expected1);
 
-            var expected2 = TestData.CreateSubscribedMessage();
-            expected2.SubscriberId = SubscriberId.New();
-            expected2.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-            expected2.Id = await dataAccess.AddMessage(expected2);
+            var expected2 = TestData.CreateSubscribedMessage(
+                validUntil: DateTime.UtcNow.AddMinutes(-1));
+            await InsertSubscribedMessage(expected2);
 
             await dataAccess.ExpireSubscriptionMessages(1000);
 
             var failed = GetSubscribedFailed();
             Assert.AreEqual(2, failed.Count);
 
-            var actual1 = failed.Single(s => s.SubscriberId == expected1.SubscriberId);
+            var actual1 = failed.Single(s => s.Id == expected1.Id);
             Assert.IsTrue(actual1.Failed.HasValue);
             expected1.Failed = actual1.Failed;
             AssertSubscribedEquals(expected1, actual1);
 
-            var actual2 = failed.Single(s => s.SubscriberId == expected2.SubscriberId);
+            var actual2 = failed.Single(s => s.Id == expected2.Id);
             Assert.IsTrue(actual2.Failed.HasValue);
             expected2.Failed = actual2.Failed;
             AssertSubscribedEquals(expected2, actual2);
@@ -69,15 +66,13 @@ namespace PeachtreeBus.DataAccessTests
         public async Task ExpireMessages_DeletesFromPending()
         {
 
-            var expected1 = TestData.CreateSubscribedMessage();
-            expected1.SubscriberId = SubscriberId.New();
-            expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-            expected1.Id = await dataAccess.AddMessage(expected1);
+            var expected1 = TestData.CreateSubscribedMessage(
+                validUntil: DateTime.UtcNow.AddMinutes(-1));
+            await InsertSubscribedMessage(expected1);
 
-            var expected2 = TestData.CreateSubscribedMessage();
-            expected2.SubscriberId = SubscriberId.New();
-            expected2.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-            expected2.Id = await dataAccess.AddMessage(expected2);
+            var expected2 = TestData.CreateSubscribedMessage(
+                validUntil: DateTime.UtcNow.AddMinutes(-1));
+            await InsertSubscribedMessage(expected2);
 
             Assert.AreEqual(2, CountRowsInTable(SubscribedPendingTable));
 
@@ -89,15 +84,13 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task ExpireMessage_LimitsToMaxCount()
         {
-            var expected1 = TestData.CreateSubscribedMessage();
-            expected1.SubscriberId = SubscriberId.New();
-            expected1.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-            expected1.Id = await dataAccess.AddMessage(expected1);
+            var expected1 = TestData.CreateSubscribedMessage(
+                validUntil: DateTime.UtcNow.AddMinutes(-1));
+            await InsertSubscribedMessage(expected1);
 
-            var expected2 = TestData.CreateSubscribedMessage();
-            expected2.SubscriberId = SubscriberId.New();
-            expected2.ValidUntil = DateTime.UtcNow.AddMinutes(-1);
-            expected2.Id = await dataAccess.AddMessage(expected2);
+            var expected2 = TestData.CreateSubscribedMessage(
+                validUntil: DateTime.UtcNow.AddMinutes(-1));
+            await InsertSubscribedMessage(expected2);
 
             Assert.AreEqual(2, CountRowsInTable(SubscribedPendingTable));
 

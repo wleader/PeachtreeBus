@@ -224,6 +224,14 @@ namespace PeachtreeBus.Tests
             AssertCounts(p => p.SentMessage(), "messages-sent");
         }
 
+        [TestMethod]
+        public void PerfCounters_PublishMessage_CountsMulitples()
+        {
+            AssertCount(p => p.PublishMessage(2), "messages-published", 1, 2);
+            AssertCount(p => p.PublishMessage(2), "messages-published", 2, 4);
+            AssertCount(p => p.PublishMessage(2), "messages-published", 5, 10);
+        }
+
         /// <summary>
         /// Proves that delayed messages are counted.
         /// </summary>
@@ -282,17 +290,18 @@ namespace PeachtreeBus.Tests
             AssertCount(action, name, 5);
         }
 
-        private void AssertCount(Action<IPerfCounters> action, string name, int count)
+        private void AssertCount(Action<IPerfCounters> action, string name, int invocations, int? expected = null)
         {
             var instance = PerfCounters.Instance();
             var data = listener.WaitOne(name);
             Assert.AreEqual(0, data.Increment);
-            for (var i = 0; i < count; i++)
+            for (var i = 0; i < invocations; i++)
             {
                 action.Invoke(instance);
             }
             data = listener.WaitOne(name);
-            Assert.AreEqual(count, data.Increment);
+            expected ??= invocations;
+            Assert.AreEqual((double)expected, data.Increment);
         }
 
         public static void AssertRange(double expected, double tolerance, double actual, string valueName)

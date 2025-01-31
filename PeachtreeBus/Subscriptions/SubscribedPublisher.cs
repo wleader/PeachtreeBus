@@ -10,11 +10,11 @@ namespace PeachtreeBus.Subscriptions
     /// </summary>
     public interface ISubscribedPublisher
     {
-        Task Publish(
+        Task<long> Publish(
             Category category,
             Type type,
             object message,
-            DateTime? notBefore = null,
+            UtcDateTime? notBefore = null,
             int priority = 0,
             UserHeaders? userHeaders = null);
     }
@@ -45,61 +45,42 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="notBefore"></param>
         /// <param name="priority"></param>
         /// <param name="userHeaders"></param>
-        /// <returns></returns>
+        /// <returns>The number of subscribers that the message was published to.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public async Task Publish(
+        public async Task<long> Publish(
             Category category,
             Type type,
             object message,
-            DateTime? notBefore = null,
+            UtcDateTime? notBefore = null,
             int priority = 0,
             UserHeaders? userHeaders = null)
         {
             if (message == null) throw new ArgumentNullException(nameof(message), $"{nameof(message)} must not be null.");
             if (type == null) throw new ArgumentNullException(nameof(type), $"{nameof(type)} must not be null.");
-
-            if (notBefore.HasValue && notBefore.Value.Kind == DateTimeKind.Unspecified)
-                throw new ArgumentException($"{nameof(notBefore)} must not have an Unspecified DateTimeKind.", nameof(notBefore));
-
             TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(type);
-
-            // get a list of all subscribers for the category
-            var subscribers = await _dataAccess.GetSubscribers(category);
 
             // note the type in the headers so it can be deserialized.
             var headers = new Headers(type, userHeaders);
 
-            var validUntil = notBefore.HasValue
-                ? notBefore.Value.ToUniversalTime().Add(_subscribedLifespan.Duration)
-                : _clock.UtcNow.Add(_subscribedLifespan.Duration);
-
-            var nb = notBefore.HasValue ? notBefore.Value.ToUniversalTime() : _clock.UtcNow;
-            var headerstring = _serializer.SerializeHeaders(headers);
-            var bodystring = _serializer.SerializeMessage(message, type);
-
-            foreach (var subscriber in subscribers)
+            // create the message entity, serializing the headers and body.
+            var sm = new SubscribedMessage
             {
+                ValidUntil = _clock.UtcNow.Add(_subscribedLifespan.Duration),
+                MessageId = UniqueIdentity.Empty, // will be ignored and the database will generate.
+                Priority = priority,
+                NotBefore = notBefore ?? _clock.UtcNow,
+                Enqueued = _clock.UtcNow,
+                Completed = null,
+                Failed = null,
+                Retries = 0,
+                Headers = _serializer.SerializeHeaders(headers),
+                Body = _serializer.SerializeMessage(message, type)
+            };
 
-                // create the message entity, serializing the headers and body.
-                var sm = new SubscribedMessage
-                {
-                    ValidUntil = validUntil,
-                    SubscriberId = subscriber,
-                    MessageId = UniqueIdentity.New(),
-                    Priority = priority,
-                    NotBefore = nb,
-                    Enqueued = _clock.UtcNow,
-                    Completed = null,
-                    Failed = null,
-                    Retries = 0,
-                    Headers = headerstring,
-                    Body = bodystring
-                };
-
-                await _dataAccess.AddMessage(sm);
-                _counters.SentMessage();
-            }
+            var count = await _dataAccess.Publish(sm, category);
+            _counters.PublishMessage(count);
+            return count;
         }
     }
 
@@ -114,7 +95,7 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="message"></param>
         /// <param name="notBefore"></param>
         /// <returns></returns>
-        public static async Task PublishMessage<T>(
+        public static Task<long> PublishMessage<T>(
             this ISubscribedPublisher publisher,
             Category category,
             T message,
@@ -123,7 +104,7 @@ namespace PeachtreeBus.Subscriptions
             UserHeaders? userHeaders = null)
             where T : notnull
         {
-            await publisher.Publish(category, typeof(T), message, notBefore, priority, userHeaders);
+            return publisher.Publish(category, typeof(T), message, notBefore, priority, userHeaders);
         }
     }
 }

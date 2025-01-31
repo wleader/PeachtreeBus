@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -10,6 +11,7 @@ using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
 {
@@ -353,6 +355,33 @@ namespace PeachtreeBus.DataAccessTests
                 SagaId = UniqueIdentity.New(),
                 Key = new("Key")
             };
+        }
+
+        protected async Task InsertSubscribedMessage(SubscribedMessage message)
+        {
+            const string EnqueueMessageStatement =
+                """
+                INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
+                ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                OUTPUT INSERTED.[Id]
+                VALUES
+                (@SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
+                """;
+
+            ArgumentNullException.ThrowIfNull(message);
+
+            string statement = string.Format(EnqueueMessageStatement, DefaultSchema);
+
+            var p = new DynamicParameters();
+            p.Add("@MessageId", message.MessageId);
+            p.Add("@Priority", message.Priority);
+            p.Add("@SubscriberId", message.SubscriberId);
+            p.Add("@ValidUntil", message.ValidUntil);
+            p.Add("@NotBefore", message.NotBefore);
+            p.Add("@Headers", message.Headers);
+            p.Add("@Body", message.Body);
+
+            message.Id = await SecondaryConnection.Connection.QueryFirstAsync<Identity>(statement, p);
         }
 
         protected List<SubscriptionsRow> GetSubscriptions() => GetTableContent(SubscriptionsTable).ToSubscriptions();

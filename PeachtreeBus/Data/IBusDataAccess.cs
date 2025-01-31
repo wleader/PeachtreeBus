@@ -1,7 +1,6 @@
 ﻿using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Data
@@ -129,12 +128,6 @@ namespace PeachtreeBus.Data
         Task<SubscribedMessage?> GetPendingSubscribed(SubscriberId subscriberId);
 
         /// <summary>
-        /// Inserts a new message into the database.
-        /// </summary>
-        /// <param name="message">The message to insert.</param>
-        Task<Identity> AddMessage(SubscribedMessage message);
-
-        /// <summary>
         /// Adds a Subscribed message for each subscriber of the category.
         /// </summary>
         /// <param name="message"></param>
@@ -167,13 +160,6 @@ namespace PeachtreeBus.Data
         /// <param name="maxCount">The maximum number of rows to Expire</param>
         /// <returns></returns>
         Task<long> ExpireSubscriptionMessages(int maxCount);
-
-        /// <summary>
-        /// Gets the current subscribers for a category
-        /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
-        Task<IEnumerable<SubscriberId>> GetSubscribers(Category category);
 
         /// <summary>
         /// removes old data from a queue's failed messages.

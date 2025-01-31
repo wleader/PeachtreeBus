@@ -5,7 +5,6 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -433,41 +432,6 @@ namespace PeachtreeBus.Data
                 _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction));
         }
 
-        /// <summary>
-        /// Stores a subscribed message in the pending table.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
-        public async Task<Identity> AddMessage(SubscribedMessage message)
-        {
-            const string EnqueueMessageStatement =
-                """
-                INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
-                ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                OUTPUT INSERTED.[Id]
-                VALUES
-                (@SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
-                """;
-
-            ArgumentNullException.ThrowIfNull(message);
-
-            string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema);
-
-            var p = new DynamicParameters();
-            p.Add("@MessageId", message.MessageId);
-            p.Add("@Priority", message.Priority);
-            p.Add("@SubscriberId", message.SubscriberId);
-            p.Add("@ValidUntil", message.ValidUntil);
-            p.Add("@NotBefore", message.NotBefore);
-            p.Add("@Headers", message.Headers);
-            p.Add("@Body", message.Body);
-
-            return message.Id = await LogIfError(
-                _database.Connection.QueryFirstAsync<Identity>(statement, p, _database.Transaction));
-        }
-
         public async Task<long> Publish(SubscribedMessage message, Category category)
         {
             const string PublishStatement =
@@ -617,31 +581,6 @@ namespace PeachtreeBus.Data
 
             return await LogIfError(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
-        }
-
-        /// <summary>
-        /// Gets a list of subscribers for a subscriptin category.
-        /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public async Task<IEnumerable<SubscriberId>> GetSubscribers(Category category)
-        {
-            const string GetStatement =
-                """
-                SELECT [SubscriberId]
-                    FROM [{0}].[Subscriptions] WITH (READPAST)
-                    WHERE [Category] = @Category
-                    AND [ValidUntil] > SYSUTCDATETIME()
-                """;
-
-            var statement = string.Format(GetStatement, _schemaConfig.Schema);
-
-            var p = new DynamicParameters();
-            p.Add("@Category", category);
-
-            return await LogIfError(
-                _database.Connection.QueryAsync<SubscriberId>(statement, p, _database.Transaction));
         }
 
         /// <summary>

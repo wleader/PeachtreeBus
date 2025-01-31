@@ -35,8 +35,7 @@ namespace PeachtreeBus.DataAccessTests
         protected async Task<SubscribedMessage> CreatePendingSubscribed()
         {
             var message = TestData.CreateSubscribedMessage();
-            message.SubscriberId = SubscriberId.New();
-            message.Id = await BusAccess.AddMessage(message);
+            await InsertSubscribedMessage(message);
             await Task.Delay(10); // make sure that messages get sequential enqueued times.
             return message;
         }

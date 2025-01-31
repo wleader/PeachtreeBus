@@ -37,10 +37,10 @@ namespace PeachtreeBus.DataAccessTests
             // Add two messages;
             var testMessage1 = TestData.CreateSubscribedMessage();
             testMessage1.SubscriberId = SubscriberId.New();
-            testMessage1.Id = await dataAccess.AddMessage(testMessage1);
+            await InsertSubscribedMessage(testMessage1);
             var testMessage2 = TestData.CreateSubscribedMessage();
             testMessage2.SubscriberId = SubscriberId.New();
-            testMessage2.Id = await dataAccess.AddMessage(testMessage2);
+            await InsertSubscribedMessage(testMessage2);
             await Task.Delay(10); // wait for the rows to be ready
 
             // get and update a message.
@@ -62,7 +62,7 @@ namespace PeachtreeBus.DataAccessTests
             await dataAccess.UpdateMessage(toUpdate);
             await Task.Delay(10); // wait for the rows to be ready
 
-            // Check that it ended up in the error table.
+            // Check that it is still pending
             var pending = GetSubscribedPending();
             Assert.AreEqual(2, pending.Count);
 
