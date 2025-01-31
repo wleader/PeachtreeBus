@@ -22,9 +22,7 @@ public class PublishFixture : DapperDataAccessFixtureBase
     public override void TestInitialize()
     {
         base.TestInitialize();
-
         UserMessage = TestData.CreateSubscribedMessage();
-
     }
 
     [TestCleanup]
