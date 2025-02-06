@@ -19,12 +19,9 @@ namespace PeachtreeBus.SimpleInjector;
 public static partial class SimpleInjectorExtensions
 {
     /// <summary>
-    /// Enables Basic PeachtreeBus functionality, such as sending Queue or Subsribed messages.
+    /// Enables Basic PeachtreeBus functionality.
+    /// Registers needed services with the Container.
     /// </summary>
-    /// <param name="container"></param>
-    /// <param name="dbSchema"></param>
-    /// <param name="subscribedLifespan"></param>
-    /// <returns></returns>
     public static Container UsePeachtreeBus(this Container container, IBusConfiguration configuration, ILoggerFactory loggerFactory, List<Assembly>? assemblies = null)
     {
         Assemblies = assemblies ?? [.. AppDomain.CurrentDomain.GetAssemblies().ToList()];
@@ -63,6 +60,9 @@ public static partial class SimpleInjectorExtensions
     /// </summary>
     private static Container RegisterRequiredComponents(this Container container)
     {
+        // detects missing registrations.
+        container.Register(typeof(VerifyBaseRequirements), typeof(VerifyBaseRequirements), Lifestyle.Transient);
+
         // Data access components are needed to:
         // send messages (queue or subscribed)
         // handle message (queue or susbscribed)
@@ -122,14 +122,16 @@ public static partial class SimpleInjectorExtensions
 
     private static Container RegisterQueueComponents(this Container container)
     {
-        if (Configuration.QueueConfiguration is null)
-            return container;
+        if (Configuration.QueueConfiguration is null) return container;
 
         if (Configuration.QueueConfiguration.UseDefaultFailedHandler)
             container.Register(typeof(IHandleFailedQueueMessages), typeof(DefaultFailedQueueMessageHandler), Lifestyle.Scoped);
 
         if (Configuration.QueueConfiguration.UseDefaultRetryStrategy)
             container.Register(typeof(IQueueRetryStrategy), typeof(DefaultQueueRetryStrategy), Lifestyle.Singleton);
+
+        // detects missing registrations.
+        container.Register(typeof(VerifyQueueRequirements), typeof(VerifyQueueRequirements), Lifestyle.Transient);
 
         // register message handlers and sagas.
         // this finds types that impliment IHandleMessage<>.
@@ -159,14 +161,16 @@ public static partial class SimpleInjectorExtensions
 
     private static Container RegisterSubscribedComponents(this Container container)
     {
-        if (Configuration.SubscriptionConfiguration is null)
-            return container;
+        if (Configuration.SubscriptionConfiguration is null) return container;
 
         if (Configuration.SubscriptionConfiguration.UseDefaultFailedHandler)
             container.Register(typeof(IHandleFailedSubscribedMessages), typeof(DefaultFailedSubscribedMessageHandler), Lifestyle.Scoped);
 
         if (Configuration.SubscriptionConfiguration.UseDefaultRetryStrategy)
             container.Register(typeof(ISubscribedRetryStrategy), typeof(DefaultSubscribedRetryStrategy), Lifestyle.Singleton);
+
+        // detects missing registrations.
+        container.Register(typeof(VerifiySubscriptionsRequirements), typeof(VerifiySubscriptionsRequirements), Lifestyle.Transient);
 
         // register our subscription message handlers
         container.FindAndRegisterMessageHandler(typeof(IHandleSubscribedMessage<>), typeof(ISubscribedMessage));
@@ -197,25 +201,6 @@ public static partial class SimpleInjectorExtensions
     }
 
     private static List<Assembly> Assemblies = default!;
-
-    private static Container FindAndRegisterQueueMessageHandlers(this Container container)
-    {
-        // the interface for any message handler.
-        var messsageHandlerType = typeof(IHandleQueueMessage<>);
-        // find all of the messages.
-        var messageTypes = container.GetTypesToRegister(typeof(IQueueMessage), Assemblies);
-        foreach (var mt in messageTypes)
-        {
-            // determine the generic interface for the IHandleMessage<mt>
-            var genericMessageHandlerType = messsageHandlerType.MakeGenericType(mt);
-            // find types that impliment IHandleMessage<mt>
-            var concreteMessageHandlerTypes = container.GetTypesToRegister(genericMessageHandlerType, Assemblies);
-            // collection register them so the Message Processor can find the handlers.
-            container.Collection.Register(genericMessageHandlerType, concreteMessageHandlerTypes, Lifestyle.Scoped);
-            container.RegisterConcreteTypesIfNeeded(concreteMessageHandlerTypes, Lifestyle.Scoped);
-        }
-        return container;
-    }
 
     private static Container FindAndRegisterMessageHandler(this Container container,
         Type handlerInterface,
@@ -261,9 +246,6 @@ public static partial class SimpleInjectorExtensions
     {
         if (!Configuration.UseStartupTasks)
             return container;
-
-        MissingRegistrationException.ThrowIfNotRegistered<IWrappedScopeFactory>(container,
-            $"Use {nameof(UsePeachtreeBus)}.");
 
         List<Task> tasks = [];
         List<IWrappedScope> scopes = [];

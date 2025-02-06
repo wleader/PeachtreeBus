@@ -15,7 +15,7 @@ namespace PeachtreeBus.Tests.Cleaners
     {
         private BaseCleanupWork work = default!;
         private Mock<ISystemClock> clock = default!;
-        private BaseCleanupConfiguration config = default!;
+        private QueueConfiguration config = default!;
         private Mock<IBaseCleaner> cleaner = default!;
 
         [TestInitialize]
@@ -25,12 +25,16 @@ namespace PeachtreeBus.Tests.Cleaners
             clock.SetupGet(c => c.UtcNow)
                 .Returns(new DateTime(2022, 3, 4, 10, 49, 32, 33, DateTimeKind.Utc));
 
-            config = new BaseCleanupConfiguration(
-                5, // max delete count
-                true, // clean completed
-                true, // clean failed
-                TimeSpan.FromSeconds(60), // age limit
-                TimeSpan.FromSeconds(60)); // interval
+            config = new()
+            {
+                QueueName = TestData.DefaultQueueName,
+                CleanMaxRows = 5,
+                CleanCompleted = true,
+                CleanFailed = true,
+                CleanInterval = TimeSpan.FromSeconds(60),
+                CleanFailedAge = TimeSpan.FromSeconds(120),
+                CleanCompleteAge = TimeSpan.FromSeconds(60),
+            };
 
             cleaner = new Mock<IBaseCleaner>();
             cleaner.Setup(c => c.CleanCompleted(It.IsAny<DateTime>(), It.IsAny<int>()))
@@ -60,14 +64,14 @@ namespace PeachtreeBus.Tests.Cleaners
             cleaner.Verify(c => c.CleanCompleted(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Once);
             cleaner.Verify(c => c.CleanFailed(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Once);
 
-            Assert.AreEqual(clock.Object.UtcNow.Add(config.Interval), work.NextClean);
+            Assert.AreEqual(clock.Object.UtcNow.Add(config.CleanInterval), work.NextClean);
 
             Assert.AreEqual(false, await work.DoWork());
 
             cleaner.Verify(c => c.CleanCompleted(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Once);
             cleaner.Verify(c => c.CleanFailed(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Once);
 
-            Assert.AreEqual(clock.Object.UtcNow.Add(config.Interval), work.NextClean);
+            Assert.AreEqual(clock.Object.UtcNow.Add(config.CleanInterval), work.NextClean);
         }
 
         /// <summary>
@@ -85,10 +89,11 @@ namespace PeachtreeBus.Tests.Cleaners
 
             Assert.AreEqual(false, await work.DoWork());
 
-            var expectedOlderThan = clock.Object.UtcNow.Subtract(config.AgeLimit);
+            var expectedOlderThan = clock.Object.UtcNow.Subtract(config.CleanCompleteAge);
+            cleaner.Verify(c => c.CleanCompleted(expectedOlderThan, config.CleanMaxRows), Times.Once);
 
-            cleaner.Verify(c => c.CleanCompleted(expectedOlderThan, config.MaxDeleteCount), Times.Once);
-            cleaner.Verify(c => c.CleanFailed(expectedOlderThan, config.MaxDeleteCount), Times.Once);
+            expectedOlderThan = clock.Object.UtcNow.Subtract(config.CleanFailedAge);
+            cleaner.Verify(c => c.CleanFailed(expectedOlderThan, config.CleanMaxRows), Times.Once);
         }
 
         /// <summary>
@@ -218,7 +223,7 @@ namespace PeachtreeBus.Tests.Cleaners
             cleaner.Verify(c => c.CleanCompleted(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Once);
             cleaner.Verify(c => c.CleanFailed(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Once);
 
-            Assert.AreEqual(clock.Object.UtcNow.Add(config.Interval), work.NextClean);
+            Assert.AreEqual(clock.Object.UtcNow.Add(config.CleanInterval), work.NextClean);
         }
 
         /// <summary>
@@ -238,7 +243,7 @@ namespace PeachtreeBus.Tests.Cleaners
             cleaner.Verify(c => c.CleanCompleted(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Once);
             cleaner.Verify(c => c.CleanFailed(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Once);
 
-            Assert.AreEqual(clock.Object.UtcNow.Add(config.Interval), work.NextClean);
+            Assert.AreEqual(clock.Object.UtcNow.Add(config.CleanInterval), work.NextClean);
         }
 
         /// <summary>
@@ -253,7 +258,12 @@ namespace PeachtreeBus.Tests.Cleaners
             cleaner.Setup(c => c.CleanFailed(It.IsAny<DateTime>(), It.IsAny<int>()))
                 .Returns(Task.FromResult(0L));
 
-            config.CleanCompleted = false;
+            config = new()
+            {
+                QueueName = TestData.DefaultQueueName,
+                CleanCompleted = false,
+            };
+            work = new BaseCleanupWork(config, clock.Object, cleaner.Object);
             Assert.IsFalse(await work.DoWork());
             cleaner.Verify(c => c.CleanCompleted(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Never);
         }
@@ -270,7 +280,12 @@ namespace PeachtreeBus.Tests.Cleaners
             cleaner.Setup(c => c.CleanFailed(It.IsAny<DateTime>(), It.IsAny<int>()))
                 .Returns(Task.FromResult(0L));
 
-            config.CleanFailed = false;
+            config = new()
+            {
+                QueueName = TestData.DefaultQueueName,
+                CleanFailed = false,
+            };
+            work = new BaseCleanupWork(config, clock.Object, cleaner.Object);
             Assert.IsFalse(await work.DoWork());
             cleaner.Verify(c => c.CleanFailed(It.IsAny<DateTime>(), It.IsAny<int>()), Times.Never);
         }

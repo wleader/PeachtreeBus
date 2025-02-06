@@ -11,7 +11,7 @@ public class QueueCleanupWorkFixture
     [TestMethod]
     public void When_New_Then_Create()
     {
-        var config = new Mock<IQueueCleanerConfiguration>();
+        var config = new Mock<IBusConfiguration>();
         var clock = new Mock<ISystemClock>();
         var cleaner = new Mock<IQueueCleaner>();
         var w = new QueueCleanupWork(config.Object, clock.Object, cleaner.Object);

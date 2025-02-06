@@ -2,7 +2,6 @@
 using Moq;
 using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
-using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
 
@@ -16,15 +15,13 @@ namespace PeachtreeBus.Tests.Cleaners
     {
         private QueueCleaner cleaner = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
-        private QueueCleanerConfiguration config = default!;
-        private static readonly QueueName DefaultQueue = new("DefaultQueue");
+        private IBusConfiguration config = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
             dataAccess = new Mock<IBusDataAccess>();
-            config = new QueueCleanerConfiguration(DefaultQueue,
-                10, true, true, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+            config = TestData.CreateBusConfiguration();
             cleaner = new QueueCleaner(config, dataAccess.Object);
         }
 
@@ -36,7 +33,7 @@ namespace PeachtreeBus.Tests.Cleaners
         {
             var olderThan = DateTime.UtcNow.AddDays(-1);
             await cleaner.CleanCompleted(olderThan, 5);
-            dataAccess.Verify(d => d.CleanQueueCompleted(DefaultQueue, olderThan, 5), Times.Once);
+            dataAccess.Verify(d => d.CleanQueueCompleted(config.QueueConfiguration!.QueueName, olderThan, 5), Times.Once);
         }
 
         /// <summary>
@@ -47,7 +44,7 @@ namespace PeachtreeBus.Tests.Cleaners
         {
             var olderThan = DateTime.UtcNow.AddDays(-1);
             await cleaner.CleanFailed(olderThan, 5);
-            dataAccess.Verify(d => d.CleanQueueFailed(DefaultQueue, olderThan, 5), Times.Once);
+            dataAccess.Verify(d => d.CleanQueueFailed(config.QueueConfiguration!.QueueName, olderThan, 5), Times.Once);
         }
     }
 }

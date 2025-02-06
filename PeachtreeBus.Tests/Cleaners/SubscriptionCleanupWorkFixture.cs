@@ -2,6 +2,7 @@
 using Moq;
 using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
+using PeachtreeBus.Subscriptions;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Tests.Cleaners
@@ -14,20 +15,28 @@ namespace PeachtreeBus.Tests.Cleaners
     public class SubscriptionCleanupWorkFixture
     {
         private Mock<IBusDataAccess> dataAccess = default!;
-        private Mock<ISubscribedCleanupConfiguration> configuration = default!;
+        private Mock<IBusConfiguration> busConfig = default!;
         private SubscriptionCleanupWork work = default!;
+        private SubscriptionConfiguration? config = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
             dataAccess = new();
-            configuration = new();
+            busConfig = new();
 
-            configuration.SetupGet(c => c.MaxDeleteCount).Returns(100);
+            config = new()
+            {
+                Categories = [],
+                SubscriberId = SubscriberId.New(),
+                CleanMaxRows = 100
+            };
+
+            busConfig.SetupGet(c => c.SubscriptionConfiguration).Returns(() => config);
 
             work = new SubscriptionCleanupWork(
                 dataAccess.Object,
-                configuration.Object);
+                busConfig.Object);
         }
 
         /// <summary>

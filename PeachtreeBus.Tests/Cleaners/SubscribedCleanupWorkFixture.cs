@@ -11,7 +11,7 @@ public class SubscribedCleanupWorkFixture
     [TestMethod]
     public void When_New_Then_Created()
     {
-        var config = new Mock<ISubscribedCleanupConfiguration>();
+        var config = new Mock<IBusConfiguration>();
         var clock = new Mock<ISystemClock>();
         var cleaner = new Mock<ISubscribedCleaner>();
         var work = new SubscribedCleanupWork(config.Object, clock.Object, cleaner.Object);

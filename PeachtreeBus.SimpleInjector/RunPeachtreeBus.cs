@@ -1,6 +1,4 @@
 ﻿using PeachtreeBus.Cleaners;
-using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using SimpleInjector;
@@ -23,16 +21,21 @@ namespace PeachtreeBus.SimpleInjector
             var factory = container.GetInstance<IWrappedScopeFactory>();
             var tasks = new List<Task>();
 
-            // Todo, make this configuration driven.
-            tasks.AddIfRegistered<IQueueCleanupThread>(container, factory);
-            tasks.AddIfRegistered<ISubscribedCleanupThread>(container, factory);
-            tasks.AddIfRegistered<ISubscriptionCleanupThread>(container, factory);
-            tasks.AddIfRegistered<ISubscriptionUpdateThread>(container, factory);
-            tasks.AddIfRegistered<ISubscribedThread>(container, factory);
-
-            for (var i = 0; i < concurrency; i++)
+            if (Configuration.SubscriptionConfiguration is not null)
             {
-                tasks.AddIfRegistered<IQueueThread>(container, factory);
+                tasks.AddIfRegistered<ISubscribedCleanupThread>(container, factory);
+                tasks.AddIfRegistered<ISubscriptionCleanupThread>(container, factory);
+                tasks.AddIfRegistered<ISubscriptionUpdateThread>(container, factory);
+                tasks.AddIfRegistered<ISubscribedThread>(container, factory);
+            }
+
+            if (Configuration.QueueConfiguration is not null)
+            {
+                tasks.AddIfRegistered<IQueueCleanupThread>(container, factory);
+                for (var i = 0; i < concurrency; i++)
+                {
+                    tasks.AddIfRegistered<IQueueThread>(container, factory);
+                }
             }
 
             return tasks;
@@ -57,7 +60,6 @@ namespace PeachtreeBus.SimpleInjector
         public static void RunPeachtreeBus(this Container container, int? concurrency = null)
         {
             container
-                .CheckRequirements()
                 .RunStartupTasks()
                 .RunThreadTasks(concurrency);
         }
@@ -81,26 +83,6 @@ namespace PeachtreeBus.SimpleInjector
             {
                 thread.Join();
             }
-
-            return container;
-        }
-
-        private static Container CheckRequirements(this Container container)
-        {
-            // check for things that Container.Verify can miss because they aren't obtained via constructor injection.
-            if (Configuration.QueueConfiguration is not null)
-                MissingRegistrationException.ThrowIfNotRegistered<IHandleFailedQueueMessages>(container,
-                    $"Use when QueueConfiguration.UseDefaultFailedHandler is false, you must register your own IHandleFailedQueueMessages.");
-
-            if (Configuration.SubscriptionConfiguration is not null)
-                MissingRegistrationException.ThrowIfNotRegistered<IHandleFailedSubscribedMessages>(container,
-                    $"Use when SubscriptionConfiguration.UseDefaultFailedHandler is false, you must register your own IHandleFailedSubscribedMessages.");
-
-            // these are always required, but the user doesn't have to register them.
-            // if they throw, one of our registration helpers missed them.
-            MissingRegistrationException.ThrowIfNotRegistered<IShareObjectsBetweenScopes>(container);
-            MissingRegistrationException.ThrowIfNotRegistered<IWrappedScopeFactory>(container);
-            MissingRegistrationException.ThrowIfNotRegistered<ISqlConnectionFactory>(container);
 
             return container;
         }

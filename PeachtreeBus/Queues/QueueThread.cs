@@ -20,11 +20,13 @@ namespace PeachtreeBus.Queues
             IBusDataAccess dataAccess,
             ILogger<QueueThread> log,
             IQueueWork queueWork,
-            IQueueConfiguration config)
+            IBusConfiguration config)
             : base("Queue", 100, log, dataAccess, shutdown)
         {
             _queueWork = queueWork;
-            _queueWork.QueueName = config.QueueName;
+            _queueWork.QueueName = UnreachableException.ThrowIfNull(config.QueueConfiguration,
+                message: "QueueConfiguration was not provided. Queues must be configured to create a QueueThread.")
+                .QueueName;
         }
 
         public override async Task<bool> DoUnitOfWork()

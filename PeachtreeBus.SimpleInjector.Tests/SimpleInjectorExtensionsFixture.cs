@@ -1,12 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
-using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 
@@ -14,17 +13,16 @@ namespace PeachtreeBus.SimpleInjector.Tests;
 public class SimpleInjectorExtensionsFixture
 {
     private Container _container = default!;
-    private static readonly SchemaName _schemaName = new("PeachtreeBus");
-    private static readonly QueueName _queueName = new("QueueName");
-
     private ILoggerFactory _loggerFactory = default!;
     private readonly Mock<IProvideDbConnectionString> _provideDBConnectionString = new();
     private Mock<IProvideShutdownSignal> _provideShutdownSignal = default!;
-    private static readonly SubscriberId subscriberId = new(Guid.Parse("38dff5e2-b66d-4e01-a5ae-e7fb236708bb"));
+    private List<Assembly> _assemblies = default!;
 
     [TestInitialize]
     public void Intialize()
     {
+        _assemblies = [Assembly.GetExecutingAssembly()];
+
         _container = new Container();
         _container.Options.AllowOverridingRegistrations = true;
         _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
@@ -34,13 +32,12 @@ public class SimpleInjectorExtensionsFixture
         {
             builder.AddSimpleConsole();
         });
-        _container.RegisterInstance(_loggerFactory);
-        _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
 
         // users must provide their own way of configuring the connection string.
         _container.RegisterInstance(_provideDBConnectionString.Object);
 
         // users must provide their own shutdown signal.
+        // provide one that immediatly shuts down so the tests complete.
         _provideShutdownSignal = new();
         _provideShutdownSignal.SetupGet(p => p.ShouldShutdown)
             .Returns(() => true);
@@ -54,90 +51,68 @@ public class SimpleInjectorExtensionsFixture
     }
 
     [TestMethod]
-    public void When_UsePeachtreeBus_Then_ContainerIsValid()
+    public void Given_BasicConfiguration_When_Verify_Then_Runs()
     {
-        _container.UsePeachtreeBus(_schemaName);
-        _container.Verify();
-    }
+        var config = new BusConfiguration()
+        {
+            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
+            Schema = new("PeachTreeBus"),
+        };
 
-    [TestMethod]
-    public void When_UsePeachtreeBusSubscriptions_Then_ContainerIsvalid()
-    {
-        // base components are needed for subscribed message handling.
-        _container.UsePeachtreeBus(_schemaName);
-
-        // retry strategies are required for subscribed message handling.
-        _container.UsePeachtreeBusDefaultRetryStrategy();
-
-        _container.UsePeachtreeBusSubscriptions(new SubscriberConfiguration(
-            subscriberId, TimeSpan.FromSeconds(60), new Category("Announcements")));
-
-        _container.Verify();
-    }
-
-    [TestMethod]
-    public void When_CleanupSubscribed_Then_ContainerIsvalid()
-    {
-        // base components are needed for subscribed message handling.
-        _container.UsePeachtreeBus(_schemaName);
-
-        _container.CleanupSubscribed(10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));
-
-        _container.Verify();
-    }
-
-    [TestMethod]
-    public void When_CleanupQueue_Then_ContainerIsvalid()
-    {
-        // base components are needed for subscribed message handling.
-        _container.UsePeachtreeBus(_schemaName);
-
-        _container.CleanupQueue(_queueName, 10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));
-
-        _container.Verify();
-    }
-
-    [TestMethod]
-    public void When_UsePeachtreeBusQueue_Then_ContainerIsvalid()
-    {
-        // base components are needed for queue message handling.
-        _container.UsePeachtreeBus(_schemaName);
-
-        // retry strategies are required for queue message handling.
-        _container.UsePeachtreeBusDefaultRetryStrategy();
-
-        _container.UsePeachtreeBusQueue(_queueName);
-
-        _container.Verify();
-    }
-
-    [TestMethod]
-    public void When_RunPeachtreeBus_Then_Runs()
-    {
-        // base components are needed for queue message handling.
-        _container.UsePeachtreeBus(_schemaName);
-        _container.UsePeachtreeBusDefaultErrorHandlers();
+        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
         _container.Verify();
         _container.RunPeachtreeBus();
     }
 
-
     [TestMethod]
-    public void When_RunPeachtreeBusStartupTasks_Then_Runs()
+    public void Given_Subscriptions_When_Verify_Then_Runs()
     {
-        _container.UsePeachtreeBus(_schemaName);
+        var config = new BusConfiguration()
+        {
+            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
+            Schema = new("PeachTreeBus"),
+            SubscriptionConfiguration = new()
+            {
+                SubscriberId = SubscriberId.New(),
+                Categories = [new("Category1"), new("Category2")]
+            },
+        };
+
+        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
         _container.Verify();
-        _container.RunPeachtreeBusStartupTasks();
+        _container.RunPeachtreeBus();
     }
 
     [TestMethod]
-    public void Given_UseQueue_When_Run_Then_Runs()
+    public void Given_Queues_When_Verify_Then_Runs()
     {
-        _container.UsePeachtreeBus(_schemaName);
-        _container.UsePeachtreeBusDefaultErrorHandlers();
-        _container.UsePeachtreeBusQueue(_queueName);
-        _container.UsePeachtreeBusDefaultRetryStrategy();
+        var config = new BusConfiguration()
+        {
+            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
+            Schema = new("PeachTreeBus"),
+            QueueConfiguration = new()
+            { QueueName = new("QueueName") },
+        };
+
+        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
         _container.Verify();
         _container.RunPeachtreeBus();
+    }
+
+    [TestMethod]
+    public void Todo()
+    {
+        // Tests custom Queue retry strategy
+        // Tests custom Subscribed retry strategy
+        // Tests custom Queue failed message handler
+        // Tests custom Subscribed failed message handler
+        // Tests with queue cleaning on and off
+        // Tests with subscribed cleaning on and off.
+        // Tests with subscription cleaning on and off.
+        // Tests that find handlers
+        // Tests that find Startup Tasks 
+        // Tests that run startup tasks
+        // Tests that check pipelines are found.
+        Assert.Inconclusive("Tests Missing");
     }
 }

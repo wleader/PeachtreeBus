@@ -19,10 +19,10 @@ namespace PeachtreeBus.Data
     /// Constructor
     /// </remarks>
     /// <param name="database">A Shared Database connection.</param>
-    /// <param name="schemaConfig">Configures which DB Schema to find all the tables in.</param>
+    /// <param name="configuration">Configures which DB Schema to find all the tables in.</param>
     public class DapperDataAccess(
         ISharedDatabase database,
-        IDbSchemaConfiguration schemaConfig,
+        IBusConfiguration configuration,
         ILogger<DapperDataAccess> log)
         : IBusDataAccess
     {
@@ -33,7 +33,7 @@ namespace PeachtreeBus.Data
 
         private readonly ISharedDatabase _database = database;
         private readonly ILogger<DapperDataAccess> _log = log;
-        private readonly IDbSchemaConfiguration _schemaConfig = schemaConfig;
+        private readonly IBusConfiguration _configuration = configuration;
 
         /// <summary>
         /// Adds a queue message to the queue's pending table.
@@ -56,7 +56,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(EnqueueMessageStatement, _schemaConfig.Schema, queueName);
+            string statement = string.Format(EnqueueMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@MessageId", message.MessageId);
@@ -90,7 +90,7 @@ namespace PeachtreeBus.Data
                 ORDER BY [Priority] DESC
                 """;
 
-            var query = string.Format(GetOnePendingMessageStatement, _schemaConfig.Schema, queueName);
+            var query = string.Format(GetOnePendingMessageStatement, _configuration.Schema, queueName);
 
             return await LogIfError(
                 _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction));
@@ -118,7 +118,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(CompleteMessageStatement, _schemaConfig.Schema, queueName);
+            string statement = string.Format(CompleteMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -149,7 +149,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(FailMessageStatement, _schemaConfig.Schema, queueName);
+            string statement = string.Format(FailMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -180,7 +180,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema, queueName);
+            var statement = string.Format(UpdateMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -213,7 +213,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(data);
 
-            string statement = string.Format(InsertSagaStatement, _schemaConfig.Schema, sagaName);
+            string statement = string.Format(InsertSagaStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@SagaId", data.SagaId);
@@ -243,7 +243,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(data);
 
-            var statement = string.Format(UpdateSagaStatement, _schemaConfig.Schema, sagaName);
+            var statement = string.Format(UpdateSagaStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@Id", data.Id);
@@ -268,7 +268,7 @@ namespace PeachtreeBus.Data
                 WHERE [Key] = @Key
                 """;
 
-            string statement = string.Format(DeleteSagaStatement, _schemaConfig.Schema, sagaName);
+            string statement = string.Format(DeleteSagaStatement, _configuration.Schema, sagaName);
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
@@ -333,7 +333,7 @@ namespace PeachtreeBus.Data
                 END CATCH
                 """;
 
-            var query = string.Format(GetSagaDataStatement, _schemaConfig.Schema, sagaName);
+            var query = string.Format(GetSagaDataStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@Key", key);
@@ -356,7 +356,7 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            string statement = string.Format(ExpireSubscriptionsStatement, _schemaConfig.Schema);
+            string statement = string.Format(ExpireSubscriptionsStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
@@ -390,7 +390,7 @@ namespace PeachtreeBus.Data
                 END
                 """;
 
-            string statement = string.Format(SubscribeStatement, _schemaConfig.Schema);
+            string statement = string.Format(SubscribeStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
@@ -423,7 +423,7 @@ namespace PeachtreeBus.Data
                     ORDER BY [Priority] DESC
                 """;
 
-            var query = string.Format(statement, _schemaConfig.Schema);
+            var query = string.Format(statement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
@@ -447,7 +447,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(PublishStatement, _schemaConfig.Schema);
+            string statement = string.Format(PublishStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Priority", message.Priority);
@@ -482,7 +482,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(completeStatement, _schemaConfig.Schema);
+            string statement = string.Format(completeStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -512,7 +512,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(FailMessageStatement, _schemaConfig.Schema);
+            string statement = string.Format(FailMessageStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -542,7 +542,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            var statement = string.Format(UpdateMessageStatement, _schemaConfig.Schema);
+            var statement = string.Format(UpdateMessageStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -574,7 +574,7 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            var statement = string.Format(ExpireStatement, _schemaConfig.Schema);
+            var statement = string.Format(ExpireStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
@@ -600,7 +600,7 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            string statement = string.Format(statementTemplate, _schemaConfig.Schema);
+            string statement = string.Format(statementTemplate, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
@@ -627,7 +627,7 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            string statement = string.Format(statementTemplate, _schemaConfig.Schema);
+            string statement = string.Format(statementTemplate, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
@@ -654,7 +654,7 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            string statement = string.Format(statementTemplate, _schemaConfig.Schema, queueName);
+            string statement = string.Format(statementTemplate, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
@@ -681,7 +681,7 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            string statement = string.Format(statementTemplate, _schemaConfig.Schema, queueName);
+            string statement = string.Format(statementTemplate, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);

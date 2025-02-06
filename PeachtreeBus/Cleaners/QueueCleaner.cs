@@ -15,16 +15,15 @@ namespace PeachtreeBus.Cleaners
     /// <remarks>
     /// Constructor
     /// </remarks>
-    /// <param name="qconfig">Controls with Queue will be cleaned.</param>
+    /// <param name="config">Controls with Queue will be cleaned.</param>
     /// <param name="dataAccess">Provides access to the data store.</param>
     public class QueueCleaner(
-        IQueueCleanerConfiguration qconfig,
+        IBusConfiguration config,
         IBusDataAccess dataAccess)
         : IQueueCleaner
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
-        private readonly IQueueCleanerConfiguration _qconfig = qconfig;
-
+        private readonly QueueConfiguration? _config = config.QueueConfiguration;
         /// <summary>
         /// Cleans completed messages for the configured queue.
         /// </summary>
@@ -33,7 +32,8 @@ namespace PeachtreeBus.Cleaners
         /// <returns>The number of messages removed from the data store.</returns>
         public async Task<long> CleanCompleted(DateTime olderthan, int maxCount)
         {
-            return await _dataAccess.CleanQueueCompleted(_qconfig.QueueName, olderthan, maxCount);
+            if (_config is null) return 0;
+            return await _dataAccess.CleanQueueCompleted(_config.QueueName, olderthan, maxCount);
         }
 
         /// <summary>
@@ -44,7 +44,8 @@ namespace PeachtreeBus.Cleaners
         /// <returns>The number of messages removed from the data store.</returns>
         public async Task<long> CleanFailed(DateTime olderthan, int maxCount)
         {
-            return await _dataAccess.CleanQueueFailed(_qconfig.QueueName, olderthan, maxCount);
+            if (_config is null) return 0;
+            return await _dataAccess.CleanQueueFailed(_config.QueueName, olderthan, maxCount);
         }
     }
 }

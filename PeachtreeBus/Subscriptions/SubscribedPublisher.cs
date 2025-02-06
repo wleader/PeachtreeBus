@@ -24,14 +24,14 @@ namespace PeachtreeBus.Subscriptions
     /// </summary>
     public class SubscribedPublisher(
         IBusDataAccess dataAccess,
-        ISubscribedLifespan subscriptionConfiguration,
+        IBusConfiguration configuration,
         ISerializer serializer,
         IPerfCounters counters,
         ISystemClock clock)
         : ISubscribedPublisher
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
-        private readonly ISubscribedLifespan _subscribedLifespan = subscriptionConfiguration;
+        private readonly IBusConfiguration _configuation = configuration;
         private readonly ISerializer _serializer = serializer;
         private readonly IPerfCounters _counters = counters;
         private readonly ISystemClock _clock = clock;
@@ -66,7 +66,7 @@ namespace PeachtreeBus.Subscriptions
             // create the message entity, serializing the headers and body.
             var sm = new SubscribedMessage
             {
-                ValidUntil = _clock.UtcNow.Add(_subscribedLifespan.Duration),
+                ValidUntil = _clock.UtcNow.Add(_configuation.PublishConfiguration.Lifespan),
                 MessageId = UniqueIdentity.Empty, // will be ignored and the database will generate.
                 Priority = priority,
                 NotBefore = notBefore ?? _clock.UtcNow,

@@ -15,17 +15,18 @@ namespace PeachtreeBus.Tests.Subscriptions
     public class SubscriptionUpdaterFixture
     {
         private SubscriptionUpdateWork Updater = default!;
-        private SubscriberConfiguration config = default!;
+        private BusConfiguration config = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
         private Mock<ISystemClock> clock = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            config = new SubscriberConfiguration(
-                SubscriberId.New(),
-                TimeSpan.FromSeconds(30),
-                new("cat1"), new("cat2"));
+            config = TestData.CreateBusConfiguration();
+            //config = new SubscriberConfiguration(
+            //    SubscriberId.New(),
+            //    TimeSpan.FromSeconds(30),
+            //    new("cat1"), new("cat2"));
             dataAccess = new Mock<IBusDataAccess>();
             clock = new Mock<ISystemClock>();
 
@@ -63,7 +64,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             // advance the clock.
             var now = clock.Object.UtcNow;
-            now = now.Add(config.Lifespan / 2);
+            now = now.Add(config.SubscriptionConfiguration!.Lifespan / 2);
             clock.SetupGet(c => c.UtcNow).Returns(now);
 
             // see that it can update again.
@@ -77,12 +78,17 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task DoWork_SubscribesToCategories()
         {
+            Assert.IsNotNull(config.SubscriptionConfiguration);
+            Assert.IsTrue(config.SubscriptionConfiguration.Categories.Count > 1);
+
             await Updater.DoWork();
 
-            var unitl = clock.Object.UtcNow.Add(config.Lifespan);
-            dataAccess.Verify(d => d.Subscribe(config.SubscriberId, new("cat1"), unitl), Times.Once);
-            dataAccess.Verify(d => d.Subscribe(config.SubscriberId, new("cat2"), unitl), Times.Once);
+            var expectedUntil = clock.Object.UtcNow.Add(config.SubscriptionConfiguration!.Lifespan);
+            var expectedSubscriber = config.SubscriptionConfiguration.SubscriberId;
+            foreach (var cat in config.SubscriptionConfiguration.Categories)
+            {
+                dataAccess.Verify(d => d.Subscribe(expectedSubscriber, cat, expectedUntil), Times.Once);
+            }
         }
-
     }
 }

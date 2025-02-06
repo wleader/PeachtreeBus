@@ -18,14 +18,14 @@ namespace PeachtreeBus.Subscriptions
     /// </summary>
     public class SubscriptionUpdateWork(
         IBusDataAccess dataAccess,
-        ISubscriberConfiguration config,
+        IBusConfiguration config,
         ISystemClock clock)
         : ISubscriptionUpdateWork
     {
         public DateTime LastUpdate { get; private set; } = DateTime.MinValue;
 
         private readonly IBusDataAccess _dataAccess = dataAccess;
-        private readonly ISubscriberConfiguration _config = config;
+        private readonly SubscriptionConfiguration _config = config.SubscriptionConfiguration!;
         private readonly ISystemClock _clock = clock;
 
         public async Task<bool> DoWork()

@@ -19,12 +19,14 @@ namespace PeachtreeBus.Subscriptions
         public SubscribedThread(IProvideShutdownSignal provideShutdownSignal,
             ILogger<SubscribedThread> log,
             IBusDataAccess busDataAccess,
-            ISubscriberConfiguration subscriberConfiguration,
+            IBusConfiguration configuration,
             ISubscribedWork subscribeWork)
             : base("Subscription Message", 100, log, busDataAccess, provideShutdownSignal)
         {
             _subscribedWork = subscribeWork;
-            _subscribedWork.SubscriberId = subscriberConfiguration.SubscriberId;
+            _subscribedWork.SubscriberId = UnreachableException.ThrowIfNull(configuration.SubscriptionConfiguration,
+                message: "Subscription configuration is required to create a SubscribedThread")
+                .SubscriberId;
         }
 
         public override async Task<bool> DoUnitOfWork()

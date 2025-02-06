@@ -13,16 +13,18 @@ namespace PeachtreeBus.Cleaners
     /// </summary>
     public class SubscriptionCleanupWork(
         IBusDataAccess dataAccess,
-        ISubscribedCleanupConfiguration configuration)
+        IBusConfiguration configuration)
         : ISubscriptionCleanupWork
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
-        private readonly ISubscribedCleanupConfiguration configuration = configuration;
+        private readonly IBusConfiguration _configuration = configuration;
 
         public async Task<bool> DoWork()
         {
-            await _dataAccess.ExpireSubscriptionMessages(configuration.MaxDeleteCount);
-            await _dataAccess.ExpireSubscriptions(configuration.MaxDeleteCount);
+            if (_configuration.SubscriptionConfiguration is null) return false;
+
+            await _dataAccess.ExpireSubscriptionMessages(_configuration.SubscriptionConfiguration.CleanMaxRows);
+            await _dataAccess.ExpireSubscriptions(_configuration.SubscriptionConfiguration.CleanMaxRows);
             return true;
         }
     }

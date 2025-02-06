@@ -15,7 +15,7 @@ namespace PeachtreeBus.Management
 {
     public class ManagementDataAccess(
         ISharedDatabase database,
-        IDbSchemaConfiguration schemaConfig,
+        IBusConfiguration configuration,
         ILogger<ManagementDataAccess> log)
         : IManagementDataAccess
     {
@@ -24,8 +24,8 @@ namespace PeachtreeBus.Management
             DapperTypeHandlers.AddHandlers();
         }
 
-        private readonly IDbSchemaConfiguration _schemaConfig = schemaConfig;
         private readonly ISharedDatabase _database = database;
+        private readonly IBusConfiguration _configuration = configuration;
         private readonly ILogger<ManagementDataAccess> _log = log;
 
         private const string QueueFields = "[Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
@@ -59,7 +59,7 @@ namespace PeachtreeBus.Management
                     FETCH NEXT @Take ROWS ONLY
                 """;
 
-            string statement = string.Format(template, _schemaConfig.Schema, queueName, table, fields);
+            string statement = string.Format(template, _configuration.Schema, queueName, table, fields);
 
             var p = new DynamicParameters();
             p.Add("@Skip", skip);
@@ -111,7 +111,7 @@ namespace PeachtreeBus.Management
                         WHERE [Id] = @Id) D
                 """;
 
-            string statement = string.Format(CancelPendingQueuedStatement, _schemaConfig.Schema, queueName);
+            string statement = string.Format(CancelPendingQueuedStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
@@ -132,7 +132,7 @@ namespace PeachtreeBus.Management
                         WHERE [Id] = @Id) D
                 """;
 
-            string statement = string.Format(CancelPendingSubscribedStatement, _schemaConfig.Schema);
+            string statement = string.Format(CancelPendingSubscribedStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
@@ -153,7 +153,7 @@ namespace PeachtreeBus.Management
                         WHERE [Id] = @Id) D
                 """;
 
-            string statement = string.Format(RetryFailedQueuedStatement, _schemaConfig.Schema, queueName);
+            string statement = string.Format(RetryFailedQueuedStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
@@ -174,7 +174,7 @@ namespace PeachtreeBus.Management
                         WHERE [Id] = @Id) D
                 """;
 
-            string statement = string.Format(RetryFailedSubscribedStatement, _schemaConfig.Schema);
+            string statement = string.Format(RetryFailedSubscribedStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);

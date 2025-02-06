@@ -37,12 +37,12 @@ namespace PeachtreeBus.Cleaners
     /// <param name="clock">Provides acess to the clock.</param>
     /// <param name="cleaner">Performs the cleanup.</param>
     public class BaseCleanupWork(
-        IBaseCleanupConfiguration config,
+        BaseConfiguration? config,
         ISystemClock clock,
         IBaseCleaner cleaner)
         : IUnitOfWork
     {
-        protected readonly IBaseCleanupConfiguration _config = config;
+        protected readonly BaseConfiguration? _config = config;
         protected readonly ISystemClock _clock = clock;
         private readonly IBaseCleaner _cleaner = cleaner;
 
@@ -58,37 +58,41 @@ namespace PeachtreeBus.Cleaners
         /// <returns>True if there is more cleanup to do.</returns>
         public async Task<bool> DoWork()
         {
+            if (_config is null) return false;
+
             // if we not scheduled to clean yet, return false
             // so the loop will rollback and sleep.
             if (_clock.UtcNow < NextClean) return false;
 
             long deleted = 0;
-            var olderthan = _clock.UtcNow.Subtract(_config.AgeLimit);
+
 
             if (_config.CleanCompleted)
             {
-                deleted += await _cleaner.CleanCompleted(olderthan, _config.MaxDeleteCount);
+                var olderthan = _clock.UtcNow.Subtract(_config.CleanCompleteAge);
+                deleted += await _cleaner.CleanCompleted(olderthan, _config.CleanMaxRows);
                 // we deleted the max amount, we want to runt he loop again and delete more
                 // in another transaction.
                 // so do not update the NextClean time.
                 // Return true because we want to commit the transaction.
-                if (deleted >= _config.MaxDeleteCount) return true;
+                if (deleted >= _config.CleanMaxRows) return true;
             }
 
             if (_config.CleanFailed)
             {
-                deleted += await _cleaner.CleanFailed(olderthan, _config.MaxDeleteCount - (int)deleted);
+                var olderthan = _clock.UtcNow.Subtract(_config.CleanFailedAge);
+                deleted += await _cleaner.CleanFailed(olderthan, _config.CleanMaxRows - (int)deleted);
                 // we deleted the max amount, we want to runt he loop again and delete more
                 // in another transaction.
                 // so do not update the NextClean time.
                 // Return true because we want to commit the transaction.
-                if (deleted >= _config.MaxDeleteCount) return true;
+                if (deleted >= _config.CleanMaxRows) return true;
             }
 
-            if (deleted < _config.MaxDeleteCount)
+            if (deleted < _config.CleanMaxRows)
             {
                 // cause the cleanup process to go to sleep for a while.
-                NextClean = _clock.UtcNow.Add(_config.Interval);
+                NextClean = _clock.UtcNow.Add(_config.CleanInterval);
             }
 
             // if we deleted something, then commit the transaction,

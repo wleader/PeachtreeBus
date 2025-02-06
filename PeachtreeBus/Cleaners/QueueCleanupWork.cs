@@ -11,10 +11,10 @@ namespace PeachtreeBus.Cleaners
     /// Default implmentation of IQueueCleanupWork
     /// </summary>
     public class QueueCleanupWork(
-        IQueueCleanerConfiguration config,
+        IBusConfiguration config,
         ISystemClock clock,
         IQueueCleaner cleaner)
-        : BaseCleanupWork(config, clock, cleaner)
+        : BaseCleanupWork(config.QueueConfiguration, clock, cleaner)
         , IQueueCleanupWork
     { }
 }
