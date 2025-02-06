@@ -2,22 +2,22 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus.SimpleInjector</id>
-        <version>0.10.5</version>
+        <version>0.11.0</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>Connect On Demand Release</releaseNotes>
+        <releaseNotes>Message Prioritzation Release</releaseNotes>
         <description>
         PeachtreeBus.SimpleInjector is a package that contains classes and extensions for integrating PeachtreeBus with SimpleInjector.
         </description>
         <copyright>Copyright 2024 William Leader</copyright>
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
-            <group targetFramework="netstandard2.1">
-            <dependency id="PeachtreeBus" version="0.10.5" />
+            <group targetFramework="net8.0">
+            <dependency id="PeachtreeBus" version="0.11.0" />
             <dependency id="SimpleInjector" version="5.4.6" />
             </group>
         </dependencies>
@@ -26,7 +26,7 @@
     <files>
         <file src="icon.png" target="icon.png" />
         <file src=".\Docs\README.md" target="docs\" />
-        <file src=".\PeachtreeBus.SimpleInjector\bin\Release\netstandard2.1\PeachtreeBus.SimpleInjector.dll" target="lib\netstandard2.1\PeachtreeBus.SimpleInjector.dll" />
-        <file src=".\PeachtreeBus.SimpleInjector\bin\Release\netstandard2.1\PeachtreeBus.SimpleInjector.pdb" target="lib\netstandard2.1\PeachtreeBus.SimpleInjector.pdb" />
+        <file src=".\PeachtreeBus.SimpleInjector\bin\Release\net8.0\PeachtreeBus.SimpleInjector.dll" target="lib\net8.0\PeachtreeBus.SimpleInjector.dll" />
+        <file src=".\PeachtreeBus.SimpleInjector\bin\Release\net8.0\PeachtreeBus.SimpleInjector.pdb" target="lib\net8.0\PeachtreeBus.SimpleInjector.pdb" />
     </files>
 </package>

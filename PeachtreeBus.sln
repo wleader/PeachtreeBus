@@ -5,6 +5,7 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{FCEB713C-B3A8-40B7-8265-9DE8E4E2ADDE}"
 	ProjectSection(SolutionItems) = preProject
+		BuildPackages.ps1 = BuildPackages.ps1
 		Directory.Build.props = Directory.Build.props
 		Licence.txt = Licence.txt
 		LogMessages.xsd = LogMessages.xsd
@@ -44,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.EntityFramewor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.EntityFrameworkCore.Tests", "PeachtreeBus.EntityFrameworkCore.Tests\PeachtreeBus.EntityFrameworkCore.Tests.csproj", "{615F0707-09BC-48DF-BD16-93D6C6BB39B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.SimpleInjector.Tests", "PeachtreeBus.SimpleInjector.Tests\PeachtreeBus.SimpleInjector.Tests.csproj", "{517FE365-48D1-42E7-9B89-E301F80054C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.SimpleInjector.Tests", "PeachtreeBus.SimpleInjector.Tests\PeachtreeBus.SimpleInjector.Tests.csproj", "{517FE365-48D1-42E7-9B89-E301F80054C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

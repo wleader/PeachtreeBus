@@ -2,21 +2,21 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus</id>
-        <version>0.10.5</version>
+        <version>0.11.0</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>Connect On Demand Release</releaseNotes>
+        <releaseNotes>Message Prioritzation Release</releaseNotes>
         <description>
         PeachtreeBus is intended to be a light weight message bus system focused on integration with SQL server for its transport and persistence, while playing nicely with applications built using Inversion of Control and Dependency Injection.
         </description>
-        <copyright>Copyright 2024 William Leader</copyright>
+        <copyright>Copyright 2025 William Leader</copyright>
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
-            <group targetFramework="netstandard2.1">
+            <group targetFramework="net8.0">
             <dependency id="Dapper" version="2.1.35" />
             <dependency id="Microsoft.Extensions.Logging.Abstractions" version="8.0.1" />
             <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="8.0.0" />
@@ -29,11 +29,11 @@
     <files>
         <file src="icon.png" target="icon.png" />
         <file src=".\Docs\README.md" target="docs\" />
-        <file src=".\PeachtreeBus\bin\Release\netstandard2.1\PeachtreeBus.dll" target="lib\netstandard2.1\PeachtreeBus.dll" />
-        <file src=".\PeachtreeBus\bin\Release\netstandard2.1\PeachtreeBus.pdb" target="lib\netstandard2.1\PeachtreeBus.pdb" />
-        <file src=".\PeachtreeBus\bin\Release\netstandard2.1\PeachtreeBus.Interfaces.dll" target="lib\netstandard2.1\PeachtreeBus.Interfaces.dll" />
-        <file src=".\PeachtreeBus\bin\Release\netstandard2.1\PeachtreeBus.Interfaces.pdb" target="lib\netstandard2.1\PeachtreeBus.Interfaces.pdb" />
-        <file src=".\PeachtreeBus\bin\Release\netstandard2.1\PeachtreeBus.DatabaseSharing.dll" target="lib\netstandard2.1\PeachtreeBus.DatabaseSharing.dll" />
-        <file src=".\PeachtreeBus\bin\Release\netstandard2.1\PeachtreeBus.DatabaseSharing.pdb" target="lib\netstandard2.1\PeachtreeBus.DatabaseSharing.pdb" />
+        <file src=".\PeachtreeBus\bin\Release\net8.0\PeachtreeBus.dll" target="lib\net8.0\PeachtreeBus.dll" />
+        <file src=".\PeachtreeBus\bin\Release\net8.0\PeachtreeBus.pdb" target="lib\net8.0\PeachtreeBus.pdb" />
+        <file src=".\PeachtreeBus\bin\Release\net8.0\PeachtreeBus.Interfaces.dll" target="lib\net8.0\PeachtreeBus.Interfaces.dll" />
+        <file src=".\PeachtreeBus\bin\Release\net8.0\PeachtreeBus.Interfaces.pdb" target="lib\net8.0\PeachtreeBus.Interfaces.pdb" />
+        <file src=".\PeachtreeBus\bin\Release\net8.0\PeachtreeBus.DatabaseSharing.dll" target="lib\net8.0\PeachtreeBus.DatabaseSharing.dll" />
+        <file src=".\PeachtreeBus\bin\Release\net8.0\PeachtreeBus.DatabaseSharing.pdb" target="lib\net8.0\PeachtreeBus.DatabaseSharing.pdb" />
     </files>
 </package>
