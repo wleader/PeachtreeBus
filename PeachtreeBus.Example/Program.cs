@@ -1,11 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PeachtreeBus.Data;
-using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Example.Data;
 using PeachtreeBus.Example.Services;
 using PeachtreeBus.Example.Subsciptions;
-using PeachtreeBus.Queues;
 using PeachtreeBus.SimpleInjector;
 using PeachtreeBus.Subscriptions;
 using SimpleInjector;
@@ -24,74 +21,117 @@ namespace PeachtreeBus.Example
         /// </summary>
         private static readonly Container _container = new();
 
-        private static readonly QueueName _queueName = new("SampleQueue");
-        private static readonly SchemaName _schemaName = new("PeachtreeBus");
-
         static void Main()
         {
             // setup a scoped lifestyle.
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            // This will:
-            // Register common types required to run the bus,
-            // configure which DB Schema, and which Queue will be used.
-            // Register Startup tasks found in loaded assemblies.
-            _container.UsePeachtreeBus(_schemaName);
+            // get configuration from appsettings.json
+            var configurationBuilder = new ConfigurationBuilder();
+            configurationBuilder.AddJsonFile("appsettings.json");
+            var configuration = configurationBuilder.Build();
+            _container.RegisterSingleton<IConfiguration>(() => configuration);
 
-            // Register Queue handlers (and Sagas) found in loaded assemblies.
-            _container.UsePeachtreeBusQueue(_queueName);
-
-            // This will:
-            // Register Subscription Handlers found in loaded assemblies.
-            // Register Types needed to use subscriptions.
-            // provide subscription configuration.
-            // in this case the subscriber ID is always the same, but in a real
-            // application each instance will need a different ID. 
-            var subscriberId = new SubscriberId(Guid.Parse("E00E876C-A9F4-46C4-B0E7-2B27C525FA98"));
-            _container.UsePeachtreeBusSubscriptions(new Subscriptions.SubscriberConfiguration(
-                subscriberId, TimeSpan.FromSeconds(60), Categories.Announcements));
-
-            // disable Failed Message handling
-            _container.UsePeachtreeBusDefaultErrorHandlers();
-
-            // use the default retry strategy
-            _container.UsePeachtreeBusDefaultRetryStrategy();
-
-            // this will:
-            // setup cleaning of the sample queue.
-            // 10 to messages will be cleaned per run
-            // completed messages will be cleaned,
-            // failed messages will not be cleaned,
-            // messages that are 1 day old will be cleaned
-            // cleanup code will not run for 1 minue when there is nothing to clean.
-            _container.CleanupQueue(_queueName, 10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));
-
-            // Same as above, but for subscribed messages.
-            // this will also keep the subscriptions table clean from subscribers that forgot about themselves.
-            _container.CleanupSubscribed(10, true, false, TimeSpan.FromDays(1), TimeSpan.FromMinutes(1));
-
-            // Register some services that are needed by PeachtreeBus
-            // These are things you may want to replace in your application.
-            // signal shutdown when the process is exiting.
-            _container.RegisterSingleton(typeof(IProvideShutdownSignal), typeof(ProcessExitShutdownSignal));
+            // read our connection string from the appsettings configuration.
+            var connectionString = configuration.GetConnectionString("PeachtreeBus")
+                ?? throw new ApplicationException("A PeachtreeBus connection string is not configured.");
 
             // log to the console window.
             using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.AddSimpleConsole();
             });
-            _container.RegisterInstance(loggerFactory);
-            _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
 
-            // read the DB connection string from an appsettings.json.
-            _container.RegisterSingleton(typeof(IProvideDbConnectionString), typeof(AppSettingsDatabaseConfig));
-            // register an IConfiguration read from appsettings.json.
-            _container.RegisterSingleton(typeof(IConfiguration), () =>
+
+            var busConfiguration = new BusConfiguration()
             {
-                var configurationBuilder = new ConfigurationBuilder();
-                configurationBuilder.AddJsonFile("appsettings.json");
-                return configurationBuilder.Build();
-            });
+                // requried. This must always be configured.
+                Schema = new("PeachtreeBus"),
+
+                // required. What SQL Server database to use.
+                ConnectionString = connectionString,
+
+                // if configured this process should recieve and process messages from this queue.
+                QueueConfiguration = new()
+                {
+                    QueueName = new("SampleQueue"),
+
+                    // Determines if the default IHandleFailedQueueMessages will be registerd.
+                    // The default handler does nothing.
+                    // If false, you must register your own implementation of IHandleFailedQueueMessages with the container.
+                    UseDefaultFailedHandler = true,
+
+                    // Determines if the default IQueueRetryStrategy will be registered.
+                    // The Default strategy retries up to 5 times, waiting 5 seconds longer after each failure.
+                    // if false you must register your own implementation of IQueueRetryStrategy
+                    UseDefaultRetryStrategy = true,
+
+                    // determines which messages to automatically cleaned up.
+                    CleanFailed = true,
+                    CleanCompleted = true,
+                    // determines how old message have to be to be cleaned.
+                    CleanFailedAge = TimeSpan.FromDays(7),
+                    CleanCompleteAge = TimeSpan.FromDays(1),
+                    // how often to perform the cleanup.
+                    CleanInterval = TimeSpan.FromMinutes(5),
+
+                },
+
+                // If configured this causes the process to search for and process subscribed messages.
+                SubscriptionConfiguration = new()
+                {
+                    // In a real application, each instance of the process would have a different ID.
+                    // this can be random, or managed as needed. 
+                    SubscriberId = new SubscriberId(Guid.Parse("E00E876C-A9F4-46C4-B0E7-2B27C525FA98")),
+
+                    // Causes the process to put into the subscriptions table what categories of
+                    // published messages it wants to recieve.
+                    // If Empty, then the process will subscribe to nothing, and no messages will
+                    // be published to the subscriber.
+                    Categories = [Categories.Announcements],
+
+                    // When adding or updating the subscriptions table, this determines how long the subscription
+                    // is considered valid for. If the subscription is updated, it will be removed after this amount of time.
+                    Lifespan = TimeSpan.FromDays(1),
+
+                    // Determines if the default IHandleFailedSubscribedMessages will be registerd.
+                    // The default handler does nothing.
+                    // If false, you must register your own implementation of IHandleFailedSubscribedMessages with the container.
+                    UseDefaultFailedHandler = true,
+
+                    // Determines if the default ISubscribedRetryStrategy will be registered.
+                    // The Default strategy retries up to 5 times, waiting 5 seconds longer after each failure.
+                    // if false you must register your own implementation of ISubscribedRetryStrategy
+                    UseDefaultRetryStrategy = true,
+
+                    // determines which messages to automatically cleaned up.
+                    CleanFailed = true,
+                    CleanCompleted = true,
+                    // determines how old message have to be to be cleaned.
+                    CleanFailedAge = TimeSpan.FromDays(7),
+                    CleanCompleteAge = TimeSpan.FromDays(1),
+                    // how often to perform the cleanup.
+                    CleanInterval = TimeSpan.FromMinutes(5),
+                },
+
+                PublishConfiguration = new()
+                {
+                    // When publishing a message to subscribers, this determins how long the message
+                    // can stay in the pending messages before it is considered abandoned.
+                    Lifespan = TimeSpan.FromDays(1),
+                },
+            };
+
+            // This will:
+            // Register common types required to run the bus,
+            // configure which DB Schema, and which Queue will be used.
+            // Register Startup tasks found in loaded assemblies.
+            _container.UsePeachtreeBus(busConfiguration, loggerFactory);
+
+            // Register some services that are needed by PeachtreeBus
+            // These are things you may want to replace in your application.
+            // signal shutdown when the process is exiting.
+            _container.RegisterSingleton(typeof(IProvideShutdownSignal), typeof(ProcessExitShutdownSignal));
 
             // Register things needed by the handlers.
             // register the data access used by the sample application.
@@ -100,10 +140,6 @@ namespace PeachtreeBus.Example
             // sanity check that everything that the IOC container needs to create
             // objects has been registered.
             _container.Verify();
-
-            // run startup tasks.
-            // this runs anything that implements IRunOnStartup
-            _container.RunPeachtreeBusStartupTasks();
 
             // run!
             // this will run different looping threads based on the above code

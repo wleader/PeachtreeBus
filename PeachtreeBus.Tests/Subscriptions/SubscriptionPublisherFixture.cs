@@ -24,6 +24,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         private Mock<IPerfCounters> counters = default!;
         private FakeSerializer serializer = default!;
         private Mock<ISystemClock> clock = default!;
+        private BusConfiguration configuration = default!;
 
         // a message to send.
         private TestData.TestSubscribedMessage userMessage = default!;
@@ -40,6 +41,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             counters = new();
             serializer = new();
             clock = new();
+            configuration = TestData.CreateBusConfiguration();
 
             PublishedMessage = null;
             PublishedCategory = null;
@@ -58,7 +60,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             publisher = new SubscribedPublisher(
                 dataAccess.Object,
-                TestData.DefaultSubscribedLifespan,
+                configuration,
                 serializer.Object,
                 counters.Object,
                 clock.Object);
@@ -328,6 +330,19 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             Assert.AreEqual(1, serializer.SerializedHeaders.Count);
             Assert.AreSame(TestData.DefaultUserHeaders, serializer.SerializedHeaders[0].UserHeaders);
+        }
+
+        [TestMethod]
+        public async Task When_Publish_Then_ValidUntilUsesConfiguration()
+        {
+            var expectedValidUntil = clock.Object.UtcNow.Add(configuration.PublishConfiguration.Lifespan);
+
+            await publisher.Publish(
+                TestData.DefaultCategory,
+                userMessage.GetType(),
+                userMessage);
+
+            Assert.AreEqual(expectedValidUntil, PublishedMessage?.ValidUntil);
         }
     }
 }

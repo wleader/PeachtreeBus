@@ -19,13 +19,10 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<IBusDataAccess> dataAccess = default!;
         private Mock<ILogger<QueueThread>> log = default!;
         private Mock<IQueueWork> work = default!;
-        private QueueConfiguration config = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            config = new QueueConfiguration(new("QueueName"));
-
             shutdown = new Mock<IProvideShutdownSignal>();
 
             shutdown.SetupGet(s => s.ShouldShutdown)
@@ -40,6 +37,8 @@ namespace PeachtreeBus.Tests.Queues
 
             work.Setup(p => p.DoWork())
                 .Returns(Task.FromResult(true));
+
+            var config = TestData.CreateBusConfiguration();
 
             thread = new QueueThread(shutdown.Object, dataAccess.Object, log.Object, work.Object, config);
         }

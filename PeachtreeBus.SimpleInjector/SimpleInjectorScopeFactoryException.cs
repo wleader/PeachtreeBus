@@ -1,13 +1,6 @@
-﻿using System;
+﻿namespace PeachtreeBus.SimpleInjector;
 
-namespace PeachtreeBus.SimpleInjector
+public class SimpleInjectorScopeFactoryException : PeachtreeBusException
 {
-    public class SimpleInjectorScopeFactoryException : Exception
-    {
-        internal SimpleInjectorScopeFactoryException(string message)
-            : base(message)
-        {
-
-        }
-    }
+    internal SimpleInjectorScopeFactoryException(string message) : base(message) { }
 }

@@ -24,7 +24,6 @@ public static class TestData
     public static readonly QueueName DefaultQueueName = new(nameof(DefaultQueueName));
     public static readonly SagaName DefaultSagaName = new(nameof(DefaultSagaName));
     public static readonly UtcDateTime Now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
-    public static readonly SubscribedLifespan DefaultSubscribedLifespan = new(TimeSpan.FromMinutes(5));
 
     public static readonly UserHeaders DefaultUserHeaders = new()
     {
@@ -130,6 +129,24 @@ public static class TestData
             MessageId = messageData.MessageId,
             MessageData = messageData,
             Headers = headers,
+        };
+    }
+
+    public static BusConfiguration CreateBusConfiguration()
+    {
+        return new()
+        {
+            ConnectionString = "Server=(local);Database=db",
+            Schema = new("PeachtreeBus"),
+            QueueConfiguration = new()
+            {
+                QueueName = DefaultQueueName,
+            },
+            SubscriptionConfiguration = new()
+            {
+                SubscriberId = DefaultSubscriberId,
+                Categories = [DefaultCategory, DefaultCategory2]
+            }
         };
     }
 }

@@ -18,11 +18,12 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="container"></param>
         /// <param name="concurrency">The number of copies of the IQueueThread to create.</param>
         /// <returns>A List of Tasks to run.</returns>
-        public static IList<Task> PeachtreeBusThreadTasks(this Container container, int concurrency)
+        public static IList<Task> GetThreadTasks(this Container container, int concurrency)
         {
             var factory = container.GetInstance<IWrappedScopeFactory>();
             var tasks = new List<Task>();
 
+            // Todo, make this configuration driven.
             tasks.AddIfRegistered<IQueueCleanupThread>(container, factory);
             tasks.AddIfRegistered<ISubscribedCleanupThread>(container, factory);
             tasks.AddIfRegistered<ISubscriptionCleanupThread>(container, factory);
@@ -55,11 +56,18 @@ namespace PeachtreeBus.SimpleInjector
         /// <param name="concurrency"></param>
         public static void RunPeachtreeBus(this Container container, int? concurrency = null)
         {
-            container.CheckRequirements();
+            container
+                .CheckRequirements()
+                .RunStartupTasks()
+                .RunThreadTasks(concurrency);
+        }
+
+        private static Container RunThreadTasks(this Container container, int? concurrency = null)
+        {
 
             var c = concurrency ?? System.Environment.ProcessorCount * 2;
 
-            var tasks = container.PeachtreeBusThreadTasks(c).ToArray();
+            var tasks = container.GetThreadTasks(c).ToArray();
 
             var threads = new List<System.Threading.Thread>();
             foreach (var task in tasks)
@@ -73,26 +81,28 @@ namespace PeachtreeBus.SimpleInjector
             {
                 thread.Join();
             }
+
+            return container;
         }
 
-        private static void CheckRequirements(this Container container)
+        private static Container CheckRequirements(this Container container)
         {
             // check for things that Container.Verify can miss because they aren't obtained via constructor injection.
+            if (Configuration.QueueConfiguration is not null)
+                MissingRegistrationException.ThrowIfNotRegistered<IHandleFailedQueueMessages>(container,
+                    $"Use when QueueConfiguration.UseDefaultFailedHandler is false, you must register your own IHandleFailedQueueMessages.");
 
-            MissingRegistrationException.ThrowIfNotRegistered<IHandleFailedQueueMessages>(container,
-                $"Use {nameof(UsePeachtreeBusFailedQueueMessageHandler)} or {nameof(UsePeachtreeBusDefaultErrorHandlers)}.");
+            if (Configuration.SubscriptionConfiguration is not null)
+                MissingRegistrationException.ThrowIfNotRegistered<IHandleFailedSubscribedMessages>(container,
+                    $"Use when SubscriptionConfiguration.UseDefaultFailedHandler is false, you must register your own IHandleFailedSubscribedMessages.");
 
-            MissingRegistrationException.ThrowIfNotRegistered<IHandleFailedSubscribedMessages>(container,
-                $"Use {nameof(UsePeachtreeBusFailedSubscribedMessageHandler)} or {nameof(UsePeachtreeBusDefaultErrorHandlers)}.");
+            // these are always required, but the user doesn't have to register them.
+            // if they throw, one of our registration helpers missed them.
+            MissingRegistrationException.ThrowIfNotRegistered<IShareObjectsBetweenScopes>(container);
+            MissingRegistrationException.ThrowIfNotRegistered<IWrappedScopeFactory>(container);
+            MissingRegistrationException.ThrowIfNotRegistered<ISqlConnectionFactory>(container);
 
-            MissingRegistrationException.ThrowIfNotRegistered<IShareObjectsBetweenScopes>(container,
-                $"Use {nameof(UsePeachtreeBus)}.");
-
-            MissingRegistrationException.ThrowIfNotRegistered<IWrappedScopeFactory>(container,
-                $"Use {nameof(UsePeachtreeBus)}.");
-
-            MissingRegistrationException.ThrowIfNotRegistered<ISqlConnectionFactory>(container,
-                $"Use {nameof(UsePeachtreeBus)}.");
+            return container;
         }
     }
 }

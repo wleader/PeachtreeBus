@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Tests.Subscriptions
@@ -21,29 +20,30 @@ namespace PeachtreeBus.Tests.Subscriptions
         private Mock<ILogger<SubscribedThread>> log = default!;
         private Mock<ISubscribedWork> work = default!;
         private Mock<ISubscriptionUpdateWork> updater = default!;
-        private SubscriberConfiguration config = default!;
+        private BusConfiguration config = default!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            updater = new Mock<ISubscriptionUpdateWork>();
+            updater = new();
 
-            config = new SubscriberConfiguration(
-                SubscriberId.New(),
-                TimeSpan.FromSeconds(30),
-                new("cat1"), new("cat2"));
+            config = TestData.CreateBusConfiguration();
+            //config = new SubscriberConfiguration(
+            //    SubscriberId.New(),
+            //    TimeSpan.FromSeconds(30),
+            //    new("cat1"), new("cat2"));
 
-            shutdown = new Mock<IProvideShutdownSignal>();
+            shutdown = new();
 
             shutdown.SetupGet(s => s.ShouldShutdown)
                 .Returns(() => loopCount > 0)
                 .Callback(() => loopCount--);
 
-            log = new Mock<ILogger<SubscribedThread>>();
+            log = new();
 
-            dataAccess = new Mock<IBusDataAccess>();
+            dataAccess = new();
 
-            work = new Mock<ISubscribedWork>();
+            work = new();
 
             work.Setup(p => p.DoWork())
                 .Returns(Task.FromResult(true));
@@ -65,8 +65,10 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task Run_CallsWorkDoDork()
         {
+            Assert.IsNotNull(config.SubscriptionConfiguration);
+
             await thread.Run();
-            work.VerifySet(p => p.SubscriberId = It.IsAny<SubscriberId>(), Times.Once);
+            work.VerifySet(p => p.SubscriberId = config.SubscriptionConfiguration.SubscriberId, Times.Once);
             work.Verify(p => p.DoWork(), Times.Once);
         }
     }

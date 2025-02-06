@@ -14,7 +14,7 @@ public class NullArgumentsFixture
 {
     private DapperDataAccess dataAccess = default!;
     private Mock<ISharedDatabase> sharedDatabase = default!;
-    private Mock<IDbSchemaConfiguration> schemaConfig = default!;
+    private Mock<IBusConfiguration> schemaConfig = default!;
     private Mock<ILogger<DapperDataAccess>> log = default!;
 
     [TestInitialize]

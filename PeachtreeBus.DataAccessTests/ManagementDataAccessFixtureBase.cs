@@ -28,8 +28,8 @@ namespace PeachtreeBus.DataAccessTests
 
         protected override ManagementDataAccess CreateDataAccess()
         {
-            BusAccess = new(SharedDB, MockSchema.Object, new Mock<ILogger<DapperDataAccess>>().Object);
-            return new ManagementDataAccess(SharedDB, MockSchema.Object, MockLog.Object);
+            BusAccess = new(SharedDB, Configuration.Object, new Mock<ILogger<DapperDataAccess>>().Object);
+            return new ManagementDataAccess(SharedDB, Configuration.Object, MockLog.Object);
         }
 
         protected async Task<SubscribedMessage> CreatePendingSubscribed()

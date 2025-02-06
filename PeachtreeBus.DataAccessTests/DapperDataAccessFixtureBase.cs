@@ -6,7 +6,7 @@ namespace PeachtreeBus.DataAccessTests
     {
         protected override DapperDataAccess CreateDataAccess()
         {
-            return new DapperDataAccess(SharedDB, MockSchema.Object, MockLog.Object);
+            return new DapperDataAccess(SharedDB, Configuration.Object, MockLog.Object);
         }
     }
 }

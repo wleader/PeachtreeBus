@@ -11,16 +11,16 @@ namespace PeachtreeBus.DataAccessTests
     {
         private DapperDataAccess _dataAccess = default!;
         private Mock<ISharedDatabase> _sharedDb = default!;
-        private Mock<IDbSchemaConfiguration> _schemaConfiguration = default!;
+        private Mock<IBusConfiguration> _configuration = default!;
         private Mock<ILogger<DapperDataAccess>> _logger = default!;
 
         [TestInitialize]
         public void Initialize()
         {
             _sharedDb = new();
-            _schemaConfiguration = new();
+            _configuration = new();
             _logger = new();
-            _dataAccess = new DapperDataAccess(_sharedDb.Object, _schemaConfiguration.Object, _logger.Object);
+            _dataAccess = new DapperDataAccess(_sharedDb.Object, _configuration.Object, _logger.Object);
         }
 
         [TestMethod]

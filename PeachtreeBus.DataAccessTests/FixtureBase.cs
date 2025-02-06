@@ -40,10 +40,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         protected TAccess dataAccess = default!;
 
-        /// <summary>
-        /// Provides a schema to the data access.
-        /// </summary>
-        protected Mock<IDbSchemaConfiguration> MockSchema = default!;
+        protected Mock<IBusConfiguration> Configuration = default!;
 
         /// <summary>
         /// Provides a log to the data access.
@@ -84,8 +81,8 @@ namespace PeachtreeBus.DataAccessTests
             });
             SharedDB = new SharedDatabase(_connectionFactory.Object);
 
-            MockSchema = new Mock<IDbSchemaConfiguration>();
-            MockSchema.Setup(s => s.Schema).Returns(DefaultSchema);
+            Configuration = new();
+            Configuration.SetupGet(s => s.Schema).Returns(DefaultSchema);
 
             MockLog = new Mock<ILogger<TAccess>>();
 
