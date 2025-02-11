@@ -2,9 +2,11 @@
 using PeachtreeBus.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PeachtreeBus.Tests.Fakes;
 
+[ExcludeFromCodeCoverage]
 public class FakeSerializer
 {
     public readonly record struct SerializeParameters(object Object, Type Type);

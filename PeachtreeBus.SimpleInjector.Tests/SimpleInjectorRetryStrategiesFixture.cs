@@ -1,64 +1,13 @@
 using Moq;
 using PeachtreeBus.Errors;
-using PeachtreeBus.Subscriptions;
+using SimpleInjector;
 using System;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 
 [TestClass]
-public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBase
+public class SimpleInjectorRetryStrategiesFixture : SimpleInjectorExtensionFixtureBase
 {
-    [TestMethod]
-    public void Given_BasicConfiguration_When_Verify_Then_Runs()
-    {
-        var config = new BusConfiguration()
-        {
-            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
-            Schema = new("PeachTreeBus"),
-        };
-
-        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-    }
-
-    [TestMethod]
-    public void Given_Subscriptions_When_Verify_Then_Runs()
-    {
-        var config = new BusConfiguration()
-        {
-            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
-            Schema = new("PeachTreeBus"),
-            SubscriptionConfiguration = new()
-            {
-                SubscriberId = SubscriberId.New(),
-                Categories = [new("Category1"), new("Category2")]
-            },
-        };
-
-        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-    }
-
-    [TestMethod]
-    public void Given_Queues_When_Verify_Then_Runs()
-    {
-        var config = new BusConfiguration()
-        {
-            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
-            Schema = new("PeachTreeBus"),
-            QueueConfiguration = new()
-            {
-                QueueName = new("QueueName"),
-            }
-        };
-
-        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-    }
-
     [TestMethod]
     public void Given_UseDefaultQueueRetryStrategyFalse_And_NoStrategyRegistered_When_Verify_Then_Throws()
     {
