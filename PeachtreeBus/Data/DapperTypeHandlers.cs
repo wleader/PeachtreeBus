@@ -27,7 +27,7 @@ public static class DapperTypeHandlers
             SqlMapper.AddTypeHandler(new IdentityHandler());
             SqlMapper.AddTypeHandler(new UniqueIdentityHandler());
             SqlMapper.AddTypeHandler(new SubscriberIdHandler());
-            SqlMapper.AddTypeHandler(new CategoryHandler());
+            SqlMapper.AddTypeHandler(new TopicHandler());
             _typeHandlersAdded = true;
         }
     }
@@ -111,12 +111,12 @@ internal class SubscriberIdHandler : SqlMapper.TypeHandler<SubscriberId>
     }
 }
 
-internal class CategoryHandler : SqlMapper.TypeHandler<Category>
+internal class TopicHandler : SqlMapper.TypeHandler<Topic>
 {
     [ExcludeFromCodeCoverage] // At the moment, we don't ever read categories from the DB so this is never used.
-    public override Category Parse(object value) => new((string)value);
+    public override Topic Parse(object value) => new((string)value);
 
-    public override void SetValue(IDbDataParameter parameter, Category value)
+    public override void SetValue(IDbDataParameter parameter, Topic value)
     {
         parameter.DbType = DbType.String;
         parameter.Value = value.Value;

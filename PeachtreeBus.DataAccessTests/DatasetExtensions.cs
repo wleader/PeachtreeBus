@@ -120,7 +120,7 @@ namespace PeachtreeBus.DataAccessTests
             {
                 Id = new((long)row["Id"]),
                 SubscriberId = new((Guid)row["SubscriberId"]),
-                Category = new((string)row["Category"]),
+                Topic = new((string)row["Topic"]),
                 ValidUntil = row.ToDateTime("ValidUntil")
             };
         }

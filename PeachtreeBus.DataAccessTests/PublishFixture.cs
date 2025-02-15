@@ -32,15 +32,15 @@ public class PublishFixture : DapperDataAccessFixtureBase
     }
 
     [TestMethod]
-    public async Task Given_NoSubscribersForCategory_When_Publish_Then_NoRowsAreAdded()
+    public async Task Given_NoSubscribersForTopic_When_Publish_Then_NoRowsAreAdded()
     {
-        // have some subscribers for another category.
-        await dataAccess.Subscribe(Subscriber1, TestData.DefaultCategory2, Until);
-        await dataAccess.Subscribe(Subscriber2, TestData.DefaultCategory2, Until);
+        // have some subscribers for another topic.
+        await dataAccess.Subscribe(Subscriber1, TestData.DefaultTopic2, Until);
+        await dataAccess.Subscribe(Subscriber2, TestData.DefaultTopic2, Until);
         var subscriptions = GetSubscriptions();
         Assert.AreEqual(2, subscriptions.Count);
 
-        var count = await dataAccess.Publish(UserMessage, TestData.DefaultCategory);
+        var count = await dataAccess.Publish(UserMessage, TestData.DefaultTopic);
 
         Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
         Assert.AreEqual(0, count);
@@ -49,13 +49,13 @@ public class PublishFixture : DapperDataAccessFixtureBase
     [TestMethod]
     public async Task Given_Subscribers_And_MultipleCategories_When_Publish_CorrectRowsAreAdded()
     {
-        await dataAccess.Subscribe(Subscriber1, TestData.DefaultCategory, Until);
-        await dataAccess.Subscribe(Subscriber1, TestData.DefaultCategory2, Until);
-        await dataAccess.Subscribe(Subscriber2, TestData.DefaultCategory, Until);
-        await dataAccess.Subscribe(Subscriber2, TestData.DefaultCategory2, Until);
-        await dataAccess.Subscribe(Subscriber3, TestData.DefaultCategory2, Until);
+        await dataAccess.Subscribe(Subscriber1, TestData.DefaultTopic, Until);
+        await dataAccess.Subscribe(Subscriber1, TestData.DefaultTopic2, Until);
+        await dataAccess.Subscribe(Subscriber2, TestData.DefaultTopic, Until);
+        await dataAccess.Subscribe(Subscriber2, TestData.DefaultTopic2, Until);
+        await dataAccess.Subscribe(Subscriber3, TestData.DefaultTopic2, Until);
 
-        var count = await dataAccess.Publish(UserMessage, TestData.DefaultCategory);
+        var count = await dataAccess.Publish(UserMessage, TestData.DefaultTopic);
         Assert.AreEqual(2, count);
 
         var messages = GetSubscribedPending();
@@ -66,7 +66,7 @@ public class PublishFixture : DapperDataAccessFixtureBase
         var acutal2 = messages.Single(m => m.SubscriberId == Subscriber2);
         AssertPublishedEquals(UserMessage, acutal1);
 
-        // Subscriber 3 isn't subscribed to Category 1, so shouldn't have any messages.
+        // Subscriber 3 isn't subscribed to Topic 1, so shouldn't have any messages.
         Assert.IsFalse(messages.Any(m => m.SubscriberId == Subscriber3));
     }
 }

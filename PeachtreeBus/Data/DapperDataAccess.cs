@@ -369,24 +369,24 @@ namespace PeachtreeBus.Data
         /// Adds or updates a row in the subscriptions table.
         /// </summary>
         /// <param name="subscriberId"></param>
-        /// <param name="category"></param>
+        /// <param name="topic"></param>
         /// <param name="until"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task Subscribe(SubscriberId subscriberId, Category category, UtcDateTime until)
+        public async Task Subscribe(SubscriberId subscriberId, Topic topic, UtcDateTime until)
         {
             const string SubscribeStatement =
                 """
                 UPDATE [{0}].[Subscriptions] WITH (UPDLOCK, SERIALIZABLE)
                     SET [ValidUntil] = @ValidUntil
                     WHERE [SubscriberId] = @SubscriberId
-                    AND [Category] = @Category
+                    AND [Topic] = @Topic
                 IF @@ROWCOUNT = 0
                 BEGIN
                     INSERT INTO [{0}].[Subscriptions] WITH (ROWLOCK)
-                    ([SubscriberId], [Category], [ValidUntil])
+                    ([SubscriberId], [Topic], [ValidUntil])
                     VALUES
-                    (@SubscriberId, @Category, @ValidUntil)
+                    (@SubscriberId, @Topic, @ValidUntil)
                 END
                 """;
 
@@ -394,7 +394,7 @@ namespace PeachtreeBus.Data
 
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
-            p.Add("@Category", category);
+            p.Add("@Topic", topic);
             p.Add("@ValidUntil", until);
 
             await LogIfError(
@@ -432,7 +432,7 @@ namespace PeachtreeBus.Data
                 _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction));
         }
 
-        public async Task<long> Publish(SubscribedMessage message, Category category)
+        public async Task<long> Publish(SubscribedMessage message, Topic topic)
         {
             const string PublishStatement =
                 """
@@ -440,7 +440,7 @@ namespace PeachtreeBus.Data
                 ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
                 SELECT [SubscriberId], @ValidUntil, NEWID(), @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body
                 FROM [{0}].[Subscriptions]
-                WHERE Category = @Category
+                WHERE Topic = @Topic
                 AND ValidUntil > SYSUTCDATETIME()
                 SELECT @@ROWCOUNT
                 """;
@@ -455,7 +455,7 @@ namespace PeachtreeBus.Data
             p.Add("@NotBefore", message.NotBefore);
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
-            p.Add("@Category", category);
+            p.Add("@Topic", topic);
 
             return await LogIfError(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));

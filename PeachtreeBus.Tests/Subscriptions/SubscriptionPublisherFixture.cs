@@ -31,7 +31,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
         // stores the parameters to the AddMessage calls.
         private SubscribedMessage? PublishedMessage;
-        private Category? PublishedCategory;
+        private Topic? PublishedTopic;
         private long PublishResult = 1;
 
         [TestInitialize]
@@ -44,15 +44,15 @@ namespace PeachtreeBus.Tests.Subscriptions
             configuration = TestData.CreateBusConfiguration();
 
             PublishedMessage = null;
-            PublishedCategory = null;
+            PublishedTopic = null;
 
             clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
 
-            dataAccess.Setup(d => d.Publish(It.IsAny<SubscribedMessage>(), It.IsAny<Category>()))
-                .Callback((SubscribedMessage m, Category c) =>
+            dataAccess.Setup(d => d.Publish(It.IsAny<SubscribedMessage>(), It.IsAny<Topic>()))
+                .Callback((SubscribedMessage m, Topic c) =>
                 {
                     PublishedMessage = m;
-                    PublishedCategory = c;
+                    PublishedTopic = c;
                 })
                 .ReturnsAsync(() => PublishResult);
 
@@ -75,7 +75,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
                 publisher.Publish(
-                    TestData.DefaultCategory2,
+                    TestData.DefaultTopic2,
                     userMessage.GetType(),
                     null!,
                     null));
@@ -90,7 +90,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
                 publisher.Publish(
-                    TestData.DefaultCategory2,
+                    TestData.DefaultTopic2,
                     null!,
                     new TestSagaMessage1(),
                     null));
@@ -104,7 +104,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsMessageClassOfHeaders()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 null);
@@ -122,7 +122,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_DefaultsNotBeforeToUtcNow()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 null);
@@ -139,7 +139,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             UtcDateTime notBefore = DateTime.UtcNow;
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 notBefore);
@@ -157,7 +157,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var notBefore = new DateTime(2022, 2, 23, 10, 54, 11, DateTimeKind.Unspecified);
             await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 publisher.Publish(
-                    TestData.DefaultCategory,
+                    TestData.DefaultTopic,
                     typeof(TestSagaMessage1),
                     new TestSagaMessage1(),
                     notBefore));
@@ -171,7 +171,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsEnqueuedToUtcNow()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                userMessage,
                 null);
@@ -186,7 +186,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsCompletedToNull()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 null);
@@ -203,7 +203,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsFailedToNull()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                userMessage,
                 null);
@@ -220,7 +220,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_SetsRetriesToZero()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 null);
@@ -237,7 +237,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_UsesHeadersFromSerializer()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 null);
@@ -253,7 +253,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Publish_UsesBodyFromSerializer()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 null);
@@ -275,7 +275,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             PublishResult = count;
 
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 null);
@@ -288,30 +288,30 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Given_Category_When_Publish_Then_CategoryIsUsed()
+        public async Task Given_Topic_When_Publish_Then_TopicIsUsed()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 null);
 
-            Assert.IsTrue(PublishedCategory.HasValue);
-            Assert.AreEqual(TestData.DefaultCategory, PublishedCategory.Value);
+            Assert.IsTrue(PublishedTopic.HasValue);
+            Assert.AreEqual(TestData.DefaultTopic, PublishedTopic.Value);
         }
 
         [TestMethod]
         public async Task Given_MessageIsNotISubscribedMessage_When_WriteMessage_Then_ThrowsUsefulException()
         {
             await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
-                publisher.Publish(TestData.DefaultCategory2, typeof(object), new object(), null));
+                publisher.Publish(TestData.DefaultTopic2, typeof(object), new object(), null));
         }
 
         [TestMethod]
         public async Task Given_Priority_When_Publish_Then_PriorityIsSet()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 priority: 100);
@@ -323,7 +323,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Given_UserHeaders_When_Publish_Then_UserHeadersAreUsed()
         {
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage,
                 userHeaders: TestData.DefaultUserHeaders);
@@ -338,7 +338,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var expectedValidUntil = clock.Object.UtcNow.Add(configuration.PublishConfiguration.Lifespan);
 
             await publisher.Publish(
-                TestData.DefaultCategory,
+                TestData.DefaultTopic,
                 userMessage.GetType(),
                 userMessage);
 

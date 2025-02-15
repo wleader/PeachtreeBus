@@ -35,11 +35,11 @@ namespace PeachtreeBus.Subscriptions
             if (_clock.UtcNow < nextUpdate) return false;
 
             var until = _clock.UtcNow.Add(_config.Lifespan);
-            foreach (var category in _config.Categories)
+            foreach (var topic in _config.Topics)
             {
                 await _dataAccess.Subscribe(
                     _config.SubscriberId,
-                    category,
+                    topic,
                     until);
             }
             LastUpdate = _clock.UtcNow;

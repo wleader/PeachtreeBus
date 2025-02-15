@@ -97,6 +97,6 @@ public class NullArgumentsFixture
     public async Task Given_NullMessage_When_Publish_Then_Throws()
     {
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            dataAccess.Publish(null!, TestData.DefaultCategory));
+            dataAccess.Publish(null!, TestData.DefaultTopic));
     }
 }

@@ -19,7 +19,7 @@ public class BusTypesJsonSerializationFixture
         public UtcDateTime UtcDateTime { get; set; }
         public SagaKey SagaKey { get; set; }
         public SubscriberId SubscriberId { get; set; }
-        public Category Category { get; set; }
+        public Topic Topic { get; set; }
         public SchemaName SchemaName { get; set; }
         public QueueName QueueName { get; set; }
         public SagaName SagaName { get; set; }
@@ -37,7 +37,7 @@ public class BusTypesJsonSerializationFixture
             UtcDateTime = DateTime.UtcNow,
             SagaKey = new("Bar"),
             SubscriberId = SubscriberId.New(),
-            Category = new("Baz"),
+            Topic = new("Baz"),
             SchemaName = new("Faz"),
             QueueName = new("Far"),
             SagaName = new("Boo"),
@@ -53,7 +53,7 @@ public class BusTypesJsonSerializationFixture
         Assert.AreEqual(expected.UtcDateTime, actual.UtcDateTime);
         Assert.AreEqual(expected.SagaKey, actual.SagaKey);
         Assert.AreEqual(expected.SubscriberId, actual.SubscriberId);
-        Assert.AreEqual(expected.Category, actual.Category);
+        Assert.AreEqual(expected.Topic, actual.Topic);
         Assert.AreEqual(expected.SchemaName, actual.SchemaName);
         Assert.AreEqual(expected.QueueName, actual.QueueName);
         Assert.AreEqual(expected.SagaName, actual.SagaName);

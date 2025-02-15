@@ -26,7 +26,7 @@ public class QueueConfiguration : BaseConfiguration
 public class SubscriptionConfiguration : BaseConfiguration
 {
     public required SubscriberId SubscriberId { get; init; }
-    public required IList<Category> Categories { get; init; }
+    public required IList<Topic> Topics { get; init; }
     public TimeSpan Lifespan { get; set; } = TimeSpan.FromHours(1);
 }
 

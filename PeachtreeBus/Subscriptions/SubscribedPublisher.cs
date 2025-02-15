@@ -11,7 +11,7 @@ namespace PeachtreeBus.Subscriptions
     public interface ISubscribedPublisher
     {
         Task<long> Publish(
-            Category category,
+            Topic topic,
             Type type,
             object message,
             UtcDateTime? notBefore = null,
@@ -39,7 +39,7 @@ namespace PeachtreeBus.Subscriptions
         /// <summary>
         /// Publishes the message
         /// </summary>
-        /// <param name="category"></param>
+        /// <param name="topic"></param>
         /// <param name="type"></param>
         /// <param name="message"></param>
         /// <param name="notBefore"></param>
@@ -49,7 +49,7 @@ namespace PeachtreeBus.Subscriptions
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
         public async Task<long> Publish(
-            Category category,
+            Topic topic,
             Type type,
             object message,
             UtcDateTime? notBefore = null,
@@ -78,7 +78,7 @@ namespace PeachtreeBus.Subscriptions
                 Body = _serializer.SerializeMessage(message, type)
             };
 
-            var count = await _dataAccess.Publish(sm, category);
+            var count = await _dataAccess.Publish(sm, topic);
             _counters.PublishMessage(count);
             return count;
         }
@@ -91,20 +91,20 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="publisher"></param>
-        /// <param name="category"></param>
+        /// <param name="topic"></param>
         /// <param name="message"></param>
         /// <param name="notBefore"></param>
         /// <returns></returns>
         public static Task<long> PublishMessage<T>(
             this ISubscribedPublisher publisher,
-            Category category,
+            Topic topic,
             T message,
             DateTime? notBefore = null,
             int priority = 0,
             UserHeaders? userHeaders = null)
             where T : notnull
         {
-            return publisher.Publish(category, typeof(T), message, notBefore, priority, userHeaders);
+            return publisher.Publish(topic, typeof(T), message, notBefore, priority, userHeaders);
         }
     }
 }

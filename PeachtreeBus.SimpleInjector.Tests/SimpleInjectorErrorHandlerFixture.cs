@@ -76,7 +76,7 @@ public class SimpleInjectorErrorHandlerFixture : SimpleInjectorExtensionFixtureB
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = false,
             }
@@ -95,7 +95,7 @@ public class SimpleInjectorErrorHandlerFixture : SimpleInjectorExtensionFixtureB
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = false,
             }
@@ -117,7 +117,7 @@ public class SimpleInjectorErrorHandlerFixture : SimpleInjectorExtensionFixtureB
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = true,
             }

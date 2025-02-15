@@ -24,14 +24,14 @@ public class SubscribedPublisherExtensionsFixture
         var notBefore = DateTime.UtcNow;
 
         await _publisher.Object.PublishMessage(
-            TestData.DefaultCategory,
+            TestData.DefaultTopic,
             message,
             notBefore,
             100,
             TestData.DefaultUserHeaders);
 
         _publisher.Verify(p => p.Publish(
-            TestData.DefaultCategory,
+            TestData.DefaultTopic,
             message.GetType(),
             message,
             notBefore,

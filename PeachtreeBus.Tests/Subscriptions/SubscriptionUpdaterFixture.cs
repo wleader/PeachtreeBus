@@ -79,13 +79,13 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task DoWork_SubscribesToCategories()
         {
             Assert.IsNotNull(config.SubscriptionConfiguration);
-            Assert.IsTrue(config.SubscriptionConfiguration.Categories.Count > 1);
+            Assert.IsTrue(config.SubscriptionConfiguration.Topics.Count > 1);
 
             await Updater.DoWork();
 
             var expectedUntil = clock.Object.UtcNow.Add(config.SubscriptionConfiguration!.Lifespan);
             var expectedSubscriber = config.SubscriptionConfiguration.SubscriberId;
-            foreach (var cat in config.SubscriptionConfiguration.Categories)
+            foreach (var cat in config.SubscriptionConfiguration.Topics)
             {
                 dataAccess.Verify(d => d.Subscribe(expectedSubscriber, cat, expectedUntil), Times.Once);
             }

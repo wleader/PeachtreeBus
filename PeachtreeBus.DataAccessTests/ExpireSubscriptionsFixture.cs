@@ -37,23 +37,23 @@ namespace PeachtreeBus.DataAccessTests
             var subscriber2 = SubscriberId.New();
             var subscriber3 = SubscriberId.New();
             var subscriber4 = SubscriberId.New();
-            var category1 = new Category("TestCategory1");
-            var category2 = new Category("TestCategory2");
+            var topic1 = new Topic("TestTopic1");
+            var topic2 = new Topic("TestTopic2");
             var valid = DateTime.UtcNow.AddHours(1);
             var expired = DateTime.UtcNow.AddSeconds(-1);
 
-            await dataAccess.Subscribe(subscriber1, category1, valid);
-            await dataAccess.Subscribe(subscriber2, category2, valid);
-            await dataAccess.Subscribe(subscriber3, category1, expired);
-            await dataAccess.Subscribe(subscriber4, category2, expired);
+            await dataAccess.Subscribe(subscriber1, topic1, valid);
+            await dataAccess.Subscribe(subscriber2, topic2, valid);
+            await dataAccess.Subscribe(subscriber3, topic1, expired);
+            await dataAccess.Subscribe(subscriber4, topic2, expired);
 
             await dataAccess.ExpireSubscriptions(100);
 
             var rows = GetSubscriptions();
 
             Assert.AreEqual(2, rows.Count);
-            Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber1 && r.Category == category1));
-            Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber2 && r.Category == category2));
+            Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber1 && r.Topic == topic1));
+            Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber2 && r.Topic == topic2));
         }
     }
 }

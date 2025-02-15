@@ -19,8 +19,8 @@ public static class TestData
     public static readonly SerializedData DefaultBody = new("{}");
     public static readonly SerializedData DefaultSagaData = new("{}");
     public static readonly Identity DefaultId = new(1);
-    public static readonly Category DefaultCategory = new(nameof(DefaultCategory));
-    public static readonly Category DefaultCategory2 = new(nameof(DefaultCategory2));
+    public static readonly Topic DefaultTopic = new(nameof(DefaultTopic));
+    public static readonly Topic DefaultTopic2 = new(nameof(DefaultTopic2));
     public static readonly QueueName DefaultQueueName = new(nameof(DefaultQueueName));
     public static readonly SagaName DefaultSagaName = new(nameof(DefaultSagaName));
     public static readonly UtcDateTime Now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
@@ -145,7 +145,7 @@ public static class TestData
             SubscriptionConfiguration = new()
             {
                 SubscriberId = DefaultSubscriberId,
-                Categories = [DefaultCategory, DefaultCategory2]
+                Topics = [DefaultTopic, DefaultTopic2]
             }
         };
     }

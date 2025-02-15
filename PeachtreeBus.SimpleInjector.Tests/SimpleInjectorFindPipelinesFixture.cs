@@ -42,7 +42,7 @@ public class SimpleInjectorFindPipelinesFixture : SimpleInjectorExtensionFixture
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = SubscriberId.New()
             }
         };
@@ -92,7 +92,7 @@ public class SimpleInjectorFindPipelinesFixture : SimpleInjectorExtensionFixture
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = SubscriberId.New()
             }
         };

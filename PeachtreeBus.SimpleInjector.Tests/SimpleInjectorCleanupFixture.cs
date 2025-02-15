@@ -46,7 +46,7 @@ public class SimpleInjectorCleanupFixture : SimpleInjectorExtensionFixtureBase
             SubscriptionConfiguration = new()
             {
                 SubscriberId = SubscriberId.New(),
-                Categories = [],
+                Topics = [],
                 CleanFailed = cleanFailed,
                 CleanCompleted = cleanComplete
             },
@@ -69,7 +69,7 @@ public class SimpleInjectorCleanupFixture : SimpleInjectorExtensionFixtureBase
             SubscriptionConfiguration = new()
             {
                 SubscriberId = SubscriberId.New(),
-                Categories = [],
+                Topics = [],
                 //CleanSubscriptions = clean
             },
         };

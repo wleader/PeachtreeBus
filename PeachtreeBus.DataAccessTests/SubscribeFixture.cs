@@ -30,45 +30,45 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Subscribe_AddsRowWhenSubscriberAndCategoryDoNotExist()
+        public async Task Subscribe_AddsRowWhenSubscriberAndTopicDoNotExist()
         {
             var subscriptions = GetSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
             var subscriber = SubscriberId.New();
-            var category = new Category("TestCategory");
+            var topic = new Topic("TestTopic");
             var until = DateTime.UtcNow.AddMinutes(30);
 
-            await dataAccess.Subscribe(subscriber, category, until);
+            await dataAccess.Subscribe(subscriber, topic, until);
 
             subscriptions = GetSubscriptions();
 
             Assert.AreEqual(1, subscriptions.Count);
             Assert.AreNotEqual(0, subscriptions[0].Id.Value);
             Assert.AreEqual(subscriber, subscriptions[0].SubscriberId);
-            Assert.AreEqual(category, subscriptions[0].Category);
+            Assert.AreEqual(topic, subscriptions[0].Topic);
             AssertSqlDbDateTime(until, subscriptions[0].ValidUntil);
         }
 
         /// <summary>
         /// proves the row is added when other rows for the same subscriber exists, but a row
-        /// for the category does not.
+        /// for the topic does not.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Subscribe_AddsRowWhenSubscriberExistsAndCategoryDoesNot()
+        public async Task Subscribe_AddsRowWhenSubscriberExistsAndTopicDoesNot()
         {
             var subscriptions = GetSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
             var subscriber = SubscriberId.New();
-            var category = new Category("TestCategory");
+            var topic = new Topic("TestTopic");
             var until = DateTime.UtcNow.AddMinutes(30);
 
-            await dataAccess.Subscribe(subscriber, category, until);
+            await dataAccess.Subscribe(subscriber, topic, until);
 
-            var category2 = new Category("TestCategory2");
-            await dataAccess.Subscribe(subscriber, category2, until);
+            var topic2 = new Topic("TestTopic2");
+            await dataAccess.Subscribe(subscriber, topic2, until);
 
             subscriptions = GetSubscriptions();
             Assert.AreEqual(2, subscriptions.Count);
@@ -76,34 +76,34 @@ namespace PeachtreeBus.DataAccessTests
             subscriptions.ForEach(s => Assert.AreEqual(subscriber, s.SubscriberId));
             subscriptions.ForEach(s => AssertSqlDbDateTime(until, s.ValidUntil));
 
-            var categores = subscriptions.Select(s => s.Category).ToList();
-            Assert.IsTrue(categores.Contains(category));
-            Assert.IsTrue(categores.Contains(category2));
+            var categores = subscriptions.Select(s => s.Topic).ToList();
+            Assert.IsTrue(categores.Contains(topic));
+            Assert.IsTrue(categores.Contains(topic2));
         }
 
         /// <summary>
-        /// Proves that the row is added when other subscribers are using the same category.
+        /// Proves that the row is added when other subscribers are using the same topic.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Subscribe_AddsRowWhenSubscriberDoesNotExistAndCategoryExists()
+        public async Task Subscribe_AddsRowWhenSubscriberDoesNotExistAndTopicExists()
         {
             var subscriptions = GetSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
             var subscriber = SubscriberId.New();
-            var category = new Category("TestCategory");
+            var topic = new Topic("TestTopic");
             var until = DateTime.UtcNow.AddMinutes(30);
 
-            await dataAccess.Subscribe(subscriber, category, until);
+            await dataAccess.Subscribe(subscriber, topic, until);
 
             var subscriber2 = SubscriberId.New();
-            await dataAccess.Subscribe(subscriber2, category, until);
+            await dataAccess.Subscribe(subscriber2, topic, until);
 
             subscriptions = GetSubscriptions();
             Assert.AreEqual(2, subscriptions.Count);
 
-            subscriptions.ForEach(s => Assert.AreEqual(category, s.Category));
+            subscriptions.ForEach(s => Assert.AreEqual(topic, s.Topic));
             subscriptions.ForEach(s => AssertSqlDbDateTime(until, s.ValidUntil));
 
             var subscribers = subscriptions.Select(s => s.SubscriberId).ToList();
@@ -112,30 +112,30 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         /// <summary>
-        /// Proves the row is updated when a row for the subscriber and category already exists.
+        /// Proves the row is updated when a row for the subscriber and topic already exists.
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Subscribe_UpdatesWhenSubscriberAndCategoryAlreadyExist()
+        public async Task Subscribe_UpdatesWhenSubscriberAndTopicAlreadyExist()
         {
             var subscriptions = GetSubscriptions();
             Assert.AreEqual(0, subscriptions.Count);
 
             var subscriber = SubscriberId.New();
-            var category = new Category("TestCategory");
+            var topic = new Topic("TestTopic");
             var until = DateTime.UtcNow.AddMinutes(30);
 
-            await dataAccess.Subscribe(subscriber, category, until);
+            await dataAccess.Subscribe(subscriber, topic, until);
 
             var until2 = until.AddHours(1);
-            await dataAccess.Subscribe(subscriber, category, until2);
+            await dataAccess.Subscribe(subscriber, topic, until2);
 
             subscriptions = GetSubscriptions();
 
             Assert.AreEqual(1, subscriptions.Count);
 
             Assert.AreEqual(subscriber, subscriptions[0].SubscriberId);
-            Assert.AreEqual(category, subscriptions[0].Category);
+            Assert.AreEqual(topic, subscriptions[0].Topic);
             AssertSqlDbDateTime(until2, subscriptions[0].ValidUntil);
         }
 
@@ -143,7 +143,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task Given_UninitializedSubscriberId_When_Subscribe_Then_Throws()
         {
             await Assert.ThrowsExceptionAsync<SubscriberIdException>(() =>
-                dataAccess.Subscribe(TestData.UnintializedSubscriberId, TestData.DefaultCategory, DateTime.UtcNow.AddMinutes(30)));
+                dataAccess.Subscribe(TestData.UnintializedSubscriberId, TestData.DefaultTopic, DateTime.UtcNow.AddMinutes(30)));
         }
     }
 }

@@ -27,7 +27,7 @@ namespace PeachtreeBus.Tests.Cleaners
 
             config = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = SubscriberId.New(),
                 CleanMaxRows = 100
             };

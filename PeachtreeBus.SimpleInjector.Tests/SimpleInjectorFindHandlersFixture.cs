@@ -85,7 +85,7 @@ public class SimpleInjectorFindHandlersFixture : SimpleInjectorExtensionFixtureB
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = SubscriberId.New()
             }
         };
@@ -111,7 +111,7 @@ public class SimpleInjectorFindHandlersFixture : SimpleInjectorExtensionFixtureB
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = SubscriberId.New()
             }
         };

@@ -88,7 +88,7 @@ namespace PeachtreeBus.Example
                     // published messages it wants to recieve.
                     // If Empty, then the process will subscribe to nothing, and no messages will
                     // be published to the subscriber.
-                    Categories = [Categories.Announcements],
+                    Topics = [Topics.Announcements],
 
                     // When adding or updating the subscriptions table, this determines how long the subscription
                     // is considered valid for. If the subscription is updated, it will be removed after this amount of time.

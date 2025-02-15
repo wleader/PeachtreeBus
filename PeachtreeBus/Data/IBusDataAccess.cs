@@ -114,10 +114,10 @@ namespace PeachtreeBus.Data
         /// Adds or updates subscriptions.
         /// </summary>
         /// <param name="SubscriberId">Which subscriber is subscribing.</param>
-        /// <param name="Category">What category of messages the subscriber wants.</param>
+        /// <param name="Topic">What topic of messages the subscriber wants.</param>
         /// <param name="until">After what time is the subscription no longer valid.</param>
         /// <returns></returns>
-        Task Subscribe(SubscriberId SubscriberId, Category Category, UtcDateTime until);
+        Task Subscribe(SubscriberId SubscriberId, Topic Topic, UtcDateTime until);
 
         /// <summary>
         /// Gets one message, locking it for update.
@@ -128,12 +128,12 @@ namespace PeachtreeBus.Data
         Task<SubscribedMessage?> GetPendingSubscribed(SubscriberId subscriberId);
 
         /// <summary>
-        /// Adds a Subscribed message for each subscriber of the category.
+        /// Adds a Subscribed message for each subscriber of the topic.
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="category"></param>
+        /// <param name="topic"></param>
         /// <returns></returns>
-        Task<long> Publish(SubscribedMessage message, Category category);
+        Task<long> Publish(SubscribedMessage message, Topic topic);
 
         /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.

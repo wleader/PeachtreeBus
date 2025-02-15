@@ -73,7 +73,7 @@ public class SimpleInjectorRetryStrategiesFixture : SimpleInjectorExtensionFixtu
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultRetryStrategy = false,
             }
@@ -92,7 +92,7 @@ public class SimpleInjectorRetryStrategiesFixture : SimpleInjectorExtensionFixtu
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultRetryStrategy = false,
             }
@@ -114,7 +114,7 @@ public class SimpleInjectorRetryStrategiesFixture : SimpleInjectorExtensionFixtu
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultRetryStrategy = true,
             }
@@ -194,7 +194,7 @@ public class SimpleInjectorRetryStrategiesFixture : SimpleInjectorExtensionFixtu
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = false,
             }
@@ -213,7 +213,7 @@ public class SimpleInjectorRetryStrategiesFixture : SimpleInjectorExtensionFixtu
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = false,
             }
@@ -235,7 +235,7 @@ public class SimpleInjectorRetryStrategiesFixture : SimpleInjectorExtensionFixtu
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = true,
             }

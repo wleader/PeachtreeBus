@@ -32,7 +32,7 @@ public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBas
             SubscriptionConfiguration = new()
             {
                 SubscriberId = SubscriberId.New(),
-                Categories = [new("Category1"), new("Category2")]
+                Topics = [new("Topic1"), new("Topic2")]
             },
         };
 
@@ -124,7 +124,7 @@ public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBas
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultRetryStrategy = false,
             }
@@ -143,7 +143,7 @@ public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBas
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultRetryStrategy = false,
             }
@@ -165,7 +165,7 @@ public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBas
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultRetryStrategy = true,
             }
@@ -245,7 +245,7 @@ public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBas
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = false,
             }
@@ -264,7 +264,7 @@ public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBas
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = false,
             }
@@ -286,7 +286,7 @@ public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBas
             Schema = new("PeachTreeBus"),
             SubscriptionConfiguration = new()
             {
-                Categories = [],
+                Topics = [],
                 SubscriberId = new(),
                 UseDefaultFailedHandler = true,
             }
