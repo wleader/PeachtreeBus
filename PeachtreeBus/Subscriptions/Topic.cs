@@ -29,11 +29,11 @@ public class TopicException(string message) : PeachtreeBusException(message)
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new TopicException(
-                "A SagaKey cannot be null or whitespace.");
+                "A Topic cannot be null or whitespace.");
 
         if (value.Length > Topic.MaxLength)
             throw new TopicException(
-                $"A SagaKey has a max length of {Topic.MaxLength} characters.");
+                $"A Topic has a max length of {Topic.MaxLength} characters.");
     }
 }
 
