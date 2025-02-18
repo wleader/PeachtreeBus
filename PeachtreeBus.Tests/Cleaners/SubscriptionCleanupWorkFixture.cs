@@ -50,5 +50,14 @@ namespace PeachtreeBus.Tests.Cleaners
             dataAccess.Verify(d => d.ExpireSubscriptions(100), Times.Once);
             dataAccess.Verify(d => d.ExpireSubscriptionMessages(100), Times.Once);
         }
+
+        [TestMethod]
+        public async Task Given_NoSubscriptionConfiguration_When_DoWork_ReturnsFalse()
+        {
+            busConfig.SetupGet(c => c.SubscriptionConfiguration).Returns((SubscriptionConfiguration?)null);
+            await work.DoWork();
+            dataAccess.Verify(d => d.ExpireSubscriptions(It.IsAny<int>()), Times.Never);
+            dataAccess.Verify(d => d.ExpireSubscriptionMessages(It.IsAny<int>()), Times.Never);
+        }
     }
 }

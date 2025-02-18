@@ -2,6 +2,7 @@
 using Moq;
 using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
+using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
 
@@ -45,6 +46,33 @@ namespace PeachtreeBus.Tests.Cleaners
             var olderThan = DateTime.UtcNow.AddDays(-1);
             await cleaner.CleanFailed(olderThan, 5);
             dataAccess.Verify(d => d.CleanQueueFailed(config.QueueConfiguration!.QueueName, olderThan, 5), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Given_NoQueueConfiguration_When_DoWork_NoWorkIsDone()
+        {
+            config = new BusConfiguration()
+            {
+                ConnectionString = "",
+                Schema = new("PeachtreeBus"),
+            };
+            cleaner = new QueueCleaner(config, dataAccess.Object);
+
+            var olderThan = DateTime.UtcNow.AddDays(-1);
+
+            await cleaner.CleanCompleted(olderThan, 5);
+            dataAccess.Verify(d => d.CleanQueueCompleted(
+                It.IsAny<QueueName>(),
+                It.IsAny<UtcDateTime>(),
+                It.IsAny<int>()),
+                Times.Never);
+
+            await cleaner.CleanFailed(olderThan, 5);
+            dataAccess.Verify(d => d.CleanQueueFailed(
+                It.IsAny<QueueName>(),
+                It.IsAny<UtcDateTime>(),
+                It.IsAny<int>()),
+                Times.Never);
         }
     }
 }
