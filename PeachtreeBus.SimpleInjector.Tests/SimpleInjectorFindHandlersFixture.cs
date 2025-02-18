@@ -16,7 +16,7 @@ public class SimpleInjectorFindHandlersFixture : SimpleInjectorExtensionFixtureB
     [ExcludeFromCodeCoverage]
     public class FindableQueueMessageHandler : IHandleQueueMessage<FindableQueuedMessage>
     {
-        public Task Handle(QueueContext context, FindableQueuedMessage message) => throw new System.NotImplementedException();
+        public Task Handle(IQueueContext context, FindableQueuedMessage message) => throw new System.NotImplementedException();
     }
 
     public class FindableSubscribedMessage : ISubscribedMessage;
@@ -24,7 +24,7 @@ public class SimpleInjectorFindHandlersFixture : SimpleInjectorExtensionFixtureB
     [ExcludeFromCodeCoverage]
     public class FindableSubscribedMessageHandler : IHandleSubscribedMessage<FindableSubscribedMessage>
     {
-        public Task Handle(SubscribedContext context, FindableSubscribedMessage message) => throw new System.NotImplementedException();
+        public Task Handle(ISubscribedContext context, FindableSubscribedMessage message) => throw new System.NotImplementedException();
     }
 
     [TestMethod]

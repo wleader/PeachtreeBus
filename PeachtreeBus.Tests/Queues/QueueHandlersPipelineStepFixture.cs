@@ -20,7 +20,7 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<IQueueReader> _queueReader = default!;
 
         private TestSaga _testSaga = default!;
-        private InternalQueueContext context = default!;
+        private QueueContext context = default!;
 
         [TestInitialize]
         public void Initialize()
@@ -63,10 +63,10 @@ namespace PeachtreeBus.Tests.Queues
             _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
                 .Returns(() => [_testSaga]);
 
-            _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()))
-                .Callback<object, InternalQueueContext>((s, c) =>
+            _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<IQueueContext>()))
+                .Callback<object, IQueueContext>((s, c) =>
                 {
-                    c.SagaData = new SagaData
+                    (c as QueueContext)!.SagaData = new SagaData
                     {
                         SagaId = UniqueIdentity.New(),
                         Blocked = false,
@@ -77,10 +77,10 @@ namespace PeachtreeBus.Tests.Queues
 
             await _testSubject.Invoke(context, null!);
 
-            _queueReader.Verify(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()), Times.Once);
+            _queueReader.Verify(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<QueueContext>()), Times.Once);
             _testSaga.AssertInvocations(1);
             _testSaga.AssertInvoked(context, (TestSagaMessage1)context.Message);
-            _queueReader.Verify(r => r.SaveSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()), Times.Once);
+            _queueReader.Verify(r => r.SaveSaga(It.IsAny<object>(), It.IsAny<QueueContext>()), Times.Once);
 
             Assert.IsFalse(context.SagaBlocked);
         }
@@ -97,10 +97,10 @@ namespace PeachtreeBus.Tests.Queues
 
             _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>()).Returns(handlers);
 
-            _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()))
-                .Callback<object, InternalQueueContext>((s, c) =>
+            _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<IQueueContext>()))
+                .Callback<object, IQueueContext>((s, c) =>
                 {
-                    c.SagaData = new SagaData
+                    (c as QueueContext)!.SagaData = new SagaData
                     {
                         SagaId = UniqueIdentity.New(),
                         Blocked = false,
@@ -118,8 +118,8 @@ namespace PeachtreeBus.Tests.Queues
             handler1.Verify(h => h.Handle(context, (TestSagaMessage1)context.Message), Times.Once);
             handler2.Verify(h => h.Handle(context, (TestSagaMessage1)context.Message), Times.Once);
 
-            _queueReader.Verify(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()), Times.Exactly(2));
-            _queueReader.Verify(r => r.SaveSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()), Times.Exactly(2));
+            _queueReader.Verify(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<QueueContext>()), Times.Exactly(2));
+            _queueReader.Verify(r => r.SaveSaga(It.IsAny<object>(), It.IsAny<QueueContext>()), Times.Exactly(2));
         }
 
         /// <summary>
@@ -132,10 +132,10 @@ namespace PeachtreeBus.Tests.Queues
             _findHandlers.Setup(f => f.FindHandlers<TestSagaMessage1>())
                 .Returns(() => [_testSaga]);
 
-            _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()))
-                .Callback<object, InternalQueueContext>((s, c) =>
+            _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<IQueueContext>()))
+                .Callback<object, IQueueContext>((s, c) =>
                 {
-                    c.SagaData = new SagaData
+                    (c as QueueContext)!.SagaData = new SagaData
                     {
                         SagaId = UniqueIdentity.New(),
                         Blocked = true,
@@ -147,10 +147,10 @@ namespace PeachtreeBus.Tests.Queues
             await _testSubject.Invoke(context, null);
 
             // the saga data will get loaded.
-            _queueReader.Verify(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()), Times.Once);
+            _queueReader.Verify(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<QueueContext>()), Times.Once);
 
             // the saga data will not be saved.
-            _queueReader.Verify(r => r.SaveSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()), Times.Never);
+            _queueReader.Verify(r => r.SaveSaga(It.IsAny<object>(), It.IsAny<QueueContext>()), Times.Never);
 
             // a block will be reported.
             Assert.IsTrue(context.SagaBlocked);
@@ -173,11 +173,12 @@ namespace PeachtreeBus.Tests.Queues
             // the handler for this message is not IHandleSagaStartMessage<>
 
             // returning null saga data means that the saga has not been started.
-            _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<InternalQueueContext>()))
-                .Callback<object, InternalQueueContext>((s, c) =>
+            _queueReader.Setup(r => r.LoadSaga(It.IsAny<object>(), It.IsAny<IQueueContext>()))
+                .Callback<object, IQueueContext>((s, c) =>
                 {
-                    c.SagaData = null;
-                    c.SagaKey = new("SagaKey");
+                    var context = (c as QueueContext)!;
+                    context.SagaData = null;
+                    context.SagaKey = new("SagaKey");
                 });
 
             // this should throw

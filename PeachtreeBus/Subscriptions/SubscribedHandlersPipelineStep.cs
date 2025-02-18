@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions
 {
-    public interface ISubscribedHandlersPipelineStep : IPipelineStep<SubscribedContext> { }
+    public interface ISubscribedHandlersPipelineStep : IPipelineStep<ISubscribedContext> { }
 
     public class SubscribedHandlersPipelineStep(
         IFindSubscribedHandlers findHandlers)
@@ -19,9 +19,9 @@ namespace PeachtreeBus.Subscriptions
         [ExcludeFromCodeCoverage]
         public int Priority { get => 0; }
 
-        public async Task Invoke(SubscribedContext subscribedcontext, Func<SubscribedContext, Task>? next)
+        public async Task Invoke(ISubscribedContext subscribedcontext, Func<ISubscribedContext, Task>? next)
         {
-            var context = (InternalSubscribedContext)subscribedcontext;
+            var context = (SubscribedContext)subscribedcontext;
 
             // determine what type of message it is.
             var messageType = Type.GetType(context.Headers.MessageClass)
@@ -54,7 +54,7 @@ namespace PeachtreeBus.Subscriptions
                 handlerCount++;
 
                 // find the right method on the handler.
-                var parameterTypes = new[] { typeof(SubscribedContext), messageType };
+                Type[] parameterTypes = [typeof(ISubscribedContext), messageType];
                 var handleMethod = handler.GetType().GetMethod("Handle", parameterTypes);
                 // A handler must have a Handle method, so GetMethod should never ruturn null
                 // unless the interface changed.

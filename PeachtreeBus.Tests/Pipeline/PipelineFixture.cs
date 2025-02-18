@@ -46,7 +46,7 @@ namespace PeachtreeBus.Tests.Pipeline
                 await Task.Delay(0);
             });
 
-            var _pipeline = new Pipeline<QueueContext>();
+            var _pipeline = new Pipeline<IQueueContext>();
             foreach (var step in steps.OrderBy(s => s.Priority)) { _pipeline.Add(step); }
 
             _pipeline.Add(handlerStep);

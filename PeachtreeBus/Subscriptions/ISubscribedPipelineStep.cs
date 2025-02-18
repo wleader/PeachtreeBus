@@ -2,7 +2,7 @@
 
 namespace PeachtreeBus.Subscriptions
 {
-    public interface ISubscribedPipelineStep : IPipelineStep<SubscribedContext>
+    public interface ISubscribedPipelineStep : IPipelineStep<ISubscribedContext>
     {
 
     }

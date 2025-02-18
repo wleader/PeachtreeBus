@@ -11,7 +11,7 @@ public class TestSubscribedPipelineStep : ISubscribedPipelineStep
 {
     public int Priority => 0;
 
-    public Task Invoke(SubscribedContext context, Func<SubscribedContext, Task> next)
+    public Task Invoke(ISubscribedContext context, Func<ISubscribedContext, Task> next)
     {
         return next(context);
     }
@@ -22,7 +22,7 @@ public class TestQueuePipelineStep : IQueuePipelineStep
 {
     public int Priority => 0;
 
-    public Task Invoke(QueueContext context, Func<QueueContext, Task> next)
+    public Task Invoke(IQueueContext context, Func<IQueueContext, Task> next)
     {
         return next(context);
     }

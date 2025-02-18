@@ -2,7 +2,15 @@
 
 namespace PeachtreeBus;
 
-public abstract class BaseContext
+public interface IBaseContext
+{
+    public IWrappedScope? Scope { get; internal set; }
+    public IHeaders Headers { get; }
+    public object Message { get; }
+}
+
+
+public abstract class BaseContext : IBaseContext
 {
     /// <summary>
     /// The message itself.
@@ -28,5 +36,7 @@ public abstract class BaseContext
     /// <summary>
     /// Headers that were stored with the message.
     /// </summary>
-    public Headers Headers { get; set; } = new();
+    public Headers Headers { get; set; } = new Headers();
+
+    IHeaders IBaseContext.Headers { get => Headers; }
 }

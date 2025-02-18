@@ -25,7 +25,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         private Mock<IPerfCounters> counters = default!;
         private Mock<ISubscribedReader> reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
-        private InternalSubscribedContext context = default!;
+        private SubscribedContext context = default!;
         private Mock<ISubscribedPipelineInvoker> pipelineInvoker = default!;
 
         [TestInitialize]
@@ -59,7 +59,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Given_NoPendingMessages_When_DoWork_Then_ReturnFalse()
         {
             reader.Setup(r => r.GetNext(It.IsAny<SubscriberId>()))
-                .ReturnsAsync((InternalSubscribedContext)null!);
+                .ReturnsAsync((SubscribedContext)null!);
 
             work.SubscriberId = SubscriberId.New();
             var result = await work.DoWork();
@@ -114,7 +114,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             CollectionAssert.AreEqual(expected, invocations);
 
             dataAccess.Verify(d => d.RollbackToSavepoint(It.IsAny<string>()), Times.Never);
-            reader.Verify(r => r.Fail(It.IsAny<InternalSubscribedContext>(), It.IsAny<Exception>()), Times.Never);
+            reader.Verify(r => r.Fail(It.IsAny<SubscribedContext>(), It.IsAny<Exception>()), Times.Never);
         }
 
         [TestMethod]
@@ -123,7 +123,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             List<string> invocations = [];
 
             var exception = new TestException();
-            pipelineInvoker.Setup(i => i.Invoke(It.IsAny<InternalSubscribedContext>())).Throws(exception);
+            pipelineInvoker.Setup(i => i.Invoke(It.IsAny<SubscribedContext>())).Throws(exception);
 
             dataAccess.Setup(d => d.RollbackToSavepoint("BeforeSubscriptionHandler"))
                 .Callback(() => invocations.Add("Rollback"));

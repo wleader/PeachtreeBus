@@ -14,7 +14,7 @@ namespace PeachtreeBus.SimpleInjector
     {
         private readonly IWrappedScope _scope = scope;
 
-        public IEnumerable<IPipelineStep<SubscribedContext>> FindSteps()
+        public IEnumerable<IPipelineStep<ISubscribedContext>> FindSteps()
         {
             return _scope.GetAllInstances<ISubscribedPipelineStep>().ToList();
         }

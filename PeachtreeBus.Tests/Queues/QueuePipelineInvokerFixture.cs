@@ -17,7 +17,7 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<IQueuePipelineFactory> _pipelineFactory = default!;
         private Mock<IQueuePipeline> _pipeline = default!;
         private QueuePipelineInvoker _invoker = default!;
-        private InternalQueueContext _context = default!;
+        private QueueContext _context = default!;
 
         [TestInitialize]
         public void Init()
@@ -49,8 +49,8 @@ namespace PeachtreeBus.Tests.Queues
         public async Task When_Invoked_Then_PipelineIsInvoked()
         {
 
-            _pipeline.Setup(p => p.Invoke(It.IsAny<QueueContext>()))
-                .Callback<QueueContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
+            _pipeline.Setup(p => p.Invoke(It.IsAny<IQueueContext>()))
+                .Callback<IQueueContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
 
             await _invoker.Invoke(_context);
         }

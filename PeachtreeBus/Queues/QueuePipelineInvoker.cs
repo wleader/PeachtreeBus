@@ -3,12 +3,12 @@ using PeachtreeBus.Pipelines;
 
 namespace PeachtreeBus.Queues
 {
-    public interface IQueuePipelineInvoker : IPipelineInvoker<QueueContext> { }
+    public interface IQueuePipelineInvoker : IPipelineInvoker<IQueueContext> { }
 
     public class QueuePipelineInvoker(
         IWrappedScopeFactory scopeFactory,
         ISharedDatabase sharedDatabase)
-        : PipelineInvoker<QueueContext, IQueuePipeline, IQueuePipelineFactory>(scopeFactory, sharedDatabase)
+        : PipelineInvoker<IQueueContext, IQueuePipeline, IQueuePipelineFactory>(scopeFactory, sharedDatabase)
         , IQueuePipelineInvoker
     { }
 }

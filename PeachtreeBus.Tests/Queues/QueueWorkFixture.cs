@@ -20,7 +20,7 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<IPerfCounters> counters = default!;
         private Mock<IQueueReader> reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
-        private InternalQueueContext context = default!;
+        private QueueContext context = default!;
         private Mock<IQueuePipelineInvoker> pipelineInvoker = default!;
         private readonly QueueName testQueue = new("TestQueue");
 
@@ -57,7 +57,7 @@ namespace PeachtreeBus.Tests.Queues
         public async Task Given_NoPendingMessages_When_DoWork_ThenReturnFalse()
         {
             reader.Setup(r => r.GetNext(testQueue))
-                .ReturnsAsync((InternalQueueContext)null!);
+                .ReturnsAsync((QueueContext)null!);
 
             var result = await work.DoWork();
 
@@ -84,8 +84,8 @@ namespace PeachtreeBus.Tests.Queues
             CollectionAssert.AreEqual(expected, invocations);
 
             dataAccess.Verify(d => d.RollbackToSavepoint(It.IsAny<string>()), Times.Never);
-            reader.Verify(r => r.DelayMessage(It.IsAny<InternalQueueContext>(), It.IsAny<int>()), Times.Never);
-            reader.Verify(r => r.Fail(It.IsAny<InternalQueueContext>(), It.IsAny<Exception>()), Times.Never);
+            reader.Verify(r => r.DelayMessage(It.IsAny<QueueContext>(), It.IsAny<int>()), Times.Never);
+            reader.Verify(r => r.Fail(It.IsAny<QueueContext>(), It.IsAny<Exception>()), Times.Never);
         }
 
         [TestMethod]
@@ -94,7 +94,7 @@ namespace PeachtreeBus.Tests.Queues
             List<string> invocations = [];
 
             var exception = new TestException();
-            pipelineInvoker.Setup(i => i.Invoke(It.IsAny<InternalQueueContext>())).Throws(exception);
+            pipelineInvoker.Setup(i => i.Invoke(It.IsAny<QueueContext>())).Throws(exception);
 
             dataAccess.Setup(d => d.RollbackToSavepoint("BeforeMessageHandler"))
                 .Callback(() => invocations.Add("Rollback"));
@@ -152,7 +152,7 @@ namespace PeachtreeBus.Tests.Queues
                 });
 
             reader.Setup(r => r.DelayMessage(context, 250))
-                .Callback((InternalQueueContext c, int ms) =>
+                .Callback((QueueContext c, int ms) =>
                 {
                     Assert.IsTrue(rolledBack, "Rollback did not happen before delaying message.");
                 });

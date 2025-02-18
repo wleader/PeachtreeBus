@@ -14,7 +14,7 @@ namespace PeachtreeBus.Example.Subsciptions
     {
         private readonly ILogger<AnnounceSagaCompletedSubscriber> _log = log;
 
-        public Task Handle(SubscribedContext context, AnnounceSagaCompleted message)
+        public Task Handle(ISubscribedContext context, AnnounceSagaCompleted message)
         {
             // nothing fancy, just note that we handled the subscribed message.
             _log.SubscribedSagaComplete(context.SubscriberId, message.AppId);

@@ -20,7 +20,7 @@ namespace PeachtreeBus.Example.Handlers
         private readonly IExampleDataAccess _dataAccess = dataAccess;
         private readonly IQueueWriter _queueWriter = queueWriter;
 
-        public async Task Handle(QueueContext context, SampleDistributedTaskRequest message)
+        public async Task Handle(IQueueContext context, SampleDistributedTaskRequest message)
         {
             // This handler does math on two values.
             // Not a realistic example, in that you wouldn't go through all the trouble of sending

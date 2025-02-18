@@ -2,5 +2,5 @@
 
 namespace PeachtreeBus.Subscriptions
 {
-    public interface IFindSubscribedPipelineSteps : IFindPipelineSteps<SubscribedContext> { }
+    public interface IFindSubscribedPipelineSteps : IFindPipelineSteps<ISubscribedContext> { }
 }

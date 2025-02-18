@@ -8,6 +8,6 @@ namespace PeachtreeBus.Subscriptions
     /// <typeparam name="T">A message class</typeparam>
     public interface IHandleSubscribedMessage<T> where T : ISubscribedMessage
     {
-        Task Handle(SubscribedContext context, T message);
+        Task Handle(ISubscribedContext context, T message);
     }
 }

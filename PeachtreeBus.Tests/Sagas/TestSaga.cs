@@ -30,7 +30,7 @@ namespace PeachtreeBus.Tests.Sagas
     public class TestSaga : Saga<TestSagaData>,
         IHandleQueueMessage<TestSagaMessage1>
     {
-        public List<Tuple<QueueContext, object>> Invocations = [];
+        public List<Tuple<IQueueContext, object>> Invocations = [];
 
         private static readonly SagaName _sagaName = new("TestSaga");
 
@@ -43,7 +43,7 @@ namespace PeachtreeBus.Tests.Sagas
             mapper.Add<TestSagaMessage2>(m => new("TestSagaKey"));
         }
 
-        public Task Handle(QueueContext context, TestSagaMessage1 message)
+        public Task Handle(IQueueContext context, TestSagaMessage1 message)
         {
             Invocations.Add(new(context, message));
             return Task.CompletedTask;

@@ -28,12 +28,12 @@ namespace PeachtreeBus.Tests.Sagas
                 throw new NotImplementedException();
             }
 
-            public Task Handle(QueueContext context, SagaStartMessage message)
+            public Task Handle(IQueueContext context, SagaStartMessage message)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Handle(QueueContext context, NotASagaStartMessage message)
+            public Task Handle(IQueueContext context, NotASagaStartMessage message)
             {
                 throw new NotImplementedException();
             }

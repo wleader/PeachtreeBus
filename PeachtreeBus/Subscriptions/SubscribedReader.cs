@@ -18,9 +18,9 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        Task<InternalSubscribedContext?> GetNext(SubscriberId subscriberId);
-        Task Complete(InternalSubscribedContext subsriptionContext);
-        Task Fail(InternalSubscribedContext subsriptionContext, Exception ex);
+        Task<SubscribedContext?> GetNext(SubscriberId subscriberId);
+        Task Complete(SubscribedContext subsriptionContext);
+        Task Fail(SubscribedContext subsriptionContext, Exception ex);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task Complete(InternalSubscribedContext context)
+        public async Task Complete(SubscribedContext context)
         {
             context.MessageData.Completed = _clock.UtcNow;
             _counters.CompleteMessage();
@@ -62,7 +62,7 @@ namespace PeachtreeBus.Subscriptions
         /// <param name="context"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public async Task Fail(InternalSubscribedContext context, Exception exception)
+        public async Task Fail(SubscribedContext context, Exception exception)
         {
             context.MessageData.Retries++;
             context.Headers.ExceptionDetails = exception.ToString();
@@ -92,7 +92,7 @@ namespace PeachtreeBus.Subscriptions
         /// </summary>
         /// <param name="subscriberId"></param>
         /// <returns></returns>
-        public async Task<InternalSubscribedContext?> GetNext(SubscriberId subscriberId)
+        public async Task<SubscribedContext?> GetNext(SubscriberId subscriberId)
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.
@@ -135,7 +135,7 @@ namespace PeachtreeBus.Subscriptions
             }
 
             // return the new message context.
-            return new InternalSubscribedContext
+            return new()
             {
                 MessageData = subscriptionMessage,
                 Headers = headers,

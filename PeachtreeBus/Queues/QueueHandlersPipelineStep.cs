@@ -12,7 +12,7 @@ namespace PeachtreeBus.Queues
     /// A Pipeline step that passed the message off to all the registered handlers.
     /// Intended to be the final link in the pipline chain.
     /// </summary>
-    public interface IQueueHandlersPipelineStep : IPipelineStep<QueueContext> { }
+    public interface IQueueHandlersPipelineStep : IPipelineStep<IQueueContext> { }
 
     /// <summary>
     /// A Pipeline step that passed the message off to all the registered handlers.
@@ -35,10 +35,8 @@ namespace PeachtreeBus.Queues
         [ExcludeFromCodeCoverage]
         public int Priority { get => 0; }
 
-        public async Task Invoke(QueueContext externalContext, Func<QueueContext, Task>? next)
+        public async Task Invoke(IQueueContext context, Func<IQueueContext, Task>? next)
         {
-            var context = (InternalQueueContext)externalContext;
-
             // determine what type of message it is.
             var messageType = Type.GetType(context.Headers.MessageClass)
                 ?? throw new QueueMessageClassNotRecognizedException(
@@ -99,7 +97,7 @@ namespace PeachtreeBus.Queues
                 }
 
                 // find the right method on the handler.
-                var parameterTypes = new[] { typeof(QueueContext), messageType };
+                Type[] parameterTypes = [typeof(IQueueContext), messageType];
                 var handleMethod = UnreachableException.ThrowIfNull(handler.GetType().GetMethod("Handle", parameterTypes),
                     message: "IHandleQueueMessage<> must have a Handle method.");
 

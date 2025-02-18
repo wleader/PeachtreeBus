@@ -13,7 +13,7 @@ namespace PeachtreeBus.Example.Pipeline
 
         public int Priority => 1;
 
-        public async Task Invoke(QueueContext context, Func<QueueContext, Task> next)
+        public async Task Invoke(IQueueContext context, Func<IQueueContext, Task> next)
         {
             _log.LogInformation("This code runs before Queue Message handlers.");
 

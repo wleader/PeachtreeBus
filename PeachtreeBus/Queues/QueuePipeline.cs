@@ -2,7 +2,7 @@
 
 namespace PeachtreeBus.Queues
 {
-    public interface IQueuePipeline : IPipeline<QueueContext> { }
+    public interface IQueuePipeline : IPipeline<IQueueContext> { }
 
-    public class QueuePipeline : Pipeline<QueueContext>, IQueuePipeline { }
+    public class QueuePipeline : Pipeline<IQueueContext>, IQueuePipeline { }
 }

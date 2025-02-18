@@ -55,7 +55,7 @@ namespace PeachtreeBus.Example.Sagas
         /// <param name="context"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task Handle(QueueContext context, SampleDistributedTaskResponse message)
+        public async Task Handle(IQueueContext context, SampleDistributedTaskResponse message)
         {
             _log.DistributedTaskComplete(message.Operation, message.A, message.B, message.Result);
 
@@ -96,7 +96,7 @@ namespace PeachtreeBus.Example.Sagas
         /// <param name="context"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task Handle(QueueContext context, SampleSagaStart message)
+        public async Task Handle(IQueueContext context, SampleSagaStart message)
         {
             _log.StartingTasks(message.AppId);
 

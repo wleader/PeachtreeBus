@@ -17,7 +17,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         private Mock<ISubscribedPipelineFactory> _pipelineFactory = default!;
         private Mock<ISubscribedPipeline> _pipeline = default!;
         private SubscribedPipelineInvoker _invoker = default!;
-        private InternalSubscribedContext _context = default!;
+        private SubscribedContext _context = default!;
 
         [TestInitialize]
         public void Init()
@@ -49,8 +49,8 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task When_Invoked_Then_PipelineIsInvoked()
         {
 
-            _pipeline.Setup(p => p.Invoke(It.IsAny<SubscribedContext>()))
-                .Callback<SubscribedContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
+            _pipeline.Setup(p => p.Invoke(It.IsAny<ISubscribedContext>()))
+                .Callback<ISubscribedContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
 
             await _invoker.Invoke(_context);
         }

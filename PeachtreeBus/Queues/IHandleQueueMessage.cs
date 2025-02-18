@@ -8,6 +8,6 @@ namespace PeachtreeBus.Queues
     /// <typeparam name="T">A message class</typeparam>
     public interface IHandleQueueMessage<T> where T : IQueueMessage
     {
-        Task Handle(QueueContext context, T message);
+        Task Handle(IQueueContext context, T message);
     }
 }

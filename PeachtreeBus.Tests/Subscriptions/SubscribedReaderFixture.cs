@@ -32,7 +32,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         private Headers NextMessageHeaders = default!;
         private TestSagaMessage1 NextUserMessage = default!;
         private RetryResult RetryResult = default!;
-        private InternalSubscribedContext Context = default!;
+        private SubscribedContext Context = default!;
         private SerializedData SerializedHeaderData = default!;
 
         [TestInitialize]

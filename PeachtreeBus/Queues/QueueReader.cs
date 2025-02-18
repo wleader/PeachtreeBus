@@ -19,20 +19,20 @@ namespace PeachtreeBus.Queues
         /// </summary>
         /// <param name="queueId"></param>
         /// <returns></returns>
-        Task<InternalQueueContext?> GetNext(QueueName queueName);
+        Task<QueueContext?> GetNext(QueueName queueName);
 
         /// <summary>
         /// Marks a message as successfully processed.
         /// </summary>
         /// <param name="messageContext"></param>
-        Task Complete(InternalQueueContext context);
+        Task Complete(QueueContext context);
 
         /// <summary>
         /// Sets a message to be processed later.
         /// </summary>
         /// <param name="messageContext"></param>
         /// <param name="seconds"></param>
-        Task DelayMessage(InternalQueueContext context, int milliseconds);
+        Task DelayMessage(QueueContext context, int milliseconds);
 
         /// <summary>
         /// Increases the retry count on the message.
@@ -41,7 +41,7 @@ namespace PeachtreeBus.Queues
         /// </summary>
         /// <param name="messageContext"></param>
         /// <param name="exception"></param>
-        Task Fail(InternalQueueContext context, Exception exception);
+        Task Fail(QueueContext context, Exception exception);
 
         /// <summary>
         /// Reads and deserialized saga data into the Message Context.
@@ -49,7 +49,7 @@ namespace PeachtreeBus.Queues
         /// </summary>
         /// <param name="saga">The saga to load data for.</param>
         /// <param name="context">The mesage context. SagaKey must be set.</param>
-        Task LoadSaga(object saga, InternalQueueContext context);
+        Task LoadSaga(object saga, IQueueContext context);
 
         /// <summary>
         /// Stores the saga data in the database after a message is processed.
@@ -57,7 +57,7 @@ namespace PeachtreeBus.Queues
         /// </summary>
         /// <param name="saga"></param>
         /// <param name="context"></param>
-        Task SaveSaga(object saga, InternalQueueContext context);
+        Task SaveSaga(object saga, IQueueContext context);
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ namespace PeachtreeBus.Queues
         private readonly IQueueRetryStrategy _retryStrategy = retryStrategy;
 
         /// <inheritdoc/>
-        public async Task<InternalQueueContext?> GetNext(QueueName queueName)
+        public async Task<QueueContext?> GetNext(QueueName queueName)
         {
             // get a message.
             // if it retuned null there is no message to pocess currently.
@@ -129,7 +129,7 @@ namespace PeachtreeBus.Queues
             }
 
             // return the new message context.
-            return new InternalQueueContext
+            return new QueueContext
             {
                 MessageId = queueMessage.MessageId,
                 MessageData = queueMessage,
@@ -141,7 +141,7 @@ namespace PeachtreeBus.Queues
         }
 
         /// <inheritdoc/>
-        public async Task Complete(InternalQueueContext messageContext)
+        public async Task Complete(QueueContext messageContext)
         {
             messageContext.MessageData.Completed = _clock.UtcNow;
             _counters.CompleteMessage();
@@ -149,7 +149,7 @@ namespace PeachtreeBus.Queues
         }
 
         /// <inheritdoc/>
-        public async Task Fail(InternalQueueContext context, Exception exception)
+        public async Task Fail(QueueContext context, Exception exception)
         {
             context.MessageData.Retries++;
             context.Headers.ExceptionDetails = exception.ToString();
@@ -175,7 +175,7 @@ namespace PeachtreeBus.Queues
         }
 
         /// <inheritdoc/>
-        public async Task LoadSaga(object saga, InternalQueueContext context)
+        public async Task LoadSaga(object saga, IQueueContext context)
         {
             // work out the class name of the saga.
             var sagaType = saga.GetType();
@@ -232,7 +232,7 @@ namespace PeachtreeBus.Queues
 
 
         /// <inheritdoc/>
-        public async Task SaveSaga(object saga, InternalQueueContext context)
+        public async Task SaveSaga(object saga, IQueueContext context)
         {
             var sagaType = saga.GetType();
             var nameProperty = sagaType.GetProperty("SagaName", typeof(SagaName));
@@ -301,7 +301,7 @@ namespace PeachtreeBus.Queues
         }
 
         /// <inheritdoc/>
-        public async Task DelayMessage(InternalQueueContext messageContext, int milliseconds)
+        public async Task DelayMessage(QueueContext messageContext, int milliseconds)
         {
             messageContext.MessageData.NotBefore = _clock.UtcNow.AddMilliseconds(milliseconds);
             _counters.DelayMessage();

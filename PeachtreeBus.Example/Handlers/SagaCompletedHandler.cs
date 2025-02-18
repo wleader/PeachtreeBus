@@ -21,7 +21,7 @@ namespace PeachtreeBus.Example.Handlers
         private readonly IExampleDataAccess _dataAccess = dataAccess;
         private readonly ISubscribedPublisher _publisher = publisher;
 
-        public async Task Handle(QueueContext context, SampleSagaComplete message)
+        public async Task Handle(IQueueContext context, SampleSagaComplete message)
         {
             _log.DistributedSagaComplete();
 

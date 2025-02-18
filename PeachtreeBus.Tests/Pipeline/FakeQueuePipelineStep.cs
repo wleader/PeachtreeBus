@@ -7,8 +7,8 @@ namespace PeachtreeBus.Tests.Pipeline
 {
     public class FakeQueuePipelineStep(
         int priority = 0,
-        Func<QueueContext, Func<QueueContext, Task>, Task>? handler = null)
-        : FakePipelineStep<QueueContext>(priority, handler)
+        Func<IQueueContext, Func<IQueueContext, Task>, Task>? handler = null)
+        : FakePipelineStep<IQueueContext>(priority, handler)
         , IQueuePipelineStep
     { }
 

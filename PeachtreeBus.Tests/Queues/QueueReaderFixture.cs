@@ -32,7 +32,7 @@ namespace PeachtreeBus.Tests.Queues
         private Mock<IQueueFailures> failures = default!;
         private Mock<IQueueRetryStrategy> retryStrategy = default!;
 
-        private InternalQueueContext Context = default!;
+        private QueueContext Context = default!;
 
         private QueueMessage NextMessage = default!;
         private Headers NextMessageHeaders = default!;

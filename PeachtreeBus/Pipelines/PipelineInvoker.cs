@@ -12,7 +12,7 @@ namespace PeachtreeBus.Pipelines
         IWrappedScopeFactory scopeFactory,
         ISharedDatabase sharedDatabase)
         : IPipelineInvoker<TContext>
-        where TContext : BaseContext
+        where TContext : IBaseContext
         where TPipeline : IPipeline<TContext>
         where TFactory : IPipelineFactory<TContext, TPipeline>
     {

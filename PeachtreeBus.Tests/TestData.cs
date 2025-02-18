@@ -95,7 +95,7 @@ public static class TestData
         return new() { MessageClass = UnrecognizedMessageClass };
     }
 
-    public static InternalQueueContext CreateQueueContext(
+    public static QueueContext CreateQueueContext(
         Func<object>? userMessageFunc = null,
         QueueMessage? messageData = null,
         QueueName? sourceQueue = null,
@@ -105,7 +105,7 @@ public static class TestData
         messageData ??= CreateQueueMessage();
         headers ??= CreateHeaders(messageObject);
 
-        return new InternalQueueContext()
+        return new()
         {
             Message = messageObject,
             MessageId = messageData.MessageId,
@@ -115,7 +115,7 @@ public static class TestData
         };
     }
 
-    public static InternalSubscribedContext CreateSubscribedContext(
+    public static SubscribedContext CreateSubscribedContext(
         object? userMessage = null,
         SubscribedMessage? messageData = null,
         Headers? headers = null)

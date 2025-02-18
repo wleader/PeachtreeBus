@@ -2,6 +2,6 @@
 
 namespace PeachtreeBus.Subscriptions
 {
-    public interface ISubscribedPipeline : IPipeline<SubscribedContext> { }
-    public class SubscribedPipeline : Pipeline<SubscribedContext>, ISubscribedPipeline { }
+    public interface ISubscribedPipeline : IPipeline<ISubscribedContext> { }
+    public class SubscribedPipeline : Pipeline<ISubscribedContext>, ISubscribedPipeline { }
 }
