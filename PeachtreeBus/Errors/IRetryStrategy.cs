@@ -33,7 +33,7 @@ public readonly record struct RetryResult
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 public interface IRetryStrategy<TContext>
-    where TContext : BaseContext
+    where TContext : IBaseContext
 {
     RetryResult DetermineRetry(TContext context, Exception exception, int failureCount);
 }
@@ -41,9 +41,9 @@ public interface IRetryStrategy<TContext>
 /// <summary>
 /// Defines a retry strategy for Subscribed Messages.
 /// </summary>
-public interface ISubscribedRetryStrategy : IRetryStrategy<SubscribedContext> { }
+public interface ISubscribedRetryStrategy : IRetryStrategy<ISubscribedContext> { }
 
 /// <summary>
 /// Defines a retry strategy for Queue Messages
 /// </summary>
-public interface IQueueRetryStrategy : IRetryStrategy<QueueContext> { }
+public interface IQueueRetryStrategy : IRetryStrategy<IQueueContext> { }

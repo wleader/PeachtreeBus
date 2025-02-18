@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Data;
+using PeachtreeBus.Queues;
 
 namespace PeachtreeBus;
 
@@ -7,10 +8,20 @@ public interface IBaseContext
     public IWrappedScope? Scope { get; internal set; }
     public IHeaders Headers { get; }
     public object Message { get; }
+    public UtcDateTime EnqueuedTime { get; }
+    public UniqueIdentity MessageId { get; }
+    public int MessagePriority { get; }
+}
+
+public interface IBaseContext<TQueueMessage> : IBaseContext
+    where TQueueMessage : QueueMessage
+{
+    internal TQueueMessage MessageData { get; set; }
 }
 
 
-public abstract class BaseContext : IBaseContext
+public abstract class BaseContext<TQueueMessage> : IBaseContext<TQueueMessage>
+    where TQueueMessage : QueueMessage
 {
     /// <summary>
     /// The message itself.
@@ -18,9 +29,9 @@ public abstract class BaseContext : IBaseContext
     public required object Message { get; set; } = default!;
 
     /// <summary>
-    /// A unique Id for the message.
+    /// The Model of the message as was stored the database.
     /// </summary>
-    public required UniqueIdentity MessageId { get; set; }
+    public required TQueueMessage MessageData { get; set; } = default!;
 
     /// <summary>
     /// Exposes the Dependency Injection Scope for the message being handled.
@@ -31,7 +42,7 @@ public abstract class BaseContext : IBaseContext
     /// <summary>
     /// The priority value of the message being handled.
     /// </summary>
-    public int MessagePriority { get; set; }
+    public int MessagePriority { get => MessageData.Priority; }
 
     /// <summary>
     /// Headers that were stored with the message.
@@ -39,4 +50,7 @@ public abstract class BaseContext : IBaseContext
     public Headers Headers { get; set; } = new Headers();
 
     IHeaders IBaseContext.Headers { get => Headers; }
+
+    public UtcDateTime EnqueuedTime { get => MessageData.Enqueued; }
+    public UniqueIdentity MessageId { get => MessageData.MessageId; }
 }

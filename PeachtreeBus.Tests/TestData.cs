@@ -108,7 +108,6 @@ public static class TestData
         return new()
         {
             Message = messageObject,
-            MessageId = messageData.MessageId,
             MessageData = messageData,
             SourceQueue = sourceQueue ?? DefaultQueueName,
             Headers = headers,
@@ -126,7 +125,6 @@ public static class TestData
         return new()
         {
             Message = userMessage,
-            MessageId = messageData.MessageId,
             MessageData = messageData,
             Headers = headers,
         };

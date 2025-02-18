@@ -1,6 +1,6 @@
 ﻿namespace PeachtreeBus.Subscriptions;
 
-public interface ISubscribedContext : IBaseContext
+public interface ISubscribedContext : IBaseContext<SubscribedMessage>
 {
     public SubscriberId SubscriberId { get; }
 }
@@ -9,15 +9,10 @@ public interface ISubscribedContext : IBaseContext
 /// Stores contextual data about the subscription message being handled,
 /// that may be useful to application code.
 /// </summary>
-public class SubscribedContext : BaseContext, ISubscribedContext
+public class SubscribedContext : BaseContext<SubscribedMessage>, ISubscribedContext
 {
     /// <summary>
     /// The Subscriber that the message was sent to.
     /// </summary>
-    public SubscriberId SubscriberId { get; set; }
-
-    /// <summary>
-    /// The message as read from the database.
-    /// </summary>
-    public SubscribedMessage MessageData { get; set; } = default!;
+    public SubscriberId SubscriberId { get => MessageData.SubscriberId; }
 }

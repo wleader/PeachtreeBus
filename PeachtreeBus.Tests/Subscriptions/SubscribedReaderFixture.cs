@@ -58,7 +58,8 @@ namespace PeachtreeBus.Tests.Subscriptions
                 failures.Object,
                 retryStrategy.Object);
 
-            NextMessage = TestData.CreateSubscribedMessage(id: new(12345), priority: 24);
+            NextMessage = TestData.CreateSubscribedMessage(id: new(12345), priority: 24,
+                subscriberId: SubscriberId);
 
             dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
                 .ReturnsAsync(() => NextMessage);

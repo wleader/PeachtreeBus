@@ -131,12 +131,10 @@ namespace PeachtreeBus.Queues
             // return the new message context.
             return new QueueContext
             {
-                MessageId = queueMessage.MessageId,
                 MessageData = queueMessage,
                 Headers = headers,
                 Message = message,
                 SourceQueue = queueName,
-                MessagePriority = queueMessage.Priority,
             };
         }
 

@@ -2,12 +2,11 @@
 
 namespace PeachtreeBus.Queues;
 
-public interface IQueueContext : IBaseContext
+public interface IQueueContext : IBaseContext<QueueMessage>
 {
     public QueueName SourceQueue { get; }
     internal string CurrentHandler { get; set; }
     public SagaKey SagaKey { get; internal set; }
-    internal QueueMessage MessageData { get; set; }
     internal bool SagaBlocked { get; }
     internal SagaData? SagaData { get; set; }
 }
@@ -17,17 +16,12 @@ public interface IQueueContext : IBaseContext
 /// Exposes information about the context that the application code
 /// may want to use.
 /// </summary>
-public class QueueContext : BaseContext, IQueueContext
+public class QueueContext : BaseContext<QueueMessage>, IQueueContext
 {
     /// <summary>
     /// Which Queue the message was read from.
     /// </summary>
     public QueueName SourceQueue { get; set; } = default!;
-
-    /// <summary>
-    /// The Model of the message as was stored the database.
-    /// </summary>
-    public QueueMessage MessageData { get; set; } = default!;
 
     /// <summary>
     /// The Model of the saga data related to the message (Null when the message is not part of a saga)

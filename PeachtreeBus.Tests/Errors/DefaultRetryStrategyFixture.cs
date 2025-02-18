@@ -8,7 +8,7 @@ namespace PeachtreeBus.Tests.Errors;
 
 
 public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
-    where TContext : BaseContext
+    where TContext : IBaseContext
     where TStrategy : DefaultRetryStrategy<TContext>, new()
 {
     protected TContext Context = default!;
@@ -53,14 +53,14 @@ public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
 
 [TestClass]
 public class DefaultQueueRetryStrategyFixture
-    : DefaultRetryStrategyFixture<QueueContext, DefaultQueueRetryStrategy>
+    : DefaultRetryStrategyFixture<IQueueContext, DefaultQueueRetryStrategy>
 {
-    protected override QueueContext CreateContext() => TestData.CreateQueueContext();
+    protected override IQueueContext CreateContext() => TestData.CreateQueueContext();
 }
 
 [TestClass]
 public class DefaultSubscribedRetryStrategyFixture
-    : DefaultRetryStrategyFixture<SubscribedContext, DefaultSubscribedRetryStrategy>
+    : DefaultRetryStrategyFixture<ISubscribedContext, DefaultSubscribedRetryStrategy>
 {
-    protected override SubscribedContext CreateContext() => TestData.CreateSubscribedContext();
+    protected override ISubscribedContext CreateContext() => TestData.CreateSubscribedContext();
 }
