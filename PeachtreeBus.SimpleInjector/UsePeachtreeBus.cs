@@ -98,12 +98,39 @@ public static partial class SimpleInjectorExtensions
         container.Register(typeof(IQueueWriter), typeof(QueueWriter), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedPublisher), typeof(SubscribedPublisher), Lifestyle.Scoped);
 
+        // because sending isn't specific to reading a queue or subscribing, the outgoing pipelines must be registered.
+        container.RegisterOutgoingPipelines();
+
         // failed message handlers
         container.Register(typeof(IFailedQueueMessageHandlerFactory), typeof(FailedQueueMessageHandlerFactory), Lifestyle.Scoped);
         container.Register(typeof(IQueueFailures), typeof(QueueFailures), Lifestyle.Scoped);
 
         container.Register(typeof(IFailedSubscribedMessageHandlerFactory), typeof(FailedSubscribedMessageHandlerFactory), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedFailures), typeof(SubscribedFailures), Lifestyle.Scoped);
+
+        return container;
+    }
+
+    private static Container RegisterOutgoingPipelines(this Container container)
+    {
+        container.Register(typeof(IPublishPipelineInvoker), typeof(PublishPipelineInvoker), Lifestyle.Scoped);
+        container.Register(typeof(IPublishPipelineFactory), typeof(PublishPipelineFactory), Lifestyle.Scoped);
+        container.Register(typeof(IPublishPipeline), typeof(PublishPipeline), Lifestyle.Scoped);
+        container.Register(typeof(IFindPublishPipelineSteps), typeof(FindPublishPipelineSteps), Lifestyle.Scoped);
+        container.Register(typeof(IPublishPipelinePublishStep), typeof(PublishPipelinePublishStep), Lifestyle.Scoped);
+
+        // register pipeline steps
+        container.FindAndRegisterScopedTypes<IPublishPipelineStep>();
+
+
+        container.Register(typeof(ISendPipelineInvoker), typeof(SendPipelineInvoker), Lifestyle.Scoped);
+        container.Register(typeof(ISendPipelineFactory), typeof(SendPipelineFactory), Lifestyle.Scoped);
+        container.Register(typeof(ISendPipeline), typeof(SendPipeline), Lifestyle.Scoped);
+        container.Register(typeof(IFindSendPipelineSteps), typeof(FindSendPipelineSteps), Lifestyle.Scoped);
+        container.Register(typeof(ISendPipelineSendStep), typeof(SendPipelineSendStep), Lifestyle.Scoped);
+
+        // register pipeline steps
+        container.FindAndRegisterScopedTypes<ISendPipelineStep>();
 
         return container;
     }

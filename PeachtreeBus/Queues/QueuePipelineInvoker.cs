@@ -8,7 +8,7 @@ namespace PeachtreeBus.Queues
     public class QueuePipelineInvoker(
         IWrappedScopeFactory scopeFactory,
         ISharedDatabase sharedDatabase)
-        : PipelineInvoker<IQueueContext, IQueuePipeline, IQueuePipelineFactory>(scopeFactory, sharedDatabase)
+        : IncomingPipelineInvoker<IQueueContext, IQueuePipeline, IQueuePipelineFactory>(scopeFactory, sharedDatabase)
         , IQueuePipelineInvoker
     { }
 }

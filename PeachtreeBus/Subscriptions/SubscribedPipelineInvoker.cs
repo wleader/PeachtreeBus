@@ -8,7 +8,7 @@ namespace PeachtreeBus.Subscriptions
     public class SubscribedPipelineInvoker(
         IWrappedScopeFactory scopeFactory,
         ISharedDatabase sharedDatabase)
-        : PipelineInvoker<ISubscribedContext, ISubscribedPipeline, ISubscribedPipelineFactory>(scopeFactory, sharedDatabase)
+        : IncomingPipelineInvoker<ISubscribedContext, ISubscribedPipeline, ISubscribedPipelineFactory>(scopeFactory, sharedDatabase)
         , ISubscribedPipelineInvoker
     { }
 }

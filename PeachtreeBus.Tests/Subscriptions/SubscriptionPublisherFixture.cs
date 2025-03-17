@@ -1,348 +1,202 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
-using PeachtreeBus.Interfaces;
 using PeachtreeBus.Subscriptions;
-using PeachtreeBus.Tests.Fakes;
 using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Subscriptions
+namespace PeachtreeBus.Tests.Subscriptions;
+
+/// <summary>
+/// Proves the behavior of SubscriptionPublisher
+/// </summary>
+[TestClass]
+public class SubscriptionPublisherFixture
 {
-    /// <summary>
-    /// Proves the behavior of SubscriptionPublisher
-    /// </summary>
-    [TestClass]
-    public class SubscriptionPublisherFixture
+    // the class under test.
+    private SubscribedPublisher publisher = default!;
+
+    // Dependencies
+    private Mock<IPublishPipelineInvoker> pipelineInvoker = default!;
+
+    // a message to send.
+    private TestData.TestSubscribedMessage userMessage = default!;
+
+    // stores the parameters to the AddMessage calls.
+    private IPublishContext? invokedContext = default;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        // the class under test.
-        private SubscribedPublisher publisher = default!;
+        pipelineInvoker = new();
 
-        // Dependencies
-        private Mock<IBusDataAccess> dataAccess = default!;
-        private Mock<IPerfCounters> counters = default!;
-        private FakeSerializer serializer = default!;
-        private Mock<ISystemClock> clock = default!;
-        private BusConfiguration configuration = default!;
+        userMessage = TestData.CreateSubscribedUserMessage();
 
-        // a message to send.
-        private TestData.TestSubscribedMessage userMessage = default!;
+        pipelineInvoker.Setup(x => x.Invoke(It.IsAny<IPublishContext>()))
+            .Callback((IPublishContext c) =>
+            {
+                invokedContext = c;
+            });
 
-        // stores the parameters to the AddMessage calls.
-        private SubscribedMessage? PublishedMessage;
-        private Topic? PublishedTopic;
-        private long PublishResult = 1;
+        publisher = new SubscribedPublisher(
+            pipelineInvoker.Object);
+    }
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            dataAccess = new();
-            counters = new();
-            serializer = new();
-            clock = new();
-            configuration = TestData.CreateBusConfiguration();
-
-            PublishedMessage = null;
-            PublishedTopic = null;
-
-            clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
-
-            dataAccess.Setup(d => d.Publish(It.IsAny<SubscribedMessage>(), It.IsAny<Topic>()))
-                .Callback((SubscribedMessage m, Topic c) =>
-                {
-                    PublishedMessage = m;
-                    PublishedTopic = c;
-                })
-                .ReturnsAsync(() => PublishResult);
-
-            userMessage = TestData.CreateSubscribedUserMessage();
-
-            publisher = new SubscribedPublisher(
-                dataAccess.Object,
-                configuration,
-                serializer.Object,
-                counters.Object,
-                clock.Object);
-        }
-
-        /// <summary>
-        /// Proves message cannot be null
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_ThrowsWhenMessageIsNull()
-        {
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-                publisher.Publish(
-                    TestData.DefaultTopic2,
-                    userMessage.GetType(),
-                    null!,
-                    null));
-        }
-
-        /// <summary>
-        /// Proves Type cannot be null
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_ThrowsWhenTypeIsNull()
-        {
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-                publisher.Publish(
-                    TestData.DefaultTopic2,
-                    null!,
-                    new TestSagaMessage1(),
-                    null));
-        }
-
-        /// <summary>
-        /// Proves Header is set.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_SetsMessageClassOfHeaders()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
+    /// <summary>
+    /// Proves message cannot be null
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Publish_ThrowsWhenMessageIsNull()
+    {
+        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+            publisher.Publish(
+                TestData.DefaultTopic2,
                 userMessage.GetType(),
-                userMessage,
-                null);
+                null!,
+                null));
+    }
 
-            Assert.AreEqual(1, serializer.SerializedHeaders.Count);
-            Assert.AreEqual("PeachtreeBus.Tests.TestData+TestSubscribedMessage, PeachtreeBus.Tests",
-                serializer.SerializedHeaders[0].MessageClass);
-        }
+    /// <summary>
+    /// Proves Type cannot be null
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Publish_ThrowsWhenTypeIsNull()
+    {
+        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+            publisher.Publish(
+                TestData.DefaultTopic2,
+                null!,
+                new TestSagaMessage1(),
+                null));
+    }
 
-        /// <summary>
-        /// Proves NotBefore is defaulted
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_DefaultsNotBeforeToUtcNow()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                null);
+    /// <summary>
+    /// Proves Header is set.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Publish_SetsContextType()
+    {
+        await publisher.Publish(
+            TestData.DefaultTopic,
+            userMessage.GetType(),
+            userMessage,
+            null);
+        Assert.AreEqual(userMessage.GetType(), invokedContext?.Type);
+    }
 
-            Assert.AreEqual(clock.Object.UtcNow, PublishedMessage?.NotBefore);
-        }
+    /// <summary>
+    /// Proves NotBefore is defaulted
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Publish_PassesNullNotBefore()
+    {
+        await publisher.Publish(
+            TestData.DefaultTopic,
+            userMessage.GetType(),
+            userMessage,
+            null);
+        Assert.IsNotNull(invokedContext);
+        Assert.IsFalse(invokedContext.NotBefore.HasValue);
+    }
 
-        /// <summary>
-        /// Proves NotBefore is used
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_UsesProvidedNotBefore()
-        {
-            UtcDateTime notBefore = DateTime.UtcNow;
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                notBefore);
+    /// <summary>
+    /// Proves NotBefore is used
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Publish_UsesProvidedNotBefore()
+    {
+        UtcDateTime notBefore = DateTime.UtcNow;
+        await publisher.Publish(
+            TestData.DefaultTopic,
+            userMessage.GetType(),
+            userMessage,
+            notBefore);
 
-            Assert.AreEqual(notBefore, PublishedMessage?.NotBefore);
-        }
+        Assert.AreEqual(notBefore, invokedContext?.NotBefore);
+    }
 
-        /// <summary>
-        /// Proves NotBefore must have DateTimeKind
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_ThrowsWhenNotBeforeKindUnspecified()
-        {
-            var notBefore = new DateTime(2022, 2, 23, 10, 54, 11, DateTimeKind.Unspecified);
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-                publisher.Publish(
-                    TestData.DefaultTopic,
-                    typeof(TestSagaMessage1),
-                    new TestSagaMessage1(),
-                    notBefore));
-        }
+    /// <summary>
+    /// Proves DataAccess is used
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Given_Topic_When_Publish_Then_ContextTopicIsSet()
+    {
+        await publisher.Publish(
+            TestData.DefaultTopic,
+            userMessage.GetType(),
+            userMessage,
+            null);
+        Assert.IsNotNull(invokedContext);
+        Assert.AreEqual(TestData.DefaultTopic, invokedContext.Topic);
+    }
 
-        /// <summary>
-        /// Proves Enqueued is set.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_SetsEnqueuedToUtcNow()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-               userMessage,
-                null);
-            Assert.AreEqual(clock.Object.UtcNow, PublishedMessage?.Enqueued);
-        }
+    [TestMethod]
+    public async Task Given_MessageIsNotISubscribedMessage_When_Publish_Then_ThrowsUsefulException()
+    {
+        await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
+            publisher.Publish(TestData.DefaultTopic2, typeof(object), new object(), null));
+    }
 
-        /// <summary>
-        /// Proves that completed defaults to null
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_SetsCompletedToNull()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                null);
+    [TestMethod]
+    public async Task Given_Priority_When_Publish_Then_ContextPriorityIsSet()
+    {
+        await publisher.Publish(
+            TestData.DefaultTopic,
+            userMessage.GetType(),
+            userMessage,
+            priority: 100);
+        Assert.IsNotNull(invokedContext);
+        Assert.AreEqual(100, invokedContext.Priority);
+    }
 
-            Assert.IsNotNull(PublishedMessage);
-            Assert.IsNull(PublishedMessage.Completed);
-        }
+    [TestMethod]
+    public async Task Given_UserHeaders_When_Publish_Then_ContextUserHeadersAreSet()
+    {
+        await publisher.Publish(
+            TestData.DefaultTopic,
+            userMessage.GetType(),
+            userMessage,
+            userHeaders: TestData.DefaultUserHeaders);
+        Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.UserHeaders);
+    }
 
-        /// <summary>
-        /// Proves that failed defaults to null.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_SetsFailedToNull()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-               userMessage,
-                null);
+    [TestMethod]
+    public async Task When_Publish_Then_PipelineInvokerIsInvoked()
+    {
+        await publisher.Publish(
+            TestData.DefaultTopic,
+            userMessage.GetType(),
+            userMessage);
 
-            Assert.IsNotNull(PublishedMessage);
-            Assert.IsNull(PublishedMessage.Failed);
-        }
+        pipelineInvoker.Verify(x => x.Invoke(It.IsAny<IPublishContext>()), Times.Once);
+    }
 
-        /// <summary>
-        /// proves retries defaults to zero.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_SetsRetriesToZero()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                null);
+    [TestMethod]
+    public async Task When_Publish_Then_PipelineInvokerContextIsCorrect()
+    {
+        var notBefore = new DateTime(2025, 3, 16, 18, 35, 36, DateTimeKind.Utc);
+        var userHeaders = new UserHeaders();
+        await publisher.Publish(
+            TestData.DefaultTopic,
+            userMessage.GetType(),
+            userMessage,
+            notBefore,
+            245,
+            userHeaders);
 
-            Assert.IsNotNull(PublishedMessage);
-            Assert.AreEqual(0, PublishedMessage.Retries);
-        }
-
-        /// <summary>
-        /// Proves headers are serialized.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_UsesHeadersFromSerializer()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                null);
-
-            Assert.AreEqual(serializer.SerializeHeadersResult, PublishedMessage?.Headers);
-        }
-
-        /// <summary>
-        /// Proves Body is serialized
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Publish_UsesBodyFromSerializer()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                null);
-
-            Assert.AreEqual(serializer.SerializeMessageResult, PublishedMessage?.Body);
-        }
-
-        /// <summary>
-        /// Proves Perf counters are used.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        [DataRow(0)]
-        [DataRow(1)]
-        [DataRow(10)]
-        [DataRow(long.MaxValue)]
-        public async Task Publish_CountPublishedMessages(long count)
-        {
-            PublishResult = count;
-
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                null);
-
-            counters.Verify(c => c.PublishMessage(count), Times.Once);
-        }
-
-        /// <summary>
-        /// Proves DataAccess is used
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Given_Topic_When_Publish_Then_TopicIsUsed()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                null);
-
-            Assert.IsTrue(PublishedTopic.HasValue);
-            Assert.AreEqual(TestData.DefaultTopic, PublishedTopic.Value);
-        }
-
-        [TestMethod]
-        public async Task Given_MessageIsNotISubscribedMessage_When_WriteMessage_Then_ThrowsUsefulException()
-        {
-            await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
-                publisher.Publish(TestData.DefaultTopic2, typeof(object), new object(), null));
-        }
-
-        [TestMethod]
-        public async Task Given_Priority_When_Publish_Then_PriorityIsSet()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                priority: 100);
-
-            Assert.AreEqual(100, PublishedMessage?.Priority);
-        }
-
-        [TestMethod]
-        public async Task Given_UserHeaders_When_Publish_Then_UserHeadersAreUsed()
-        {
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage,
-                userHeaders: TestData.DefaultUserHeaders);
-
-            Assert.AreEqual(1, serializer.SerializedHeaders.Count);
-            Assert.AreSame(TestData.DefaultUserHeaders, serializer.SerializedHeaders[0].UserHeaders);
-        }
-
-        [TestMethod]
-        public async Task When_Publish_Then_ValidUntilUsesConfiguration()
-        {
-            var expectedValidUntil = clock.Object.UtcNow.Add(configuration.PublishConfiguration.Lifespan);
-
-            await publisher.Publish(
-                TestData.DefaultTopic,
-                userMessage.GetType(),
-                userMessage);
-
-            Assert.AreEqual(expectedValidUntil, PublishedMessage?.ValidUntil);
-        }
+        Assert.AreEqual(1, pipelineInvoker.Invocations.Count);
+        var context = pipelineInvoker.Invocations[0].Arguments[0] as PublishContext;
+        Assert.IsNotNull(context);
+        Assert.AreSame(userMessage, context.Message);
+        Assert.AreSame(userHeaders, context.UserHeaders);
+        Assert.AreEqual(245, context.Priority);
+        Assert.AreEqual(notBefore, context.NotBefore);
     }
 }

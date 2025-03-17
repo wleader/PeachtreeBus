@@ -7,318 +7,262 @@ using PeachtreeBus.Tests.Fakes;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Queues
+namespace PeachtreeBus.Tests.Queues;
+
+/// <summary>
+/// Proves the behavior of QueueWriter
+/// </summary>
+[TestClass]
+public class SendPipelineSendStepFixture
 {
-    /// <summary>
-    /// Proves the behavior of QueueWriter
-    /// </summary>
-    [TestClass]
-    public class QueueWriterFixture
+    public class MessageWithoutInterface { }
+
+    private SendPipelineSendStep step = default!;
+    private Mock<IBusDataAccess> dataAccess = default!;
+    private Mock<IPerfCounters> counters = default!;
+    private FakeSerializer serializer = default!;
+    private Mock<ISystemClock> clock = default!;
+
+    private QueueMessage? AddedMessage = null;
+    private QueueName? AddedToQueue = default;
+    private SendContext context = default!;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        public class MessageWithoutInterface { }
+        dataAccess = new();
+        counters = new();
+        serializer = new();
+        clock = new();
 
-        private QueueWriter writer = default!;
-        private Mock<IBusDataAccess> dataAccess = default!;
-        private Mock<IPerfCounters> counters = default!;
-        private FakeSerializer serializer = default!;
-        private Mock<ISystemClock> clock = default!;
+        clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
 
-        private QueueMessage? AddedMessage = null;
-        private QueueName? AddedToQueue = default;
-        private object userMessage = default!;
+        dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
+            .Callback<QueueMessage, QueueName>((msg, qn) =>
+            {
+                AddedMessage = msg;
+                AddedToQueue = qn;
+            })
+            .Returns(Task.FromResult<Identity>(new(12345)));
 
-        [TestInitialize]
-        public void TestInitialize()
+        context = new()
         {
-            dataAccess = new();
-            counters = new();
-            serializer = new();
-            clock = new();
+            Destination = TestData.DefaultQueueName,
+            Message = TestData.CreateQueueUserMessage(),
+            Type = typeof(TestData.TestQueuedMessage),
+            UserHeaders = TestData.DefaultUserHeaders,
+        };
 
-            clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
+        step = new(clock.Object, serializer.Object, dataAccess.Object, counters.Object);
+    }
 
-            dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
-                .Callback<QueueMessage, QueueName>((msg, qn) =>
-                {
-                    AddedMessage = msg;
-                    AddedToQueue = qn;
-                })
-                .Returns(Task.FromResult<Identity>(new(12345)));
+    /// <summary>
+    /// Proves the message cannot be null.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Given_ContextMessageNull_When_Invoke_Then_Throws()
+    {
+        context.Message = null!;
+        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+            step.Invoke(context, null!));
+    }
 
-            userMessage = TestData.CreateQueueUserMessage();
+    /// <summary>
+    /// Proves the type cannot be null
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Given_ContextTypeNull_When_Invoke_Then_Throws()
+    {
+        context.Type = null!;
+        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+             step.Invoke(context, null!));
+    }
 
-            writer = new QueueWriter(dataAccess.Object, counters.Object, serializer.Object, clock.Object);
-        }
+    /// <summary>
+    /// proves the message class is set.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_Then_HeadersTypeIsSet()
+    {
+        await step.Invoke(context, null!);
+        Assert.AreEqual(1, serializer.SerializedHeaders.Count);
+        Assert.AreEqual("PeachtreeBus.Tests.TestData+TestQueuedMessage, PeachtreeBus.Tests",
+            serializer.SerializedHeaders[0].MessageClass);
+    }
 
-        /// <summary>
-        /// Proves the message cannot be null.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_ThrowsWhenMessageIsNull()
-        {
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-                writer.WriteMessage(
-                    TestData.DefaultQueueName,
-                    userMessage.GetType(),
-                    null!));
-        }
+    /// <summary>
+    /// Proves that NotBefore defaults to Now
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Given_ContextNotBeforeNull_When_Invoke_NotBeforeIsDefaultedToNow()
+    {
+        context.NotBefore = null;
+        await step.Invoke(context, null!);
 
-        /// <summary>
-        /// Proves the type cannot be null
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_ThrowsWhenTypeIsNull()
-        {
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-                writer.WriteMessage(
-                    TestData.DefaultQueueName,
-                    null!,
-                    userMessage));
-        }
+        Assert.IsNotNull(AddedMessage);
+        Assert.AreEqual(TestData.Now, AddedMessage.NotBefore);
+    }
 
-        /// <summary>
-        /// proves the message class is set.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_SetsMessageClassOfHeaders()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
-            Assert.AreEqual(1, serializer.SerializedHeaders.Count);
-            Assert.AreEqual("PeachtreeBus.Tests.TestData+TestQueuedMessage, PeachtreeBus.Tests",
-                serializer.SerializedHeaders[0].MessageClass);
-        }
+    /// <summary>
+    /// Proves the supplied NotBefore is used
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Given_ContextNotBefore_When_Invoke_ContextNotBeforeIsUsed()
+    {
+        UtcDateTime notBefore = DateTime.UtcNow;
+        context.NotBefore = notBefore;
+        await step.Invoke(context, null!);
 
-        /// <summary>
-        /// Proves that NotBefore defaults to Now
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_DefaultsNotBeforeToUtcNow()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
+        Assert.IsNotNull(AddedMessage);
+        Assert.AreEqual(notBefore, AddedMessage.NotBefore);
+    }
 
-            Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(TestData.Now, AddedMessage.NotBefore);
-        }
+    /// <summary>
+    /// Proves Enqueued is set to now
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_SetsEnqueuedToUtcNow()
+    {
+        await step.Invoke(context, null!);
 
-        /// <summary>
-        /// Proves the supplied NotBefore is used
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_UsesProvidedNotBefore()
-        {
-            UtcDateTime notBefore = DateTime.UtcNow;
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage,
-                notBefore: notBefore);
+        Assert.IsNotNull(AddedMessage);
+        Assert.AreEqual(TestData.Now, AddedMessage.Enqueued);
+    }
 
-            Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(notBefore, AddedMessage.NotBefore);
-        }
+    /// <summary>
+    /// Proves completed defaults to null
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_SetsCompletedToNull()
+    {
+        await step.Invoke(context, null!);
 
-        /// <summary>
-        /// proves NotBefore DateTimeKind is requried.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_ThrowsWhenNotBeforeKindUnspecified()
-        {
-            var notBefore = new DateTime(2022, 2, 23, 10, 54, 11, DateTimeKind.Unspecified);
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-                writer.WriteMessage(
-                    TestData.DefaultQueueName,
-                    userMessage.GetType(),
-                    userMessage,
-                    notBefore: notBefore));
-        }
+        Assert.IsNotNull(AddedMessage);
+        Assert.IsFalse(AddedMessage.Completed.HasValue);
+    }
 
-        /// <summary>
-        /// Proves Enqueued is set to now
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_SetsEnqueuedToUtcNow()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage,
-                notBefore: null);
+    /// <summary>
+    /// Proves failed defaults to null
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_SetsFailedToNull()
+    {
+        await step.Invoke(context, null!);
 
-            Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(TestData.Now, AddedMessage.Enqueued);
-        }
+        Assert.IsNotNull(AddedMessage);
+        Assert.IsFalse(AddedMessage.Failed.HasValue);
+    }
 
-        /// <summary>
-        /// Proves completed defaults to null
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_SetsCompletedToNull()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
+    /// <summary>
+    /// Proves retries defaults to zero
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_SetsRetriesToZero()
+    {
+        await step.Invoke(context, null!);
 
-            Assert.IsNotNull(AddedMessage);
-            Assert.IsFalse(AddedMessage.Completed.HasValue);
-        }
+        Assert.IsNotNull(AddedMessage);
+        Assert.AreEqual(0, AddedMessage.Retries);
+    }
 
-        /// <summary>
-        /// Proves failed defaults to null
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_SetsFailedToNull()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
+    /// <summary>
+    /// Proves headers are serialized.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_UsesHeadersFromSerializer()
+    {
+        await step.Invoke(context, null!);
 
-            Assert.IsNotNull(AddedMessage);
-            Assert.IsFalse(AddedMessage.Failed.HasValue);
-        }
+        Assert.IsNotNull(AddedMessage);
+        Assert.AreEqual(serializer.SerializeHeadersResult, AddedMessage.Headers);
+    }
 
-        /// <summary>
-        /// Proves retries defaults to zero
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_SetsRetriesToZero()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
+    /// <summary>
+    /// proves body is serialized.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_UsesBodyFromSerializer()
+    {
+        await step.Invoke(context, null!);
 
-            Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(0, AddedMessage.Retries);
-        }
+        Assert.IsNotNull(AddedMessage);
+        Assert.AreEqual(serializer.SerializeMessageResult, AddedMessage.Body);
+    }
 
-        /// <summary>
-        /// Proves headers are serialized.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_UsesHeadersFromSerializer()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
+    /// <summary>
+    /// Proves counters are invoked
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_CountSentMessages()
+    {
+        await step.Invoke(context, null!);
 
-            Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(serializer.SerializeHeadersResult, AddedMessage.Headers);
-        }
+        counters.Verify(c => c.SentMessage(), Times.Once);
+    }
 
-        /// <summary>
-        /// proves body is serialized.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_UsesBodyFromSerializer()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
+    /// <summary>
+    /// proves Data Access add message is used.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Invoke_InvokesDataAccess()
+    {
+        await step.Invoke(context, null!);
 
-            Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(serializer.SerializeMessageResult, AddedMessage.Body);
-        }
+        dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueMessage>(), TestData.DefaultQueueName), Times.Once);
+    }
 
-        /// <summary>
-        /// Proves counters are invoked
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_CountSentMessages()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
+    /// <summary>
+    /// Proves the correct queue is used.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task WhenInvoke_SendsToCorrectQueue()
+    {
+        var expected = new QueueName("FooBazQueue");
+        context.Destination = expected;
+        await step.Invoke(context, null!);
+        Assert.AreEqual(expected, AddedToQueue);
+    }
 
-            counters.Verify(c => c.SentMessage(), Times.Once);
-        }
+    [TestMethod]
+    public async Task Given_MessageIsNotIQueuedMessage_When_Invoke_Then_ThrowsUsefulException()
+    {
+        context.Message = new object();
+        context.Type = typeof(object);
+        await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() =>
+            step.Invoke(context, null!));
+    }
 
-        /// <summary>
-        /// proves Data Access add message is used.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_InvokesDataAccess()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
+    [TestMethod]
+    public async Task Given_Priority_When_Publish_Then_PriorityIsSet()
+    {
+        context.Priority = 151;
+        await step.Invoke(context, null!);
 
-            dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueMessage>(), TestData.DefaultQueueName), Times.Once);
-        }
+        Assert.IsNotNull(AddedMessage);
+        Assert.AreEqual(151, AddedMessage.Priority);
+    }
 
-        /// <summary>
-        /// Proves the correct queue is used.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task WriteMessage_SendsToCorrectQueue()
-        {
-            var expected = new QueueName("FooBazQueue");
-            await writer.WriteMessage(
-                expected,
-                userMessage.GetType(),
-                userMessage);
-            Assert.AreEqual(expected, AddedToQueue);
-        }
+    [TestMethod]
+    public async Task Given_UserHeaders_When_Publish_Then_UserHeadersAreUsed()
+    {
+        context.UserHeaders = TestData.DefaultUserHeaders;
+        await step.Invoke(context, null!);
 
-        [TestMethod]
-        public async Task Given_MessageIsNotIQueuedMessage_When_WriteMessage_Then_ThrowsUsefulException()
-        {
-            await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() =>
-                writer.WriteMessage(new("FooBazQueue"),
-                typeof(object),
-                new object()));
-        }
-
-        [TestMethod]
-        public async Task Given_Priority_When_Publish_Then_PriorityIsSet()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage,
-                priority: 100);
-
-            Assert.IsNotNull(AddedMessage);
-            Assert.AreEqual(100, AddedMessage.Priority);
-        }
-
-        [TestMethod]
-        public async Task Given_UserHeaders_When_Publish_Then_UserHeadersAreUsed()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage,
-                userHeaders: TestData.DefaultUserHeaders);
-
-            Assert.AreEqual(1, serializer.SerializedHeaders.Count);
-            Assert.AreSame(TestData.DefaultUserHeaders, serializer.SerializedHeaders[0].UserHeaders);
-        }
+        Assert.AreEqual(1, serializer.SerializedHeaders.Count);
+        Assert.AreSame(TestData.DefaultUserHeaders, serializer.SerializedHeaders[0].UserHeaders);
     }
 }
