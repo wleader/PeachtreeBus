@@ -27,19 +27,9 @@ public static class ContextExtensions
     }
 }
 
-public interface IBaseIncomingContext<TData> : IContext
-    where TData : QueueData
-{
-    public IHeaders Headers { get; }
-    internal TData Data { get; set; }
-    public UtcDateTime EnqueuedTime { get; }
-    public UniqueIdentity MessageId { get; }
-    public int MessagePriority { get; }
-}
-
-public abstract class BaseIncomingContext<TQueueData>
+public abstract class IncomingContext<TQueueData>
     : BaseContext
-    , IBaseIncomingContext<TQueueData>
+    , IIncomingContext
     where TQueueData : QueueData
 {
     /// <summary>
@@ -60,7 +50,7 @@ public abstract class BaseIncomingContext<TQueueData>
     /// </summary>
     public Headers Headers { get; set; } = new Headers();
 
-    IHeaders IBaseIncomingContext<TQueueData>.Headers { get => Headers; }
+    IHeaders IIncomingContext.Headers { get => Headers; }
 }
 
 public interface IBaseOutgoingContext<TQueueData> : IContext

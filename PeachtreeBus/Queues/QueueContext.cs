@@ -2,7 +2,7 @@
 
 namespace PeachtreeBus.Queues;
 
-public interface IQueueContext : IBaseIncomingContext<QueueData>
+public interface IQueueContext : IIncomingContext
 {
     public QueueName SourceQueue { get; }
     internal string CurrentHandler { get; set; }
@@ -16,7 +16,7 @@ public interface IQueueContext : IBaseIncomingContext<QueueData>
 /// Exposes information about the context that the application code
 /// may want to use.
 /// </summary>
-public class QueueContext : BaseIncomingContext<QueueData>, IQueueContext
+public class QueueContext : IncomingContext<QueueData>, IQueueContext
 {
     /// <summary>
     /// Which Queue the message was read from.

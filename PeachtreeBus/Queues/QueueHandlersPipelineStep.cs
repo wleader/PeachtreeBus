@@ -40,7 +40,7 @@ namespace PeachtreeBus.Queues
             // determine what type of message it is.
             var messageType = Type.GetType(context.Headers.MessageClass)
                 ?? throw new QueueMessageClassNotRecognizedException(
-                    context.Data.MessageId,
+                    context.MessageId,
                     context.SourceQueue,
                     context.Headers.MessageClass);
 
@@ -88,7 +88,7 @@ namespace PeachtreeBus.Queues
                         // saga data from the DB. This means we are processing a non-start messge before the saga is started.
                         // we could continute but that would mean that the saga handler might not know it needs to initialize
                         // the saga data, so its better to stop and make things get fixed.
-                        throw new SagaNotStartedException(context.Data.MessageId,
+                        throw new SagaNotStartedException(context.MessageId,
                             context.SourceQueue,
                             messageType,
                             handlerType,
@@ -105,7 +105,7 @@ namespace PeachtreeBus.Queues
                 // should it have a seperate try-catch around this and treat it differently?
                 // that would allow us to tell the difference between a problem in a handler, or if the problem was in the bus code.
                 // does that mater for the retry?
-                _log.QueueWork_InvokeHandler(context.Data.MessageId, context.Headers.MessageClass, context.CurrentHandler);
+                _log.QueueWork_InvokeHandler(context.MessageId, context.Headers.MessageClass, context.CurrentHandler);
                 {
                     var taskObject = handleMethod.Invoke(handler, [context, context.Message]);
                     var castTask = UnreachableException.ThrowIfNull(taskObject as Task,
@@ -125,7 +125,7 @@ namespace PeachtreeBus.Queues
                 // sanity check that the Depenency Injection container found at least one handler.
                 // we shouldn't process a message that has no handlers.
                 throw new QueueMessageNoHandlerException(
-                    context.Data.MessageId,
+                    context.MessageId,
                     context.SourceQueue,
                     messageType);
             }
