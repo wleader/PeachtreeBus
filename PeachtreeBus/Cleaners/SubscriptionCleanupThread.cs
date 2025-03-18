@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
-using PeachtreeBus.Interfaces;
 using System;
 using System.Threading.Tasks;
 

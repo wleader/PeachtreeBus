@@ -1,6 +1,4 @@
-﻿using PeachtreeBus.Interfaces;
-
-namespace PeachtreeBus.Cleaners
+﻿namespace PeachtreeBus.Cleaners
 {
     /// <summary>
     /// Describes A unit of work that cleans up subscribed messages

@@ -3,7 +3,6 @@ using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Errors;
-using PeachtreeBus.Interfaces;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;

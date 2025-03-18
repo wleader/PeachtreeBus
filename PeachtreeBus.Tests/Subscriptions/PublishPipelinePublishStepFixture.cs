@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
-using PeachtreeBus.Interfaces;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests.Fakes;
 using System;
