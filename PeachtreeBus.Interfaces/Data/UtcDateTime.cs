@@ -4,6 +4,10 @@ using System.Text.Json.Serialization;
 
 namespace PeachtreeBus.Data;
 
+/// <summary>
+/// A DateTime class that is always in UTC.
+/// Removes Ambiguity, and Allows for automatic conversion to and from the database.
+/// </summary>
 [JsonConverter(typeof(UtcDateTimeJsonConverter))]
 public readonly record struct UtcDateTime
 {
@@ -17,7 +21,7 @@ public readonly record struct UtcDateTime
         Value = value.ToUniversalTime();
     }
 
-    public static implicit operator DateTime(UtcDateTime utcDateTime) => utcDateTime.Value.ToUniversalTime();
+    public static implicit operator DateTime(UtcDateTime utcDateTime) => utcDateTime.Value;
     public static implicit operator UtcDateTime(DateTime dateTime) => new(dateTime);
 
     internal class UtcDateTimeJsonConverter()
