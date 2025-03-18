@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeachtreeBus;
+namespace PeachtreeBus.Exceptions;
 
 /// <summary>
 /// A base type for all exceptionions thrown by the library.

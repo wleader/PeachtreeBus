@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
@@ -45,7 +46,8 @@ namespace PeachtreeBus.Management
                 Value = value;
             }
 
-            public override string ToString() => Value ?? throw new DbSafeNameException($"{nameof(TableName)} is not initialized.");
+            public override string ToString() => Value
+                ?? throw new NotInitializedException(typeof(TableName));
         }
 
         private async Task<List<T>> GetMessages<T>(string fields, QueueName queueName, TableName table, int skip, int take)

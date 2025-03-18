@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Pipelines;
+﻿using PeachtreeBus.Exceptions;
+using PeachtreeBus.Pipelines;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

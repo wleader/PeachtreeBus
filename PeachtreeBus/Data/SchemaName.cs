@@ -1,5 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using PeachtreeBus.Exceptions;
 using PeachtreeBus.Serialization;
+using System.Text.Json.Serialization;
 
 namespace PeachtreeBus.Data;
 
@@ -9,7 +10,7 @@ public readonly record struct SchemaName
     private readonly string _value;
 
     public string Value => _value
-        ?? throw new DbSafeNameException($"{nameof(SchemaName)} is not initialized.");
+        ?? throw new NotInitializedException(typeof(SchemaName));
 
     public SchemaName(string value)
     {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace PeachtreeBus;
+namespace PeachtreeBus.Exceptions;
 
 /// <summary>
 /// Typically used to supress nullablity warnings based on reflection results,

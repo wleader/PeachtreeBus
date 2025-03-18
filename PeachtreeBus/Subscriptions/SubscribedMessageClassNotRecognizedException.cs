@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 
 namespace PeachtreeBus.Subscriptions
 {

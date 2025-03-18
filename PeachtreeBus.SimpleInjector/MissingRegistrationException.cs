@@ -1,4 +1,5 @@
-﻿using SimpleInjector;
+﻿using PeachtreeBus.Exceptions;
+using SimpleInjector;
 using System;
 
 namespace PeachtreeBus.SimpleInjector;

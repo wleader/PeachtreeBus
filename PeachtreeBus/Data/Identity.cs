@@ -1,5 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using PeachtreeBus.Exceptions;
 using PeachtreeBus.Serialization;
+using System.Text.Json.Serialization;
 
 namespace PeachtreeBus.Data;
 

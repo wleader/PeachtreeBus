@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Serialization;
+﻿using PeachtreeBus.Exceptions;
+using PeachtreeBus.Serialization;
 using System;
 using System.Text.Json.Serialization;
 

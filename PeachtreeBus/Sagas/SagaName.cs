@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Serialization;
 using System.Text.Json.Serialization;
 
@@ -10,7 +11,7 @@ public readonly record struct SagaName
     private readonly string _value;
 
     public string Value => _value
-        ?? throw new DbSafeNameException($"{nameof(SagaName)} is not initialized.");
+        ?? throw new NotInitializedException(typeof(SagaName));
 
     public SagaName(string value)
     {

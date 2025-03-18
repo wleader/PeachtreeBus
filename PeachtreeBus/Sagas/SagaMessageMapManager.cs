@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PeachtreeBus.Exceptions;
+using System;
 using System.Collections.Generic;
 
 namespace PeachtreeBus.Sagas

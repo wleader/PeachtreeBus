@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Serialization;
 using System.Text.Json.Serialization;
 
@@ -10,7 +11,7 @@ public readonly record struct QueueName
     private readonly string _value;
 
     public string Value => _value
-        ?? throw new DbSafeNameException($"{nameof(QueueName)} is not initialized.");
+        ?? throw new NotInitializedException(typeof(QueueName));
 
     public QueueName(string value)
     {

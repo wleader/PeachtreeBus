@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions

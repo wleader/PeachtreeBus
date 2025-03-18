@@ -1,4 +1,6 @@
-﻿namespace PeachtreeBus.SimpleInjector;
+﻿using PeachtreeBus.Exceptions;
+
+namespace PeachtreeBus.SimpleInjector;
 
 public class SimpleInjectorScopeFactoryException : PeachtreeBusException
 {

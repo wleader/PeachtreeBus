@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace PeachtreeBus;
+namespace PeachtreeBus.Exceptions;
 
 /// <summary>
 /// Used to indicate to a user of the library that their custom implementation of something is doing something wrong.

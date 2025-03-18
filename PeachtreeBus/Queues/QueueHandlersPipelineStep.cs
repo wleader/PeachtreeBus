@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Sagas;
 using System;

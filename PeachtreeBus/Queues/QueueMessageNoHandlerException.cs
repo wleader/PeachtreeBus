@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using System;
 
 namespace PeachtreeBus.Queues

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
