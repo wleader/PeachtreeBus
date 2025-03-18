@@ -1,8 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Data;
+﻿using PeachtreeBus.Data;
 using System;
+using System.Text.Json;
 
-namespace PeachtreeBus.Tests.Data;
+namespace PeachtreeBus.Interfaces.Tests.Data;
 
 [TestClass]
 public class UniqueIdentityFixture
@@ -22,5 +22,16 @@ public class UniqueIdentityFixture
         var actual = new UniqueIdentity(expected);
         Assert.AreEqual(expected, actual.Value);
         Assert.AreEqual(expectedStr, actual.ToString());
+    }
+
+    [TestMethod]
+    [DataRow("5b792887-458d-4965-96d0-b824aef8bfa3", "\"5b792887-458d-4965-96d0-b824aef8bfa3\"")]
+    public void Given_Value_When_RoundTripJson_Then_Value(string guid, string expectedJson)
+    {
+        UniqueIdentity expected = new(Guid.Parse(guid));
+        var serialized = JsonSerializer.Serialize(expected);
+        var actual = JsonSerializer.Deserialize<UniqueIdentity>(serialized);
+        Assert.AreEqual(expectedJson, serialized);
+        Assert.AreEqual(expected, actual);
     }
 }

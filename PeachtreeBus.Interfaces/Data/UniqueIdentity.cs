@@ -1,9 +1,13 @@
-﻿using System;
+﻿using PeachtreeBus.Serialization;
+using System;
 using System.Text.Json.Serialization;
-using PeachtreeBus.Serialization;
 
 namespace PeachtreeBus.Data;
 
+/// <summary>
+/// A representation of a Transact-SQL UNIQUEIDENTIFIER
+/// All Zeros is invalid.
+/// </summary>
 [JsonConverter(typeof(UniqueIdentityJsonConverter))]
 public readonly record struct UniqueIdentity
 {
@@ -22,7 +26,7 @@ public readonly record struct UniqueIdentity
 
     public static UniqueIdentity New() => new(Guid.NewGuid());
 
-    internal static readonly UniqueIdentity Empty = new(Guid.Empty, false);
+    public static readonly UniqueIdentity Empty = new(Guid.Empty, false);
 
     public class UniqueIdentityJsonConverter()
         : PeachtreeBusJsonConverter<UniqueIdentity, Guid>(l => new(l), i => i.Value);
