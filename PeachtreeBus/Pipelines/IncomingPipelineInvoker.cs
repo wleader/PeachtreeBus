@@ -50,7 +50,7 @@ public abstract class IncomingPipelineInvoker<TContext, TPipeline, TFactory>(
         var scope = _scopeFactory.Create();
         try
         {
-            context.Scope = scope;
+            context.SetScope(scope);
 
             // pass the database connection to the scope.
             var sharedDbProvider = scope.GetInstance<IShareObjectsBetweenScopes>();

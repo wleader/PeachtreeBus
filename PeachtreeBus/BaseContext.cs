@@ -4,12 +4,6 @@ using System;
 
 namespace PeachtreeBus;
 
-public interface IBaseContext
-{
-    public IWrappedScope? Scope { get; internal set; }
-    public object Message { get; }
-}
-
 public abstract class BaseContext : IBaseContext
 {
     /// <summary>
@@ -22,6 +16,15 @@ public abstract class BaseContext : IBaseContext
     /// Experimmental. This may be removed in a future update.
     /// </summary>
     public IWrappedScope? Scope { get; set; }
+}
+
+public static class ContextExtensions
+{
+    internal static void SetScope(this IBaseContext context, IWrappedScope scope)
+    {
+        if (context is BaseContext baseContext)
+            baseContext.Scope = scope;
+    }
 }
 
 public interface IBaseIncomingContext<TQueueMessage> : IBaseContext

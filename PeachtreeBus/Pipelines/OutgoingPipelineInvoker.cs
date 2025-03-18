@@ -22,7 +22,7 @@ public abstract class OutgoingPipelineInvoker<TContext, TPipeline, TFactory>(
 
         ArgumentNullException.ThrowIfNull(context, nameof(context));
 
-        context.Scope = _scope;
+        context.SetScope(_scope);
         // now when we create the pipeline factory, it will re-use the shared DB connection,
         // and any objects it uses to build the pipeline will also re-use it.
         var pipelineFactory = (TFactory)_scope.GetInstance(typeof(TFactory));
