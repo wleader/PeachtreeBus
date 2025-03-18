@@ -74,5 +74,3 @@ public abstract class IncomingPipelineInvoker<TContext, TPipeline, TFactory>(
         }
     }
 }
-
-public interface IOutgoingPipelineInvoker<TContext> : IPipelineInvoker<TContext>;
