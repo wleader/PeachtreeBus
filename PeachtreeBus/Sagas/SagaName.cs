@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Data;
+using PeachtreeBus.Serialization;
 using System.Text.Json.Serialization;
 
 namespace PeachtreeBus.Sagas;

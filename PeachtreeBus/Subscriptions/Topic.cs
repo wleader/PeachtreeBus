@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using PeachtreeBus.Serialization;
 
 namespace PeachtreeBus.Subscriptions;
 

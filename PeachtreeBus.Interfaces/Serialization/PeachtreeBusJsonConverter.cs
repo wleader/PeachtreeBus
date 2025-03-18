@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PeachtreeBus;
+namespace PeachtreeBus.Serialization;
 
 /// <summary>
 /// An abstract class that makes it very easy to define a converter for our custom types.
