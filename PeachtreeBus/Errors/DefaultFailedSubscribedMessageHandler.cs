@@ -6,7 +6,7 @@ namespace PeachtreeBus.Errors
 {
     public class DefaultFailedSubscribedMessageHandler : IHandleFailedSubscribedMessages
     {
-        public Task Handle(SubscribedContext context, object message, Exception exception)
+        public Task Handle(ISubscribedContext context, object message, Exception exception)
         {
             return Task.CompletedTask;
         }

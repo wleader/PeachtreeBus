@@ -2,13 +2,12 @@
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Errors
+namespace PeachtreeBus.Errors;
+
+public class DefaultFailedQueueMessageHandler : IHandleFailedQueueMessages
 {
-    public class DefaultFailedQueueMessageHandler : IHandleFailedQueueMessages
+    public Task Handle(IQueueContext context, object message, Exception exception)
     {
-        public Task Handle(QueueContext context, object message, Exception exception)
-        {
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

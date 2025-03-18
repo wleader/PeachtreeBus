@@ -6,6 +6,6 @@ namespace PeachtreeBus.Errors
 {
     public interface IHandleFailedSubscribedMessages
     {
-        Task Handle(SubscribedContext context, object message, Exception exception);
+        Task Handle(ISubscribedContext context, object message, Exception exception);
     }
 }

@@ -6,6 +6,6 @@ namespace PeachtreeBus.Errors
 {
     public interface IHandleFailedQueueMessages
     {
-        Task Handle(QueueContext context, object message, Exception exception);
+        Task Handle(IQueueContext context, object message, Exception exception);
     }
 }
