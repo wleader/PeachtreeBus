@@ -16,8 +16,4 @@
     <ProjectReference Include="..\PeachtreeBus.Interfaces\PeachtreeBus.Interfaces.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
-  </ItemGroup>
-
 </Project>

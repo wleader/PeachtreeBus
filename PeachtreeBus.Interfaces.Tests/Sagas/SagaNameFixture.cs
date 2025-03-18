@@ -1,12 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Sagas;
-using PeachtreeBus.Tests.Data;
 
-namespace PeachtreeBus.Tests.Queues;
+namespace PeachtreeBus.Interfaces.Tests.Sagas;
 
 [TestClass]
-public class SagaNameFixture : DbSafeNameFixtureBase
+public class SagaNameFixture
 {
     private SagaName CreateSagaName(string value) => new(value);
 
@@ -19,20 +18,22 @@ public class SagaNameFixture : DbSafeNameFixtureBase
     [TestMethod]
     public void Given_ForbiddenCharacters_When_New_Then_Throws()
     {
-        AssertFunctionThrowsForDbUnsafeValues(CreateSagaName);
+        TestHelpers.AssertFunctionThrowsForDbUnsafeValues(CreateSagaName);
     }
 
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        Assert.ThrowsException<DbSafeNameException>(() =>
+        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
             _ = ((SagaName)default).ToString());
+        Assert.AreEqual(typeof(SagaName), thrown.Type);
     }
 
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        Assert.ThrowsException<DbSafeNameException>(() =>
+        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
             _ = ((SagaName)default).Value);
+        Assert.AreEqual(typeof(SagaName), thrown.Type);
     }
 }

@@ -1,7 +1,6 @@
-﻿using PeachtreeBus.Exceptions;
-using System.Linq;
+﻿using System.Linq;
 
-namespace PeachtreeBus.Data;
+namespace PeachtreeBus.Exceptions;
 
 public class DbSafeNameException : PeachtreeBusException
 {

@@ -1,12 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Tests.Data;
 
-namespace PeachtreeBus.Tests.Queues;
+namespace PeachtreeBus.Interfaces.Tests.Queues;
 
 [TestClass]
-public class QueueNameFixture : DbSafeNameFixtureBase
+public class QueueNameFixture
 {
     private QueueName CreateQueueName(string value) => new(value);
 
@@ -19,21 +18,23 @@ public class QueueNameFixture : DbSafeNameFixtureBase
     [TestMethod]
     public void Given_ForbiddenCharacters_When_New_Then_Throws()
     {
-        AssertFunctionThrowsForDbUnsafeValues(CreateQueueName);
+        TestHelpers.AssertFunctionThrowsForDbUnsafeValues(CreateQueueName);
     }
 
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        Assert.ThrowsException<DbSafeNameException>(() =>
+        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
             _ = ((QueueName)default).ToString());
+        Assert.AreEqual(typeof(QueueName), thrown.Type);
     }
 
 
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        Assert.ThrowsException<DbSafeNameException>(() =>
+        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
             _ = ((QueueName)default).Value);
+        Assert.AreEqual(typeof(QueueName), thrown.Type);
     }
 }

@@ -1,15 +1,15 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using System;
 
-namespace PeachtreeBus.Tests.Data;
+namespace PeachtreeBus.Interfaces.Tests;
 
-public abstract class DbSafeNameFixtureBase
+public static class TestHelpers
 {
-    private static readonly char[] ForbiddenChars =
-        ['\\', ';', '@', '-', '/', '*', '\r', '\n', '\t', ' '];
+    private static readonly char[] DatabaseForbiddenChars =
+    ['\\', ';', '@', '-', '/', '*', '\r', '\n', '\t', ' '];
 
-    protected static void AssertFunctionThrowsForDbUnsafeValues<T>(Func<string, T> func)
+    public static void AssertFunctionThrowsForDbUnsafeValues<T>(Func<string, T> func)
     {
         // DB safe names can not be null.
         Assert.ThrowsException<DbSafeNameException>(() => func(null!));
@@ -17,7 +17,7 @@ public abstract class DbSafeNameFixtureBase
         // DB safe names can not be empty strings 
         Assert.ThrowsException<DbSafeNameException>(() => func(string.Empty));
 
-        foreach (var c in ForbiddenChars)
+        foreach (var c in DatabaseForbiddenChars)
         {
             Assert.ThrowsException<DbSafeNameException>(() => func(c.ToString()));
         }

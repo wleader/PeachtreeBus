@@ -1,24 +1,26 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 
-namespace PeachtreeBus.Tests.Data;
+namespace PeachtreeBus.Interfaces.Tests.Data;
 
 [TestClass]
-public class SchemaNameFixture : DbSafeNameFixtureBase
+public class SchemaNameFixture
 {
     private SchemaName Create(string value) => new(value);
 
     [TestMethod]
     public void Given_UnsafeValues_When_New_Then_Throws()
     {
-        AssertFunctionThrowsForDbUnsafeValues(Create);
+        TestHelpers.AssertFunctionThrowsForDbUnsafeValues(Create);
     }
 
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        Assert.ThrowsException<DbSafeNameException>(() =>
+        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
             _ = ((SchemaName)default).ToString());
+        Assert.AreEqual(typeof(SchemaName), thrown.Type);
     }
 
     [TestMethod]
@@ -30,8 +32,9 @@ public class SchemaNameFixture : DbSafeNameFixtureBase
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        Assert.ThrowsException<DbSafeNameException>(() =>
+        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
             _ = ((SchemaName)default).Value);
+        Assert.AreEqual(typeof(SchemaName), thrown.Type);
     }
 
 }

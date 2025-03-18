@@ -1,5 +1,4 @@
-﻿using PeachtreeBus.Data;
-using PeachtreeBus.Exceptions;
+﻿using PeachtreeBus.Exceptions;
 using PeachtreeBus.Serialization;
 using System.Text.Json.Serialization;
 
@@ -23,5 +22,4 @@ public readonly record struct SagaName
 
     public class SagaNameJsonConverter()
         : PeachtreeBusJsonConverter<SagaName, string>(v => new(v!), v => v.Value);
-
 }

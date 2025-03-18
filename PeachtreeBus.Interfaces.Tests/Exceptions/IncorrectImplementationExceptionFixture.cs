@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Exceptions;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Exceptions;
 using System;
 
 namespace PeachtreeBus.Interfaces.Tests.Exceptions
