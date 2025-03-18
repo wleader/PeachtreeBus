@@ -33,7 +33,7 @@ public readonly record struct RetryResult
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 public interface IRetryStrategy<TContext>
-    where TContext : IBaseContext
+    where TContext : IContext
 {
     RetryResult DetermineRetry(TContext context, Exception exception, int failureCount);
 }

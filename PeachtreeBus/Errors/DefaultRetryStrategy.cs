@@ -9,7 +9,7 @@ namespace PeachtreeBus.Errors;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 public abstract class DefaultRetryStrategy<TContext> : IRetryStrategy<TContext>
-    where TContext : IBaseContext
+    where TContext : IContext
 {
     public int MaxRetries { get; set; } = 5;
 

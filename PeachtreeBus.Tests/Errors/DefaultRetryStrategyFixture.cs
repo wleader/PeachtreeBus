@@ -8,7 +8,7 @@ namespace PeachtreeBus.Tests.Errors;
 
 
 public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
-    where TContext : IBaseContext
+    where TContext : IContext
     where TStrategy : DefaultRetryStrategy<TContext>, new()
 {
     protected TContext Context = default!;

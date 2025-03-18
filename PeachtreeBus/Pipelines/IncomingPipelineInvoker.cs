@@ -10,7 +10,7 @@ public abstract class IncomingPipelineInvoker<TContext, TPipeline, TFactory>(
     IWrappedScopeFactory scopeFactory,
     ISharedDatabase sharedDatabase)
     : IIncomingPipelineInvoker<TContext>
-    where TContext : IBaseContext
+    where TContext : IContext
     where TPipeline : IPipeline<TContext>
     where TFactory : IPipelineFactory<TContext, TPipeline>
 {

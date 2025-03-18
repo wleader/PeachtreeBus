@@ -4,7 +4,7 @@ using System;
 
 namespace PeachtreeBus;
 
-public abstract class BaseContext : IBaseContext
+public abstract class BaseContext : IContext
 {
     /// <summary>
     /// The message itself.
@@ -20,14 +20,14 @@ public abstract class BaseContext : IBaseContext
 
 public static class ContextExtensions
 {
-    internal static void SetScope(this IBaseContext context, IWrappedScope scope)
+    internal static void SetScope(this IContext context, IWrappedScope scope)
     {
         if (context is BaseContext baseContext)
             baseContext.Scope = scope;
     }
 }
 
-public interface IBaseIncomingContext<TData> : IBaseContext
+public interface IBaseIncomingContext<TData> : IContext
     where TData : QueueData
 {
     public IHeaders Headers { get; }
@@ -63,7 +63,7 @@ public abstract class BaseIncomingContext<TQueueData>
     IHeaders IBaseIncomingContext<TQueueData>.Headers { get => Headers; }
 }
 
-public interface IBaseOutgoingContext<TQueueData> : IBaseContext
+public interface IBaseOutgoingContext<TQueueData> : IContext
     where TQueueData : QueueData
 {
     public UserHeaders? UserHeaders { get; set; }
