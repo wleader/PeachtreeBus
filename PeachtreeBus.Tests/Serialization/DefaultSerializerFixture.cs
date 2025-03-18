@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Serialization;
 
 namespace PeachtreeBus.Tests.Serialization;
 

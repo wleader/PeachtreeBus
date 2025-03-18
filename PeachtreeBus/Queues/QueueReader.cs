@@ -2,6 +2,7 @@
 using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.Serialization;
 using System;
 using System.Threading.Tasks;
 

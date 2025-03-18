@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
+using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests.Sagas;
 using System;

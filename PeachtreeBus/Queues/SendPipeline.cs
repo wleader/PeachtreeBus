@@ -1,5 +1,6 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.Pipelines;
+using PeachtreeBus.Serialization;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;

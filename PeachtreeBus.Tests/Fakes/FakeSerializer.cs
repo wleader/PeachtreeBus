@@ -1,5 +1,6 @@
 ﻿using Moq;
 using PeachtreeBus.Data;
+using PeachtreeBus.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
