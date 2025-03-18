@@ -7,7 +7,7 @@ public interface IOutgoingPipelineInvoker<TContext> : IPipelineInvoker<TContext>
 
 public abstract class OutgoingPipelineInvoker<TContext, TPipeline, TFactory>(
     IWrappedScope scope)
-    : IIncomingPipelineInvoker<TContext>
+    : IOutgoingPipelineInvoker<TContext>
     where TContext : IBaseContext
     where TPipeline : IPipeline<TContext>
     where TFactory : IPipelineFactory<TContext, TPipeline>
