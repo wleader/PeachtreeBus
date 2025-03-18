@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Queues;
 
-namespace PeachtreeBus.Tests;
+namespace PeachtreeBus.Tests.Serialization;
 
 [TestClass]
 public class DefaultSerializerFixture
