@@ -1,10 +1,9 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
-using System;
 
 namespace PeachtreeBus;
 
-public abstract class BaseContext : IContext
+public abstract class Context : IContext
 {
     /// <summary>
     /// The message itself.
@@ -16,19 +15,21 @@ public abstract class BaseContext : IContext
     /// Experimmental. This may be removed in a future update.
     /// </summary>
     public IWrappedScope? Scope { get; set; }
+
+    public UserHeaders Headers { get; set; } = [];
 }
 
 public static class ContextExtensions
 {
     internal static void SetScope(this IContext context, IWrappedScope scope)
     {
-        if (context is BaseContext baseContext)
+        if (context is Context baseContext)
             baseContext.Scope = scope;
     }
 }
 
 public abstract class IncomingContext<TQueueData>
-    : BaseContext
+    : Context
     , IIncomingContext
     where TQueueData : QueueData
 {
@@ -36,6 +37,7 @@ public abstract class IncomingContext<TQueueData>
     /// The Model of the message as was stored the database.
     /// </summary>
     public required TQueueData Data { get; set; } = default!;
+    public required Headers InternalHeaders { get; set; }
 
     /// <summary>
     /// The priority value of the message being handled.
@@ -44,33 +46,16 @@ public abstract class IncomingContext<TQueueData>
 
     public UtcDateTime EnqueuedTime { get => Data.Enqueued; }
     public UniqueIdentity MessageId { get => Data.MessageId; }
-
-    /// <summary>
-    /// Headers that were stored with the message.
-    /// </summary>
-    public Headers Headers { get; set; } = new Headers();
-
-    IHeaders IIncomingContext.Headers { get => Headers; }
+    public string MessageClass { get => InternalHeaders.MessageClass; }
 }
 
-public interface IBaseOutgoingContext<TQueueData> : IContext
+public abstract class OutgoingContext<TQueueData>
+    : Context
+    , IOutgoingContext
     where TQueueData : QueueData
 {
-    public UserHeaders? UserHeaders { get; set; }
     public UtcDateTime? NotBefore { get; set; }
     public int Priority { get; set; }
-    public Type Type { get; }
-}
-
-public abstract class BaseOutgoingContext<TQueueData>
-    : BaseContext
-    , IBaseOutgoingContext<TQueueData>
-    where TQueueData : QueueData
-{
-    public UserHeaders? UserHeaders { get; set; }
-    public UtcDateTime? NotBefore { get; set; }
-    public int Priority { get; set; }
-    public required Type Type { get; set; }
 }
 
 

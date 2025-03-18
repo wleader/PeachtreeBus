@@ -110,7 +110,7 @@ public static class TestData
             Message = messageObject,
             Data = messageData,
             SourceQueue = sourceQueue ?? DefaultQueueName,
-            Headers = headers,
+            InternalHeaders = headers,
         };
     }
 
@@ -126,7 +126,7 @@ public static class TestData
         {
             Message = userMessage,
             Data = messageData,
-            Headers = headers,
+            InternalHeaders = headers,
         };
     }
 

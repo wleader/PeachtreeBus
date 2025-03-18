@@ -24,7 +24,8 @@ public class QueueContextFixture
                 MessageId = UniqueIdentity.New(),
                 NotBefore = DateTime.UtcNow,
                 Priority = 0
-            }
+            },
+            InternalHeaders = new(),
         };
 
         Assert.AreEqual(enqueuedTime, context.EnqueuedTime);
@@ -46,7 +47,8 @@ public class QueueContextFixture
                 MessageId = messageId,
                 NotBefore = DateTime.UtcNow,
                 Priority = 0
-            }
+            },
+            InternalHeaders = new(),
         };
 
         Assert.AreEqual(messageId, context.MessageId);

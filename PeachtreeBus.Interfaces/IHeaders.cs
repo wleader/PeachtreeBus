@@ -3,11 +3,11 @@
 namespace PeachtreeBus;
 
 /// <summary>
-/// An Interface for user headers.
+/// Storage for user headers.
 /// Users can store anything they like with the message,
 /// and these will be available when the message is handled.
 /// </summary>
-public interface IUserHeaders : IDictionary<string, string>;
+public class UserHeaders : Dictionary<string, string>;
 
 /// <summary>
 /// An interface for bus headers.
@@ -28,5 +28,5 @@ public interface IHeaders
     /// <summary>
     /// Contains any supplied user headers.
     /// </summary>
-    public IUserHeaders UserHeaders { get; }
+    public UserHeaders UserHeaders { get; }
 }

@@ -304,7 +304,7 @@ namespace PeachtreeBus.Tests.Queues
 
             var exception = new ApplicationException();
 
-            serializer.Setup(s => s.SerializeHeaders(Context.Headers))
+            serializer.Setup(s => s.SerializeHeaders(Context.InternalHeaders))
                 .Callback((Headers h) =>
                 {
                     Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
@@ -337,7 +337,7 @@ namespace PeachtreeBus.Tests.Queues
             var expectedMessageId = Context.Data.Id;
             var exception = new ApplicationException();
 
-            serializer.Setup(s => s.SerializeHeaders(Context.Headers))
+            serializer.Setup(s => s.SerializeHeaders(Context.InternalHeaders))
                 .Callback((Headers h) =>
                 {
                     Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
@@ -400,8 +400,8 @@ namespace PeachtreeBus.Tests.Queues
 
             Assert.IsNotNull(context?.Data);
             Assert.AreSame(NextMessage, context.Data);
-            Assert.IsNotNull(context?.Headers);
-            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.IsNotNull(context?.InternalHeaders);
+            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
             Assert.AreEqual(NextMessageQueue, context.SourceQueue);
             Assert.IsFalse(context.SagaBlocked);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
@@ -429,7 +429,7 @@ namespace PeachtreeBus.Tests.Queues
             Assert.IsNotNull(context?.Data);
             Assert.AreSame(NextMessage, context.Data);
             Assert.IsNotNull(context?.Headers);
-            Assert.AreSame("System.Object", context.Headers.MessageClass);
+            Assert.AreSame("System.Object", context.MessageClass);
             Assert.AreEqual(NextMessageQueue, context.SourceQueue);
             Assert.IsFalse(context.SagaBlocked);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
@@ -451,8 +451,8 @@ namespace PeachtreeBus.Tests.Queues
 
             Assert.IsNotNull(context?.Data);
             Assert.AreSame(NextMessage, context.Data);
-            Assert.IsNotNull(context?.Headers);
-            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.IsNotNull(context?.InternalHeaders);
+            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
             Assert.AreEqual(NextMessageQueue, context.SourceQueue);
             Assert.IsFalse(context.SagaBlocked);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
@@ -474,7 +474,7 @@ namespace PeachtreeBus.Tests.Queues
 
             Assert.IsNotNull(context);
             Assert.AreSame(NextMessage, context.Data);
-            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
             Assert.AreEqual(NextMessageQueue, context.SourceQueue);
             Assert.IsFalse(context.SagaBlocked);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);

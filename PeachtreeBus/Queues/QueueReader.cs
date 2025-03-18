@@ -131,7 +131,7 @@ namespace PeachtreeBus.Queues
             return new QueueContext
             {
                 Data = queueMessage,
-                Headers = headers,
+                InternalHeaders = headers,
                 Message = message,
                 SourceQueue = queueName,
             };
@@ -149,8 +149,8 @@ namespace PeachtreeBus.Queues
         public async Task Fail(QueueContext context, Exception exception)
         {
             context.Data.Retries++;
-            context.Headers.ExceptionDetails = exception.ToString();
-            context.Data.Headers = _serializer.SerializeHeaders(context.Headers);
+            context.InternalHeaders.ExceptionDetails = exception.ToString();
+            context.Data.Headers = _serializer.SerializeHeaders(context.InternalHeaders);
 
             var retryResult = _retryStrategy.DetermineRetry(context, exception, context.Data.Retries);
 

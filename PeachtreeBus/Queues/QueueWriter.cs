@@ -54,8 +54,7 @@ public class QueueWriter(
             NotBefore = notBefore,
             Priority = priority,
             Message = message,
-            Type = type,
-            UserHeaders = userHeaders,
+            Headers = userHeaders ?? [],
         };
 
         await pipelineInvoker.Invoke(context);

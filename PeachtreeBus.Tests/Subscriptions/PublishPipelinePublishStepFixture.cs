@@ -55,7 +55,6 @@ public class PublishPipelinePublishStepFixture
         context = new()
         {
             Message = TestData.CreateSubscribedUserMessage(),
-            Type = typeof(TestData.TestSubscribedMessage),
             Topic = TestData.DefaultTopic,
         };
 
@@ -75,18 +74,6 @@ public class PublishPipelinePublishStepFixture
     public async Task Invoke_ThrowsWhenContextMessageIsNull()
     {
         context.Message = null!;
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            step.Invoke(context, null!));
-    }
-
-    /// <summary>
-    /// Proves Type cannot be null
-    /// </summary>
-    /// <returns></returns>
-    [TestMethod]
-    public async Task Invoke_ThrowsWhenContextTypeIsNull()
-    {
-        context.Type = null!;
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
             step.Invoke(context, null!));
     }
@@ -243,7 +230,6 @@ public class PublishPipelinePublishStepFixture
     public async Task Given_MessageIsNotISubscribedMessage_When_Invoke_Then_ThrowsUsefulException()
     {
         context.Message = new object();
-        context.Type = typeof(object);
         await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
             step.Invoke(context, null!));
     }
@@ -260,7 +246,7 @@ public class PublishPipelinePublishStepFixture
     [TestMethod]
     public async Task Given_UserHeaders_When_Invoke_Then_UserHeadersAreUsed()
     {
-        context.UserHeaders = TestData.DefaultUserHeaders;
+        context.Headers = TestData.DefaultUserHeaders;
         await step.Invoke(context, null!);
 
         Assert.AreEqual(1, serializer.SerializedHeaders.Count);

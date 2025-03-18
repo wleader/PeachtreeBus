@@ -64,20 +64,6 @@ namespace PeachtreeBus.Tests.Queues
         }
 
         /// <summary>
-        /// proves the message class is set.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Given_Type_When_WriteMessage_Then_ContextTypeIsSet()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage.GetType(),
-                userMessage);
-            Assert.AreEqual(userMessage.GetType(), invokedContext?.Type);
-        }
-
-        /// <summary>
         /// Proves that NotBefore defaults to Now
         /// </summary>
         /// <returns></returns>
@@ -156,7 +142,7 @@ namespace PeachtreeBus.Tests.Queues
                 userMessage,
                 userHeaders: TestData.DefaultUserHeaders);
 
-            Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.UserHeaders);
+            Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.Headers);
         }
     }
 }

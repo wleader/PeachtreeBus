@@ -7,8 +7,9 @@ namespace PeachtreeBus;
 /// </summary>
 public interface IContext
 {
-    public IWrappedScope? Scope { get; }
-    public object Message { get; }
+    IWrappedScope? Scope { get; }
+    object Message { get; }
+    UserHeaders Headers { get; }
 }
 
 /// <summary>
@@ -17,23 +18,25 @@ public interface IContext
 public interface IIncomingContext : IContext
 {
     /// <summary>
-    /// The message headers.
-    /// </summary>
-    public IHeaders Headers { get; }
-
-    /// <summary>
     /// When the message was 'sent'.
     /// </summary>
-    public UtcDateTime EnqueuedTime { get; }
+    UtcDateTime EnqueuedTime { get; }
 
     /// <summary>
     /// A Unique Identifier for the message.
     /// </summary>
-    public UniqueIdentity MessageId { get; }
+    UniqueIdentity MessageId { get; }
 
     /// <summary>
     /// The Priority the message was sent with.
     /// </summary>
-    public int MessagePriority { get; }
+    int MessagePriority { get; }
+
+    string MessageClass { get; }
 }
 
+public interface IOutgoingContext : IContext
+{
+    UtcDateTime? NotBefore { get; set; }
+    int Priority { get; set; }
+}

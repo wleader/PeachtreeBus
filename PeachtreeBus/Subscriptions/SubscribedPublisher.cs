@@ -54,9 +54,8 @@ public class SubscribedPublisher(
         var context = new PublishContext
         {
             Message = message,
-            Type = type,
             Topic = topic,
-            UserHeaders = userHeaders,
+            Headers = userHeaders ?? [],
             NotBefore = notBefore,
             Priority = priority,
         };

@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions;
 
-public interface IPublishContext : IBaseOutgoingContext<SubscribedMessage>
+public interface IPublishContext : IOutgoingContext
 {
     public Topic Topic { get; }
     public long? RecipientCount { get; set; }
 }
 
-public class PublishContext : BaseOutgoingContext<SubscribedMessage>, IPublishContext
+public class PublishContext : OutgoingContext<SubscribedMessage>, IPublishContext
 {
     public required Topic Topic { get; set; }
     public long? RecipientCount { get; set; } = null;
@@ -65,12 +65,12 @@ public class PublishPipelinePublishStep(
     {
         var message = context.Message;
         ArgumentNullException.ThrowIfNull(message, nameof(message));
-        var type = context.Type;
+        var type = message.GetType();
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(type);
 
         // note the type in the headers so it can be deserialized.
-        var headers = new Headers(type, context.UserHeaders);
+        var headers = new Headers(type, context.Headers);
 
         // create the message entity, serializing the headers and body.
         var sm = new SubscribedMessage

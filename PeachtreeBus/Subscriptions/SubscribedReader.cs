@@ -64,8 +64,8 @@ namespace PeachtreeBus.Subscriptions
         public async Task Fail(SubscribedContext context, Exception exception)
         {
             context.Data.Retries++;
-            context.Headers.ExceptionDetails = exception.ToString();
-            context.Data.Headers = _serializer.SerializeHeaders(context.Headers);
+            context.InternalHeaders.ExceptionDetails = exception.ToString();
+            context.Data.Headers = _serializer.SerializeHeaders(context.InternalHeaders);
 
             var retryResult = _retryStrategy.DetermineRetry(context, exception, context.Data.Retries);
 
@@ -137,7 +137,7 @@ namespace PeachtreeBus.Subscriptions
             return new()
             {
                 Data = subscriptionMessage,
-                Headers = headers,
+                InternalHeaders = headers,
                 Message = message,
             };
         }

@@ -24,10 +24,10 @@ namespace PeachtreeBus.Subscriptions
             var context = (SubscribedContext)subscribedcontext;
 
             // determine what type of message it is.
-            var messageType = Type.GetType(context.Headers.MessageClass)
+            var messageType = Type.GetType(context.MessageClass)
                 ?? throw new SubscribedMessageClassNotRecognizedException(context.Data.MessageId,
                     context.SubscriberId,
-                    context.Headers.MessageClass);
+                    context.MessageClass);
 
             // check that messageType is ISubscribed message, otherwise
             // MakeGenericMethod will throw a nasty hard to debug exception.

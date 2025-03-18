@@ -38,11 +38,11 @@ namespace PeachtreeBus.Queues
         public async Task Invoke(IQueueContext context, Func<IQueueContext, Task>? next)
         {
             // determine what type of message it is.
-            var messageType = Type.GetType(context.Headers.MessageClass)
+            var messageType = Type.GetType(context.MessageClass)
                 ?? throw new QueueMessageClassNotRecognizedException(
                     context.MessageId,
                     context.SourceQueue,
-                    context.Headers.MessageClass);
+                    context.MessageClass);
 
             // check that messageType is IQueueMessage
             // otherwise the MakeGenericMethod call below will throw an nasty exception
@@ -105,7 +105,7 @@ namespace PeachtreeBus.Queues
                 // should it have a seperate try-catch around this and treat it differently?
                 // that would allow us to tell the difference between a problem in a handler, or if the problem was in the bus code.
                 // does that mater for the retry?
-                _log.QueueWork_InvokeHandler(context.MessageId, context.Headers.MessageClass, context.CurrentHandler);
+                _log.QueueWork_InvokeHandler(context.MessageId, context.MessageClass, context.CurrentHandler);
                 {
                     var taskObject = handleMethod.Invoke(handler, [context, context.Message]);
                     var castTask = UnreachableException.ThrowIfNull(taskObject as Task,

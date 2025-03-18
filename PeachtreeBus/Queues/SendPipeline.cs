@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Queues;
 
-public interface ISendContext : IBaseOutgoingContext<QueueData>
+public interface ISendContext : IOutgoingContext
 {
     public QueueName Destination { get; set; }
 }
 
-public class SendContext : BaseOutgoingContext<QueueData>, ISendContext
+public class SendContext : OutgoingContext<QueueData>, ISendContext
 {
     public required QueueName Destination { get; set; }
 }
@@ -61,12 +61,11 @@ public class SendPipelineSendStep(
     {
         var message = context.Message;
         ArgumentNullException.ThrowIfNull(message, nameof(message));
-        var type = context.Type;
-        ArgumentNullException.ThrowIfNull(type, nameof(type));
+        var type = message.GetType();
         TypeIsNotIQueueMessageException.ThrowIfMissingInterface(type);
 
         // note the type in the headers so it can be deserialized.
-        var headers = new Headers(type, context.UserHeaders);
+        var headers = new Headers(type, context.Headers);
 
         // create the message entity, serializing the headers and body.
         var sm = new QueueData

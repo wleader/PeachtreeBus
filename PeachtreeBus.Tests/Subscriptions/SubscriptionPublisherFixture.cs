@@ -74,21 +74,6 @@ public class SubscriptionPublisherFixture
     }
 
     /// <summary>
-    /// Proves Header is set.
-    /// </summary>
-    /// <returns></returns>
-    [TestMethod]
-    public async Task Publish_SetsContextType()
-    {
-        await publisher.Publish(
-            TestData.DefaultTopic,
-            userMessage.GetType(),
-            userMessage,
-            null);
-        Assert.AreEqual(userMessage.GetType(), invokedContext?.Type);
-    }
-
-    /// <summary>
     /// Proves NotBefore is defaulted
     /// </summary>
     /// <returns></returns>
@@ -164,7 +149,7 @@ public class SubscriptionPublisherFixture
             userMessage.GetType(),
             userMessage,
             userHeaders: TestData.DefaultUserHeaders);
-        Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.UserHeaders);
+        Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.Headers);
     }
 
     [TestMethod]
@@ -195,7 +180,7 @@ public class SubscriptionPublisherFixture
         var context = pipelineInvoker.Invocations[0].Arguments[0] as PublishContext;
         Assert.IsNotNull(context);
         Assert.AreSame(userMessage, context.Message);
-        Assert.AreSame(userHeaders, context.UserHeaders);
+        Assert.AreSame(userHeaders, context.Headers);
         Assert.AreEqual(245, context.Priority);
         Assert.AreEqual(notBefore, context.NotBefore);
     }

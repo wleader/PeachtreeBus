@@ -48,7 +48,7 @@ namespace PeachtreeBus.Queues
             }
 
             // we found a message to process.
-            _log.QueueWork_ProcessingMessage(context.Data.MessageId, context.Headers.MessageClass);
+            _log.QueueWork_ProcessingMessage(context.MessageId, context.MessageClass);
 
             var started = DateTime.UtcNow;
 
@@ -81,7 +81,7 @@ namespace PeachtreeBus.Queues
             {
                 // there was an exception, Rollback to the save point to undo
                 // any db changes done by the handlers.
-                _log.QueueWork_HandlerException(context.CurrentHandler!, context.Data.MessageId, context.Headers.MessageClass, ex);
+                _log.QueueWork_HandlerException(context.CurrentHandler!, context.MessageId, context.MessageClass, ex);
                 _dataAccess.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
                 await _queueReader.Fail(context, ex);

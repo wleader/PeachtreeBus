@@ -99,7 +99,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             var exception = new ApplicationException();
 
-            serializer.Setup(s => s.SerializeHeaders(Context.Headers))
+            serializer.Setup(s => s.SerializeHeaders(Context.InternalHeaders))
                 .Callback((Headers h) =>
                 {
                     Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
@@ -117,7 +117,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             await reader.Fail(Context, exception);
 
-            serializer.Verify(s => s.SerializeHeaders(Context.Headers), Times.Once);
+            serializer.Verify(s => s.SerializeHeaders(Context.InternalHeaders), Times.Once);
             counters.Verify(c => c.RetryMessage(), Times.Once);
             dataAccess.Verify(c => c.UpdateMessage(Context.Data), Times.Once);
         }
@@ -133,7 +133,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var exception = new ApplicationException();
             var expectedId = Context.Data.Id;
 
-            serializer.Setup(s => s.SerializeHeaders(Context.Headers))
+            serializer.Setup(s => s.SerializeHeaders(Context.InternalHeaders))
                 .Callback((Headers h) =>
                 {
                     Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
@@ -150,7 +150,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             await reader.Fail(Context, new ApplicationException());
 
             counters.Verify(c => c.FailMessage(), Times.Once);
-            serializer.Verify(s => s.SerializeHeaders(Context.Headers), Times.Once);
+            serializer.Verify(s => s.SerializeHeaders(Context.InternalHeaders), Times.Once);
             dataAccess.Verify(c => c.FailMessage(It.IsAny<SubscribedMessage>()), Times.Once);
             Assert.AreEqual(1, dataAccess.Invocations.Count);
         }
@@ -197,7 +197,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var context = await reader.GetNext(SubscriberId);
 
             Assert.IsNotNull(context);
-            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
             Assert.AreSame(NextMessage, context.Data);
             Assert.AreSame(NextUserMessage, context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
@@ -218,7 +218,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var context = await reader.GetNext(SubscriberId);
 
             Assert.IsNotNull(context);
-            Assert.AreSame("System.Object", context.Headers.MessageClass);
+            Assert.AreSame("System.Object", context.MessageClass);
             Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
@@ -239,7 +239,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var context = await reader.GetNext(SubscriberId);
 
             Assert.IsNotNull(context);
-            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
             Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
@@ -260,7 +260,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var context = await reader.GetNext(SubscriberId);
 
             Assert.IsNotNull(context);
-            Assert.AreSame(NextMessageHeaders, context.Headers);
+            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
             Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
