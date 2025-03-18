@@ -51,7 +51,7 @@ namespace PeachtreeBus.Subscriptions
 
             // we found a message to process.
             _log.SubscribedWork_ProcessingMessage(
-                context.MessageData.MessageId,
+                context.Data.MessageId,
                 SubscriberId);
             var started = DateTime.UtcNow;
             try
@@ -74,7 +74,7 @@ namespace PeachtreeBus.Subscriptions
                 // there was an exception, Rollback to the save point to undo
                 // any db changes done by the handlers.
                 _log.SubscribedWork_MessageHandlerException(
-                    context.MessageData.MessageId,
+                    context.Data.MessageId,
                     SubscriberId,
                     ex);
                 _dataAccess.RollbackToSavepoint(savepointName);

@@ -5,7 +5,7 @@ namespace PeachtreeBus.Queues;
 /// <summary>
 /// Represents a row in a queue table.
 /// </summary>
-public class QueueMessage
+public class QueueData
 {
     /// <summary>
     /// Primary Key Identity

@@ -33,7 +33,7 @@ public static class TestData
 
     public static readonly SubscriberId UnintializedSubscriberId = (SubscriberId)RuntimeHelpers.GetUninitializedObject(typeof(SubscriberId));
 
-    public static QueueMessage CreateQueueMessage(
+    public static QueueData CreateQueueMessage(
         Identity? id = null,
         UniqueIdentity? messageId = null,
         int priority = 0,
@@ -97,7 +97,7 @@ public static class TestData
 
     public static QueueContext CreateQueueContext(
         Func<object>? userMessageFunc = null,
-        QueueMessage? messageData = null,
+        QueueData? messageData = null,
         QueueName? sourceQueue = null,
         Headers? headers = null)
     {
@@ -108,7 +108,7 @@ public static class TestData
         return new()
         {
             Message = messageObject,
-            MessageData = messageData,
+            Data = messageData,
             SourceQueue = sourceQueue ?? DefaultQueueName,
             Headers = headers,
         };
@@ -125,7 +125,7 @@ public static class TestData
         return new()
         {
             Message = userMessage,
-            MessageData = messageData,
+            Data = messageData,
             Headers = headers,
         };
     }

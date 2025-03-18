@@ -50,9 +50,9 @@ namespace PeachtreeBus.Subscriptions
         /// <returns></returns>
         public async Task Complete(SubscribedContext context)
         {
-            context.MessageData.Completed = _clock.UtcNow;
+            context.Data.Completed = _clock.UtcNow;
             _counters.CompleteMessage();
-            await _dataAccess.CompleteMessage(context.MessageData);
+            await _dataAccess.CompleteMessage(context.Data);
         }
 
         /// <summary>
@@ -63,25 +63,25 @@ namespace PeachtreeBus.Subscriptions
         /// <returns></returns>
         public async Task Fail(SubscribedContext context, Exception exception)
         {
-            context.MessageData.Retries++;
+            context.Data.Retries++;
             context.Headers.ExceptionDetails = exception.ToString();
-            context.MessageData.Headers = _serializer.SerializeHeaders(context.Headers);
+            context.Data.Headers = _serializer.SerializeHeaders(context.Headers);
 
-            var retryResult = _retryStrategy.DetermineRetry(context, exception, context.MessageData.Retries);
+            var retryResult = _retryStrategy.DetermineRetry(context, exception, context.Data.Retries);
 
             if (retryResult.ShouldRetry)
             {
-                context.MessageData.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
-                _log.SubscribedReader_MessageWillBeRetried(context.MessageData.MessageId, context.SubscriberId, context.MessageData.NotBefore);
+                context.Data.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
+                _log.SubscribedReader_MessageWillBeRetried(context.Data.MessageId, context.SubscriberId, context.Data.NotBefore);
                 _counters.RetryMessage();
-                await _dataAccess.UpdateMessage(context.MessageData);
+                await _dataAccess.UpdateMessage(context.Data);
             }
             else
             {
-                _log.SubscribedReader_MessageFailed(context.MessageData.MessageId, context.SubscriberId);
-                context.MessageData.Failed = _clock.UtcNow;
+                _log.SubscribedReader_MessageFailed(context.Data.MessageId, context.SubscriberId);
+                context.Data.Failed = _clock.UtcNow;
                 _counters.FailMessage();
-                await _dataAccess.FailMessage(context.MessageData);
+                await _dataAccess.FailMessage(context.Data);
                 await _failures.Failed(context, context.Message, exception);
             }
         }
@@ -136,7 +136,7 @@ namespace PeachtreeBus.Subscriptions
             // return the new message context.
             return new()
             {
-                MessageData = subscriptionMessage,
+                Data = subscriptionMessage,
                 Headers = headers,
                 Message = message,
             };

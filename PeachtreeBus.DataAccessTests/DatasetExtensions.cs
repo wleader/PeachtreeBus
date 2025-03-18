@@ -19,7 +19,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="dataset"></param>
         /// <returns></returns>
-        public static List<QueueMessage> ToMessages(this DataSet dataset)
+        public static List<QueueData> ToMessages(this DataSet dataset)
         {
             return dataset.ToType(ToMessage);
         }
@@ -75,9 +75,9 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public static QueueMessage ToMessage(this DataRow row)
+        public static QueueData ToMessage(this DataRow row)
         {
-            return new QueueMessage
+            return new QueueData
             {
                 Body = new((string)row["Body"]),
                 Completed = row.ToDateTimeNullable("Completed"),

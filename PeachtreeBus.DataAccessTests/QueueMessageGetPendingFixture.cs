@@ -40,7 +40,7 @@ namespace PeachtreeBus.DataAccessTests
 
             var actual = await dataAccess.GetPendingQueued(DefaultQueue);
             Assert.IsNotNull(actual);
-            AssertMessageEquals(testMessage, actual);
+            AssertQueueDataAreEqual(testMessage, actual);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(400);
             actual = await dataAccess.GetPendingQueued(DefaultQueue);
             Assert.IsNotNull(actual);
-            AssertMessageEquals(testMessage, actual);
+            AssertQueueDataAreEqual(testMessage, actual);
         }
 
         [TestMethod]
@@ -167,7 +167,7 @@ namespace PeachtreeBus.DataAccessTests
 
             var actual = await dataAccess.GetPendingQueued(DefaultQueue);
             Assert.IsNotNull(actual);
-            AssertMessageEquals(highMessage, actual);
+            AssertQueueDataAreEqual(highMessage, actual);
         }
     }
 }

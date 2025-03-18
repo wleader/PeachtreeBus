@@ -25,7 +25,7 @@ namespace PeachtreeBus.Subscriptions
 
             // determine what type of message it is.
             var messageType = Type.GetType(context.Headers.MessageClass)
-                ?? throw new SubscribedMessageClassNotRecognizedException(context.MessageData.MessageId,
+                ?? throw new SubscribedMessageClassNotRecognizedException(context.Data.MessageId,
                     context.SubscriberId,
                     context.Headers.MessageClass);
 
@@ -81,7 +81,7 @@ namespace PeachtreeBus.Subscriptions
             {
                 // sanity check that the Depenency Injection container found at least one handler.
                 // we shouldn't process a message that has no handlers.
-                throw new SubscribedMessageNoHandlerException(context.MessageData.MessageId,
+                throw new SubscribedMessageNoHandlerException(context.Data.MessageId,
                     context.SubscriberId,
                     messageType);
             }

@@ -22,7 +22,7 @@ public class SendPipelineSendStepFixture
     private FakeSerializer serializer = default!;
     private Mock<ISystemClock> clock = default!;
 
-    private QueueMessage? AddedMessage = null;
+    private QueueData? AddedMessage = null;
     private QueueName? AddedToQueue = default;
     private SendContext context = default!;
 
@@ -36,8 +36,8 @@ public class SendPipelineSendStepFixture
 
         clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
 
-        dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueMessage>(), It.IsAny<QueueName>()))
-            .Callback<QueueMessage, QueueName>((msg, qn) =>
+        dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueData>(), It.IsAny<QueueName>()))
+            .Callback<QueueData, QueueName>((msg, qn) =>
             {
                 AddedMessage = msg;
                 AddedToQueue = qn;
@@ -220,7 +220,7 @@ public class SendPipelineSendStepFixture
     {
         await step.Invoke(context, null!);
 
-        dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueMessage>(), TestData.DefaultQueueName), Times.Once);
+        dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueData>(), TestData.DefaultQueueName), Times.Once);
     }
 
     /// <summary>

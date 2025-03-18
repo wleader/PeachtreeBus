@@ -27,44 +27,44 @@ public static class ContextExtensions
     }
 }
 
-public interface IBaseIncomingContext<TQueueMessage> : IBaseContext
-    where TQueueMessage : QueueMessage
+public interface IBaseIncomingContext<TData> : IBaseContext
+    where TData : QueueData
 {
     public IHeaders Headers { get; }
-    internal TQueueMessage MessageData { get; set; }
+    internal TData Data { get; set; }
     public UtcDateTime EnqueuedTime { get; }
     public UniqueIdentity MessageId { get; }
     public int MessagePriority { get; }
 }
 
-public abstract class BaseIncomingContext<TQueueMessage>
+public abstract class BaseIncomingContext<TQueueData>
     : BaseContext
-    , IBaseIncomingContext<TQueueMessage>
-    where TQueueMessage : QueueMessage
+    , IBaseIncomingContext<TQueueData>
+    where TQueueData : QueueData
 {
     /// <summary>
     /// The Model of the message as was stored the database.
     /// </summary>
-    public required TQueueMessage MessageData { get; set; } = default!;
+    public required TQueueData Data { get; set; } = default!;
 
     /// <summary>
     /// The priority value of the message being handled.
     /// </summary>
-    public int MessagePriority { get => MessageData.Priority; }
+    public int MessagePriority { get => Data.Priority; }
 
-    public UtcDateTime EnqueuedTime { get => MessageData.Enqueued; }
-    public UniqueIdentity MessageId { get => MessageData.MessageId; }
+    public UtcDateTime EnqueuedTime { get => Data.Enqueued; }
+    public UniqueIdentity MessageId { get => Data.MessageId; }
 
     /// <summary>
     /// Headers that were stored with the message.
     /// </summary>
     public Headers Headers { get; set; } = new Headers();
 
-    IHeaders IBaseIncomingContext<TQueueMessage>.Headers { get => Headers; }
+    IHeaders IBaseIncomingContext<TQueueData>.Headers { get => Headers; }
 }
 
-public interface IBaseOutgoingContext<TQueueMessage> : IBaseContext
-    where TQueueMessage : QueueMessage
+public interface IBaseOutgoingContext<TQueueData> : IBaseContext
+    where TQueueData : QueueData
 {
     public UserHeaders? UserHeaders { get; set; }
     public UtcDateTime? NotBefore { get; set; }
@@ -72,10 +72,10 @@ public interface IBaseOutgoingContext<TQueueMessage> : IBaseContext
     public Type Type { get; }
 }
 
-public abstract class BaseOutgoingContext<TQueueMessage>
+public abstract class BaseOutgoingContext<TQueueData>
     : BaseContext
-    , IBaseOutgoingContext<TQueueMessage>
-    where TQueueMessage : QueueMessage
+    , IBaseOutgoingContext<TQueueData>
+    where TQueueData : QueueData
 {
     public UserHeaders? UserHeaders { get; set; }
     public UtcDateTime? NotBefore { get; set; }

@@ -250,7 +250,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="expected"></param>
         /// <param name="actual"></param>
-        protected void AssertMessageEquals(QueueMessage expected, QueueMessage actual)
+        protected void AssertQueueDataAreEqual(QueueData expected, QueueData actual)
         {
             Assert.IsFalse(expected is null && actual is null, "Do not assert Null is Null.");
             Assert.IsNotNull(actual, "Actual is null, expected is not.");

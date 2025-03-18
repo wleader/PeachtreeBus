@@ -6,7 +6,7 @@ namespace PeachtreeBus.Subscriptions
     /// <summary>
     /// Represents a row in a subscription messages table.
     /// </summary>
-    public class SubscribedMessage : QueueMessage
+    public class SubscribedMessage : QueueData
     {
         /// <summary>
         /// The subscriber the message has been published for.

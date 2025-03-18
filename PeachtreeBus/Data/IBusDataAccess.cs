@@ -50,32 +50,32 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        Task<QueueMessage?> GetPendingQueued(QueueName queueName);
+        Task<QueueData?> GetPendingQueued(QueueName queueName);
 
         /// <summary>
         /// Inserts a new message into the database.
         /// </summary>
         /// <param name="message">The message to insert.</param>
-        Task<Identity> AddMessage(QueueMessage message, QueueName queueName);
+        Task<Identity> AddMessage(QueueData message, QueueName queueName);
 
         /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>
-        Task CompleteMessage(QueueMessage message, QueueName queueName);
+        Task CompleteMessage(QueueData message, QueueName queueName);
 
         /// <summary>
         /// Inserts the message into the error table, and removes if from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>
-        Task FailMessage(QueueMessage message, QueueName queueName);
+        Task FailMessage(QueueData message, QueueName queueName);
 
         /// <summary>
         /// Updates a message.
         /// Only updates message properties that are allowed to change.
         /// </summary>
         /// <param name="message"></param>
-        Task UpdateMessage(QueueMessage message, QueueName queueName);
+        Task UpdateMessage(QueueData message, QueueName queueName);
 
         /// <summary>
         /// Inserts Saga Data into the database.

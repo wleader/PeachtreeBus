@@ -14,5 +14,5 @@ public class SubscribedContext : BaseIncomingContext<SubscribedMessage>, ISubscr
     /// <summary>
     /// The Subscriber that the message was sent to.
     /// </summary>
-    public SubscriberId SubscriberId { get => MessageData.SubscriberId; }
+    public SubscriberId SubscriberId { get => Data.SubscriberId; }
 }

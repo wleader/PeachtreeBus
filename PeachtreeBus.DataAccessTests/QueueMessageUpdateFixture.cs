@@ -64,7 +64,7 @@ namespace PeachtreeBus.DataAccessTests
             var changedOriginal = toUpdate.Id != testMessage1.Id ? testMessage2 : testMessage1;
 
             var actualUnchanged = pending.Single(m => m.Id != toUpdate.Id);
-            AssertMessageEquals(expectUnchanged, actualUnchanged);
+            AssertQueueDataAreEqual(expectUnchanged, actualUnchanged);
 
             var actualChanged = pending.Single(m => m.Id == toUpdate.Id);
             // compare the unchangable fields.

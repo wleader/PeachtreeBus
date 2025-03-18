@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Queues;
 
-public interface ISendContext : IBaseOutgoingContext<QueueMessage>
+public interface ISendContext : IBaseOutgoingContext<QueueData>
 {
     public QueueName Destination { get; set; }
 }
 
-public class SendContext : BaseOutgoingContext<QueueMessage>, ISendContext
+public class SendContext : BaseOutgoingContext<QueueData>, ISendContext
 {
     public required QueueName Destination { get; set; }
 }
@@ -69,7 +69,7 @@ public class SendPipelineSendStep(
         var headers = new Headers(type, context.UserHeaders);
 
         // create the message entity, serializing the headers and body.
-        var sm = new QueueMessage
+        var sm = new QueueData
         {
             MessageId = UniqueIdentity.New(), // will be ignored and the database will generate.
             Priority = context.Priority,

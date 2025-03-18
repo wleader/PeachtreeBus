@@ -16,7 +16,7 @@ public class QueueContextFixture
         IQueueContext context = new QueueContext()
         {
             Message = new object(),
-            MessageData = new()
+            Data = new()
             {
                 Body = new("BODY"),
                 Enqueued = enqueuedTime,
@@ -38,7 +38,7 @@ public class QueueContextFixture
         IQueueContext context = new QueueContext()
         {
             Message = new object(),
-            MessageData = new()
+            Data = new()
             {
                 Body = new("BODY"),
                 Enqueued = DateTime.UtcNow,

@@ -43,7 +43,7 @@ namespace PeachtreeBus.DataAccessTests
             var messages = data.ToMessages();
             Assert.AreEqual(1, messages.Count);
 
-            AssertMessageEquals(newMessage, messages[0]);
+            AssertQueueDataAreEqual(newMessage, messages[0]);
         }
     }
 }

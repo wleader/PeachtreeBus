@@ -69,19 +69,19 @@ namespace PeachtreeBus.Management
                 _database.Connection.QueryAsync<T>(statement, p, _database.Transaction))).ToList();
         }
 
-        public Task<List<QueueMessage>> GetFailedQueueMessages(QueueName queueName, int skip, int take)
+        public Task<List<QueueData>> GetFailedQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueMessage>(QueueFields, queueName, Failed, skip, take);
+            return GetMessages<QueueData>(QueueFields, queueName, Failed, skip, take);
         }
 
-        public Task<List<QueueMessage>> GetCompletedQueueMessages(QueueName queueName, int skip, int take)
+        public Task<List<QueueData>> GetCompletedQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueMessage>(QueueFields, queueName, Completed, skip, take);
+            return GetMessages<QueueData>(QueueFields, queueName, Completed, skip, take);
         }
 
-        public Task<List<QueueMessage>> GetPendingQueueMessages(QueueName queueName, int skip, int take)
+        public Task<List<QueueData>> GetPendingQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueMessage>(QueueFields, queueName, Pending, skip, take);
+            return GetMessages<QueueData>(QueueFields, queueName, Pending, skip, take);
         }
 
         public Task<List<SubscribedMessage>> GetFailedSubscribedMessages(int skip, int take)

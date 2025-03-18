@@ -95,7 +95,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var delay = TimeSpan.FromSeconds(5);
             RetryResult = new(true, delay);
             UtcDateTime expectedNotBefore = clock.Object.UtcNow.Add(delay);
-            var expectedId = Context.MessageData.Id;
+            var expectedId = Context.Data.Id;
 
             var exception = new ApplicationException();
 
@@ -106,7 +106,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 })
                 .Returns(() => SerializedHeaderData);
 
-            dataAccess.Setup(d => d.UpdateMessage(Context.MessageData))
+            dataAccess.Setup(d => d.UpdateMessage(Context.Data))
                 .Callback((SubscribedMessage m) =>
                 {
                     Assert.AreEqual(expectedId, m.Id);
@@ -119,7 +119,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             serializer.Verify(s => s.SerializeHeaders(Context.Headers), Times.Once);
             counters.Verify(c => c.RetryMessage(), Times.Once);
-            dataAccess.Verify(c => c.UpdateMessage(Context.MessageData), Times.Once);
+            dataAccess.Verify(c => c.UpdateMessage(Context.Data), Times.Once);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             RetryResult = new(false, TimeSpan.Zero);
             var exception = new ApplicationException();
-            var expectedId = Context.MessageData.Id;
+            var expectedId = Context.Data.Id;
 
             serializer.Setup(s => s.SerializeHeaders(Context.Headers))
                 .Callback((Headers h) =>
@@ -140,7 +140,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 })
                 .Returns(() => SerializedHeaderData);
 
-            dataAccess.Setup(d => d.FailMessage(Context.MessageData))
+            dataAccess.Setup(d => d.FailMessage(Context.Data))
                 .Callback((SubscribedMessage m) =>
                 {
                     Assert.AreEqual(expectedId, m.Id);
@@ -163,9 +163,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Complete_Completes()
         {
             var now = clock.Object.UtcNow;
-            var expectedMessageId = Context.MessageData.Id;
+            var expectedMessageId = Context.Data.Id;
 
-            dataAccess.Setup(d => d.CompleteMessage(Context.MessageData))
+            dataAccess.Setup(d => d.CompleteMessage(Context.Data))
                 .Callback((SubscribedMessage m) =>
                 {
                     Assert.AreEqual(expectedMessageId, m.Id);
@@ -174,9 +174,9 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             await reader.Complete(Context);
 
-            dataAccess.Verify(d => d.CompleteMessage(Context.MessageData));
+            dataAccess.Verify(d => d.CompleteMessage(Context.Data));
 
-            Assert.AreEqual(now, Context.MessageData.Completed);
+            Assert.AreEqual(now, Context.Data.Completed);
         }
 
         [TestMethod]
@@ -198,7 +198,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             Assert.IsNotNull(context);
             Assert.AreSame(NextMessageHeaders, context.Headers);
-            Assert.AreSame(NextMessage, context.MessageData);
+            Assert.AreSame(NextMessage, context.Data);
             Assert.AreSame(NextUserMessage, context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
@@ -219,7 +219,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             Assert.IsNotNull(context);
             Assert.AreSame("System.Object", context.Headers.MessageClass);
-            Assert.AreSame(NextMessage, context.MessageData);
+            Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
@@ -240,7 +240,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             Assert.IsNotNull(context);
             Assert.AreSame(NextMessageHeaders, context.Headers);
-            Assert.AreSame(NextMessage, context.MessageData);
+            Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
@@ -261,7 +261,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             Assert.IsNotNull(context);
             Assert.AreSame(NextMessageHeaders, context.Headers);
-            Assert.AreSame(NextMessage, context.MessageData);
+            Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);

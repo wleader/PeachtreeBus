@@ -130,7 +130,7 @@ namespace PeachtreeBus.Queues
             // return the new message context.
             return new QueueContext
             {
-                MessageData = queueMessage,
+                Data = queueMessage,
                 Headers = headers,
                 Message = message,
                 SourceQueue = queueName,
@@ -140,33 +140,33 @@ namespace PeachtreeBus.Queues
         /// <inheritdoc/>
         public async Task Complete(QueueContext messageContext)
         {
-            messageContext.MessageData.Completed = _clock.UtcNow;
+            messageContext.Data.Completed = _clock.UtcNow;
             _counters.CompleteMessage();
-            await _dataAccess.CompleteMessage(messageContext.MessageData, messageContext.SourceQueue);
+            await _dataAccess.CompleteMessage(messageContext.Data, messageContext.SourceQueue);
         }
 
         /// <inheritdoc/>
         public async Task Fail(QueueContext context, Exception exception)
         {
-            context.MessageData.Retries++;
+            context.Data.Retries++;
             context.Headers.ExceptionDetails = exception.ToString();
-            context.MessageData.Headers = _serializer.SerializeHeaders(context.Headers);
+            context.Data.Headers = _serializer.SerializeHeaders(context.Headers);
 
-            var retryResult = _retryStrategy.DetermineRetry(context, exception, context.MessageData.Retries);
+            var retryResult = _retryStrategy.DetermineRetry(context, exception, context.Data.Retries);
 
             if (retryResult.ShouldRetry)
             {
-                context.MessageData.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
-                _log.QueueReader_MessageWillBeRetried(context.MessageData.MessageId, context.SourceQueue, context.MessageData.NotBefore);
+                context.Data.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
+                _log.QueueReader_MessageWillBeRetried(context.Data.MessageId, context.SourceQueue, context.Data.NotBefore);
                 _counters.RetryMessage();
-                await _dataAccess.UpdateMessage(context.MessageData, context.SourceQueue);
+                await _dataAccess.UpdateMessage(context.Data, context.SourceQueue);
             }
             else
             {
-                _log.QueueReader_MessageFailed(context.MessageData.MessageId, context.SourceQueue);
-                context.MessageData.Failed = _clock.UtcNow;
+                _log.QueueReader_MessageFailed(context.Data.MessageId, context.SourceQueue);
+                context.Data.Failed = _clock.UtcNow;
                 _counters.FailMessage();
-                await _dataAccess.FailMessage(context.MessageData, context.SourceQueue);
+                await _dataAccess.FailMessage(context.Data, context.SourceQueue);
                 await _failures.Failed(context, context.Message, exception);
             }
         }
@@ -300,9 +300,9 @@ namespace PeachtreeBus.Queues
         /// <inheritdoc/>
         public async Task DelayMessage(QueueContext messageContext, int milliseconds)
         {
-            messageContext.MessageData.NotBefore = _clock.UtcNow.AddMilliseconds(milliseconds);
+            messageContext.Data.NotBefore = _clock.UtcNow.AddMilliseconds(milliseconds);
             _counters.DelayMessage();
-            await _dataAccess.UpdateMessage(messageContext.MessageData, messageContext.SourceQueue);
+            await _dataAccess.UpdateMessage(messageContext.Data, messageContext.SourceQueue);
         }
     }
 }

@@ -49,7 +49,7 @@ namespace PeachtreeBus.DataAccessTests
             // Check that it ended up in the error table.
             var failed = GetTableContent(QueueFailedTable).ToMessages();
             Assert.AreEqual(1, failed.Count);
-            AssertMessageEquals(messageToFail, failed[0]);
+            AssertQueueDataAreEqual(messageToFail, failed[0]);
         }
 
         /// <summary>

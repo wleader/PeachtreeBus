@@ -43,7 +43,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<Identity> AddMessage(QueueMessage message, QueueName queueName)
+        public async Task<Identity> AddMessage(QueueData message, QueueName queueName)
         {
             const string EnqueueMessageStatement =
                 """
@@ -75,7 +75,7 @@ namespace PeachtreeBus.Data
         /// <param name="queueName"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<QueueMessage?> GetPendingQueued(QueueName queueName)
+        public async Task<QueueData?> GetPendingQueued(QueueName queueName)
         {
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.
@@ -93,7 +93,7 @@ namespace PeachtreeBus.Data
             var query = string.Format(GetOnePendingMessageStatement, _configuration.Schema, queueName);
 
             return await LogIfError(
-                _database.Connection.QueryFirstOrDefaultAsync<QueueMessage>(query, transaction: _database.Transaction));
+                _database.Connection.QueryFirstOrDefaultAsync<QueueData>(query, transaction: _database.Transaction));
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task CompleteMessage(QueueMessage message, QueueName queueName)
+        public async Task CompleteMessage(QueueData message, QueueName queueName)
         {
             const string CompleteMessageStatement =
                 """
@@ -135,7 +135,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task FailMessage(QueueMessage message, QueueName queueName)
+        public async Task FailMessage(QueueData message, QueueName queueName)
         {
             const string FailMessageStatement =
                 """
@@ -167,7 +167,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task UpdateMessage(QueueMessage message, QueueName queueName)
+        public async Task UpdateMessage(QueueData message, QueueName queueName)
         {
             const string UpdateMessageStatement =
                 """

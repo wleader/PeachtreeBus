@@ -49,7 +49,7 @@ namespace PeachtreeBus.DataAccessTests
             // Check that it ended up in the completed table.
             var completed = GetTableContent(QueueCompletedTable).ToMessages();
             Assert.AreEqual(1, completed.Count);
-            AssertMessageEquals(messageToComplete, completed[0]);
+            AssertQueueDataAreEqual(messageToComplete, completed[0]);
         }
 
         /// <summary>

@@ -47,7 +47,7 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
     [TestMethod]
     public async Task Verify_ProxyUsesSavepoints()
     {
-        var message = new QueueMessage
+        var message = new QueueData
         {
             MessageId = UniqueIdentity.New(),
             Body = new SerializedData("Foo"),

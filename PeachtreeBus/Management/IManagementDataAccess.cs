@@ -14,7 +14,7 @@ namespace PeachtreeBus.Management
         /// <param name="queueName">Which queue to read from.</param>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<QueueMessage>> GetFailedQueueMessages(QueueName queueName, int skip, int take);
+        Task<List<QueueData>> GetFailedQueueMessages(QueueName queueName, int skip, int take);
 
         /// <summary>
         /// Retrieves a list of completed Queue messages, most recent messages first.
@@ -22,7 +22,7 @@ namespace PeachtreeBus.Management
         /// <param name="queueName">Which queue to read from.</param>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<QueueMessage>> GetCompletedQueueMessages(QueueName queueName, int skip, int take);
+        Task<List<QueueData>> GetCompletedQueueMessages(QueueName queueName, int skip, int take);
 
         /// <summary>
         /// Retrieves a list of pending Queue messages, most recent messages first.
@@ -30,7 +30,7 @@ namespace PeachtreeBus.Management
         /// <param name="queueName">Which queue to read from.</param>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<QueueMessage>> GetPendingQueueMessages(QueueName queueName, int skip, int take);
+        Task<List<QueueData>> GetPendingQueueMessages(QueueName queueName, int skip, int take);
 
         /// <summary>
         /// Moves the specifed Queue message from Pending to Failed.
