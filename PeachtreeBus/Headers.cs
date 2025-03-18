@@ -5,13 +5,6 @@ namespace PeachtreeBus;
 
 public class UserHeaders : Dictionary<string, string>, IUserHeaders;
 
-public interface IHeaders
-{
-    public string MessageClass { get; internal set; }
-    public string? ExceptionDetails { get; internal set; }
-    public IUserHeaders UserHeaders { get; }
-}
-
 /// <summary>
 /// Headers stored with the message.
 /// </summary>
