@@ -2,12 +2,10 @@
 
 namespace PeachtreeBus;
 
-
-
 /// <summary>
 /// Headers stored with the message.
 /// </summary>
-public class Headers : IHeaders
+public class Headers
 {
     public Headers()
     {
