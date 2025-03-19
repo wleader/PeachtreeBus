@@ -1,13 +1,12 @@
 ﻿using System.Threading.Tasks;
 
-namespace PeachtreeBus.Queues
+namespace PeachtreeBus.Queues;
+
+/// <summary>
+/// Defines an interface for classes that will handle a message of a given type.
+/// </summary>
+/// <typeparam name="T">A message class</typeparam>
+public interface IHandleQueueMessage<T> where T : IQueueMessage
 {
-    /// <summary>
-    /// Defines an interface for classes that will handle a message of a given type.
-    /// </summary>
-    /// <typeparam name="T">A message class</typeparam>
-    public interface IHandleQueueMessage<T> where T : IQueueMessage
-    {
-        Task Handle(IQueueContext context, T message);
-    }
+    Task Handle(IQueueContext context, T message);
 }

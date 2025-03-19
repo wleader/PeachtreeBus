@@ -30,7 +30,7 @@ namespace PeachtreeBus.Tests.Sagas
             [ExcludeFromCodeCoverage]
             public override SagaName SagaName { get; } = new("MockSaga");
 
-            public override void ConfigureMessageKeys(SagaMessageMap mapper)
+            public override void ConfigureMessageKeys(ISagaMessageMap mapper)
             {
                 ConfigureMessageKeysCount++;
                 mapper.Add<MockMessage1>((m) => m.Key);
