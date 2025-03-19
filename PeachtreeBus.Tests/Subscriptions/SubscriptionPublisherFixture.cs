@@ -2,7 +2,6 @@
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
-using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
 
@@ -53,23 +52,7 @@ public class SubscriptionPublisherFixture
         await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
             publisher.Publish(
                 TestData.DefaultTopic2,
-                userMessage.GetType(),
                 null!,
-                null));
-    }
-
-    /// <summary>
-    /// Proves Type cannot be null
-    /// </summary>
-    /// <returns></returns>
-    [TestMethod]
-    public async Task Publish_ThrowsWhenTypeIsNull()
-    {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-            publisher.Publish(
-                TestData.DefaultTopic2,
-                null!,
-                new TestSagaMessage1(),
                 null));
     }
 
@@ -82,7 +65,6 @@ public class SubscriptionPublisherFixture
     {
         await publisher.Publish(
             TestData.DefaultTopic,
-            userMessage.GetType(),
             userMessage,
             null);
         Assert.IsNotNull(invokedContext);
@@ -99,7 +81,6 @@ public class SubscriptionPublisherFixture
         UtcDateTime notBefore = DateTime.UtcNow;
         await publisher.Publish(
             TestData.DefaultTopic,
-            userMessage.GetType(),
             userMessage,
             notBefore);
 
@@ -115,7 +96,6 @@ public class SubscriptionPublisherFixture
     {
         await publisher.Publish(
             TestData.DefaultTopic,
-            userMessage.GetType(),
             userMessage,
             null);
         Assert.IsNotNull(invokedContext);
@@ -123,18 +103,10 @@ public class SubscriptionPublisherFixture
     }
 
     [TestMethod]
-    public async Task Given_MessageIsNotISubscribedMessage_When_Publish_Then_ThrowsUsefulException()
-    {
-        await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
-            publisher.Publish(TestData.DefaultTopic2, typeof(object), new object(), null));
-    }
-
-    [TestMethod]
     public async Task Given_Priority_When_Publish_Then_ContextPriorityIsSet()
     {
         await publisher.Publish(
             TestData.DefaultTopic,
-            userMessage.GetType(),
             userMessage,
             priority: 100);
         Assert.IsNotNull(invokedContext);
@@ -146,7 +118,6 @@ public class SubscriptionPublisherFixture
     {
         await publisher.Publish(
             TestData.DefaultTopic,
-            userMessage.GetType(),
             userMessage,
             userHeaders: TestData.DefaultUserHeaders);
         Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.Headers);
@@ -157,7 +128,6 @@ public class SubscriptionPublisherFixture
     {
         await publisher.Publish(
             TestData.DefaultTopic,
-            userMessage.GetType(),
             userMessage);
 
         pipelineInvoker.Verify(x => x.Invoke(It.IsAny<PublishContext>()), Times.Once);
@@ -170,7 +140,6 @@ public class SubscriptionPublisherFixture
         var userHeaders = new UserHeaders();
         await publisher.Publish(
             TestData.DefaultTopic,
-            userMessage.GetType(),
             userMessage,
             notBefore,
             245,

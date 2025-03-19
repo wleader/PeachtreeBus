@@ -11,8 +11,7 @@ public interface ISubscribedPublisher
 {
     Task<long> Publish(
         Topic topic,
-        Type type,
-        object message,
+        ISubscribedMessage message,
         UtcDateTime? notBefore = null,
         int priority = 0,
         UserHeaders? userHeaders = null);
@@ -41,15 +40,12 @@ public class SubscribedPublisher(
     /// <exception cref="ArgumentException"></exception>
     public async Task<long> Publish(
         Topic topic,
-        Type type,
-        object message,
+        ISubscribedMessage message,
         UtcDateTime? notBefore = null,
         int priority = 0,
         UserHeaders? userHeaders = null)
     {
         ArgumentNullException.ThrowIfNull(message, nameof(message));
-        ArgumentNullException.ThrowIfNull(type, nameof(type));
-        TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(type);
 
         var context = new PublishContext
         {
@@ -65,29 +61,5 @@ public class SubscribedPublisher(
         await _pipelineInvoker.Invoke(context);
 
         return context.RecipientCount ?? 0;
-    }
-}
-
-public static class SubscriptionPublisherExtensions
-{
-    /// <summary>
-    /// Publishes the message
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="publisher"></param>
-    /// <param name="topic"></param>
-    /// <param name="message"></param>
-    /// <param name="notBefore"></param>
-    /// <returns></returns>
-    public static Task<long> PublishMessage<T>(
-        this ISubscribedPublisher publisher,
-        Topic topic,
-        T message,
-        DateTime? notBefore = null,
-        int priority = 0,
-        UserHeaders? userHeaders = null)
-        where T : notnull
-    {
-        return publisher.Publish(topic, typeof(T), message, notBefore, priority, userHeaders);
     }
 }

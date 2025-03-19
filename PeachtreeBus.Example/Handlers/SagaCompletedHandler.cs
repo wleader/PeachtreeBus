@@ -26,7 +26,7 @@ namespace PeachtreeBus.Example.Handlers
             _log.DistributedSagaComplete();
 
             // send an announcement message to all that have subscribed.
-            await _publisher.PublishMessage(Topics.Announcements, new AnnounceSagaCompleted
+            await _publisher.Publish(Topics.Announcements, new AnnounceSagaCompleted
             {
                 AppId = message.AppId
             });
