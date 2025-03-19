@@ -23,33 +23,33 @@ public interface IPublishPipeline : IPipeline<IPublishContext>;
 
 public class PublishPipeline : Pipeline<IPublishContext>, IPublishPipeline;
 
-public interface IPublishPipelineFactory : IPipelineFactory<IPublishContext, IPublishPipeline>;
+public interface IPublishPipelineFactory : IPipelineFactory<PublishContext, IPublishContext, IPublishPipeline>;
 
 public class PublishPipelineFactory(
     IWrappedScope scope)
-    : PipelineFactory<IPublishContext, IPublishPipeline, IFindPublishPipelineSteps, IPublishPipelinePublishStep>(scope)
+    : PipelineFactory<PublishContext, IPublishContext, IPublishPipeline, IFindPublishPipelineSteps, IPublishPipelineFinalStep>(scope)
     , IPublishPipelineFactory;
 
-public interface IPublishPipelineInvoker : IPipelineInvoker<IPublishContext>;
+public interface IPublishPipelineInvoker : IPipelineInvoker<PublishContext>;
 
 public class PublishPipelineInvoker(
     IWrappedScope scope)
-    : OutgoingPipelineInvoker<IPublishContext, IPublishPipeline, IPublishPipelineFactory>(scope)
+    : OutgoingPipelineInvoker<PublishContext, IPublishContext, IPublishPipeline, IPublishPipelineFactory>(scope)
     , IPublishPipelineInvoker;
 
 public interface IFindPublishPipelineSteps : IFindPipelineSteps<IPublishContext>;
 
 public interface IPublishPipelineStep : IPipelineStep<IPublishContext>;
 
-public interface IPublishPipelinePublishStep : IPipelineStep<IPublishContext>;
+public interface IPublishPipelineFinalStep : IPipelineFinalStep<PublishContext, IPublishContext>;
 
-public class PublishPipelinePublishStep(
+public class PublishPipelineFinalStep(
     ISystemClock clock,
     IBusConfiguration configuration,
     ISerializer serializer,
     IBusDataAccess dataAccess,
     IPerfCounters perfCounters)
-    : IPublishPipelinePublishStep
+    : IPublishPipelineFinalStep
 {
     private readonly ISystemClock _clock = clock;
     private readonly IBusConfiguration _configuration = configuration;
@@ -61,6 +61,8 @@ public class PublishPipelinePublishStep(
     // but it is requred by the interface.
     [ExcludeFromCodeCoverage]
     public int Priority { get => 0; }
+
+    public PublishContext InternalContext { get; set; } = default!;
 
     public async Task Invoke(IPublishContext context, Func<IPublishContext, Task> next)
     {

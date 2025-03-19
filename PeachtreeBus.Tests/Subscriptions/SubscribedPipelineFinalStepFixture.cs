@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Tests.Subscriptions
 {
     [TestClass]
-    public class SubscribedHandlersPipelineStepFixture
+    public class SubscribedPipelineFinalStepFixture
     {
         public class MessageWithoutInterface { };
 
         public class TestMessage : ISubscribedMessage { }
 
-        private SubscribedHandlersPipelineStep _testSubject = default!;
+        private SubscribedPipelineFinalStep _testSubject = default!;
         private Mock<IFindSubscribedHandlers> _findSubscribed = default!;
 
         [TestInitialize]

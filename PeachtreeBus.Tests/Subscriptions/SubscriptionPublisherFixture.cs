@@ -33,7 +33,7 @@ public class SubscriptionPublisherFixture
 
         userMessage = TestData.CreateSubscribedUserMessage();
 
-        pipelineInvoker.Setup(x => x.Invoke(It.IsAny<IPublishContext>()))
+        pipelineInvoker.Setup(x => x.Invoke(It.IsAny<PublishContext>()))
             .Callback((IPublishContext c) =>
             {
                 invokedContext = c;
@@ -160,7 +160,7 @@ public class SubscriptionPublisherFixture
             userMessage.GetType(),
             userMessage);
 
-        pipelineInvoker.Verify(x => x.Invoke(It.IsAny<IPublishContext>()), Times.Once);
+        pipelineInvoker.Verify(x => x.Invoke(It.IsAny<PublishContext>()), Times.Once);
     }
 
     [TestMethod]

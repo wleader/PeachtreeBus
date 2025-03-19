@@ -2,22 +2,23 @@
 
 namespace PeachtreeBus.Pipelines
 {
-    public interface IPipelineFactory<TContext, TPipeline>
+    public interface IPipelineFactory<TInternalContext, TContext, TPipeline>
         where TPipeline : IPipeline<TContext>
     {
-        TPipeline Build();
+        TPipeline Build(TInternalContext context);
     }
 
-    public abstract class PipelineFactory<TContext, TPipeline, TFindPipelineSteps, THandlerStep>(
+    public abstract class PipelineFactory<TInternalContext, TContext, TPipeline, TFindPipelineSteps, TFinalStep>(
         IWrappedScope scope)
-        : IPipelineFactory<TContext, TPipeline>
+        : IPipelineFactory<TInternalContext, TContext, TPipeline>
+        where TInternalContext : Context
         where TPipeline : IPipeline<TContext>
         where TFindPipelineSteps : IFindPipelineSteps<TContext>
-        where THandlerStep : IPipelineStep<TContext>
+        where TFinalStep : IPipelineFinalStep<TInternalContext, TContext>
     {
         private readonly IWrappedScope _scope = scope;
 
-        public TPipeline Build()
+        public TPipeline Build(TInternalContext context)
         {
             // create a pipeline.
             var result = (TPipeline)_scope.GetInstance(typeof(TPipeline));
@@ -35,7 +36,8 @@ namespace PeachtreeBus.Pipelines
 
             // the very last step in the chain is to pass the message to the
             // handlers.
-            var handlersStep = (THandlerStep)_scope.GetInstance(typeof(THandlerStep));
+            var handlersStep = (TFinalStep)_scope.GetInstance(typeof(TFinalStep));
+            handlersStep.InternalContext = context;
             result.Add(handlersStep);
 
             // Pipeline is ready.

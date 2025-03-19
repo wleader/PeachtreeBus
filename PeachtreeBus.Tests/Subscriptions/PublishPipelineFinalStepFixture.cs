@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Tests.Subscriptions;
 
 [TestClass]
-public class PublishPipelinePublishStepFixture
+public class PublishPipelineFinalStepFixture
 {
     // the class under test.
-    private PublishPipelinePublishStep step = default!;
+    private PublishPipelineFinalStep step = default!;
 
     // Dependencies
     private Mock<IBusDataAccess> dataAccess = default!;
@@ -58,7 +58,7 @@ public class PublishPipelinePublishStepFixture
             Topic = TestData.DefaultTopic,
         };
 
-        step = new PublishPipelinePublishStep(
+        step = new PublishPipelineFinalStep(
             clock.Object,
             configuration,
             serializer.Object,

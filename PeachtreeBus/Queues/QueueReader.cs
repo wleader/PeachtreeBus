@@ -50,7 +50,7 @@ namespace PeachtreeBus.Queues
         /// </summary>
         /// <param name="saga">The saga to load data for.</param>
         /// <param name="context">The mesage context. SagaKey must be set.</param>
-        Task LoadSaga(object saga, IQueueContext context);
+        Task LoadSaga(object saga, QueueContext context);
 
         /// <summary>
         /// Stores the saga data in the database after a message is processed.
@@ -58,7 +58,7 @@ namespace PeachtreeBus.Queues
         /// </summary>
         /// <param name="saga"></param>
         /// <param name="context"></param>
-        Task SaveSaga(object saga, IQueueContext context);
+        Task SaveSaga(object saga, QueueContext context);
     }
 
     /// <summary>
@@ -174,7 +174,7 @@ namespace PeachtreeBus.Queues
         }
 
         /// <inheritdoc/>
-        public async Task LoadSaga(object saga, IQueueContext context)
+        public async Task LoadSaga(object saga, QueueContext context)
         {
             // work out the class name of the saga.
             var sagaType = saga.GetType();
@@ -231,7 +231,7 @@ namespace PeachtreeBus.Queues
 
 
         /// <inheritdoc/>
-        public async Task SaveSaga(object saga, IQueueContext context)
+        public async Task SaveSaga(object saga, QueueContext context)
         {
             var sagaType = saga.GetType();
             var nameProperty = sagaType.GetProperty("SagaName", typeof(SagaName));

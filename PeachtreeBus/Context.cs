@@ -19,15 +19,6 @@ public abstract class Context : IContext
     public UserHeaders Headers { get; set; } = [];
 }
 
-public static class ContextExtensions
-{
-    internal static void SetScope(this IContext context, IWrappedScope scope)
-    {
-        if (context is Context baseContext)
-            baseContext.Scope = scope;
-    }
-}
-
 public abstract class IncomingContext<TQueueData>
     : Context
     , IIncomingContext

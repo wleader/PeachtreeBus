@@ -21,32 +21,32 @@ public interface ISendPipeline : IPipeline<ISendContext>;
 
 public class SendPipeline : Pipeline<ISendContext>, ISendPipeline;
 
-public interface ISendPipelineFactory : IPipelineFactory<ISendContext, ISendPipeline>;
+public interface ISendPipelineFactory : IPipelineFactory<SendContext, ISendContext, ISendPipeline>;
 
 public class SendPipelineFactory(
     IWrappedScope scope)
-    : PipelineFactory<ISendContext, ISendPipeline, IFindSendPipelineSteps, ISendPipelineSendStep>(scope)
+    : PipelineFactory<SendContext, ISendContext, ISendPipeline, IFindSendPipelineSteps, ISendPipelineFinalStep>(scope)
     , ISendPipelineFactory;
 
-public interface ISendPipelineInvoker : IPipelineInvoker<ISendContext>;
+public interface ISendPipelineInvoker : IPipelineInvoker<SendContext>;
 
 public class SendPipelineInvoker(
     IWrappedScope scope)
-    : OutgoingPipelineInvoker<ISendContext, ISendPipeline, ISendPipelineFactory>(scope)
+    : OutgoingPipelineInvoker<SendContext, ISendContext, ISendPipeline, ISendPipelineFactory>(scope)
     , ISendPipelineInvoker;
 
 public interface IFindSendPipelineSteps : IFindPipelineSteps<ISendContext>;
 
 public interface ISendPipelineStep : IPipelineStep<ISendContext>;
 
-public interface ISendPipelineSendStep : IPipelineStep<ISendContext>;
+public interface ISendPipelineFinalStep : IPipelineFinalStep<SendContext, ISendContext>;
 
-public class SendPipelineSendStep(
+public class SendPipelineFinalStep(
     ISystemClock clock,
     ISerializer serializer,
     IBusDataAccess dataAccess,
     IPerfCounters perfCounters)
-    : ISendPipelineSendStep
+    : ISendPipelineFinalStep
 {
     private readonly ISystemClock _clock = clock;
     private readonly ISerializer _serializer = serializer;
@@ -57,6 +57,8 @@ public class SendPipelineSendStep(
     // but it is requred by the interface.
     [ExcludeFromCodeCoverage]
     public int Priority { get => 0; }
+
+    public SendContext InternalContext { get; set; } = default!;
 
     public async Task Invoke(ISendContext context, Func<ISendContext, Task> next)
     {

@@ -13,21 +13,21 @@ namespace PeachtreeBus.Queues
     /// A Pipeline step that passed the message off to all the registered handlers.
     /// Intended to be the final link in the pipline chain.
     /// </summary>
-    public interface IQueueHandlersPipelineStep : IPipelineStep<IQueueContext> { }
+    public interface IQueuePipelineFinalStep : IPipelineFinalStep<QueueContext, IQueueContext>;
 
     /// <summary>
     /// A Pipeline step that passed the message off to all the registered handlers.
     /// Intended to be the final link in the pipline chain.
     /// </summary>
-    public class QueueHandlersPipelineStep(
+    public class QueuePipelineFinalStep(
         IFindQueueHandlers findHandlers,
-        ILogger<QueueHandlersPipelineStep> log,
+        ILogger<QueuePipelineFinalStep> log,
         ISagaMessageMapManager sagaMessageMapManager,
         IQueueReader queueReader)
-        : IQueueHandlersPipelineStep
+        : IQueuePipelineFinalStep
     {
         private readonly IFindQueueHandlers _findHandlers = findHandlers;
-        private readonly ILogger<QueueHandlersPipelineStep> _log = log;
+        private readonly ILogger<QueuePipelineFinalStep> _log = log;
         private readonly ISagaMessageMapManager _sagaMessageMapManager = sagaMessageMapManager;
         private readonly IQueueReader _queueReader = queueReader;
 
@@ -35,6 +35,8 @@ namespace PeachtreeBus.Queues
         // but it is requred by the interface.
         [ExcludeFromCodeCoverage]
         public int Priority { get => 0; }
+
+        public QueueContext InternalContext { get; set; } = default!;
 
         public async Task Invoke(IQueueContext context, Func<IQueueContext, Task>? next)
         {
@@ -69,20 +71,20 @@ namespace PeachtreeBus.Queues
 
                 // determine if this handler is a saga.
                 var handlerType = handler.GetType();
-                context.CurrentHandler = handlerType.FullName ?? handlerType.ToString();
+                InternalContext.CurrentHandler = handlerType.FullName ?? handlerType.ToString();
 
                 var handlerIsSaga = handlerType.IsSubclassOfSaga();
                 if (handlerIsSaga)
                 {
-                    context.SagaKey = _sagaMessageMapManager.GetKey(handler, context.Message);
-                    _log.QueueWork_LoadingSaga(context.CurrentHandler, context.SagaKey);
+                    InternalContext.SagaKey = _sagaMessageMapManager.GetKey(handler, context.Message);
+                    _log.QueueWork_LoadingSaga(InternalContext.CurrentHandler, context.SagaKey);
 
-                    await _queueReader.LoadSaga(handler, context);
+                    await _queueReader.LoadSaga(handler, InternalContext);
 
                     // if the saga is blocked. Stop.
-                    if (context.SagaBlocked) return;
+                    if (InternalContext.SagaBlocked) return;
 
-                    if (context.SagaData == null && !handlerType.IsSagaStartHandler(messageType))
+                    if (InternalContext.SagaData == null && !handlerType.IsSagaStartHandler(messageType))
                     {
                         // the saga was not locked, and it doesn't exist, and this message doesn't start a saga.
                         // we are processing a saga message but it is not a saga start message and we didnt read previous
@@ -106,7 +108,7 @@ namespace PeachtreeBus.Queues
                 // should it have a seperate try-catch around this and treat it differently?
                 // that would allow us to tell the difference between a problem in a handler, or if the problem was in the bus code.
                 // does that mater for the retry?
-                _log.QueueWork_InvokeHandler(context.MessageId, context.MessageClass, context.CurrentHandler);
+                _log.QueueWork_InvokeHandler(context.MessageId, context.MessageClass, InternalContext.CurrentHandler);
                 {
                     var taskObject = handleMethod.Invoke(handler, [context, context.Message]);
                     var castTask = UnreachableException.ThrowIfNull(taskObject as Task,
@@ -116,8 +118,8 @@ namespace PeachtreeBus.Queues
 
                 if (handlerIsSaga)
                 {
-                    await _queueReader.SaveSaga(handler, context);
-                    _log.QueueWork_SagaSaved(context.CurrentHandler, context.SagaKey!);
+                    await _queueReader.SaveSaga(handler, InternalContext);
+                    _log.QueueWork_SagaSaved(InternalContext.CurrentHandler, context.SagaKey!);
                 }
             }
 

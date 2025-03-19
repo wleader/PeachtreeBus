@@ -117,7 +117,7 @@ public static partial class SimpleInjectorExtensions
         container.Register(typeof(IPublishPipelineFactory), typeof(PublishPipelineFactory), Lifestyle.Scoped);
         container.Register(typeof(IPublishPipeline), typeof(PublishPipeline), Lifestyle.Scoped);
         container.Register(typeof(IFindPublishPipelineSteps), typeof(FindPublishPipelineSteps), Lifestyle.Scoped);
-        container.Register(typeof(IPublishPipelinePublishStep), typeof(PublishPipelinePublishStep), Lifestyle.Scoped);
+        container.Register(typeof(IPublishPipelineFinalStep), typeof(PublishPipelineFinalStep), Lifestyle.Scoped);
 
         // register pipeline steps
         container.FindAndRegisterScopedTypes<IPublishPipelineStep>();
@@ -127,7 +127,7 @@ public static partial class SimpleInjectorExtensions
         container.Register(typeof(ISendPipelineFactory), typeof(SendPipelineFactory), Lifestyle.Scoped);
         container.Register(typeof(ISendPipeline), typeof(SendPipeline), Lifestyle.Scoped);
         container.Register(typeof(IFindSendPipelineSteps), typeof(FindSendPipelineSteps), Lifestyle.Scoped);
-        container.Register(typeof(ISendPipelineSendStep), typeof(SendPipelineSendStep), Lifestyle.Scoped);
+        container.Register(typeof(ISendPipelineFinalStep), typeof(SendPipelineFinalStep), Lifestyle.Scoped);
 
         // register pipeline steps
         container.FindAndRegisterScopedTypes<ISendPipelineStep>();
@@ -177,7 +177,7 @@ public static partial class SimpleInjectorExtensions
         container.Register(typeof(IQueuePipelineInvoker), typeof(QueuePipelineInvoker), Lifestyle.Scoped);
         container.Register(typeof(IQueuePipelineFactory), typeof(QueuePipelineFactory), Lifestyle.Scoped);
         container.Register(typeof(IQueuePipeline), typeof(QueuePipeline), Lifestyle.Scoped);
-        container.Register(typeof(IQueueHandlersPipelineStep), typeof(QueueHandlersPipelineStep), Lifestyle.Scoped);
+        container.Register(typeof(IQueuePipelineFinalStep), typeof(QueuePipelineFinalStep), Lifestyle.Scoped);
 
         container.Register<IQueueCleanupThread, QueueCleanupThread>(Lifestyle.Scoped);
         container.Register<IQueueCleanupWork, QueueCleanupWork>(Lifestyle.Scoped);
@@ -216,7 +216,7 @@ public static partial class SimpleInjectorExtensions
         container.Register(typeof(ISubscribedPipelineInvoker), typeof(SubscribedPipelineInvoker), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedPipelineFactory), typeof(SubscribedPipelineFactory), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedPipeline), typeof(SubscribedPipeline), Lifestyle.Scoped);
-        container.Register(typeof(ISubscribedHandlersPipelineStep), typeof(SubscribedHandlersPipelineStep), Lifestyle.Scoped);
+        container.Register(typeof(ISubscribedPipelineFinalStep), typeof(SubscribedPipelineFinalStep), Lifestyle.Scoped);
 
         container.Register<ISubscriptionCleanupThread, SubscriptionCleanupThread>(Lifestyle.Scoped);
         container.Register<ISubscriptionCleanupWork, SubscriptionCleanupWork>(Lifestyle.Scoped);

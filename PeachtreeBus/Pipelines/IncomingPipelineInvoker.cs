@@ -6,18 +6,19 @@ namespace PeachtreeBus.Pipelines;
 
 public interface IIncomingPipelineInvoker<TContext> : IPipelineInvoker<TContext>;
 
-public abstract class IncomingPipelineInvoker<TContext, TPipeline, TFactory>(
+public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipeline, TFactory>(
     IWrappedScopeFactory scopeFactory,
     ISharedDatabase sharedDatabase)
-    : IIncomingPipelineInvoker<TContext>
+    : IIncomingPipelineInvoker<TInternalContext>
+    where TInternalContext : Context, TContext
     where TContext : IContext
     where TPipeline : IPipeline<TContext>
-    where TFactory : IPipelineFactory<TContext, TPipeline>
+    where TFactory : IPipelineFactory<TInternalContext, TContext, TPipeline>
 {
     private readonly IWrappedScopeFactory _scopeFactory = scopeFactory;
     private readonly ISharedDatabase _sharedDatabase = sharedDatabase;
 
-    public async Task Invoke(TContext context)
+    public async Task Invoke(TInternalContext context)
     {
         // the pipeline, and all its steps,
         // and all the handlers/sagas,
@@ -50,17 +51,17 @@ public abstract class IncomingPipelineInvoker<TContext, TPipeline, TFactory>(
         var scope = _scopeFactory.Create();
         try
         {
-            context.SetScope(scope);
+            context.Scope = scope;
 
             // pass the database connection to the scope.
             var sharedDbProvider = scope.GetInstance<IShareObjectsBetweenScopes>();
             System.Diagnostics.Debug.Assert(sharedDbProvider.SharedDatabase is null);
             sharedDbProvider.SharedDatabase = _sharedDatabase;
 
-            // now when we create the pipeline factory, it will re-use the shared DB connection,
+            // when we create the pipeline factory, it will re-use the shared DB connection,
             // and any objects it uses to build the pipeline will also re-use it.
             var pipelineFactory = (TFactory)scope.GetInstance(typeof(TFactory));
-            var pipeline = pipelineFactory.Build();
+            var pipeline = pipelineFactory.Build(context);
 
             // invoke the pipeline.
             await pipeline.Invoke(context);

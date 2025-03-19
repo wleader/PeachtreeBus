@@ -147,4 +147,26 @@ public static class TestData
             }
         };
     }
+
+    public static SendContext CreateSendContext(
+        object? userMessage = null,
+        QueueName? destination = null)
+    {
+        return new SendContext()
+        {
+            Message = userMessage ?? CreateQueueUserMessage(),
+            Destination = destination ?? DefaultQueueName,
+        };
+    }
+
+    public static PublishContext CreatePublishContext(
+        object? userMessage = null,
+        Topic? topic = null)
+    {
+        return new PublishContext()
+        {
+            Message = userMessage ?? CreateSubscribedUserMessage(),
+            Topic = topic ?? DefaultTopic,
+        };
+    }
 }

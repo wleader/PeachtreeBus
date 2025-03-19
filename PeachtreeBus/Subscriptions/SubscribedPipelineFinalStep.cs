@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions
 {
-    public interface ISubscribedHandlersPipelineStep : IPipelineStep<ISubscribedContext> { }
+    public interface ISubscribedPipelineFinalStep : IPipelineFinalStep<SubscribedContext, ISubscribedContext> { }
 
-    public class SubscribedHandlersPipelineStep(
+    public class SubscribedPipelineFinalStep(
         IFindSubscribedHandlers findHandlers)
-        : ISubscribedHandlersPipelineStep
+        : ISubscribedPipelineFinalStep
     {
         private readonly IFindSubscribedHandlers _findHandlers = findHandlers;
 
@@ -19,6 +19,8 @@ namespace PeachtreeBus.Subscriptions
         // but it is requred by the interface.
         [ExcludeFromCodeCoverage]
         public int Priority { get => 0; }
+
+        public SubscribedContext InternalContext { get; set; } = default!;
 
         public async Task Invoke(ISubscribedContext subscribedcontext, Func<ISubscribedContext, Task>? next)
         {

@@ -38,7 +38,7 @@ namespace PeachtreeBus.Tests.Queues
             _scope.Setup(s => s.GetInstance(typeof(IQueuePipelineFactory))).Returns(_pipelineFactory.Object);
 
             _pipeline = new();
-            _pipelineFactory.Setup(f => f.Build()).Returns(_pipeline.Object);
+            _pipelineFactory.Setup(f => f.Build(It.IsAny<QueueContext>())).Returns(_pipeline.Object);
 
             _invoker = new(_scopeFactory.Object, _sharedDatabase.Object);
 
@@ -126,7 +126,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Given_FactoryBuildWillThrow_When_Invoke_ScopeIsDisposed()
         {
-            _pipelineFactory.Setup(f => f.Build()).Throws<TestException>();
+            _pipelineFactory.Setup(f => f.Build(It.IsAny<QueueContext>())).Throws<TestException>();
             await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
@@ -153,7 +153,7 @@ namespace PeachtreeBus.Tests.Queues
                 .Callback(() => Assert.IsTrue(providerSet))
                 .Returns(_pipelineFactory.Object);
 
-            _pipelineFactory.Setup(f => f.Build())
+            _pipelineFactory.Setup(f => f.Build(It.IsAny<QueueContext>()))
                 .Callback(() => Assert.IsTrue(providerSet))
                 .Returns(_pipeline.Object);
 
