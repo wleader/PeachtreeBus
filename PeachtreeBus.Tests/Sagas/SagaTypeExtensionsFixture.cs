@@ -23,7 +23,7 @@ namespace PeachtreeBus.Tests.Sagas
         {
             public override SagaName SagaName => throw new NotImplementedException();
 
-            public override void ConfigureMessageKeys(SagaMessageMap mapper)
+            public override void ConfigureMessageKeys(ISagaMessageMap mapper)
             {
                 throw new NotImplementedException();
             }

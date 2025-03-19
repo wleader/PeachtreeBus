@@ -42,7 +42,7 @@ namespace PeachtreeBus.Example.Sagas
         /// Describes how to find the correct row in the saga data table for any given message being handled.
         /// </summary>
         /// <param name="mapper"></param>
-        public override void ConfigureMessageKeys(SagaMessageMap mapper)
+        public override void ConfigureMessageKeys(ISagaMessageMap mapper)
         {
             // each of these maps should return the same string value for a given instance of the saga.
             mapper.Add<SampleSagaStart>(m => new(m.AppId.ToString()));

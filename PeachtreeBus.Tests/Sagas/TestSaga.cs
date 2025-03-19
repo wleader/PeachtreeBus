@@ -37,7 +37,7 @@ namespace PeachtreeBus.Tests.Sagas
         public override SagaName SagaName => _sagaName;
 
         [ExcludeFromCodeCoverage]
-        public override void ConfigureMessageKeys(SagaMessageMap mapper)
+        public override void ConfigureMessageKeys(ISagaMessageMap mapper)
         {
             mapper.Add<TestSagaMessage1>(m => new("TestSagaKey"));
             mapper.Add<TestSagaMessage2>(m => new("TestSagaKey"));

@@ -5,16 +5,15 @@ using System.Collections.Generic;
 
 namespace PeachtreeBus.Sagas
 {
-    public class SagaMapException(string message) : PeachtreeBusException(message)
-    {
-    }
+
+    public class SagaMapException(string message) : PeachtreeBusException(message);
 
     /// <summary>
     /// Stores a set of functions that are used to get a Saga Key for messages handled by a single saga class.
     /// There will be one instance of this map in memory for each saga class. It is built on demand when
     /// a message for that saga is processed.
     /// </summary>
-    public class SagaMessageMap
+    public class SagaMessageMap : ISagaMessageMap
     {
         /// <summary>
         /// A dictionary where the message type is the key, and the key function is the value.
