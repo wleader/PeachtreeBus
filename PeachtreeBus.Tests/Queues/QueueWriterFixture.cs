@@ -18,7 +18,7 @@ namespace PeachtreeBus.Tests.Queues
         private QueueWriter writer = default!;
         private Mock<ISendPipelineInvoker> pipelineInvoker = default!;
 
-        private object userMessage = default!;
+        private IQueueMessage userMessage = default!;
 
         private ISendContext? invokedContext = default;
 
@@ -45,22 +45,7 @@ namespace PeachtreeBus.Tests.Queues
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
                 writer.WriteMessage(
                     TestData.DefaultQueueName,
-                    userMessage.GetType(),
                     null!));
-        }
-
-        /// <summary>
-        /// Proves the type cannot be null
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Given_TypeIsNull_When_WriteMessage_Then_Throws()
-        {
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-                writer.WriteMessage(
-                    TestData.DefaultQueueName,
-                    null!,
-                    userMessage));
         }
 
         /// <summary>
@@ -72,7 +57,6 @@ namespace PeachtreeBus.Tests.Queues
         {
             await writer.WriteMessage(
                 TestData.DefaultQueueName,
-                userMessage.GetType(),
                 userMessage,
                 notBefore: null);
 
@@ -90,7 +74,6 @@ namespace PeachtreeBus.Tests.Queues
             UtcDateTime notBefore = DateTime.UtcNow;
             await writer.WriteMessage(
                 TestData.DefaultQueueName,
-                userMessage.GetType(),
                 userMessage,
                 notBefore: notBefore);
 
@@ -107,18 +90,8 @@ namespace PeachtreeBus.Tests.Queues
             var expected = new QueueName("FooBazQueue");
             await writer.WriteMessage(
                 expected,
-                userMessage.GetType(),
                 userMessage);
             Assert.AreEqual(expected, invokedContext?.Destination);
-        }
-
-        [TestMethod]
-        public async Task Given_MessageIsNotIQueuedMessage_When_WriteMessage_Then_ThrowsUsefulException()
-        {
-            await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() =>
-                writer.WriteMessage(new("FooBazQueue"),
-                typeof(object),
-                new object()));
         }
 
         [TestMethod]
@@ -126,7 +99,6 @@ namespace PeachtreeBus.Tests.Queues
         {
             await writer.WriteMessage(
                 TestData.DefaultQueueName,
-                userMessage.GetType(),
                 userMessage,
                 priority: 100);
 
@@ -138,7 +110,6 @@ namespace PeachtreeBus.Tests.Queues
         {
             await writer.WriteMessage(
                 TestData.DefaultQueueName,
-                userMessage.GetType(),
                 userMessage,
                 userHeaders: TestData.DefaultUserHeaders);
 
