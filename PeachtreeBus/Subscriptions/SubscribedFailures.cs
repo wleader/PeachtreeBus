@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
-using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Errors
+namespace PeachtreeBus.Subscriptions
 {
     public interface ISubscribedFailures
     {

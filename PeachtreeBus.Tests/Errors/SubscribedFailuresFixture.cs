@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
-using PeachtreeBus.Errors;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;

@@ -1,5 +1,6 @@
 ﻿using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Errors;
+using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using System.Diagnostics.CodeAnalysis;
 
 namespace PeachtreeBus.SimpleInjector

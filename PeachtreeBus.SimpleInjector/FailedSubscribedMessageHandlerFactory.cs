@@ -1,4 +1,4 @@
-﻿using PeachtreeBus.Errors;
+﻿using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.SimpleInjector
 {

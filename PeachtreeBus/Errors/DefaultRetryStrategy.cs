@@ -1,6 +1,4 @@
-﻿using PeachtreeBus.Queues;
-using PeachtreeBus.Subscriptions;
-using System;
+﻿using System;
 
 namespace PeachtreeBus.Errors;
 
@@ -20,13 +18,3 @@ public abstract class DefaultRetryStrategy<TContext> : IRetryStrategy<TContext>
             TimeSpan.FromSeconds(failureCount * 5));
     }
 }
-
-/// <summary>
-/// A Default Retry Strategy for Queue Messages.
-/// </summary>
-public class DefaultQueueRetryStrategy : DefaultRetryStrategy<IQueueContext>, IQueueRetryStrategy { }
-
-/// <summary>
-/// A Default Retry Strategy for Subscribed Messages.
-/// </summary>
-public class DefaultSubscribedRetryStrategy : DefaultRetryStrategy<ISubscribedContext>, ISubscribedRetryStrategy { }

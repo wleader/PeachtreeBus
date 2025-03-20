@@ -1,5 +1,6 @@
 using Moq;
-using PeachtreeBus.Errors;
+using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using SimpleInjector;
 using System;
 
