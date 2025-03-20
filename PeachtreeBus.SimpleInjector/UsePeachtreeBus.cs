@@ -257,7 +257,8 @@ public static partial class SimpleInjectorExtensions
 
     private static Container RegisterStartupTasks(this Container container)
     {
-        if (!Configuration.UseStartupTasks) return container;
+        if (!Configuration.UseStartupTasks)
+            return container;
 
         // get a list types that impliment the type.
         // We'll instantiate them later.
