@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
-using PeachtreeBus.Errors;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;

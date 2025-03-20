@@ -1,4 +1,4 @@
-﻿namespace PeachtreeBus.Errors;
+﻿namespace PeachtreeBus.Subscriptions;
 
 public interface IFailedSubscribedMessageHandlerFactory
 {

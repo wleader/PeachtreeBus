@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Errors;
+using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.Tests.Errors;
 

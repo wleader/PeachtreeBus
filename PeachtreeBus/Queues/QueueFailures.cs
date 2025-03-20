@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
-using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Errors
+namespace PeachtreeBus.Queues
 {
     public interface IQueueFailures
     {

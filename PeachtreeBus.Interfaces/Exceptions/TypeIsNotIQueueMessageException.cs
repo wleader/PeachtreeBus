@@ -1,7 +1,7 @@
-﻿using PeachtreeBus.Exceptions;
+﻿using PeachtreeBus.Queues;
 using System;
 
-namespace PeachtreeBus.Queues;
+namespace PeachtreeBus.Exceptions;
 
 public class TypeIsNotIQueueMessageException(Type classType)
     : MissingInterfaceException(classType, typeof(IQueueMessage))

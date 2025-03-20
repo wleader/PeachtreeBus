@@ -1,6 +1,6 @@
-﻿using PeachtreeBus.Subscriptions;
+﻿using PeachtreeBus.Errors;
 
-namespace PeachtreeBus.Errors;
+namespace PeachtreeBus.Subscriptions;
 
 /// <summary>
 /// Defines a retry strategy for Subscribed Messages.

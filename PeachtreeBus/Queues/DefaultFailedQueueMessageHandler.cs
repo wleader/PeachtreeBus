@@ -1,8 +1,7 @@
-﻿using PeachtreeBus.Queues;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Errors;
+namespace PeachtreeBus.Queues;
 
 public class DefaultFailedQueueMessageHandler : IHandleFailedQueueMessages
 {
