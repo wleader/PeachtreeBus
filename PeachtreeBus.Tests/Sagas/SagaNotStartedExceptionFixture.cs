@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 
@@ -16,7 +17,8 @@ public class SagaNotStartedExceptionFixture
         var messageType = typeof(TestSagaMessage1);
         var sagaType = typeof(TestSaga);
         var sagaKey = new SagaKey("SagaKey");
-        var e = new SagaNotStartedException(messageId, sourceQueue, messageType, sagaType, sagaKey);
+        var e = new SagaNotStartedException(
+            messageId, sourceQueue, messageType, sagaType, sagaKey);
         Assert.AreEqual(messageId, e.MessageId);
         Assert.AreEqual(sourceQueue, e.SourceQueue);
         Assert.AreEqual(messageType, e.MessageType);

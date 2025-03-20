@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.Tests.Subscriptions;
@@ -15,7 +16,8 @@ public class SubscribedMessageNoHandlerExceptionFixture
         var expectedMessageId = UniqueIdentity.New();
         var expectedSubscriberId = SubscriberId.New();
         var expectedType = typeof(TestMessage);
-        var e = new SubscribedMessageNoHandlerException(expectedMessageId, expectedSubscriberId, expectedType);
+        var e = new SubscribedMessageNoHandlerException(
+            expectedMessageId, expectedSubscriberId, expectedType);
         Assert.AreEqual(expectedMessageId, e.MessageId);
         Assert.AreEqual(expectedSubscriberId, e.SubscriberId);
         Assert.AreEqual(expectedType, e.MessageType);

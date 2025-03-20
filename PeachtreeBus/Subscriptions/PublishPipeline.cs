@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Serialization;
 using System;

@@ -1,7 +1,7 @@
-﻿using PeachtreeBus.Exceptions;
+﻿using PeachtreeBus.Subscriptions;
 using System;
 
-namespace PeachtreeBus.Subscriptions;
+namespace PeachtreeBus.Exceptions;
 
 public class TypeIsNotISubscribedMessageException(Type classType)
     : MissingInterfaceException(classType, typeof(ISubscribedMessage))
