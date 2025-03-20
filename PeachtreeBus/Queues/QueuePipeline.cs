@@ -1,34 +1,33 @@
 ﻿using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Pipelines;
 
-namespace PeachtreeBus.Queues
-{
-    public interface IQueuePipelineStep : IPipelineStep<IQueueContext>;
+namespace PeachtreeBus.Queues;
 
-    public interface IFindQueuePipelineSteps : IFindPipelineSteps<IQueueContext> { }
+public interface IQueuePipelineStep : IPipelineStep<IQueueContext>;
 
-    public interface IQueuePipeline : IPipeline<IQueueContext>;
+public interface IFindQueuePipelineSteps : IFindPipelineSteps<IQueueContext>;
 
-    public class QueuePipeline : Pipeline<IQueueContext>, IQueuePipeline;
+public interface IQueuePipeline : IPipeline<IQueueContext>;
 
-    /// <summary>
-    /// Builds a pipeline for handling a Queued message.
-    /// </summary>
-    public interface IQueuePipelineFactory : IPipelineFactory<QueueContext, IQueueContext, IQueuePipeline>;
+public class QueuePipeline : Pipeline<IQueueContext>, IQueuePipeline;
 
-    /// <summary>
-    /// Builds a pipeline for handling a Queued message.
-    /// </summary>
-    public class QueuePipelineFactory(
-        IWrappedScope scope)
-        : PipelineFactory<QueueContext, IQueueContext, IQueuePipeline, IFindQueuePipelineSteps, IQueuePipelineFinalStep>(scope)
-        , IQueuePipelineFactory;
+/// <summary>
+/// Builds a pipeline for handling a Queued message.
+/// </summary>
+public interface IQueuePipelineFactory : IPipelineFactory<QueueContext, IQueueContext, IQueuePipeline>;
 
-    public interface IQueuePipelineInvoker : IPipelineInvoker<QueueContext>;
+/// <summary>
+/// Builds a pipeline for handling a Queued message.
+/// </summary>
+public class QueuePipelineFactory(
+    IWrappedScope scope)
+    : PipelineFactory<QueueContext, IQueueContext, IQueuePipeline, IFindQueuePipelineSteps, IQueuePipelineFinalStep>(scope)
+    , IQueuePipelineFactory;
 
-    public class QueuePipelineInvoker(
-        IWrappedScopeFactory scopeFactory,
-        ISharedDatabase sharedDatabase)
-        : IncomingPipelineInvoker<QueueContext, IQueueContext, IQueuePipeline, IQueuePipelineFactory>(scopeFactory, sharedDatabase)
-        , IQueuePipelineInvoker;
-}
+public interface IQueuePipelineInvoker : IPipelineInvoker<QueueContext>;
+
+public class QueuePipelineInvoker(
+    IWrappedScopeFactory scopeFactory,
+    ISharedDatabase sharedDatabase)
+    : IncomingPipelineInvoker<QueueContext, IQueueContext, IQueuePipeline, IQueuePipelineFactory>(scopeFactory, sharedDatabase)
+    , IQueuePipelineInvoker;
