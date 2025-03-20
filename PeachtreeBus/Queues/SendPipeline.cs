@@ -30,8 +30,6 @@ public class SendPipelineInvoker(
     : OutgoingPipelineInvoker<SendContext, ISendContext, ISendPipeline, ISendPipelineFactory>(scope)
     , ISendPipelineInvoker;
 
-
-
 public interface ISendPipelineFinalStep : IPipelineFinalStep<SendContext, ISendContext>;
 
 public class SendPipelineFinalStep(

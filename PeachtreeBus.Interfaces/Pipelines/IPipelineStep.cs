@@ -1,5 +1,4 @@
-﻿using PeachtreeBus.Queues;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -19,11 +18,3 @@ public interface IFindPipelineSteps<TContext>
 {
     IEnumerable<IPipelineStep<TContext>> FindSteps();
 }
-
-public interface IQueuePipelineStep : IPipelineStep<IQueueContext>;
-
-public interface IFindQueuePipelineSteps : IFindPipelineSteps<IQueueContext>;
-
-public interface ISendPipelineStep : IPipelineStep<ISendContext>;
-
-public interface IFindSendPipelineSteps : IFindPipelineSteps<ISendContext>;
