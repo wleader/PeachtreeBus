@@ -3,10 +3,6 @@ using PeachtreeBus.Pipelines;
 
 namespace PeachtreeBus.Queues;
 
-public interface IQueuePipelineStep : IPipelineStep<IQueueContext>;
-
-public interface IFindQueuePipelineSteps : IFindPipelineSteps<IQueueContext>;
-
 public interface IQueuePipeline : IPipeline<IQueueContext>;
 
 public class QueuePipeline : Pipeline<IQueueContext>, IQueuePipeline;

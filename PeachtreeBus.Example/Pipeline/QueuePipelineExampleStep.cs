@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;

@@ -7,11 +7,6 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Queues;
 
-public interface ISendContext : IOutgoingContext
-{
-    public QueueName Destination { get; set; }
-}
-
 public class SendContext : OutgoingContext<QueueData>, ISendContext
 {
     public required QueueName Destination { get; set; }
@@ -35,9 +30,7 @@ public class SendPipelineInvoker(
     : OutgoingPipelineInvoker<SendContext, ISendContext, ISendPipeline, ISendPipelineFactory>(scope)
     , ISendPipelineInvoker;
 
-public interface IFindSendPipelineSteps : IFindPipelineSteps<ISendContext>;
 
-public interface ISendPipelineStep : IPipelineStep<ISendContext>;
 
 public interface ISendPipelineFinalStep : IPipelineFinalStep<SendContext, ISendContext>;
 
