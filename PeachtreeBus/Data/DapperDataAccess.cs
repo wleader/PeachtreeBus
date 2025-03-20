@@ -407,7 +407,7 @@ namespace PeachtreeBus.Data
         /// <param name="subscriberId"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<SubscribedMessage?> GetPendingSubscribed(SubscriberId subscriberId)
+        public async Task<SubscribedData?> GetPendingSubscribed(SubscriberId subscriberId)
         {
             // UPDLOCK makes this row unavailable to other connections and transactions.
             // READPAST to skip any rows that are locked by other connections and transactions.
@@ -429,10 +429,10 @@ namespace PeachtreeBus.Data
             p.Add("@SubscriberId", subscriberId);
 
             return await LogIfError(
-                _database.Connection.QueryFirstOrDefaultAsync<SubscribedMessage>(query, p, _database.Transaction));
+                _database.Connection.QueryFirstOrDefaultAsync<SubscribedData>(query, p, _database.Transaction));
         }
 
-        public async Task<long> Publish(SubscribedMessage message, Topic topic)
+        public async Task<long> Publish(SubscribedData message, Topic topic)
         {
             const string PublishStatement =
                 """
@@ -468,7 +468,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task CompleteMessage(SubscribedMessage message)
+        public async Task CompleteMessage(SubscribedData message)
         {
             const string completeStatement =
                 """
@@ -498,7 +498,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task FailMessage(SubscribedMessage message)
+        public async Task FailMessage(SubscribedData message)
         {
             const string FailMessageStatement =
                 """
@@ -529,7 +529,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task UpdateMessage(SubscribedMessage message)
+        public async Task UpdateMessage(SubscribedData message)
         {
             const string UpdateMessageStatement =
                 """

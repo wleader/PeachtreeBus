@@ -125,7 +125,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
-        Task<SubscribedMessage?> GetPendingSubscribed(SubscriberId subscriberId);
+        Task<SubscribedData?> GetPendingSubscribed(SubscriberId subscriberId);
 
         /// <summary>
         /// Adds a Subscribed message for each subscriber of the topic.
@@ -133,26 +133,26 @@ namespace PeachtreeBus.Data
         /// <param name="message"></param>
         /// <param name="topic"></param>
         /// <returns></returns>
-        Task<long> Publish(SubscribedMessage message, Topic topic);
+        Task<long> Publish(SubscribedData message, Topic topic);
 
         /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>
-        Task CompleteMessage(SubscribedMessage message);
+        Task CompleteMessage(SubscribedData message);
 
         /// <summary>
         /// Inserts the message into the error table, and removes if from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>
-        Task FailMessage(SubscribedMessage message);
+        Task FailMessage(SubscribedData message);
 
         /// <summary>
         /// Updates a message.
         /// Only updates message properties that are allowed to change.
         /// </summary>
         /// <param name="message"></param>
-        Task UpdateMessage(SubscribedMessage message);
+        Task UpdateMessage(SubscribedData message);
 
         /// <summary>
         /// Moves Subscription Messages from Pending to Error that are not longer valid

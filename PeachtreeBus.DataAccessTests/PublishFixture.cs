@@ -16,13 +16,13 @@ public class PublishFixture : DapperDataAccessFixtureBase
     private readonly SubscriberId Subscriber3 = SubscriberId.New();
     private readonly UtcDateTime Until = DateTime.UtcNow.AddHours(1);
 
-    private SubscribedMessage UserMessage = null!;
+    private SubscribedData SubscribedData = null!;
 
     [TestInitialize]
     public override void TestInitialize()
     {
         base.TestInitialize();
-        UserMessage = TestData.CreateSubscribedMessage();
+        SubscribedData = TestData.CreateSubscribedData();
     }
 
     [TestCleanup]
@@ -40,7 +40,7 @@ public class PublishFixture : DapperDataAccessFixtureBase
         var subscriptions = GetSubscriptions();
         Assert.AreEqual(2, subscriptions.Count);
 
-        var count = await dataAccess.Publish(UserMessage, TestData.DefaultTopic);
+        var count = await dataAccess.Publish(SubscribedData, TestData.DefaultTopic);
 
         Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
         Assert.AreEqual(0, count);
@@ -55,16 +55,16 @@ public class PublishFixture : DapperDataAccessFixtureBase
         await dataAccess.Subscribe(Subscriber2, TestData.DefaultTopic2, Until);
         await dataAccess.Subscribe(Subscriber3, TestData.DefaultTopic2, Until);
 
-        var count = await dataAccess.Publish(UserMessage, TestData.DefaultTopic);
+        var count = await dataAccess.Publish(SubscribedData, TestData.DefaultTopic);
         Assert.AreEqual(2, count);
 
         var messages = GetSubscribedPending();
         Assert.AreEqual(2, messages.Count);
 
-        var acutal1 = messages.Single(m => m.SubscriberId == Subscriber1);
-        AssertPublishedEquals(UserMessage, acutal1);
-        var acutal2 = messages.Single(m => m.SubscriberId == Subscriber2);
-        AssertPublishedEquals(UserMessage, acutal1);
+        var actual1 = messages.Single(m => m.SubscriberId == Subscriber1);
+        AssertPublishedEquals(SubscribedData, actual1);
+        var actual2 = messages.Single(m => m.SubscriberId == Subscriber2);
+        AssertPublishedEquals(SubscribedData, actual2);
 
         // Subscriber 3 isn't subscribed to Topic 1, so shouldn't have any messages.
         Assert.IsFalse(messages.Any(m => m.SubscriberId == Subscriber3));

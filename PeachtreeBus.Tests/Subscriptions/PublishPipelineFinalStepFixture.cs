@@ -27,7 +27,7 @@ public class PublishPipelineFinalStepFixture
 
 
     // stores the parameters to the AddMessage calls.
-    private SubscribedMessage? PublishedMessage;
+    private SubscribedData? PublishedMessage;
     private Topic? PublishedTopic;
     private long PublishResult = 1;
 
@@ -45,8 +45,8 @@ public class PublishPipelineFinalStepFixture
 
         clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
 
-        dataAccess.Setup(d => d.Publish(It.IsAny<SubscribedMessage>(), It.IsAny<Topic>()))
-            .Callback((SubscribedMessage m, Topic c) =>
+        dataAccess.Setup(d => d.Publish(It.IsAny<SubscribedData>(), It.IsAny<Topic>()))
+            .Callback((SubscribedData m, Topic c) =>
             {
                 PublishedMessage = m;
                 PublishedTopic = c;

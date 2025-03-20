@@ -32,7 +32,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task FailMessage_CantMutateFields()
         {
-            var testMessage1 = TestData.CreateSubscribedMessage();
+            var testMessage1 = TestData.CreateSubscribedData();
             await InsertSubscribedMessage(testMessage1);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -66,7 +66,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task FailMessage_DeletesFromPendingTable()
         {
-            var expected1 = TestData.CreateSubscribedMessage(
+            var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected1);
 
@@ -87,7 +87,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
             Assert.AreEqual(0, CountRowsInTable(SubscribedFailedTable));
 
-            var expected1 = TestData.CreateSubscribedMessage(
+            var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected1);
 

@@ -33,7 +33,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_DoesNotReturnDelayedMessage()
         {
             // Add one message;
-            var testMessage = TestData.CreateSubscribedMessage(
+            var testMessage = TestData.CreateSubscribedData(
                 notBefore: DateTime.UtcNow.AddHours(1));
             await InsertSubscribedMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
@@ -49,7 +49,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_DoesNotReturnLocked()
         {
             // Add one message;
-            var testMessage = TestData.CreateSubscribedMessage();
+            var testMessage = TestData.CreateSubscribedData();
             await InsertSubscribedMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -77,7 +77,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_DoesReturnDelayedAfterWait()
         {
             // Add one message;
-            var testMessage = TestData.CreateSubscribedMessage(
+            var testMessage = TestData.CreateSubscribedData(
                 notBefore: DateTime.UtcNow.AddMilliseconds(200));
             await InsertSubscribedMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
@@ -97,7 +97,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_GetsMessage()
         {
             // Add one message;
-            var testMessage = TestData.CreateSubscribedMessage();
+            var testMessage = TestData.CreateSubscribedData();
             await InsertSubscribedMessage(testMessage);
 
             await Task.Delay(10); // wait for the rows to be ready
@@ -115,9 +115,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_LocksTheMessage()
         {
             // Add two messages;
-            var testMessage1 = TestData.CreateSubscribedMessage();
+            var testMessage1 = TestData.CreateSubscribedData();
             await InsertSubscribedMessage(testMessage1);
-            var testMessage2 = TestData.CreateSubscribedMessage();
+            var testMessage2 = TestData.CreateSubscribedData();
             await InsertSubscribedMessage(testMessage2);
 
             await Task.Delay(10); // wait for the rows to be ready
@@ -156,13 +156,13 @@ namespace PeachtreeBus.DataAccessTests
         {
             var subscriber = SubscriberId.New();
 
-            var lowMessage = TestData.CreateSubscribedMessage(
+            var lowMessage = TestData.CreateSubscribedData(
                 priority: 1,
                 notBefore: DateTime.UtcNow.AddMinutes(-2),
                 subscriberId: subscriber);
             await InsertSubscribedMessage(lowMessage);
 
-            var highMessage = TestData.CreateSubscribedMessage(
+            var highMessage = TestData.CreateSubscribedData(
                 priority: 2,
                 notBefore: DateTime.UtcNow.AddMinutes(-1),
                 subscriberId: subscriber);

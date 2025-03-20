@@ -51,21 +51,21 @@ namespace PeachtreeBus.Management
         /// </summary>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<SubscribedMessage>> GetFailedSubscribedMessages(int skip, int take);
+        Task<List<SubscribedData>> GetFailedSubscribedMessages(int skip, int take);
 
         /// <summary>
         /// Retrieves a list of completed Subscribed messages, most recent messages first.
         /// </summary>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<SubscribedMessage>> GetCompletedSubscribedMessages(int skip, int take);
+        Task<List<SubscribedData>> GetCompletedSubscribedMessages(int skip, int take);
 
         /// <summary>
         /// Retrieves a list of completed Subscribed messages, most recent messages first.
         /// </summary>
         /// <param name="skip">Supports pagination.</param>
         /// <param name="take">Supports pagination.</param>
-        Task<List<SubscribedMessage>> GetPendingSubscribedMessages(int skip, int take);
+        Task<List<SubscribedData>> GetPendingSubscribedMessages(int skip, int take);
 
         /// <summary>
         /// Moves the specifed Subscribed message from Pending to Failed.

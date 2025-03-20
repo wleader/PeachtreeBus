@@ -28,7 +28,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
         private static readonly SubscriberId SubscriberId = new(Guid.Parse("5d7ece7e-b9eb-4b97-91fa-af6bfe50394a"));
 
-        private SubscribedMessage NextMessage = default!;
+        private SubscribedData NextMessage = default!;
         private Headers NextMessageHeaders = default!;
         private TestSagaMessage1 NextUserMessage = default!;
         private RetryResult RetryResult = default!;
@@ -58,7 +58,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 failures.Object,
                 retryStrategy.Object);
 
-            NextMessage = TestData.CreateSubscribedMessage(id: new(12345), priority: 24,
+            NextMessage = TestData.CreateSubscribedData(id: new(12345), priority: 24,
                 subscriberId: SubscriberId);
 
             dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
@@ -83,7 +83,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 .Returns(() => RetryResult);
 
             Context = TestData.CreateSubscribedContext(
-                messageData: TestData.CreateSubscribedMessage(id: new(1234), notBefore: clock.Object.UtcNow));
+                messageData: TestData.CreateSubscribedData(id: new(1234), notBefore: clock.Object.UtcNow));
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 .Returns(() => SerializedHeaderData);
 
             dataAccess.Setup(d => d.UpdateMessage(Context.Data))
-                .Callback((SubscribedMessage m) =>
+                .Callback((SubscribedData m) =>
                 {
                     Assert.AreEqual(expectedId, m.Id);
                     Assert.AreEqual(1, m.Retries);
@@ -142,7 +142,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 .Returns(() => SerializedHeaderData);
 
             dataAccess.Setup(d => d.FailMessage(Context.Data))
-                .Callback((SubscribedMessage m) =>
+                .Callback((SubscribedData m) =>
                 {
                     Assert.AreEqual(expectedId, m.Id);
                     Assert.AreEqual(SerializedHeaderData, m.Headers);
@@ -152,7 +152,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             counters.Verify(c => c.FailMessage(), Times.Once);
             serializer.Verify(s => s.SerializeHeaders(Context.InternalHeaders), Times.Once);
-            dataAccess.Verify(c => c.FailMessage(It.IsAny<SubscribedMessage>()), Times.Once);
+            dataAccess.Verify(c => c.FailMessage(It.IsAny<SubscribedData>()), Times.Once);
             Assert.AreEqual(1, dataAccess.Invocations.Count);
         }
 
@@ -167,7 +167,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var expectedMessageId = Context.Data.Id;
 
             dataAccess.Setup(d => d.CompleteMessage(Context.Data))
-                .Callback((SubscribedMessage m) =>
+                .Callback((SubscribedData m) =>
                 {
                     Assert.AreEqual(expectedMessageId, m.Id);
                     Assert.AreEqual(clock.Object.UtcNow, m.Completed);
@@ -184,7 +184,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task GetNext_ReturnsNull()
         {
             dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
-                .ReturnsAsync((SubscribedMessage?)null);
+                .ReturnsAsync((SubscribedData?)null);
             Assert.IsNull(await reader.GetNext(SubscriberId));
         }
 

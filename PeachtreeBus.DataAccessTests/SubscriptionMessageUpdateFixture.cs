@@ -35,10 +35,10 @@ namespace PeachtreeBus.DataAccessTests
         public async Task Update_UpdatesPendingTable()
         {
             // Add two messages;
-            var testMessage1 = TestData.CreateSubscribedMessage();
+            var testMessage1 = TestData.CreateSubscribedData();
             testMessage1.SubscriberId = SubscriberId.New();
             await InsertSubscribedMessage(testMessage1);
-            var testMessage2 = TestData.CreateSubscribedMessage();
+            var testMessage2 = TestData.CreateSubscribedData();
             testMessage2.SubscriberId = SubscriberId.New();
             await InsertSubscribedMessage(testMessage2);
             await Task.Delay(10); // wait for the rows to be ready

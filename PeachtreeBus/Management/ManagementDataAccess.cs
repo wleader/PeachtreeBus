@@ -86,19 +86,19 @@ namespace PeachtreeBus.Management
             return GetMessages<QueueData>(QueueFields, queueName, Pending, skip, take);
         }
 
-        public Task<List<SubscribedMessage>> GetFailedSubscribedMessages(int skip, int take)
+        public Task<List<SubscribedData>> GetFailedSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedMessage>(SubscribedFields, Subscribed, Failed, skip, take);
+            return GetMessages<SubscribedData>(SubscribedFields, Subscribed, Failed, skip, take);
         }
 
-        public Task<List<SubscribedMessage>> GetCompletedSubscribedMessages(int skip, int take)
+        public Task<List<SubscribedData>> GetCompletedSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedMessage>(SubscribedFields, Subscribed, Completed, skip, take);
+            return GetMessages<SubscribedData>(SubscribedFields, Subscribed, Completed, skip, take);
         }
 
-        public Task<List<SubscribedMessage>> GetPendingSubscribedMessages(int skip, int take)
+        public Task<List<SubscribedData>> GetPendingSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedMessage>(SubscribedFields, Subscribed, Pending, skip, take);
+            return GetMessages<SubscribedData>(SubscribedFields, Subscribed, Pending, skip, take);
         }
 
         public async Task CancelPendingQueueMessage(QueueName queueName, Identity id)

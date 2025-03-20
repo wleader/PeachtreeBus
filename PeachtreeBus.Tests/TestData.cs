@@ -54,7 +54,7 @@ public static class TestData
         };
     }
 
-    public static SubscribedMessage CreateSubscribedMessage(
+    public static SubscribedData CreateSubscribedData(
         Identity? id = null,
         SubscriberId? subscriberId = null,
         UniqueIdentity? messageId = null,
@@ -116,11 +116,11 @@ public static class TestData
 
     public static SubscribedContext CreateSubscribedContext(
         object? userMessage = null,
-        SubscribedMessage? messageData = null,
+        SubscribedData? messageData = null,
         Headers? headers = null)
     {
         userMessage ??= CreateQueueUserMessage();
-        messageData ??= CreateSubscribedMessage();
+        messageData ??= CreateSubscribedData();
         headers ??= CreateHeaders(userMessage);
         return new()
         {

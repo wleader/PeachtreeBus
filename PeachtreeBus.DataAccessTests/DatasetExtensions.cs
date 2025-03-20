@@ -45,7 +45,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="dataSet"></param>
         /// <returns></returns>
-        public static List<SubscribedMessage> ToSubscribed(this DataSet dataSet)
+        public static List<SubscribedData> ToSubscribed(this DataSet dataSet)
         {
             return dataSet.ToType(ToSubscribedRow);
         }
@@ -130,9 +130,9 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public static SubscribedMessage ToSubscribedRow(this DataRow row)
+        public static SubscribedData ToSubscribedRow(this DataRow row)
         {
-            return new SubscribedMessage
+            return new SubscribedData
             {
                 Body = new((string)row["Body"]),
                 Completed = row.ToDateTimeNullable("Completed"),

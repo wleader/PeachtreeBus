@@ -271,7 +271,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="expected"></param>
         /// <param name="actual"></param>
-        protected void AssertSubscribedEquals(SubscribedMessage expected, SubscribedMessage actual)
+        protected void AssertSubscribedEquals(SubscribedData expected, SubscribedData actual)
         {
             Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
             Assert.IsNotNull(actual, "Actual is null, expected is not.");
@@ -289,7 +289,7 @@ namespace PeachtreeBus.DataAccessTests
             AssertSqlDbDateTime(expected.ValidUntil, actual.ValidUntil);
         }
 
-        protected void AssertPublishedEquals(SubscribedMessage expected, SubscribedMessage actual)
+        protected void AssertPublishedEquals(SubscribedData expected, SubscribedData actual)
         {
             Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
             Assert.IsNotNull(actual, "Actual is null, expected is not.");
@@ -354,7 +354,7 @@ namespace PeachtreeBus.DataAccessTests
             };
         }
 
-        protected async Task InsertSubscribedMessage(SubscribedMessage message)
+        protected async Task InsertSubscribedMessage(SubscribedData message)
         {
             const string EnqueueMessageStatement =
                 """
@@ -382,8 +382,8 @@ namespace PeachtreeBus.DataAccessTests
         }
 
         protected List<SubscriptionsRow> GetSubscriptions() => GetTableContent(SubscriptionsTable).ToSubscriptions();
-        protected List<SubscribedMessage> GetSubscribedPending() => GetTableContent(SubscribedPendingTable).ToSubscribed();
-        protected List<SubscribedMessage> GetSubscribedFailed() => GetTableContent(SubscribedFailedTable).ToSubscribed();
-        protected List<SubscribedMessage> GetSubscribedCompleted() => GetTableContent(SubscribedCompletedTable).ToSubscribed();
+        protected List<SubscribedData> GetSubscribedPending() => GetTableContent(SubscribedPendingTable).ToSubscribed();
+        protected List<SubscribedData> GetSubscribedFailed() => GetTableContent(SubscribedFailedTable).ToSubscribed();
+        protected List<SubscribedData> GetSubscribedCompleted() => GetTableContent(SubscribedCompletedTable).ToSubscribed();
     }
 }

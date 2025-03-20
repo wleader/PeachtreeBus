@@ -34,11 +34,11 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
             Assert.AreEqual(0, CountRowsInTable(SubscribedFailedTable));
 
-            var expected1 = TestData.CreateSubscribedMessage(
+            var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected1);
 
-            var expected2 = TestData.CreateSubscribedMessage(
+            var expected2 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected2);
 
@@ -66,11 +66,11 @@ namespace PeachtreeBus.DataAccessTests
         public async Task ExpireMessages_DeletesFromPending()
         {
 
-            var expected1 = TestData.CreateSubscribedMessage(
+            var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected1);
 
-            var expected2 = TestData.CreateSubscribedMessage(
+            var expected2 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected2);
 
@@ -84,11 +84,11 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task ExpireMessage_LimitsToMaxCount()
         {
-            var expected1 = TestData.CreateSubscribedMessage(
+            var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected1);
 
-            var expected2 = TestData.CreateSubscribedMessage(
+            var expected2 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected2);
 

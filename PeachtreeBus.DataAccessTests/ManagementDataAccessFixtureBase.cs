@@ -32,22 +32,22 @@ namespace PeachtreeBus.DataAccessTests
             return new ManagementDataAccess(SharedDB, Configuration.Object, MockLog.Object);
         }
 
-        protected async Task<SubscribedMessage> CreatePendingSubscribed()
+        protected async Task<SubscribedData> CreatePendingSubscribed()
         {
-            var message = TestData.CreateSubscribedMessage();
+            var message = TestData.CreateSubscribedData();
             await InsertSubscribedMessage(message);
             await Task.Delay(10); // make sure that messages get sequential enqueued times.
             return message;
         }
 
-        protected async Task<SubscribedMessage> CreateFailedSubscribed()
+        protected async Task<SubscribedData> CreateFailedSubscribed()
         {
             var message = await CreatePendingSubscribed();
             await BusAccess.FailMessage(message);
             return message;
         }
 
-        protected async Task<SubscribedMessage> CreateCompletedSubscribed()
+        protected async Task<SubscribedData> CreateCompletedSubscribed()
         {
             var message = await CreatePendingSubscribed();
             await BusAccess.CompleteMessage(message);
