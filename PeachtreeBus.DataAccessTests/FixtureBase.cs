@@ -296,7 +296,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsNotNull(expected, "Expected is null, actual is not.");
             Assert.AreEqual(expected.Headers, actual.Headers);
             AssertSqlDbDateTime(expected.NotBefore, actual.NotBefore);
-            Assert.AreEqual(expected.Id, actual.Id);
+            // Do not assert the actual.Id as it is database generated.
             Assert.AreEqual(expected.Body, actual.Body);
             AssertSqlDbDateTime(expected.Completed, actual.Completed);
             AssertSqlDbDateTime(expected.Enqueued, actual.Enqueued);
