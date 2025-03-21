@@ -10,9 +10,9 @@ public abstract class BaseConfiguration
 {
     public bool UseDefaultFailedHandler { get; init; } = true;
     public bool UseDefaultRetryStrategy { get; init; } = true;
-    public bool CleanCompleted { get; init; } = true;
-    public TimeSpan CleanCompleteAge { get; init; } = TimeSpan.FromDays(1);
-    public bool CleanFailed { get; init; } = true;
+    public bool CleanCompleted { get; set; } = true;
+    public TimeSpan CleanCompleteAge { get; set; } = TimeSpan.FromDays(1);
+    public bool CleanFailed { get; set; } = true;
     public TimeSpan CleanFailedAge { get; set; } = TimeSpan.FromDays(7);
     public TimeSpan CleanInterval { get; set; } = TimeSpan.FromMinutes(5);
     public int CleanMaxRows { get; set; } = 100;
@@ -26,7 +26,7 @@ public class QueueConfiguration : BaseConfiguration
 public class SubscriptionConfiguration : BaseConfiguration
 {
     public required SubscriberId SubscriberId { get; init; }
-    public required IList<Topic> Topics { get; init; }
+    public required List<Topic> Topics { get; init; }
     public TimeSpan Lifespan { get; set; } = TimeSpan.FromHours(1);
 }
 
