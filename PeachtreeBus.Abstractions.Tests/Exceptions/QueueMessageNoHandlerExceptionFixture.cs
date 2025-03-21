@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests.Sagas;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
@@ -14,7 +13,7 @@ public class QueueMessageNoHandlerExceptionFixture
     {
         var expectedMessageId = UniqueIdentity.New();
         var expectedQueueName = new QueueName("TestQueue");
-        var expectedType = typeof(TestSagaMessage1);
+        var expectedType = typeof(AbstractionsTestData.TestQueuedMessage);
         var e = new QueueMessageNoHandlerException(
             expectedMessageId, expectedQueueName, expectedType);
         Assert.AreEqual(expectedMessageId, e.MessageId);

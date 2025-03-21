@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Abstractions.Tests.Sagas;
+namespace PeachtreeBus.Tests.Sagas;
 
 /// <summary>
 /// A message for unit tests

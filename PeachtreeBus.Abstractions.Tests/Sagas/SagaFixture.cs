@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Sagas;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PeachtreeBus.Abstractions.Tests.Sagas;
 
@@ -12,6 +13,7 @@ public class SagaFixture
     {
         public override SagaName SagaName => new("TestSaga");
 
+        [ExcludeFromCodeCoverage]
         public override void ConfigureMessageKeys(ISagaMessageMap mapper)
         {
             throw new System.NotImplementedException();
