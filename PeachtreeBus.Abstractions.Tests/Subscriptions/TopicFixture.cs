@@ -2,7 +2,7 @@
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
 
-namespace PeachtreeBus.Tests.Sagas;
+namespace PeachtreeBus.Absractions.Tests.Subscriptions;
 
 [TestClass]
 public class TopicFixture

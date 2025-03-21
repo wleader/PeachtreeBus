@@ -3,7 +3,7 @@ using PeachtreeBus.Data;
 using System;
 using System.Text.Json;
 
-namespace PeachtreeBus.Interfaces.Tests.Data;
+namespace PeachtreeBus.Absractions.Tests.Data;
 
 [TestClass]
 public class UtcDateTimeFixture
@@ -26,5 +26,27 @@ public class UtcDateTimeFixture
         var actual = JsonSerializer.Deserialize<UtcDateTime>(serialized);
         Assert.AreEqual(expectedJson, serialized);
         Assert.AreEqual(expected, actual);
+    }
+
+    [TestMethod]
+    public void When_ImplicitCast_Then_Result()
+    {
+        var expected = DateTime.UtcNow;
+        UtcDateTime actual = expected;
+        DateTime actual2 = actual;
+
+        Assert.AreEqual(expected, actual.Value);
+        Assert.AreEqual(actual2, actual.Value);
+    }
+
+    [TestMethod]
+    public void Given_Value_When_Add_Then_Result()
+    {
+        var original = DateTime.UtcNow;
+        UtcDateTime utcOriginal = original;
+        Assert.AreEqual(original.AddMinutes(1), utcOriginal.AddMinutes(1).Value);
+        Assert.AreEqual(original.AddHours(1), utcOriginal.AddHours(1).Value);
+        Assert.AreEqual(original.AddMilliseconds(1), utcOriginal.AddMilliseconds(1).Value);
+        Assert.AreEqual(original.AddDays(1), utcOriginal.AddDays(1).Value);
     }
 }

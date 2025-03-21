@@ -2,7 +2,7 @@
 using PeachtreeBus.Exceptions;
 using System;
 
-namespace PeachtreeBus.Interfaces.Tests.Exceptions
+namespace PeachtreeBus.Absractions.Tests.Exceptions
 {
     [TestClass]
     public class IncorrectImplementationExceptionFixture

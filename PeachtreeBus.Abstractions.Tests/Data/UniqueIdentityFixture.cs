@@ -3,7 +3,7 @@ using PeachtreeBus.Data;
 using System;
 using System.Text.Json;
 
-namespace PeachtreeBus.Interfaces.Tests.Data;
+namespace PeachtreeBus.Absractions.Tests.Data;
 
 [TestClass]
 public class UniqueIdentityFixture
@@ -33,6 +33,33 @@ public class UniqueIdentityFixture
         var serialized = JsonSerializer.Serialize(expected);
         var actual = JsonSerializer.Deserialize<UniqueIdentity>(serialized);
         Assert.AreEqual(expectedJson, serialized);
+        Assert.AreEqual(expected, actual);
+    }
+
+    [TestMethod]
+    public void Then_EmptyIsGuidEmpty()
+    {
+        Assert.AreEqual(Guid.Empty, UniqueIdentity.Empty.Value);
+    }
+
+    [TestMethod]
+    public void When_New_Then_Result()
+    {
+        Assert.AreNotEqual(Guid.Empty, UniqueIdentity.New().Value);
+    }
+
+    [TestMethod]
+    public void Given_Invalid_When_RequireValid_Then_Throws()
+    {
+        Assert.ThrowsException<UniqueIdentityException>(
+            () => UniqueIdentity.Empty.RequireValid());
+    }
+
+    [TestMethod]
+    public void GivenValid_When_RequireValid_Then_Returns()
+    {
+        var expected = UniqueIdentity.New();
+        var actual = expected.RequireValid();
         Assert.AreEqual(expected, actual);
     }
 }

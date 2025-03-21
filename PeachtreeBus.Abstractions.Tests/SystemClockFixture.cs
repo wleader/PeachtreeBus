@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace PeachtreeBus.Tests;
+namespace PeachtreeBus.Absractions.Tests;
 
 [TestClass]
 public class SystemClockFixture

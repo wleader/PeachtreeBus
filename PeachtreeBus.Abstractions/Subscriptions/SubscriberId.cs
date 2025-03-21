@@ -1,7 +1,7 @@
-﻿using System;
-using System.Text.Json.Serialization;
-using PeachtreeBus.Exceptions;
+﻿using PeachtreeBus.Exceptions;
 using PeachtreeBus.Serialization;
+using System;
+using System.Text.Json.Serialization;
 
 namespace PeachtreeBus.Subscriptions;
 
@@ -9,14 +9,21 @@ namespace PeachtreeBus.Subscriptions;
 public readonly record struct SubscriberId
 {
     public Guid Value { get; }
-    public SubscriberId(Guid value)
+
+    public SubscriberId(Guid value) : this(value, true) { }
+
+    private SubscriberId(Guid value, bool validate)
     {
-        SubscriberIdException.ThrowIfInvalid(value);
+        if (validate)
+            SubscriberIdException.ThrowIfInvalid(value);
         Value = value;
     }
+
     public override string ToString() => Value.ToString();
 
     public static SubscriberId New() => new(Guid.NewGuid());
+
+    public static SubscriberId Invalid { get; } = new(Guid.Empty, false);
 
     public class SubscriberIdJsonConverter()
         : PeachtreeBusJsonConverter<SubscriberId, Guid>(v => new(v), v => v.Value);

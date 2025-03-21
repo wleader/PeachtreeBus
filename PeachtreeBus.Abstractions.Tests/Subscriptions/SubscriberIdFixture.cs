@@ -2,7 +2,7 @@
 using PeachtreeBus.Subscriptions;
 using System;
 
-namespace PeachtreeBus.Tests.Subscriptions;
+namespace PeachtreeBus.Absractions.Tests.Subscriptions;
 
 [TestClass]
 public class SubscriberIdFixture
@@ -23,5 +23,18 @@ public class SubscriberIdFixture
             new SubscriberId(Guid.Empty));
     }
 
+    [TestMethod]
+    public void Given_Invalid_When_RequireValid_Then_Throws()
+    {
+        Assert.ThrowsException<SubscriberIdException>(
+            () => SubscriberId.Invalid.RequreValid());
+    }
 
+    [TestMethod]
+    public void Given_Valid_When_RequireValid_Then_Returns()
+    {
+        var expected = SubscriberId.New();
+        var actual = expected.RequreValid();
+        Assert.AreEqual(expected, actual);
+    }
 }
