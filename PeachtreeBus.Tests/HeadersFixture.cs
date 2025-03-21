@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Tests.Sagas;
+using PeachtreeBus.Abstractions.Tests.Sagas;
 
 namespace PeachtreeBus.Tests;
 

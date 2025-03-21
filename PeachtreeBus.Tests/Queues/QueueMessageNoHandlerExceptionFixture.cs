@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Abstractions.Tests.Sagas;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Tests.Sagas;
 
 namespace PeachtreeBus.Tests.Queues;
 
