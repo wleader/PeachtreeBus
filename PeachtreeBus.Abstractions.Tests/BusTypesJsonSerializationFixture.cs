@@ -6,7 +6,7 @@ using PeachtreeBus.Subscriptions;
 using System;
 using System.Text.Json;
 
-namespace PeachtreeBus.Absractions.Tests;
+namespace PeachtreeBus.Abstractions.Tests;
 
 [TestClass]
 public class BusTypesJsonSerializationFixture

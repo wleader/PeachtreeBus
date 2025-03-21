@@ -48,7 +48,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.SimpleInjector
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Abstractions", "PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj", "{B58BB001-7941-4FD1-B241-9A4FBC4C2F69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Absractions.Tests", "PeachtreeBus.Abstractions.Tests\PeachtreeBus.Absractions.Tests.csproj", "{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Abstractions.Tests", "PeachtreeBus.Abstractions.Tests\PeachtreeBus.Abstractions.Tests.csproj", "{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

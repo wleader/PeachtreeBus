@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Sagas;
 
-namespace PeachtreeBus.Absractions.Tests.Sagas;
+namespace PeachtreeBus.Abstractions.Tests.Sagas;
 
 [TestClass]
 public class SagaKeyFixture

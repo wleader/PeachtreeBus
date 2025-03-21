@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Sagas;
 
-namespace PeachtreeBus.Absractions.Tests.Sagas;
+namespace PeachtreeBus.Abstractions.Tests.Sagas;
 
 [TestClass]
 public class SagaFixture
@@ -50,6 +50,7 @@ public class SagaFixture
     public void Given_Saga_Then_SagaCompleteIsReadWrite()
     {
         var saga = new TestSaga();
+        Assert.IsFalse(saga.SagaComplete);
         saga.SagaComplete = true;
         Assert.IsTrue(saga.SagaComplete);
         saga.SagaComplete = false;

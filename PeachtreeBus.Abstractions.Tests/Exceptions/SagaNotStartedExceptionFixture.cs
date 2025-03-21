@@ -1,10 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Abstractions.Tests.Sagas;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 
-namespace PeachtreeBus.Tests.Sagas;
+namespace PeachtreeBus.Abstractions.Tests.Exceptions;
 
 [TestClass]
 public class SagaNotStartedExceptionFixture

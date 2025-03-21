@@ -2,7 +2,7 @@
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Sagas;
 
-namespace PeachtreeBus.Absractions.Tests.Sagas;
+namespace PeachtreeBus.Abstractions.Tests.Sagas;
 
 [TestClass]
 public class SagaNameFixture

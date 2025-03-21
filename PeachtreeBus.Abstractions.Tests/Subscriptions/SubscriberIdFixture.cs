@@ -2,7 +2,7 @@
 using PeachtreeBus.Subscriptions;
 using System;
 
-namespace PeachtreeBus.Absractions.Tests.Subscriptions;
+namespace PeachtreeBus.Abstractions.Tests.Subscriptions;
 
 [TestClass]
 public class SubscriberIdFixture

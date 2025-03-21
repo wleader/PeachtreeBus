@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Absractions.Tests;
+using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 
-namespace PeachtreeBus.Absractions.Tests.Data;
+namespace PeachtreeBus.Abstractions.Tests.Data;
 
 [TestClass]
 public class SchemaNameFixture

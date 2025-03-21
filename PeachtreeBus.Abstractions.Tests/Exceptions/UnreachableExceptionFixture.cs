@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Exceptions;
 
-namespace PeachtreeBus.Absractions.Tests.Exceptions;
+namespace PeachtreeBus.Abstractions.Tests.Exceptions;
 
 [TestClass]
 public class UnreachableExceptionFixture

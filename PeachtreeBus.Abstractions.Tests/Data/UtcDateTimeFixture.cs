@@ -3,7 +3,7 @@ using PeachtreeBus.Data;
 using System;
 using System.Text.Json;
 
-namespace PeachtreeBus.Absractions.Tests.Data;
+namespace PeachtreeBus.Abstractions.Tests.Data;
 
 [TestClass]
 public class UtcDateTimeFixture

@@ -2,7 +2,7 @@
 using PeachtreeBus.Exceptions;
 using System;
 
-namespace PeachtreeBus.Absractions.Tests;
+namespace PeachtreeBus.Abstractions.Tests;
 
 public static class TestHelpers
 {

@@ -2,7 +2,7 @@
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 
-namespace PeachtreeBus.Absractions.Tests.Queues;
+namespace PeachtreeBus.Abstractions.Tests.Queues;
 
 [TestClass]
 public class QueueNameFixture
