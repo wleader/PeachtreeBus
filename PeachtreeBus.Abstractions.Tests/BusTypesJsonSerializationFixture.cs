@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
@@ -21,6 +22,7 @@ public class BusTypesJsonSerializationFixture
         public SchemaName SchemaName { get; set; }
         public QueueName QueueName { get; set; }
         public SagaName SagaName { get; set; }
+        public FailureCount FailureCount { get; set; }
     }
 
 
@@ -37,6 +39,7 @@ public class BusTypesJsonSerializationFixture
             SchemaName = new("Faz"),
             QueueName = new("Far"),
             SagaName = new("Boo"),
+            FailureCount = new(5),
         };
 
         var serialized = JsonSerializer.Serialize(expected);
@@ -51,5 +54,6 @@ public class BusTypesJsonSerializationFixture
         Assert.AreEqual(expected.SchemaName, actual.SchemaName);
         Assert.AreEqual(expected.QueueName, actual.QueueName);
         Assert.AreEqual(expected.SagaName, actual.SagaName);
+        Assert.AreEqual(expected.FailureCount, actual.FailureCount);
     }
 }

@@ -11,7 +11,7 @@ public abstract class DefaultRetryStrategy<TContext> : IRetryStrategy<TContext>
 {
     public int MaxRetries { get; set; } = 5;
 
-    public RetryResult DetermineRetry(TContext context, Exception exception, int failureCount)
+    public RetryResult DetermineRetry(TContext context, Exception exception, FailureCount failureCount)
     {
         return new(
             failureCount < MaxRetries,

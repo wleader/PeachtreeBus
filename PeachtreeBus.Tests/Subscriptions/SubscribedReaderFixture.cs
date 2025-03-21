@@ -79,7 +79,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
                 .Returns(() => SerializedHeaderData);
 
-            retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<SubscribedContext>(), It.IsAny<Exception>(), It.IsAny<int>()))
+            retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<SubscribedContext>(), It.IsAny<Exception>(), It.IsAny<FailureCount>()))
                 .Returns(() => RetryResult);
 
             Context = TestData.CreateSubscribedContext(

@@ -29,8 +29,6 @@ public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
     /// retry system. Users that need something more sophiticated could make their own.
     /// </summary>
     [TestMethod]
-    [DataRow(5, -1, true, -5)]
-    [DataRow(5, 0, true, 0)]
     [DataRow(5, 1, true, 5)]
     [DataRow(5, 2, true, 10)]
     [DataRow(5, 3, true, 15)]
@@ -44,7 +42,7 @@ public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
         TestSubject.MaxRetries = maxRetries;
         Assert.AreEqual(maxRetries, TestSubject.MaxRetries);
 
-        var result = TestSubject.DetermineRetry(Context, exception, failureCount);
+        var result = TestSubject.DetermineRetry(Context, exception, new(failureCount));
         Assert.AreEqual(expectRetry, result.ShouldRetry);
         Assert.AreEqual(delaySeconds, result.Delay.TotalSeconds);
     }

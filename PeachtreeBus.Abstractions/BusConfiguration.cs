@@ -32,7 +32,7 @@ public class SubscriptionConfiguration : BaseConfiguration
 
 public class PublishConfiguration
 {
-    public TimeSpan Lifespan { get; init; } = TimeSpan.FromDays(1);
+    public TimeSpan Lifespan { get; set; } = TimeSpan.FromDays(1);
 }
 
 public interface IBusConfiguration

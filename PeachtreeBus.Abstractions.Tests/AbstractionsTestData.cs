@@ -27,24 +27,5 @@ public static class AbstractionsTestData
     };
 
     public static readonly SubscriberId UnintializedSubscriberId = (SubscriberId)RuntimeHelpers.GetUninitializedObject(typeof(SubscriberId));
-    public static TestQueuedMessage CreateQueueUserMessage() => new();
-    public static TestSubscribedMessage CreateSubscribedUserMessage() => new();
 
-    public static BusConfiguration CreateBusConfiguration()
-    {
-        return new()
-        {
-            ConnectionString = "Server=(local);Database=db",
-            Schema = new("PeachtreeBus"),
-            QueueConfiguration = new()
-            {
-                QueueName = DefaultQueueName,
-            },
-            SubscriptionConfiguration = new()
-            {
-                SubscriberId = DefaultSubscriberId,
-                Topics = [DefaultTopic, DefaultTopic2]
-            }
-        };
-    }
 }
