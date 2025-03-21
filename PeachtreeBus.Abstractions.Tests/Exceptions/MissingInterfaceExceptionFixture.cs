@@ -3,7 +3,7 @@ using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 
-namespace PeachtreeBus.Tests;
+namespace PeachtreeBus.Abstractions.Tests.Exceptions;
 
 [TestClass]
 public class TypeIsNotIQueueMessageExceptionFixture
@@ -22,6 +22,13 @@ public class TypeIsNotIQueueMessageExceptionFixture
     {
         Assert.ThrowsException<TypeIsNotIQueueMessageException>(() =>
             TypeIsNotIQueueMessageException.ThrowIfMissingInterface(typeof(object)));
+    }
+
+    [TestMethod]
+    public void Given_ClassWithInterface_When_ThrowIf_Then_Returns()
+    {
+        TypeIsNotIQueueMessageException.ThrowIfMissingInterface(
+            typeof(AbstractionsTestData.TestQueuedMessage));
     }
 }
 
@@ -42,5 +49,12 @@ public class TypeIsNotISubscribedMessageExceptionFixture
     {
         Assert.ThrowsException<TypeIsNotISubscribedMessageException>(() =>
             TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(typeof(object)));
+    }
+
+    [TestMethod]
+    public void Given_ClassWithInterface_When_ThrowIf_Then_Returns()
+    {
+        TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(
+            typeof(AbstractionsTestData.TestSubscribedMessage));
     }
 }

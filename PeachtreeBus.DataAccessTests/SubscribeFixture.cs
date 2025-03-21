@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests;
 using System;

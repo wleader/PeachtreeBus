@@ -3,7 +3,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
 
-namespace PeachtreeBus.Tests.Subscriptions;
+namespace PeachtreeBus.Abstractions.Tests.Exceptions;
 
 [TestClass]
 public class SubscribedMessageClassNotRecognizedExceptionFixture
