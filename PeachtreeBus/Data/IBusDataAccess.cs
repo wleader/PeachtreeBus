@@ -53,6 +53,13 @@ namespace PeachtreeBus.Data
         Task<QueueData?> GetPendingQueued(QueueName queueName);
 
         /// <summary>
+        /// Attempts to count the number of pending messages in a queue.
+        /// </summary>
+        /// <param name="queueName"></param>
+        /// <returns></returns>
+        Task<long> EstimateQueuePending(QueueName queueName);
+
+        /// <summary>
         /// Inserts a new message into the database.
         /// </summary>
         /// <param name="message">The message to insert.</param>
@@ -126,6 +133,13 @@ namespace PeachtreeBus.Data
         /// <param name="queueId">Which message queue to get the message from.</param>
         /// <returns></returns>
         Task<SubscribedData?> GetPendingSubscribed(SubscriberId subscriberId);
+
+        /// <summary>
+        /// Attempts to count the number of pending subscribed messages for a subscriber.
+        /// </summary>
+        /// <param name="subscriberId"></param>
+        /// <returns></returns>
+        Task<long> EstimateSubscribedPending(SubscriberId subscriberId);
 
         /// <summary>
         /// Adds a Subscribed message for each subscriber of the topic.

@@ -85,7 +85,7 @@ namespace PeachtreeBus.Data
             const string GetOnePendingMessageStatement =
                 """
                 SELECT TOP 1 [Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
-                FROM[{0}].[{1}_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
+                FROM [{0}].[{1}_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
                 WHERE NotBefore < SYSUTCDATETIME()
                 ORDER BY [Priority] DESC
                 """;
@@ -94,6 +94,27 @@ namespace PeachtreeBus.Data
 
             return await LogIfError(
                 _database.Connection.QueryFirstOrDefaultAsync<QueueData>(query, transaction: _database.Transaction));
+        }
+
+        /// <inheritdoc/>
+        public async Task<long> EstimateQueuePending(QueueName queueName)
+        {
+            // Gets the max and min IDs and does a diff on them.
+            // It doesn't check that all the rows between those values
+            // have a not-before less than now.
+            // If there are rows in between the max and the min where the 
+            // not before is in the future, this will over-estimate.
+            // It is ok to over-estimate.
+            const string EstimateQueuedStatement =
+                """
+                SELECT ISNULL(CAST(MAX(Id) - MIN([Id]) + 1 AS BIGINT), 0)
+                FROM [{0}].[{1}_Pending] WITH (READPAST, READCOMMITTEDLOCK)
+                WHERE NotBefore < SYSUTCDATETIME()
+                """;
+            var query = string.Format(EstimateQueuedStatement, _configuration.Schema, queueName);
+
+            return await LogIfError(
+                _database.Connection.ExecuteScalarAsync<long>(query, transaction: _database.Transaction));
         }
 
         /// <summary>
@@ -417,7 +438,7 @@ namespace PeachtreeBus.Data
             const string statement =
                 """
                 SELECT TOP 1 [Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
-                    FROM[{0}].[Subscribed_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
+                    FROM [{0}].[Subscribed_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
                     WHERE NotBefore < SYSUTCDATETIME()
                     AND SubscriberId = @SubscriberId
                     ORDER BY [Priority] DESC
@@ -430,6 +451,28 @@ namespace PeachtreeBus.Data
 
             return await LogIfError(
                 _database.Connection.QueryFirstOrDefaultAsync<SubscribedData>(query, p, _database.Transaction));
+        }
+
+        /// <inheritdoc/>
+        public async Task<long> EstimateSubscribedPending(SubscriberId subscriberId)
+        {
+            // this table has an index that works well for this
+            // and the volume of susbcribed messages is expected to be lower than
+            // for queued, so an actual count is feasable here.
+            const string EstimateQueuedStatement =
+                """
+                SELECT COUNT(*)
+                FROM [{0}].[Subscribed_Pending] WITH (READPAST, READCOMMITTEDLOCK)
+                WHERE SubscriberId = @SubscriberId
+                AND NotBefore < SYSUTCDATETIME()
+                """;
+            var query = string.Format(EstimateQueuedStatement, _configuration.Schema);
+
+            var p = new DynamicParameters();
+            p.Add("@SubscriberId", subscriberId);
+
+            return await LogIfError(
+                _database.Connection.ExecuteScalarAsync<long>(query, p, transaction: _database.Transaction));
         }
 
         public async Task<long> Publish(SubscribedData message, Topic topic)
