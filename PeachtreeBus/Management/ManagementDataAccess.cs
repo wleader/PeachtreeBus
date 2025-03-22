@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
@@ -36,19 +35,6 @@ namespace PeachtreeBus.Management
         private static readonly TableName Completed = new("Completed");
         private static readonly TableName Pending = new("Pending");
         private static readonly QueueName Subscribed = new("Subscribed");
-
-        private readonly record struct TableName
-        {
-            public string Value { get; }
-            public TableName(string value)
-            {
-                DbSafeNameException.ThrowIfNotSafe(value, nameof(TableName));
-                Value = value;
-            }
-
-            public override string ToString() => Value
-                ?? throw new NotInitializedException(typeof(TableName));
-        }
 
         private async Task<List<T>> GetMessages<T>(string fields, QueueName queueName, TableName table, int skip, int take)
         {
