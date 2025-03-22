@@ -58,7 +58,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the error table.
-            var pending = GetTableContent(QueuePendingTable).ToMessages();
+            var pending = GetTableContent(QueuePending).ToMessages();
             Assert.AreEqual(2, pending.Count);
 
             var expectUnchanged = toUpdate.Id == testMessage1.Id ? testMessage2 : testMessage1;

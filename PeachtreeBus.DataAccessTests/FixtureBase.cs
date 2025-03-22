@@ -18,7 +18,7 @@ namespace PeachtreeBus.DataAccessTests
     /// <summary>
     /// A base class that contains code useful in multiple tests.
     /// </summary>
-    public abstract class FixtureBase<TAccess>
+    public abstract class FixtureBase<TAccess> : TestConfig
     {
         /// <summary>
         /// A DB Connection provided to the DapperDataAccess.
@@ -47,19 +47,7 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         protected Mock<ILogger<TAccess>> MockLog = default!;
 
-        protected readonly SchemaName DefaultSchema = new("PeachtreeBus");
-        protected const string DefaultQueueStr = "QueueName";
-        protected readonly QueueName DefaultQueue = new(DefaultQueueStr);
-        protected const string QueuePendingTable = DefaultQueueStr + "_Pending";
-        protected const string QueueCompletedTable = DefaultQueueStr + "_Completed";
-        protected const string QueueFailedTable = DefaultQueueStr + "_Failed";
-        protected const string DefaultSagaNameStr = "SagaName";
-        protected readonly SagaName DefaultSagaName = new(DefaultSagaNameStr);
-        protected const string DefaultSagaTable = DefaultSagaNameStr + "_SagaData";
-        protected const string SubscriptionsTable = "Subscriptions";
-        protected const string SubscribedPendingTable = "Subscribed_Pending";
-        protected const string SubscribedFailedTable = "Subscribed_Failed";
-        protected const string SubscribedCompletedTable = "Subscribed_Completed";
+
 
         /// <summary>
         /// Performs tasks that happen before each test.
@@ -67,16 +55,16 @@ namespace PeachtreeBus.DataAccessTests
         public virtual void TestInitialize()
         {
             // Create connections.
-            PrimaryConnection = new SqlConnectionProxy(AssemblyInitialize.DbConnectionString);
+            PrimaryConnection = new SqlConnectionProxy(DbConnectionString);
 
-            SecondaryConnection = new SqlConnectionProxy(AssemblyInitialize.DbConnectionString);
+            SecondaryConnection = new SqlConnectionProxy(DbConnectionString);
             SecondaryConnection.Open();
 
             // create the data access object.
             _connectionFactory.Setup(f => f.GetConnection()).Returns(() =>
             {
                 if (PrimaryConnection.Disposed)
-                    PrimaryConnection = new SqlConnectionProxy(AssemblyInitialize.DbConnectionString);
+                    PrimaryConnection = new SqlConnectionProxy(DbConnectionString);
                 return PrimaryConnection;
             });
             SharedDB = new SharedDatabase(_connectionFactory.Object);
@@ -155,11 +143,11 @@ namespace PeachtreeBus.DataAccessTests
         /// <summary>
         /// Uses the secondary connection to count the rows in a table.
         /// </summary>
-        /// <param name="tablename"></param>
+        /// <param name="table"></param>
         /// <returns></returns>
-        protected int CountRowsInTable(string tablename)
+        protected int CountRowsInTable(TableName table)
         {
-            string statment = $"SELECT COUNT(*) FROM [{DefaultSchema}].[{tablename}]";
+            string statment = $"SELECT COUNT(*) FROM [{DefaultSchema}].[{table}]";
             using var cmd = new SqlCommand(statment, SecondaryConnection.Connection, transaction?.Transaction);
             return (int)cmd.ExecuteScalar();
         }
@@ -170,14 +158,14 @@ namespace PeachtreeBus.DataAccessTests
         protected void TruncateAll()
         {
             string statement =
-                $"TRUNCATE TABLE [{DefaultSchema}].[{QueueCompletedTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{QueueFailedTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{QueuePendingTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{DefaultSagaTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscriptionsTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedPendingTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedFailedTable}]; " +
-                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedCompletedTable}]; ";
+                $"TRUNCATE TABLE [{DefaultSchema}].[{QueueCompleted}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{QueueFailed}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{QueuePending}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{SagaData}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{Subscriptions}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedPending}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedFailed}]; " +
+                $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedCompleted}]; ";
             ExecuteNonQuery(statement);
         }
 
@@ -196,28 +184,10 @@ namespace PeachtreeBus.DataAccessTests
         /// </summary>
         /// <param name="tablename"></param>
         /// <returns></returns>
-        protected DataSet GetTableContent(string tablename)
+        protected DataSet GetTableContent(TableName tablename)
         {
             var result = new DataSet();
             string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}]";
-            using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction?.Transaction))
-            using (var adpater = new SqlDataAdapter(cmd))
-            {
-                adpater.Fill(result);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Gets everything in a table as a dataset, locks the selected rows, and reads past locked rows.
-        /// Uses the secondary connection.
-        /// </summary>
-        /// <param name="tablename"></param>
-        /// <returns></returns>
-        protected DataSet GetTableContentAndLock(string tablename)
-        {
-            var result = new DataSet();
-            string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}] WITH (UPDLOCK, READPAST)";
             using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction?.Transaction))
             using (var adpater = new SqlDataAdapter(cmd))
             {
@@ -381,9 +351,9 @@ namespace PeachtreeBus.DataAccessTests
             message.Id = await SecondaryConnection.Connection.QueryFirstAsync<Identity>(statement, p);
         }
 
-        protected List<SubscriptionsRow> GetSubscriptions() => GetTableContent(SubscriptionsTable).ToSubscriptions();
-        protected List<SubscribedData> GetSubscribedPending() => GetTableContent(SubscribedPendingTable).ToSubscribed();
-        protected List<SubscribedData> GetSubscribedFailed() => GetTableContent(SubscribedFailedTable).ToSubscribed();
-        protected List<SubscribedData> GetSubscribedCompleted() => GetTableContent(SubscribedCompletedTable).ToSubscribed();
+        protected List<SubscriptionsRow> GetSubscriptions() => GetTableContent(Subscriptions).ToSubscriptions();
+        protected List<SubscribedData> GetSubscribedPending() => GetTableContent(SubscribedPending).ToSubscribed();
+        protected List<SubscribedData> GetSubscribedFailed() => GetTableContent(SubscribedFailed).ToSubscribed();
+        protected List<SubscribedData> GetSubscribedCompleted() => GetTableContent(SubscribedCompleted).ToSubscribed();
     }
 }

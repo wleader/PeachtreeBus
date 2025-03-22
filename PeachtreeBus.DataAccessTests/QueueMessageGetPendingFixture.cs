@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Tests;
 using System;
@@ -67,19 +66,12 @@ namespace PeachtreeBus.DataAccessTests
                 var actual = await dataAccess.GetPendingQueued(DefaultQueue);
                 Assert.IsNotNull(actual, "Did not read a message back.");
 
-                BeginSecondaryTransaction();
-                try
-                {
-                    var unlockedMessages = GetTableContentAndLock(QueuePendingTable).ToMessages();
+                using var GetUnlocked = new RowLock(QueuePending);
+                var unlockedMessages = GetUnlocked.DataSet.ToMessages();
 
-                    Assert.AreEqual(1, unlockedMessages.Count, "Wrong number of unlocked messages.");
-                    Assert.AreNotEqual(testMessage1.Id, testMessage2.Id, "Test Messages have the same ID.");
-                    Assert.IsFalse(unlockedMessages.Any(m => m.Id == actual.Id), $"Locked message {actual.Id} found in unlocked messages {unlockedMessages[0].Id}");
-                }
-                finally
-                {
-                    RollbackSecondaryTransaction();
-                }
+                Assert.AreEqual(1, unlockedMessages.Count, "Wrong number of unlocked messages.");
+                Assert.AreNotEqual(testMessage1.Id, testMessage2.Id, "Test Messages have the same ID.");
+                Assert.IsFalse(unlockedMessages.Any(m => m.Id == actual.Id), $"Locked message {actual.Id} found in unlocked messages {unlockedMessages[0].Id}");
             }
             finally
             {
@@ -99,20 +91,12 @@ namespace PeachtreeBus.DataAccessTests
             testMessage.Id = await dataAccess.AddMessage(testMessage, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
-            // lock the row
-            BeginSecondaryTransaction();
-            try
-            {
-                var pending = GetTableContentAndLock(QueuePendingTable);
+            // lock the whole table.
+            using var pending = new RowLock(QueuePending);
 
-                // check that the locked row can not be fetched.
-                var actual = await dataAccess.GetPendingQueued(DefaultQueue);
-                Assert.IsNull(actual);
-            }
-            finally
-            {
-                RollbackSecondaryTransaction();
-            }
+            // check that the locked row can not be fetched.
+            var actual = await dataAccess.GetPendingQueued(DefaultQueue);
+            Assert.IsNull(actual);
         }
 
         /// <summary>

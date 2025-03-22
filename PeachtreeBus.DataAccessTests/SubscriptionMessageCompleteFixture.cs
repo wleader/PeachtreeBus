@@ -50,7 +50,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the completed table.
-            var completed = GetTableContent(SubscribedCompletedTable).ToMessages();
+            var completed = GetTableContent(SubscribedCompleted).ToMessages();
             Assert.AreEqual(1, completed.Count);
             var actual = completed.Single(m => m.Id == testMessage1.Id);
 
@@ -71,11 +71,11 @@ namespace PeachtreeBus.DataAccessTests
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected1);
 
-            Assert.AreEqual(1, CountRowsInTable(SubscribedPendingTable));
+            Assert.AreEqual(1, CountRowsInTable(SubscribedPending));
 
             await dataAccess.CompleteMessage(expected1);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
         }
 
         /// <summary>
@@ -85,8 +85,8 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task CompleteMessage_InsertsIntoCompleteTable()
         {
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
-            Assert.AreEqual(0, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedCompleted));
 
             var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));

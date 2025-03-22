@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests;
@@ -43,7 +42,7 @@ public class PublishFixture : DapperDataAccessFixtureBase
 
         var count = await dataAccess.Publish(SubscribedData, TestData.DefaultTopic);
 
-        Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
+        Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
         Assert.AreEqual(0, count);
     }
 

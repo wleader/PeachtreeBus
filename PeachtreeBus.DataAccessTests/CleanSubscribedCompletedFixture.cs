@@ -73,13 +73,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedCompleted));
             var olderthan = DateTime.UtcNow;
 
             var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
             Assert.AreEqual(10, count);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedCompleted));
         }
 
         /// <summary>
@@ -95,13 +95,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedCompleted));
             var olderthan = DateTime.UtcNow;
 
             var count = await dataAccess.CleanSubscribedCompleted(olderthan, 5);
             Assert.AreEqual(5, count);
 
-            Assert.AreEqual(5, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(5, CountRowsInTable(SubscribedCompleted));
         }
 
         /// <summary>
@@ -117,13 +117,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedCompleted));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
             var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
             Assert.AreEqual(0, count);
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedCompleted));
         }
 
         /// <summary>
@@ -145,13 +145,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(SubscribedCompleted));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
             var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
             Assert.AreEqual(3, count);
 
-            Assert.AreEqual(7, CountRowsInTable(SubscribedCompletedTable));
+            Assert.AreEqual(7, CountRowsInTable(SubscribedCompleted));
         }
     }
 }

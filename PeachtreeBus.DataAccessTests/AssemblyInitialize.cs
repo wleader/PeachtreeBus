@@ -12,7 +12,7 @@ namespace PeachtreeBus.DataAccessTests
     public class AssemblyInitialize
     {
         private static readonly string serverConnectionString;
-        public static string DbConnectionString { get; private set; }
+
         private static readonly string testDbName;
 
         static AssemblyInitialize()
@@ -21,10 +21,10 @@ namespace PeachtreeBus.DataAccessTests
             configurationBuilder.AddJsonFile("appsettings.json");
             var config = configurationBuilder.Build();
 
-            DbConnectionString = config.GetConnectionString("TestDatabase")
+            TestConfig.DbConnectionString = config.GetConnectionString("TestDatabase")
                 ?? throw new ApplicationException("Connection string not configured.");
 
-            var csb = new SqlConnectionStringBuilder(DbConnectionString);
+            var csb = new SqlConnectionStringBuilder(TestConfig.DbConnectionString);
             testDbName = csb.InitialCatalog;
             csb.InitialCatalog = "";
             serverConnectionString = csb.ConnectionString;
@@ -36,7 +36,7 @@ namespace PeachtreeBus.DataAccessTests
         public static void AssemblyInit(TestContext context)
         {
             Assert.IsNotNull(serverConnectionString);
-            Assert.IsNotNull(DbConnectionString);
+            Assert.IsNotNull(TestConfig.DbConnectionString);
 
             var connection = new SqlConnection(serverConnectionString);
             connection.Open();
@@ -64,7 +64,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.IsNotNull(newestDacPac);
 
             var dacpac = DacPackage.Load(newestDacPac);
-            var dacService = new DacServices(DbConnectionString);
+            var dacService = new DacServices(TestConfig.DbConnectionString);
             dacService.Deploy(dacpac, testDbName, true);
 
             // no errors thrown?

@@ -48,7 +48,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the completed table.
-            var completed = GetTableContent(QueueCompletedTable).ToMessages();
+            var completed = GetTableContent(QueueCompleted).ToMessages();
             Assert.AreEqual(1, completed.Count);
             AssertQueueDataAreEqual(messageToComplete, completed[0]);
         }
@@ -73,7 +73,7 @@ namespace PeachtreeBus.DataAccessTests
             await dataAccess.CompleteMessage(messageToComplete, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
-            var pending = GetTableContent(QueuePendingTable).ToMessages();
+            var pending = GetTableContent(QueuePending).ToMessages();
             Assert.AreEqual(1, pending.Count);
             Assert.IsFalse(pending.Any(m => m.Id == messageToComplete.Id), "Completed message is still in the pending table.");
         }
@@ -103,7 +103,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the completed table.
-            var completed = GetTableContent(QueueCompletedTable).ToMessages();
+            var completed = GetTableContent(QueueCompleted).ToMessages();
             Assert.AreEqual(1, completed.Count);
             var actual = completed.Single(m => m.Id == testMessage1.Id);
 

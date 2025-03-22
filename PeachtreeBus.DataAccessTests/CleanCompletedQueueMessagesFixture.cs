@@ -71,13 +71,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
             var olderthan = DateTime.UtcNow;
 
             var count = await dataAccess.CleanQueueCompleted(DefaultQueue, olderthan, 10);
             Assert.AreEqual(10, count);
 
-            Assert.AreEqual(0, CountRowsInTable(QueueCompletedTable));
+            Assert.AreEqual(0, CountRowsInTable(QueueCompleted));
         }
 
         /// <summary>
@@ -93,13 +93,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
             var olderthan = DateTime.UtcNow;
 
             var count = await dataAccess.CleanQueueCompleted(DefaultQueue, olderthan, 5);
             Assert.AreEqual(5, count);
 
-            Assert.AreEqual(5, CountRowsInTable(QueueCompletedTable));
+            Assert.AreEqual(5, CountRowsInTable(QueueCompleted));
         }
 
         /// <summary>
@@ -115,13 +115,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
             var count = await dataAccess.CleanQueueCompleted(DefaultQueue, olderthan, 10);
             Assert.AreEqual(0, count);
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
         }
 
         /// <summary>
@@ -143,13 +143,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompletedTable));
+            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
             var count = await dataAccess.CleanQueueCompleted(DefaultQueue, olderthan, 10);
             Assert.AreEqual(3, count);
 
-            Assert.AreEqual(7, CountRowsInTable(QueueCompletedTable));
+            Assert.AreEqual(7, CountRowsInTable(QueueCompleted));
         }
     }
 }

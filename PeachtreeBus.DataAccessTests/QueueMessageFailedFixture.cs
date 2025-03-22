@@ -48,7 +48,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the error table.
-            var failed = GetTableContent(QueueFailedTable).ToMessages();
+            var failed = GetTableContent(QueueFailed).ToMessages();
             Assert.AreEqual(1, failed.Count);
             AssertQueueDataAreEqual(messageToFail, failed[0]);
         }
@@ -73,7 +73,7 @@ namespace PeachtreeBus.DataAccessTests
             await dataAccess.FailMessage(messageToFail, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
-            var pending = GetTableContent(QueuePendingTable).ToMessages();
+            var pending = GetTableContent(QueuePending).ToMessages();
             Assert.AreEqual(1, pending.Count);
             Assert.IsFalse(pending.Any(m => m.Id == messageToFail.Id), "Failed message is still in the pending table.");
         }
@@ -103,7 +103,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the completed table.
-            var failed = GetTableContent(QueueFailedTable).ToMessages();
+            var failed = GetTableContent(QueueFailed).ToMessages();
             Assert.AreEqual(1, failed.Count);
             var actual = failed.Single(m => m.Id == testMessage1.Id);
 

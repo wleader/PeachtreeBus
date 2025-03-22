@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Tests;
 using System;
 using System.Linq;
@@ -32,8 +31,8 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task ExpireMessages_InsertsIntoFailedTable()
         {
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
-            Assert.AreEqual(0, CountRowsInTable(SubscribedFailedTable));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedFailed));
 
             var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
@@ -75,11 +74,11 @@ namespace PeachtreeBus.DataAccessTests
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected2);
 
-            Assert.AreEqual(2, CountRowsInTable(SubscribedPendingTable));
+            Assert.AreEqual(2, CountRowsInTable(SubscribedPending));
 
             await dataAccess.ExpireSubscriptionMessages(1000);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
         }
 
         [TestMethod]
@@ -93,15 +92,15 @@ namespace PeachtreeBus.DataAccessTests
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected2);
 
-            Assert.AreEqual(2, CountRowsInTable(SubscribedPendingTable));
+            Assert.AreEqual(2, CountRowsInTable(SubscribedPending));
 
             await dataAccess.ExpireSubscriptionMessages(1);
 
-            Assert.AreEqual(1, CountRowsInTable(SubscribedPendingTable));
+            Assert.AreEqual(1, CountRowsInTable(SubscribedPending));
 
             await dataAccess.ExpireSubscriptionMessages(1);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPendingTable));
+            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
         }
     }
 }

@@ -34,7 +34,7 @@ namespace PeachtreeBus.DataAccessTests
             newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, DefaultSagaName);
 
             await Task.Delay(10);
-            Assert.AreEqual(1, CountRowsInTable(DefaultSagaTable));
+            Assert.AreEqual(1, CountRowsInTable(SagaData));
 
             var actual = await dataAccess.GetSagaData(DefaultSagaName, newSaga1.Key);
             Assert.IsNotNull(actual);
@@ -49,7 +49,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task GetSagaData_ReturnsNullWhenDoesntExist()
         {
-            Assert.AreEqual(0, CountRowsInTable(DefaultSagaTable));
+            Assert.AreEqual(0, CountRowsInTable(SagaData));
             var sagadata = await dataAccess.GetSagaData(DefaultSagaName, new("1"));
             Assert.IsNull(sagadata);
         }
@@ -67,21 +67,14 @@ namespace PeachtreeBus.DataAccessTests
             newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, DefaultSagaName);
 
             await Task.Delay(10);
-            Assert.AreEqual(1, CountRowsInTable(DefaultSagaTable));
+            Assert.AreEqual(1, CountRowsInTable(SagaData));
 
-            BeginSecondaryTransaction();
-            try
-            {
-                var data = GetTableContentAndLock(DefaultSagaTable);
+            // lock the saga data row
+            using var data = new RowLock(SagaData);
 
-                var actual = await dataAccess.GetSagaData(DefaultSagaName, newSaga1.Key);
-                Assert.IsNotNull(actual);
-                Assert.IsTrue(actual.Blocked);
-            }
-            finally
-            {
-                RollbackSecondaryTransaction();
-            }
+            var actual = await dataAccess.GetSagaData(DefaultSagaName, newSaga1.Key);
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(actual.Blocked);
         }
     }
 }

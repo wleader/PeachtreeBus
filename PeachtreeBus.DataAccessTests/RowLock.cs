@@ -18,11 +18,13 @@ public class RowLock : IDisposable
 
     public DataSet DataSet { get; }
 
-    public RowLock(SchemaName schemaName, TableName tableName, int count = int.MaxValue)
+    public RowLock(TableName tableName, int count = int.MaxValue, SchemaName? schema = null)
     {
-        _connection = new SqlConnectionProxy(AssemblyInitialize.DbConnectionString);
+        _connection = new SqlConnectionProxy(TestConfig.DbConnectionString);
         _connection.Open();
         _transaction = _connection.BeginTransaction();
+
+        var schemaName = schema ?? TestConfig.DefaultSchema;
 
         string statement =
             $"""

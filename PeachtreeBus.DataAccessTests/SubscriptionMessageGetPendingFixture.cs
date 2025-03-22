@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests;
 using System;
@@ -54,20 +53,12 @@ namespace PeachtreeBus.DataAccessTests
             await InsertSubscribedMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
 
-            // lock the row
-            BeginSecondaryTransaction();
-            try
-            {
-                var pending = GetTableContentAndLock(SubscribedPendingTable);
+            // lock the subscribed message.
+            using var pending = new RowLock(SubscribedPending);
 
-                // check that the locked row can not be fetched.
-                var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
-                Assert.IsNull(actual);
-            }
-            finally
-            {
-                RollbackSecondaryTransaction();
-            }
+            // check that the locked row can not be fetched.
+            var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
+            Assert.IsNull(actual);
         }
 
         /// <summary>
@@ -130,19 +121,12 @@ namespace PeachtreeBus.DataAccessTests
                 var actual = await dataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
                 Assert.IsNotNull(actual, "Did not read a message back.");
 
-                BeginSecondaryTransaction();
-                try
-                {
-                    var unlockedMessages = GetTableContentAndLock(SubscribedPendingTable).ToSubscribed();
+                using var data = new RowLock(SubscribedPending);
+                var unlockedMessages = data.DataSet.ToSubscribed();
 
-                    Assert.AreEqual(1, unlockedMessages.Count, "Wrong number of unlocked messages.");
-                    Assert.AreNotEqual(testMessage1.Id, testMessage2.Id, "Test Messages have the same ID.");
-                    Assert.IsFalse(unlockedMessages.Any(m => m.Id == actual.Id), $"Locked message {actual.Id} found in unlocked messages {unlockedMessages[0].Id}");
-                }
-                finally
-                {
-                    RollbackSecondaryTransaction();
-                }
+                Assert.AreEqual(1, unlockedMessages.Count, "Wrong number of unlocked messages.");
+                Assert.AreNotEqual(testMessage1.Id, testMessage2.Id, "Test Messages have the same ID.");
+                Assert.IsFalse(unlockedMessages.Any(m => m.Id == actual.Id), $"Locked message {actual.Id} found in unlocked messages {unlockedMessages[0].Id}");
             }
             finally
             {

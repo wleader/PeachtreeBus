@@ -37,12 +37,12 @@ namespace PeachtreeBus.DataAccessTests
             newSaga2.Id = await dataAccess.InsertSagaData(newSaga2, DefaultSagaName);
 
             await Task.Delay(10);
-            Assert.AreEqual(2, CountRowsInTable(DefaultSagaTable));
+            Assert.AreEqual(2, CountRowsInTable(SagaData));
 
             await dataAccess.DeleteSagaData(DefaultSagaName, newSaga1.Key);
             await Task.Delay(10);
 
-            var sagas = GetTableContent(DefaultSagaTable).ToSagas();
+            var sagas = GetTableContent(SagaData).ToSagas();
             Assert.AreEqual(1, sagas.Count);
 
             AssertSagaEquals(newSaga2, sagas[0]);
