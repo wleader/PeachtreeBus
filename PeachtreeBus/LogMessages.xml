@@ -120,5 +120,16 @@
                 A subscribed message of type {MessageType:Type} exceeded its maximum retries and has failed.
             </Event>
         </Class>
+        <Class name="CircuitBreaker">
+            <Event name="Cleared" level="Warning" exception="false">
+                The CircuitBreaker '{FriendlyName:string} is cleared.
+            </Event>
+            <Event name="Armed" level="Warning" exception="false">
+                The CircuitBreaker '{FriendlyName:string} is armed.
+            </Event>
+            <Event name="Faulted" level="Warning" exception="false">
+                The CircuitBreaker '{FriendlyName:string} is faulted.
+            </Event>
+        </Class>
     </Namespace>
 </LogMessages>

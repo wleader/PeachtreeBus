@@ -398,5 +398,41 @@ namespace PeachtreeBus
         public static void SubscribedFailures_MessageFailed(this ILogger logger, Type messageType)
             => PeachtreeBus_Errors_SubscribedFailures_MessageFailed_Action(logger, messageType, null!);
 
+        internal static readonly EventId PeachtreeBus_Errors_CircuitBreaker_Cleared_Event
+            = new(5003001, "PeachtreeBus_Errors_CircuitBreaker_Cleared");
+        internal static readonly Action<ILogger, string, Exception> PeachtreeBus_Errors_CircuitBreaker_Cleared_Action
+            = LoggerMessage.Define<string>(LogLevel.Warning,
+                PeachtreeBus_Errors_CircuitBreaker_Cleared_Event,
+                "The CircuitBreaker '{FriendlyName} is cleared.");
+        /// <summary>
+        /// (5003001) Warning: The CircuitBreaker '{FriendlyName} is cleared.
+        /// </summary>
+        public static void CircuitBreaker_Cleared(this ILogger logger, string friendlyName)
+            => PeachtreeBus_Errors_CircuitBreaker_Cleared_Action(logger, friendlyName, null!);
+
+        internal static readonly EventId PeachtreeBus_Errors_CircuitBreaker_Armed_Event
+            = new(5003002, "PeachtreeBus_Errors_CircuitBreaker_Armed");
+        internal static readonly Action<ILogger, string, Exception> PeachtreeBus_Errors_CircuitBreaker_Armed_Action
+            = LoggerMessage.Define<string>(LogLevel.Warning,
+                PeachtreeBus_Errors_CircuitBreaker_Armed_Event,
+                "The CircuitBreaker '{FriendlyName} is armed.");
+        /// <summary>
+        /// (5003002) Warning: The CircuitBreaker '{FriendlyName} is armed.
+        /// </summary>
+        public static void CircuitBreaker_Armed(this ILogger logger, string friendlyName)
+            => PeachtreeBus_Errors_CircuitBreaker_Armed_Action(logger, friendlyName, null!);
+
+        internal static readonly EventId PeachtreeBus_Errors_CircuitBreaker_Faulted_Event
+            = new(5003003, "PeachtreeBus_Errors_CircuitBreaker_Faulted");
+        internal static readonly Action<ILogger, string, Exception> PeachtreeBus_Errors_CircuitBreaker_Faulted_Action
+            = LoggerMessage.Define<string>(LogLevel.Warning,
+                PeachtreeBus_Errors_CircuitBreaker_Faulted_Event,
+                "The CircuitBreaker '{FriendlyName} is faulted.");
+        /// <summary>
+        /// (5003003) Warning: The CircuitBreaker '{FriendlyName} is faulted.
+        /// </summary>
+        public static void CircuitBreaker_Faulted(this ILogger logger, string friendlyName)
+            => PeachtreeBus_Errors_CircuitBreaker_Faulted_Action(logger, friendlyName, null!);
+
 	}
 }
