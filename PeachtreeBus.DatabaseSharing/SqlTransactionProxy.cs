@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PeachtreeBus.DatabaseSharing
 {
@@ -8,6 +9,8 @@ namespace PeachtreeBus.DatabaseSharing
     /// directly though to Microsoft.Data.SqlClient.SqlTransaction.
     /// </summary>
     /// <param name="transaction"></param>
+    [ExcludeFromCodeCoverage(Justification =
+        "This object requires a connection to a real SQL server to test it.")]
     public class SqlTransactionProxy(SqlTransaction transaction) : ISqlTransaction
     {
         public bool Disposed { get; private set; } = false;
