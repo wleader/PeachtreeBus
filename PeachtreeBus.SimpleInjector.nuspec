@@ -18,7 +18,7 @@
         <dependencies>
             <group targetFramework="net8.0">
             <dependency id="PeachtreeBus" version="0.11.0" />
-            <dependency id="SimpleInjector" version="5.4.6" />
+            <dependency id="SimpleInjector" version="5.5.0" />
             </group>
         </dependencies>
         <readme>docs\README.md</readme>

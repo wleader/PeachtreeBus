@@ -8,6 +8,7 @@ using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
+using RetryResult = PeachtreeBus.Errors.RetryResult;
 
 namespace PeachtreeBus.Tests.Subscriptions
 {

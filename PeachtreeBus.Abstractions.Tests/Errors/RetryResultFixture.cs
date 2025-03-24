@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Errors;
 using System;
+using RetryResult = PeachtreeBus.Errors.RetryResult;
 
 namespace PeachtreeBus.Abstractions.Tests.Errors;
 
