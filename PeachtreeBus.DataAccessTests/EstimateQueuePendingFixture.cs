@@ -33,7 +33,7 @@ public class EstimateQueuePendingFixture : DapperDataAccessFixtureBase
     public async Task Given_MessagesInQueue_When_Estimate_ResultIsValue(int value)
     {
         await Given_MessagesInQueue(value);
-
+        await Task.Delay(20); // If SQL is slow to unlock this test is unreliable.
         Assert.AreEqual(value, await dataAccess.EstimateQueuePending(DefaultQueue));
     }
 

@@ -37,7 +37,7 @@ public class EstimateSubscribedPendingFixture : DapperDataAccessFixtureBase
     public async Task Given_SubscribedMessagesPending_When_Estimate_ResultIsValue(int value)
     {
         await Given_SubscribedMessagesPending(SubscriberId, value);
-
+        await Task.Delay(20); // If SQL is slow to unlock this test is unreliable.
         Assert.AreEqual(value, await dataAccess.EstimateSubscribedPending(SubscriberId));
     }
 
