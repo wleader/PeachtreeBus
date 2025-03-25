@@ -141,6 +141,8 @@ namespace PeachtreeBus.Example
             // objects has been registered.
             _container.Verify();
 
+            using var _ = new Telemetry.OpenTelemetryProviders("PeachtreeBus-Example");
+
             // run!
             // this will run different looping threads based on the above code
             // Since UsePeachtreeBusQueue was called, the message queue will be serviced, etc.
