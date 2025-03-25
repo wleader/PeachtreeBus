@@ -2,6 +2,7 @@
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Serialization;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
@@ -37,13 +38,13 @@ public class SendPipelineFinalStep(
     ISystemClock clock,
     ISerializer serializer,
     IBusDataAccess dataAccess,
-    IPerfCounters perfCounters)
+    IMeters meters)
     : ISendPipelineFinalStep
 {
     private readonly ISystemClock _clock = clock;
     private readonly ISerializer _serializer = serializer;
     private readonly IBusDataAccess _dataAccess = dataAccess;
-    private readonly IPerfCounters _perfCounters = perfCounters;
+    private readonly IMeters _meters = meters;
 
     // This property isn't used as the handlers step is always last in the pipeline
     // but it is requred by the interface.
@@ -77,6 +78,6 @@ public class SendPipelineFinalStep(
         };
 
         await _dataAccess.AddMessage(sm, context.Destination);
-        _perfCounters.SentMessage();
+        _meters.SentMessage(1);
     }
 }

@@ -5,6 +5,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Telemetry;
 using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         private SubscribedReader reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
         private Mock<ILogger<SubscribedReader>> log = default!;
-        private Mock<IPerfCounters> counters = default!;
+        private Mock<IMeters> meters = default!;
         private Mock<ISerializer> serializer = default!;
         private Mock<ISystemClock> clock = default!;
         private Mock<ISubscribedFailures> failures = default!;
@@ -41,7 +42,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             dataAccess = new();
             log = new();
-            counters = new();
+            meters = new();
             serializer = new();
             clock = new();
             failures = new();
@@ -54,7 +55,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 dataAccess.Object,
                 serializer.Object,
                 log.Object,
-                counters.Object,
+                meters.Object,
                 clock.Object,
                 failures.Object,
                 retryStrategy.Object);
@@ -120,7 +121,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             await reader.Fail(Context, exception);
 
             serializer.Verify(s => s.SerializeHeaders(Context.InternalHeaders), Times.Once);
-            counters.Verify(c => c.RetryMessage(), Times.Once);
+            meters.Verify(c => c.RetryMessage(), Times.Once);
             dataAccess.Verify(c => c.UpdateMessage(Context.Data), Times.Once);
         }
 
@@ -151,7 +152,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             await reader.Fail(Context, new ApplicationException());
 
-            counters.Verify(c => c.FailMessage(), Times.Once);
+            meters.Verify(c => c.FailMessage(), Times.Once);
             serializer.Verify(s => s.SerializeHeaders(Context.InternalHeaders), Times.Once);
             dataAccess.Verify(c => c.FailMessage(It.IsAny<SubscribedData>()), Times.Once);
             Assert.AreEqual(1, dataAccess.Invocations.Count);

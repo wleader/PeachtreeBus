@@ -3,6 +3,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Threading.Tasks;
 
@@ -70,7 +71,7 @@ namespace PeachtreeBus.Queues
     /// <param name="log"></param>
     public class QueueReader(IBusDataAccess dataAccess,
         ILogger<QueueReader> log,
-        IPerfCounters counters,
+        IMeters meters,
         ISerializer serializer,
         ISystemClock clock,
         IQueueFailures failures,
@@ -78,7 +79,7 @@ namespace PeachtreeBus.Queues
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly ILogger<QueueReader> _log = log;
-        private readonly IPerfCounters _counters = counters;
+        private readonly IMeters _meters = meters;
         private readonly ISerializer _serializer = serializer;
         private readonly ISystemClock _clock = clock;
         private readonly IQueueFailures _failures = failures;
@@ -142,7 +143,7 @@ namespace PeachtreeBus.Queues
         public async Task Complete(QueueContext messageContext)
         {
             messageContext.Data.Completed = _clock.UtcNow;
-            _counters.CompleteMessage();
+            _meters.CompleteMessage();
             await _dataAccess.CompleteMessage(messageContext.Data, messageContext.SourceQueue);
         }
 
@@ -159,14 +160,14 @@ namespace PeachtreeBus.Queues
             {
                 context.Data.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
                 _log.QueueReader_MessageWillBeRetried(context.Data.MessageId, context.SourceQueue, context.Data.NotBefore);
-                _counters.RetryMessage();
+                _meters.RetryMessage();
                 await _dataAccess.UpdateMessage(context.Data, context.SourceQueue);
             }
             else
             {
                 _log.QueueReader_MessageFailed(context.Data.MessageId, context.SourceQueue);
                 context.Data.Failed = _clock.UtcNow;
-                _counters.FailMessage();
+                _meters.FailMessage();
                 await _dataAccess.FailMessage(context.Data, context.SourceQueue);
                 await _failures.Failed(context, context.Message, exception);
             }
@@ -302,7 +303,6 @@ namespace PeachtreeBus.Queues
         public async Task DelayMessage(QueueContext messageContext, int milliseconds)
         {
             messageContext.Data.NotBefore = _clock.UtcNow.AddMilliseconds(milliseconds);
-            _counters.DelayMessage();
             await _dataAccess.UpdateMessage(messageContext.Data, messageContext.SourceQueue);
         }
     }

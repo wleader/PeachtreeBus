@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace PeachtreeBus.Tests.Queues
     {
         private QueueWork work = default!;
         private Mock<ILogger<QueueWork>> log = default!;
-        private Mock<IPerfCounters> counters = default!;
+        private Mock<IMeters> meters = default!;
         private Mock<IQueueReader> reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
         private QueueContext context = default!;
@@ -27,12 +28,11 @@ namespace PeachtreeBus.Tests.Queues
         [TestInitialize]
         public void TestInitialize()
         {
-            log = new Mock<ILogger<QueueWork>>();
-            counters = new Mock<IPerfCounters>();
+            log = new ();
+            meters = new();
             pipelineInvoker = new();
-
-            reader = new Mock<IQueueReader>();
-            dataAccess = new Mock<IBusDataAccess>();
+            reader = new();
+            dataAccess = new();
 
             context = TestData.CreateQueueContext();
 
@@ -40,7 +40,7 @@ namespace PeachtreeBus.Tests.Queues
                 .ReturnsAsync(context);
 
             work = new QueueWork(log.Object,
-                counters.Object,
+                meters.Object,
                 reader.Object,
                 dataAccess.Object,
                 pipelineInvoker.Object)
@@ -117,8 +117,8 @@ namespace PeachtreeBus.Tests.Queues
         public async Task Given_AMessage_When_DoWork_Then_IncrementCounters()
         {
             var result = await work.DoWork();
-            counters.Verify(c => c.StartMessage(), Times.Once);
-            counters.Verify(c => c.FinishMessage(It.IsAny<DateTime>()), Times.Once);
+            meters.Verify(c => c.StartMessage(), Times.Once);
+            meters.Verify(c => c.FinishMessage(), Times.Once);
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace PeachtreeBus.Tests.Queues
             var result = await work.DoWork();
 
             Assert.IsTrue(result);
-            counters.Verify(c => c.SagaBlocked(), Times.Once);
+            meters.Verify(c => c.SagaBlocked(), Times.Once);
             dataAccess.Verify(d => d.RollbackToSavepoint("BeforeMessageHandler"));
             Assert.AreEqual("RollbackToSavepoint", dataAccess.Invocations[dataAccess.Invocations.Count - 1].Method.Name);
             reader.Verify(r => r.DelayMessage(context, 250), Times.Once);

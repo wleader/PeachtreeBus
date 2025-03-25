@@ -6,6 +6,7 @@ using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
+using PeachtreeBus.Telemetry;
 using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace PeachtreeBus.Tests.Queues
         private QueueReader reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
         private Mock<ILogger<QueueReader>> log = default!;
-        private Mock<IPerfCounters> perfCounters = default!;
+        private Mock<IMeters> meters = default!;
         private Mock<ISerializer> serializer = default!;
         private Mock<ISystemClock> clock = default!;
         private Mock<IQueueFailures> failures = default!;
@@ -45,7 +46,7 @@ namespace PeachtreeBus.Tests.Queues
         {
             dataAccess = new();
             log = new();
-            perfCounters = new();
+            meters = new();
             serializer = new();
             clock = new();
             failures = new();
@@ -62,7 +63,7 @@ namespace PeachtreeBus.Tests.Queues
             reader = new QueueReader(
                 dataAccess.Object,
                 log.Object,
-                perfCounters.Object,
+                meters.Object,
                 serializer.Object,
                 clock.Object,
                 failures.Object,
@@ -91,18 +92,6 @@ namespace PeachtreeBus.Tests.Queues
 
             retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<QueueContext>(), It.IsAny<Exception>(), It.IsAny<FailureCount>()))
                 .Returns(() => RetryResult);
-        }
-
-        /// <summary>
-        /// Proves that exceptions bubble up.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Delay_Message_ThrowsWhenCountersThrows()
-        {
-            perfCounters.Setup(c => c.DelayMessage()).Throws(new ApplicationException());
-            await Assert.ThrowsExceptionAsync<ApplicationException>(() =>
-                reader.DelayMessage(Context, 1000));
         }
 
         /// <summary>
@@ -358,7 +347,7 @@ namespace PeachtreeBus.Tests.Queues
 
             dataAccess.Verify(d => d.FailMessage(Context.Data, Context.SourceQueue), Times.Once);
             Assert.AreEqual(1, dataAccess.Invocations.Count);
-            perfCounters.Verify(c => c.FailMessage(), Times.Once);
+            meters.Verify(c => c.FailMessage(), Times.Once);
         }
 
         /// <summary>
@@ -377,7 +366,7 @@ namespace PeachtreeBus.Tests.Queues
 
             await reader.Complete(Context);
 
-            perfCounters.Verify(c => c.CompleteMessage(), Times.Once);
+            meters.Verify(c => c.CompleteMessage(), Times.Once);
             dataAccess.Verify(d => d.CompleteMessage(Context.Data, Context.SourceQueue), Times.Once);
             Assert.AreEqual(1, dataAccess.Invocations.Count);
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Threading.Tasks;
 
@@ -18,14 +19,14 @@ namespace PeachtreeBus.Subscriptions
     /// </summary>
     public class SubscribedWork(
         ISubscribedReader reader,
-        IPerfCounters counters,
+        IMeters meters,
         ILogger<SubscribedWork> log,
         IBusDataAccess dataAccess,
         ISubscribedPipelineInvoker pipelineInvoker)
         : ISubscribedWork
     {
         private readonly ISubscribedReader _reader = reader;
-        private readonly IPerfCounters _counters = counters;
+        private readonly IMeters _meters = meters;
         private readonly ILogger<SubscribedWork> _log = log;
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly ISubscribedPipelineInvoker _pipelineInvoker = pipelineInvoker;
@@ -56,7 +57,7 @@ namespace PeachtreeBus.Subscriptions
             var started = DateTime.UtcNow;
             try
             {
-                _counters.StartMessage();
+                _meters.StartMessage();
 
                 // creat a save point. If anything goes wrong we can roll back to here,
                 // increment the retry count and try again later.
@@ -85,7 +86,7 @@ namespace PeachtreeBus.Subscriptions
             }
             finally
             {
-                _counters.FinishMessage(started);
+                _meters.FinishMessage();
             }
         }
     }

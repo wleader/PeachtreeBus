@@ -3,6 +3,7 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Telemetry;
 using PeachtreeBus.Tests.Fakes;
 using System;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ public class PublishPipelineFinalStepFixture
 
     // Dependencies
     private Mock<IBusDataAccess> dataAccess = default!;
-    private Mock<IPerfCounters> counters = default!;
+    private Mock<IMeters> meters = default!;
     private FakeSerializer serializer = default!;
     private Mock<ISystemClock> clock = default!;
     private BusConfiguration configuration = default!;
@@ -35,7 +36,7 @@ public class PublishPipelineFinalStepFixture
     public void TestInitialize()
     {
         dataAccess = new();
-        counters = new();
+        meters = new();
         serializer = new();
         clock = new();
         configuration = TestData.CreateBusConfiguration();
@@ -64,7 +65,7 @@ public class PublishPipelineFinalStepFixture
             configuration,
             serializer.Object,
             dataAccess.Object,
-            counters.Object);
+            meters.Object);
     }
 
     /// <summary>
@@ -209,7 +210,7 @@ public class PublishPipelineFinalStepFixture
 
         await step.Invoke(context, null!);
 
-        counters.Verify(c => c.PublishMessage(count), Times.Once);
+        meters.Verify(c => c.SentMessage(count), Times.Once);
         Assert.AreEqual(count, context.RecipientCount);
     }
 

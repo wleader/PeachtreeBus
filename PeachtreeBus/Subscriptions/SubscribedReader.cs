@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
 using PeachtreeBus.Serialization;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Threading.Tasks;
 
@@ -29,7 +30,7 @@ namespace PeachtreeBus.Subscriptions
         IBusDataAccess dataAccess,
         ISerializer serializer,
         ILogger<SubscribedReader> log,
-        IPerfCounters counters,
+        IMeters meters,
         ISystemClock clock,
         ISubscribedFailures failures,
         ISubscribedRetryStrategy retryStrategy)
@@ -38,7 +39,7 @@ namespace PeachtreeBus.Subscriptions
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly ISerializer _serializer = serializer;
         private readonly ILogger<SubscribedReader> _log = log;
-        private readonly IPerfCounters _counters = counters;
+        private readonly IMeters _meters = meters;
         private readonly ISystemClock _clock = clock;
         private readonly ISubscribedFailures _failures = failures;
         private readonly ISubscribedRetryStrategy _retryStrategy = retryStrategy;
@@ -51,7 +52,7 @@ namespace PeachtreeBus.Subscriptions
         public async Task Complete(SubscribedContext context)
         {
             context.Data.Completed = _clock.UtcNow;
-            _counters.CompleteMessage();
+            _meters.CompleteMessage();
             await _dataAccess.CompleteMessage(context.Data);
         }
 
@@ -73,14 +74,14 @@ namespace PeachtreeBus.Subscriptions
             {
                 context.Data.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
                 _log.SubscribedReader_MessageWillBeRetried(context.Data.MessageId, context.SubscriberId, context.Data.NotBefore);
-                _counters.RetryMessage();
+                _meters.RetryMessage();
                 await _dataAccess.UpdateMessage(context.Data);
             }
             else
             {
                 _log.SubscribedReader_MessageFailed(context.Data.MessageId, context.SubscriberId);
                 context.Data.Failed = _clock.UtcNow;
-                _counters.FailMessage();
+                _meters.FailMessage();
                 await _dataAccess.FailMessage(context.Data);
                 await _failures.Failed(context, context.Message, exception);
             }

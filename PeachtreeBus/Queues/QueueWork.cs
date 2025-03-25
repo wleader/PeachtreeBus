@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Threading.Tasks;
 
@@ -16,13 +17,13 @@ namespace PeachtreeBus.Queues
     /// <inheritdoc/>>
     public class QueueWork(
         ILogger<QueueWork> log,
-        IPerfCounters counters,
+        IMeters meters,
         IQueueReader queueReader,
         IBusDataAccess dataAccess,
         IQueuePipelineInvoker pipelineInvoker) : IQueueWork
     {
         private readonly ILogger<QueueWork> _log = log;
-        private readonly IPerfCounters _counters = counters;
+        private readonly IMeters _meters = meters;
         private readonly IQueueReader _queueReader = queueReader;
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly IQueuePipelineInvoker _pipelineInvoker = pipelineInvoker;
@@ -54,7 +55,7 @@ namespace PeachtreeBus.Queues
 
             try
             {
-                _counters.StartMessage();
+                _meters.StartMessage();
 
                 // creat a save point. If anything goes wrong we can roll back to here,
                 // increment the retry count and try again later.
@@ -68,7 +69,7 @@ namespace PeachtreeBus.Queues
                     _log.QueueWork_SagaBlocked(context.CurrentHandler!, context.SagaKey);
                     _dataAccess.RollbackToSavepoint(savepointName);
                     await _queueReader.DelayMessage(context, 250);
-                    _counters.SagaBlocked();
+                    _meters.SagaBlocked();
                     return true;
                 }
 
@@ -90,7 +91,7 @@ namespace PeachtreeBus.Queues
             }
             finally
             {
-                _counters.FinishMessage(started);
+                _meters.FinishMessage();
             }
         }
     }

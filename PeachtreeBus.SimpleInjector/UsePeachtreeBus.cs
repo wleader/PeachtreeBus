@@ -6,6 +6,7 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Telemetry;
 using SimpleInjector;
 using System;
 using System.Collections.Generic;
@@ -85,7 +86,7 @@ public static partial class SimpleInjectorExtensions
         container.Register(typeof(IWrappedScope), typeof(SimpleInjectorScope), Lifestyle.Scoped);
 
         // enables dotnet perf counters.
-        container.RegisterSingleton(typeof(IPerfCounters), PerfCounters.Instance);
+        container.RegisterSingleton(typeof(IMeters), () => new Meters());
 
         // provide an abstracted access to the system clock 
         // supports unit testable code.

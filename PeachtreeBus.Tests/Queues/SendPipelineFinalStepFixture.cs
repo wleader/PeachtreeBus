@@ -3,6 +3,7 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Telemetry;
 using PeachtreeBus.Tests.Fakes;
 using System;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ public class SendPipelineFinalStepFixture
 
     private SendPipelineFinalStep step = default!;
     private Mock<IBusDataAccess> dataAccess = default!;
-    private Mock<IPerfCounters> counters = default!;
+    private Mock<IMeters> meters = default!;
     private FakeSerializer serializer = default!;
     private Mock<ISystemClock> clock = default!;
 
@@ -31,7 +32,7 @@ public class SendPipelineFinalStepFixture
     public void TestInitialize()
     {
         dataAccess = new();
-        counters = new();
+        meters = new();
         serializer = new();
         clock = new();
 
@@ -52,7 +53,7 @@ public class SendPipelineFinalStepFixture
             Headers = TestData.DefaultUserHeaders,
         };
 
-        step = new(clock.Object, serializer.Object, dataAccess.Object, counters.Object);
+        step = new(clock.Object, serializer.Object, dataAccess.Object, meters.Object);
     }
 
     /// <summary>
@@ -196,7 +197,7 @@ public class SendPipelineFinalStepFixture
     {
         await step.Invoke(context, null!);
 
-        counters.Verify(c => c.SentMessage(), Times.Once);
+        meters.Verify(c => c.SentMessage(1), Times.Once);
     }
 
     /// <summary>

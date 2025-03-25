@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,14 +16,11 @@ namespace PeachtreeBus.Tests.Subscriptions
     [TestClass]
     public class SubscribedWorkFixture
     {
-        public class TestMessage : ISubscribedMessage
-        {
-
-        }
+        public class TestMessage : ISubscribedMessage;
 
         private SubscribedWork work = default!;
         private Mock<ILogger<SubscribedWork>> log = default!;
-        private Mock<IPerfCounters> counters = default!;
+        private Mock<IMeters> meters = default!;
         private Mock<ISubscribedReader> reader = default!;
         private Mock<IBusDataAccess> dataAccess = default!;
         private SubscribedContext context = default!;
@@ -31,10 +29,10 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestInitialize]
         public void TestInitialize()
         {
-            log = new Mock<ILogger<SubscribedWork>>();
-            counters = new Mock<IPerfCounters>();
-            reader = new Mock<ISubscribedReader>();
-            dataAccess = new Mock<IBusDataAccess>();
+            log = new();
+            meters = new();
+            reader = new();
+            dataAccess = new();
 
             context = TestData.CreateSubscribedContext();
 
@@ -45,7 +43,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             work = new SubscribedWork(
                 reader.Object,
-                counters.Object,
+                meters.Object,
                 log.Object,
                 dataAccess.Object,
                 pipelineInvoker.Object);
@@ -77,8 +75,8 @@ namespace PeachtreeBus.Tests.Subscriptions
             work.SubscriberId = SubscriberId.New();
             var result = await work.DoWork();
 
-            counters.Verify(c => c.StartMessage(), Times.Once);
-            counters.Verify(c => c.FinishMessage(It.IsAny<DateTime>()), Times.Once);
+            meters.Verify(c => c.StartMessage(), Times.Once);
+            meters.Verify(c => c.FinishMessage(), Times.Once);
         }
 
         /// <summary>
