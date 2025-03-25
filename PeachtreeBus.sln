@@ -50,6 +50,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Abstractions",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Abstractions.Tests", "PeachtreeBus.Abstractions.Tests\PeachtreeBus.Abstractions.Tests.csproj", "{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.AppHost", "PeachtreeBus.Example.AppHost\PeachtreeBus.Example.AppHost.csproj", "{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,12 @@ Global
 		{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
