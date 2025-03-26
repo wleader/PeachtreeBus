@@ -36,6 +36,7 @@ public abstract class IncomingContext<TQueueData>
     public int MessagePriority { get => Data.Priority; }
 
     public UtcDateTime EnqueuedTime { get => Data.Enqueued; }
+    public UtcDateTime NotBefore { get => Data.NotBefore; }
     public UniqueIdentity MessageId { get => Data.MessageId; }
     public string MessageClass { get => InternalHeaders.MessageClass; }
 }
@@ -46,7 +47,7 @@ public abstract class OutgoingContext<TQueueData>
     where TQueueData : QueueData
 {
     public UtcDateTime? NotBefore { get; set; }
-    public int Priority { get; set; }
+    public int MessagePriority { get; set; }
 }
 
 
