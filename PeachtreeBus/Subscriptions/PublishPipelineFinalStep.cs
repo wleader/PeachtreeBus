@@ -17,7 +17,8 @@ public class PublishPipelineFinalStep(
     ISerializer serializer,
     IBusDataAccess dataAccess,
     IMeters meters)
-    : IPublishPipelineFinalStep
+    : PipelineFinalStep<PublishContext, IPublishContext>
+    , IPublishPipelineFinalStep
 {
     private readonly ISystemClock _clock = clock;
     private readonly IBusConfiguration _configuration = configuration;
@@ -25,14 +26,7 @@ public class PublishPipelineFinalStep(
     private readonly IBusDataAccess _dataAccess = dataAccess;
     private readonly IMeters _perfCounters = meters;
 
-    // This property isn't used as the handlers step is always last in the pipeline
-    // but it is requred by the interface.
-    [ExcludeFromCodeCoverage]
-    public int Priority { get => 0; }
-
-    public PublishContext InternalContext { get; set; } = default!;
-
-    public async Task Invoke(IPublishContext context, Func<IPublishContext, Task> next)
+    public override async Task Invoke(IPublishContext context, Func<IPublishContext, Task>? next)
     {
         var message = context.Message;
         ArgumentNullException.ThrowIfNull(message, nameof(message));

@@ -39,21 +39,15 @@ public class SendPipelineFinalStep(
     ISerializer serializer,
     IBusDataAccess dataAccess,
     IMeters meters)
-    : ISendPipelineFinalStep
+    : PipelineFinalStep<SendContext, ISendContext>
+    , ISendPipelineFinalStep
 {
     private readonly ISystemClock _clock = clock;
     private readonly ISerializer _serializer = serializer;
     private readonly IBusDataAccess _dataAccess = dataAccess;
     private readonly IMeters _meters = meters;
 
-    // This property isn't used as the handlers step is always last in the pipeline
-    // but it is requred by the interface.
-    [ExcludeFromCodeCoverage]
-    public int Priority { get => 0; }
-
-    public SendContext InternalContext { get; set; } = default!;
-
-    public async Task Invoke(ISendContext context, Func<ISendContext, Task> next)
+    public override async Task Invoke(ISendContext context, Func<ISendContext, Task>? next)
     {
         var message = context.Message;
         ArgumentNullException.ThrowIfNull(message, nameof(message));

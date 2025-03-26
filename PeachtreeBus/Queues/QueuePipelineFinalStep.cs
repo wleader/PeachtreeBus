@@ -24,21 +24,15 @@ namespace PeachtreeBus.Queues
         ILogger<QueuePipelineFinalStep> log,
         ISagaMessageMapManager sagaMessageMapManager,
         IQueueReader queueReader)
-        : IQueuePipelineFinalStep
+        : PipelineFinalStep<QueueContext, IQueueContext>
+        , IQueuePipelineFinalStep
     {
         private readonly IFindQueueHandlers _findHandlers = findHandlers;
         private readonly ILogger<QueuePipelineFinalStep> _log = log;
         private readonly ISagaMessageMapManager _sagaMessageMapManager = sagaMessageMapManager;
         private readonly IQueueReader _queueReader = queueReader;
 
-        // This property isn't used as the handlers step is always last in the pipeline
-        // but it is requred by the interface.
-        [ExcludeFromCodeCoverage]
-        public int Priority { get => 0; }
-
-        public QueueContext InternalContext { get; set; } = default!;
-
-        public async Task Invoke(IQueueContext context, Func<IQueueContext, Task>? next)
+        public override async Task Invoke(IQueueContext context, Func<IQueueContext, Task>? next)
         {
             // determine what type of message it is.
             var messageType = Type.GetType(context.MessageClass)

@@ -11,18 +11,12 @@ namespace PeachtreeBus.Subscriptions
 
     public class SubscribedPipelineFinalStep(
         IFindSubscribedHandlers findHandlers)
-        : ISubscribedPipelineFinalStep
+        : PipelineFinalStep<SubscribedContext, ISubscribedContext>
+        , ISubscribedPipelineFinalStep
     {
         private readonly IFindSubscribedHandlers _findHandlers = findHandlers;
 
-        // This property isn't used as the handlers step is always last in the pipeline
-        // but it is requred by the interface.
-        [ExcludeFromCodeCoverage]
-        public int Priority { get => 0; }
-
-        public SubscribedContext InternalContext { get; set; } = default!;
-
-        public async Task Invoke(ISubscribedContext subscribedcontext, Func<ISubscribedContext, Task>? next)
+        public override async Task Invoke(ISubscribedContext subscribedcontext, Func<ISubscribedContext, Task>? next)
         {
             var context = (SubscribedContext)subscribedcontext;
 
