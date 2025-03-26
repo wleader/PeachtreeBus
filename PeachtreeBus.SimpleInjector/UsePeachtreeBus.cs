@@ -85,7 +85,8 @@ public static partial class SimpleInjectorExtensions
         container.Register(typeof(IWrappedScopeFactory), () => new SimpleInjectorScopeFactory(container), Lifestyle.Singleton);
         container.Register(typeof(IWrappedScope), typeof(SimpleInjectorScope), Lifestyle.Scoped);
 
-        // enables dotnet perf counters.
+        // telemetry services.
+        container.RegisterSingleton(typeof(IActivityFactory), () => new ActivityFactory());
         container.RegisterSingleton(typeof(IMeters), () => new Meters());
 
         // provide an abstracted access to the system clock 
