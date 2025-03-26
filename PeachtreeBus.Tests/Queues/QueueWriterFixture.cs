@@ -102,7 +102,7 @@ namespace PeachtreeBus.Tests.Queues
                 userMessage,
                 priority: 100);
 
-            Assert.AreEqual(100, invokedContext?.Priority);
+            Assert.AreEqual(100, invokedContext?.MessagePriority);
         }
 
         [TestMethod]

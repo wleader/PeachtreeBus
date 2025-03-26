@@ -22,6 +22,8 @@ public interface IIncomingContext : IContext
     /// </summary>
     UtcDateTime EnqueuedTime { get; }
 
+    UtcDateTime NotBefore { get; }
+
     /// <summary>
     /// A Unique Identifier for the message.
     /// </summary>
@@ -38,5 +40,5 @@ public interface IIncomingContext : IContext
 public interface IOutgoingContext : IContext
 {
     UtcDateTime? NotBefore { get; set; }
-    int Priority { get; set; }
+    int MessagePriority { get; set; }
 }

@@ -236,7 +236,7 @@ public class SendPipelineFinalStepFixture
     [TestMethod]
     public async Task Given_Priority_When_Publish_Then_PriorityIsSet()
     {
-        context.Priority = 151;
+        context.MessagePriority = 151;
         await step.Invoke(context, null!);
 
         Assert.IsNotNull(AddedMessage);

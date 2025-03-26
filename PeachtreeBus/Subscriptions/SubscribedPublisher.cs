@@ -40,7 +40,7 @@ public class SubscribedPublisher(
             Topic = topic,
             Headers = userHeaders ?? [],
             NotBefore = notBefore,
-            Priority = priority,
+            MessagePriority = priority,
         };
 
         // give the publish pipeline steps a chance to

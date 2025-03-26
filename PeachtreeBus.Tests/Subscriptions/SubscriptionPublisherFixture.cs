@@ -110,7 +110,7 @@ public class SubscriptionPublisherFixture
             userMessage,
             priority: 100);
         Assert.IsNotNull(invokedContext);
-        Assert.AreEqual(100, invokedContext.Priority);
+        Assert.AreEqual(100, invokedContext.MessagePriority);
     }
 
     [TestMethod]
@@ -150,7 +150,7 @@ public class SubscriptionPublisherFixture
         Assert.IsNotNull(context);
         Assert.AreSame(userMessage, context.Message);
         Assert.AreSame(userHeaders, context.Headers);
-        Assert.AreEqual(245, context.Priority);
+        Assert.AreEqual(245, context.MessagePriority);
         Assert.AreEqual(notBefore, context.NotBefore);
     }
 }

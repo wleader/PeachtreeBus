@@ -42,7 +42,7 @@ public class PublishPipelineFinalStep(
         {
             ValidUntil = _clock.UtcNow.Add(_configuration.PublishConfiguration.Lifespan),
             MessageId = UniqueIdentity.Empty, // will be ignored and the database will generate.
-            Priority = context.Priority,
+            Priority = context.MessagePriority,
             NotBefore = context.NotBefore ?? _clock.UtcNow,
             Enqueued = _clock.UtcNow,
             Completed = null,

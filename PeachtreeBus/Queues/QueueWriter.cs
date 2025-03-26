@@ -47,7 +47,7 @@ public class QueueWriter(
         {
             Destination = queueName,
             NotBefore = notBefore,
-            Priority = priority,
+            MessagePriority = priority,
             Message = message,
             Headers = userHeaders ?? [],
         };

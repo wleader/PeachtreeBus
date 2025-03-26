@@ -150,12 +150,14 @@ public static class TestData
 
     public static SendContext CreateSendContext(
         object? userMessage = null,
-        QueueName? destination = null)
+        QueueName? destination = null,
+        UtcDateTime? notBefore = null)
     {
         return new SendContext()
         {
             Message = userMessage ?? CreateQueueUserMessage(),
             Destination = destination ?? DefaultQueueName,
+            NotBefore = notBefore ?? DateTime.UtcNow,
         };
     }
 

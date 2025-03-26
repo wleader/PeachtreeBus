@@ -239,7 +239,7 @@ public class PublishPipelineFinalStepFixture
     [TestMethod]
     public async Task Given_Priority_When_Invoke_Then_PriorityIsSet()
     {
-        context.Priority = 100;
+        context.MessagePriority = 100;
         await step.Invoke(context, null!);
 
         Assert.AreEqual(100, PublishedMessage?.Priority);
