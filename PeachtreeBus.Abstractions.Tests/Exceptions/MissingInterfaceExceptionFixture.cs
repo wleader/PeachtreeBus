@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Abstractions.Tests.TestClasses;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
@@ -28,7 +29,7 @@ public class TypeIsNotIQueueMessageExceptionFixture
     public void Given_ClassWithInterface_When_ThrowIf_Then_Returns()
     {
         TypeIsNotIQueueMessageException.ThrowIfMissingInterface(
-            typeof(AbstractionsTestData.TestQueuedMessage));
+            typeof(TestQueuedMessage));
     }
 }
 
@@ -55,6 +56,6 @@ public class TypeIsNotISubscribedMessageExceptionFixture
     public void Given_ClassWithInterface_When_ThrowIf_Then_Returns()
     {
         TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(
-            typeof(AbstractionsTestData.TestSubscribedMessage));
+            typeof(TestSubscribedMessage));
     }
 }
