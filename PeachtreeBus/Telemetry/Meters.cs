@@ -16,42 +16,42 @@ public interface IMeters
 
 public class Meters : IMeters
 {
-    public static readonly Meter Meter = new("PeachtreeBus", "0.11.0");
+    public static readonly Meter Messaging = new("PeachtreeBus.Messaging", "0.11.0");
 
-    public const string UnitMessages = "Messages";
+    public const string UnitMessages = "messages";
 
     public static readonly Counter<long> CompletedMessageCount =
-        Meter.CreateCounter<long>(nameof(CompletedMessageCount),
+        Messaging.CreateCounter<long>("messaging.client.consumed.messages",
             UnitMessages,
             "A count of successfully processed messages.");
     
     public static readonly UpDownCounter<int> ActiveMessageCount =
-        Meter.CreateUpDownCounter<int>(nameof(ActiveMessageCount),
+        Messaging.CreateUpDownCounter<int>("peachtreebus.client.active.messages",
             UnitMessages,
             "The number of messages that are currently being handled.");
 
     public static readonly Counter<long> AttemptedMessageCount =
-        Meter.CreateCounter<long>(nameof(AttemptedMessageCount),
+        Messaging.CreateCounter<long>("peachtreebus.client.attempted.messages",
             UnitMessages,
             "A count of attempts to handle a message.");
 
     public static readonly Counter<long> FailedMessageCount =
-        Meter.CreateCounter<long>(nameof(FailedMessageCount),
+        Messaging.CreateCounter<long>("peachtreebus.client.failed.messages",
             UnitMessages,
             "A count of messages sent to the Failed queue.");
 
     public static readonly Counter<long> SentMessageCount =
-        Meter.CreateCounter<long>(nameof(SentMessageCount),
+        Messaging.CreateCounter<long>("messaging.client.sent.messages",
             UnitMessages,
             "A count of messages sent.");
 
     public static readonly Counter<long> RetryMessageCount =
-        Meter.CreateCounter<long>(nameof(RetryMessageCount),
+        Messaging.CreateCounter<long>("peachtreebus.client.retry.messages",
             UnitMessages,
             "A count of messages that got scheduled for a retry.");
 
     public static readonly Counter<long> LockedSagaMessageCount =
-        Meter.CreateCounter<long>(nameof(LockedSagaMessageCount),
+        Messaging.CreateCounter<long>("peachtreebus.client.lockedsaga.messsages",
             UnitMessages,
             "A count of times when a message was re-queued because it's saga was locked.");
 

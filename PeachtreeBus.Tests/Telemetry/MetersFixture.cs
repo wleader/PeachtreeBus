@@ -27,10 +27,10 @@ public class MetersFixture
     {
         // this is our meter name, no one else should use it.
         // it shouldn't change without a really good reason.
-        Assert.AreEqual("PeachtreeBus", Meters.Meter.Name);
+        Assert.AreEqual("PeachtreeBus.Messaging", Meters.Messaging.Name);
 
         // Version might change, if the counters inside the meter change.
-        Assert.AreEqual("0.11.0", Meters.Meter.Version);
+        Assert.AreEqual("0.11.0", Meters.Messaging.Version);
 
         // get all the fields fields in the meter.
         var fields = typeof(Meters).GetFields(
@@ -55,19 +55,19 @@ public class MetersFixture
 
         // if an instrument name, unit, or type changes, the version should change.
         AssertInstrumentUnchanged(Meters.CompletedMessageCount,
-            "CompletedMessageCount", "Messages", typeof(long), ChangeVersionMessage);
+            "messaging.client.consumed.messages", "messages", typeof(long), ChangeVersionMessage);
         AssertInstrumentUnchanged(Meters.ActiveMessageCount,
-            "ActiveMessageCount", "Messages", typeof(int), ChangeVersionMessage);
+            "peachtreebus.client.active.messages", "messages", typeof(int), ChangeVersionMessage);
         AssertInstrumentUnchanged(Meters.AttemptedMessageCount,
-            "AttemptedMessageCount", "Messages", typeof(long), ChangeVersionMessage);
+            "peachtreebus.client.attempted.messages", "messages", typeof(long), ChangeVersionMessage);
         AssertInstrumentUnchanged(Meters.FailedMessageCount,
-            "FailedMessageCount", "Messages", typeof(long), ChangeVersionMessage);
+            "peachtreebus.client.failed.messages", "messages", typeof(long), ChangeVersionMessage);
         AssertInstrumentUnchanged(Meters.SentMessageCount,
-            "SentMessageCount", "Messages", typeof(long), ChangeVersionMessage);
+            "messaging.client.sent.messages", "messages", typeof(long), ChangeVersionMessage);
         AssertInstrumentUnchanged(Meters.RetryMessageCount,
-            "RetryMessageCount", "Messages", typeof(long), ChangeVersionMessage);
+            "peachtreebus.client.retry.messages", "messages", typeof(long), ChangeVersionMessage);
         AssertInstrumentUnchanged(Meters.LockedSagaMessageCount,
-            "LockedSagaMessageCount", "Messages", typeof(long), ChangeVersionMessage);
+            "peachtreebus.client.lockedsaga.messsages", "messages", typeof(long), ChangeVersionMessage);
 
         // if this fails, add or remove above as needed.
         Assert.AreEqual(instrumentCount, _assertedUnchangedInstruments.Distinct().Count(),
