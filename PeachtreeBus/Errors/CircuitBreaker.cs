@@ -80,9 +80,8 @@ public class CircuitBreaker : ICircuitBreaker
     public async Task<T> Guard<T>(Func<CancellationToken, Task<T>> asyncFunction, CancellationToken cancellationToken)
     {
         T? result = default;
-        await Guard(async (CancellationToken t) =>
-            result = await asyncFunction(t),
-            cancellationToken);
+        async Task AsTask(CancellationToken token) => result = await asyncFunction(cancellationToken);
+        await Guard(AsTask, cancellationToken);
         return result!;
     }
 
