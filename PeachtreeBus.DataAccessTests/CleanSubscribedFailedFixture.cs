@@ -36,9 +36,9 @@ namespace PeachtreeBus.DataAccessTests
             var statement =
             """
             INSERT INTO [{0}].[Subscribed_Failed]
-            ([Id],[SubscriberId],[ValidUntil],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
+            ([Id],[SubscriberId],[Topic],[ValidUntil],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
             VALUES
-            (@Id, @SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
+            (@Id, @SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
             """;
 
             statement = string.Format(statement, DefaultSchema, DefaultQueue);
@@ -56,6 +56,7 @@ namespace PeachtreeBus.DataAccessTests
             p.Add("@Retries", 0);
             p.Add("@Headers", "");
             p.Add("@Body", "");
+            p.Add("@Topic", "Topic");
 
             await SecondaryConnection.Connection.ExecuteAsync(statement, p);
         }

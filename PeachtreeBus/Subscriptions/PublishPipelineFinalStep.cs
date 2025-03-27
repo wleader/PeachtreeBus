@@ -48,7 +48,8 @@ public class PublishPipelineFinalStep(
             Failed = null,
             Retries = 0,
             Headers = _serializer.SerializeHeaders(headers),
-            Body = _serializer.SerializeMessage(message, type)
+            Body = _serializer.SerializeMessage(message, type),
+            Topic = context.Topic,
         };
 
         context.RecipientCount = await _dataAccess.Publish(sm, context.Topic);

@@ -10,4 +10,6 @@ public class SubscribedContext : IncomingContext<SubscribedData>, ISubscribedCon
     /// The Subscriber that the message was sent to.
     /// </summary>
     public SubscriberId SubscriberId { get => Data.SubscriberId; }
+
+    public Topic Topic { get => Data.Topic; }
 }

@@ -146,6 +146,7 @@ namespace PeachtreeBus.DataAccessTests
                 SubscriberId = new((Guid)row["SubscriberId"]),
                 ValidUntil = row.ToDateTime("ValidUntil"),
                 Priority = (int)row["Priority"],
+                Topic = new((string)row["Topic"])
             };
         }
 

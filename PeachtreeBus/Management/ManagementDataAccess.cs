@@ -113,8 +113,8 @@ namespace PeachtreeBus.Management
             const string CancelPendingSubscribedStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK) 
-                ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
+                ([Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[SubscriberId], D.[Topic], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D
@@ -155,8 +155,8 @@ namespace PeachtreeBus.Management
             const string RetryFailedSubscribedStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK) 
-                ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, NULL, 0, D.[Headers], D.[Body] FROM
+                ([SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[SubscriberId], D.[Topic], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, NULL, 0, D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Failed] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D

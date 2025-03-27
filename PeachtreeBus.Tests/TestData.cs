@@ -63,7 +63,8 @@ public static class TestData
         UtcDateTime? enqueued = null,
         UtcDateTime? validUntil = null,
         SerializedData? headers = null,
-        SerializedData? body = null)
+        SerializedData? body = null,
+        Topic? topic = null)
     {
         return new()
         {
@@ -75,7 +76,8 @@ public static class TestData
             Enqueued = enqueued ?? DateTime.UtcNow,
             ValidUntil = validUntil ?? DateTime.UtcNow.AddMinutes(5),
             Headers = headers ?? DefaultHeaders,
-            Body = body ?? DefaultBody
+            Body = body ?? DefaultBody,
+            Topic = topic ?? DefaultTopic,
         };
     }
 

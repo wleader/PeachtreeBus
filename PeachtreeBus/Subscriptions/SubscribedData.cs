@@ -18,5 +18,7 @@ public class SubscribedData : QueueData
     /// The time at which the message is considered abandonded
     /// and may be deleted.
     /// </summary>
-    public required virtual UtcDateTime ValidUntil { get; set; }
+    public required UtcDateTime ValidUntil { get; set; }
+
+    public required Topic Topic { get; set; }
 }

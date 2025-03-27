@@ -464,7 +464,7 @@ namespace PeachtreeBus.Data
             // Completed and Failed are null means not previously processed and not previously exceeded retry count.
             const string statement =
                 """
-                SELECT TOP 1 [Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
+                SELECT TOP 1 [Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
                     FROM [{0}].[Subscribed_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
                     WHERE NotBefore < SYSUTCDATETIME()
                     AND SubscriberId = @SubscriberId
@@ -512,8 +512,8 @@ namespace PeachtreeBus.Data
             const string PublishStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
-                ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT [SubscriberId], @ValidUntil, NEWID(), @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body
+                ([SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT [SubscriberId], @Topic, @ValidUntil, NEWID(), @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body
                 FROM [{0}].[Subscriptions]
                 WHERE Topic = @Topic
                 AND ValidUntil > SYSUTCDATETIME()
@@ -550,8 +550,8 @@ namespace PeachtreeBus.Data
             const string completeStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Completed] WITH (ROWLOCK)
-                ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body] FROM
+                ([Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[SubscriberId], D.[Topic], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], SYSUTCDATETIME(), NULL, D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D
@@ -582,8 +582,8 @@ namespace PeachtreeBus.Data
             const string FailMessageStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)  
-                ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body] FROM
+                ([Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[SubscriberId], D.[Topic], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], @Headers, D.[Body] FROM
                     (DELETE FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [Id] = @Id) D
@@ -649,8 +649,8 @@ namespace PeachtreeBus.Data
             const string ExpireStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)
-                ([Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
-                SELECT D.[Id], D.[SubscriberId], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
+                ([Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+                SELECT D.[Id], D.[SubscriberId], D.[Topic], D.[ValidUntil], D.[MessageId], D.[Priority], D.[NotBefore], D.[Enqueued], NULL, SYSUTCDATETIME(), D.[Retries], D.[Headers], D.[Body] FROM
                     (DELETE TOP (@MaxCount) FROM [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                         OUTPUT DELETED.*
                         WHERE [ValidUntil] < SYSUTCDATETIME()) D
@@ -798,7 +798,7 @@ namespace PeachtreeBus.Data
             }
         }
 
-        private Activity? StartActivity(string name) =>
+        private static Activity? StartActivity(string name) =>
             ActivitySources.DataAccess.StartActivity(
                 "peachtreebus.dataaccess " + name,
                 ActivityKind.Internal);
