@@ -82,20 +82,6 @@ public class SendPipelineFinalStepFixture
     }
 
     /// <summary>
-    /// Proves that NotBefore defaults to Now
-    /// </summary>
-    /// <returns></returns>
-    [TestMethod]
-    public async Task Given_ContextNotBeforeNull_When_Invoke_NotBeforeIsDefaultedToNow()
-    {
-        context.NotBefore = null;
-        await step.Invoke(context, null!);
-
-        Assert.IsNotNull(AddedMessage);
-        Assert.AreEqual(TestData.Now, AddedMessage.NotBefore);
-    }
-
-    /// <summary>
     /// Proves the supplied NotBefore is used
     /// </summary>
     /// <returns></returns>

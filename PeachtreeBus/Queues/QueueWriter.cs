@@ -30,8 +30,10 @@ public interface IQueueWriter
 ///  Adds a message to a queue using an IBusDataAccess.
 /// </summary>
 public class QueueWriter(
+    ISystemClock clock,
     ISendPipelineInvoker pipelineInvoker) : IQueueWriter
 {
+    private readonly ISystemClock _clock = clock;
     private readonly ISendPipelineInvoker pipelineInvoker = pipelineInvoker;
 
     public async Task WriteMessage(
@@ -46,7 +48,7 @@ public class QueueWriter(
         var context = new SendContext()
         {
             Destination = queueName,
-            NotBefore = notBefore,
+            NotBefore = notBefore ?? _clock.UtcNow,
             MessagePriority = priority,
             Message = message,
             Headers = userHeaders ?? [],

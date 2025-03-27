@@ -17,6 +17,7 @@ namespace PeachtreeBus.Tests.Queues
 
         private QueueWriter writer = default!;
         private Mock<ISendPipelineInvoker> pipelineInvoker = default!;
+        private readonly Mock<ISystemClock> clock = new();
 
         private IQueueMessage userMessage = default!;
 
@@ -25,6 +26,9 @@ namespace PeachtreeBus.Tests.Queues
         [TestInitialize]
         public void TestInitialize()
         {
+            clock.Reset();
+            clock.SetupGet(c => c.UtcNow).Returns(TestData.Now);
+
             pipelineInvoker = new();
 
             pipelineInvoker.Setup(x => x.Invoke(It.IsAny<SendContext>()))
@@ -32,7 +36,7 @@ namespace PeachtreeBus.Tests.Queues
 
             userMessage = TestData.CreateQueueUserMessage();
 
-            writer = new QueueWriter(pipelineInvoker.Object);
+            writer = new QueueWriter(clock.Object, pipelineInvoker.Object);
         }
 
         /// <summary>
@@ -46,22 +50,6 @@ namespace PeachtreeBus.Tests.Queues
                 writer.WriteMessage(
                     TestData.DefaultQueueName,
                     null!));
-        }
-
-        /// <summary>
-        /// Proves that NotBefore defaults to Now
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Given_NullNotBefore_When_WriteMessage_ThenContextNotBeforeNull()
-        {
-            await writer.WriteMessage(
-                TestData.DefaultQueueName,
-                userMessage,
-                notBefore: null);
-
-            Assert.IsNotNull(invokedContext);
-            Assert.IsFalse(invokedContext.NotBefore.HasValue);
         }
 
         /// <summary>

@@ -39,6 +39,6 @@ public interface IIncomingContext : IContext
 
 public interface IOutgoingContext : IContext
 {
-    UtcDateTime? NotBefore { get; set; }
+    UtcDateTime NotBefore { get; set; }
     int MessagePriority { get; set; }
 }

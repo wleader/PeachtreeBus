@@ -1,5 +1,6 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using System;
 
 namespace PeachtreeBus;
 
@@ -46,7 +47,7 @@ public abstract class OutgoingContext<TQueueData>
     , IOutgoingContext
     where TQueueData : QueueData
 {
-    public UtcDateTime? NotBefore { get; set; }
+    public UtcDateTime NotBefore { get; set; } = DateTime.UtcNow;
     public int MessagePriority { get; set; }
 }
 

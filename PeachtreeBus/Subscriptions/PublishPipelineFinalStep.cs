@@ -4,7 +4,6 @@ using PeachtreeBus.Pipelines;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Telemetry;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions;
@@ -43,7 +42,7 @@ public class PublishPipelineFinalStep(
             ValidUntil = _clock.UtcNow.Add(_configuration.PublishConfiguration.Lifespan),
             MessageId = UniqueIdentity.Empty, // will be ignored and the database will generate.
             Priority = context.MessagePriority,
-            NotBefore = context.NotBefore ?? _clock.UtcNow,
+            NotBefore = context.NotBefore,
             Enqueued = _clock.UtcNow,
             Completed = null,
             Failed = null,

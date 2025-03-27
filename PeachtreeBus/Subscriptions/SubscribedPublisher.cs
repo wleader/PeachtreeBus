@@ -8,9 +8,11 @@ namespace PeachtreeBus.Subscriptions;
 /// Publishes a subscription message to all current subscribers.
 /// </summary>
 public class SubscribedPublisher(
+    ISystemClock clock,
     IPublishPipelineInvoker pipelineInvoker)
     : ISubscribedPublisher
 {
+    private readonly ISystemClock _clock = clock;
     private readonly IPublishPipelineInvoker _pipelineInvoker = pipelineInvoker;
 
     /// <summary>
@@ -39,7 +41,7 @@ public class SubscribedPublisher(
             Message = message,
             Topic = topic,
             Headers = userHeaders ?? [],
-            NotBefore = notBefore,
+            NotBefore = notBefore ?? _clock.UtcNow,
             MessagePriority = priority,
         };
 

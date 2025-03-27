@@ -94,19 +94,6 @@ public class PublishPipelineFinalStepFixture
     }
 
     /// <summary>
-    /// Proves NotBefore is defaulted
-    /// </summary>
-    /// <returns></returns>
-    [TestMethod]
-    public async Task Invoke_DefaultsNotBeforeToUtcNow()
-    {
-        context.NotBefore = null;
-        await step.Invoke(context, null!);
-
-        Assert.AreEqual(clock.Object.UtcNow, PublishedMessage?.NotBefore);
-    }
-
-    /// <summary>
     /// Proves NotBefore is used
     /// </summary>
     /// <returns></returns>

@@ -18,6 +18,7 @@ public class SubscriptionPublisherFixture
 
     // Dependencies
     private Mock<IPublishPipelineInvoker> pipelineInvoker = default!;
+    private readonly Mock<ISystemClock> clock = new();
 
     // a message to send.
     private TestData.TestSubscribedMessage userMessage = default!;
@@ -29,6 +30,9 @@ public class SubscriptionPublisherFixture
     public void TestInitialize()
     {
         pipelineInvoker = new();
+        clock.Reset();
+
+        clock.SetupGet(c => c.UtcNow).Returns(TestData.Now);
 
         userMessage = TestData.CreateSubscribedUserMessage();
 
@@ -39,6 +43,7 @@ public class SubscriptionPublisherFixture
             });
 
         publisher = new SubscribedPublisher(
+            clock.Object,
             pipelineInvoker.Object);
     }
 
@@ -68,7 +73,7 @@ public class SubscriptionPublisherFixture
             userMessage,
             null);
         Assert.IsNotNull(invokedContext);
-        Assert.IsFalse(invokedContext.NotBefore.HasValue);
+        Assert.AreEqual(TestData.Now, invokedContext.NotBefore);
     }
 
     /// <summary>
@@ -136,7 +141,7 @@ public class SubscriptionPublisherFixture
     [TestMethod]
     public async Task When_Publish_Then_PipelineInvokerContextIsCorrect()
     {
-        var notBefore = new DateTime(2025, 3, 16, 18, 35, 36, DateTimeKind.Utc);
+        UtcDateTime notBefore = new DateTime(2025, 3, 16, 18, 35, 36, DateTimeKind.Utc);
         var userHeaders = new UserHeaders();
         await publisher.Publish(
             TestData.DefaultTopic,

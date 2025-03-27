@@ -4,7 +4,6 @@ using PeachtreeBus.Pipelines;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Telemetry;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Queues;
@@ -62,7 +61,7 @@ public class SendPipelineFinalStep(
         {
             MessageId = UniqueIdentity.New(), // will be ignored and the database will generate.
             Priority = context.MessagePriority,
-            NotBefore = context.NotBefore ?? _clock.UtcNow,
+            NotBefore = context.NotBefore,
             Enqueued = _clock.UtcNow,
             Completed = null,
             Failed = null,
