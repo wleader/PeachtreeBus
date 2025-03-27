@@ -4,10 +4,11 @@ using System.Diagnostics;
 
 namespace PeachtreeBus.Telemetry;
 
-public class ReceiveActivity(QueueContext context, DateTime started) : IDisposable
+public class ReceiveActivity : BaseActivity, IDisposable
 {
-    private readonly Activity? _activity =
-        ActivitySources.Messaging.StartActivity(
+    public ReceiveActivity(QueueContext context, DateTime started)
+    {
+        _activity = ActivitySources.Messaging.StartActivity(
             $"receive {context.SourceQueue}",
             ActivityKind.Client,
             null, // parent context
@@ -16,10 +17,5 @@ public class ReceiveActivity(QueueContext context, DateTime started) : IDisposab
             ?.AddMessagingOperation("receive")
             ?.AddMessagingClientId()
             ?.AddQueueContext(context);
-
-    public void Dispose()
-    {
-        _activity?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

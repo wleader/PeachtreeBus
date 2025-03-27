@@ -4,18 +4,15 @@ using System.Diagnostics;
 
 namespace PeachtreeBus.Telemetry;
 
-public class SendActivity(ISendContext context) : IDisposable
+public class SendActivity : BaseActivity, IDisposable
 {
-    private readonly Activity? _activity =
+    public SendActivity(ISendContext context)
+    {
+        _activity =
         ActivitySources.Messaging.StartActivity(
             "send " + context.Destination.ToString(),
             ActivityKind.Producer)
             ?.AddOutgoingContext(context)
             ?.AddDestination(context.Destination);
-
-    public void Dispose()
-    {
-        _activity?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

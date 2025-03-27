@@ -4,10 +4,8 @@ using System.Diagnostics;
 
 namespace PeachtreeBus.Telemetry;
 
-public class PipelineActivity<TContext> : IDisposable
+public class PipelineActivity<TContext> : BaseActivity, IDisposable
 {
-    private readonly Activity? _activity;
-
     public PipelineActivity(IPipelineStep<TContext> step)
     {
         var type = step.GetType();
@@ -32,11 +30,5 @@ public class PipelineActivity<TContext> : IDisposable
             baseType is not null &&
             baseType.IsGenericType &&
             baseType.GetGenericTypeDefinition() == typeof(PipelineFinalStep<,>);
-    }
-
-    public void Dispose()
-    {
-        _activity?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }
