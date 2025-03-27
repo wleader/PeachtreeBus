@@ -76,7 +76,7 @@ public class PublishPipelineFinalStepFixture
     public async Task Invoke_ThrowsWhenContextMessageIsNull()
     {
         context.Message = null!;
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
             step.Invoke(context, null!));
     }
 
@@ -219,7 +219,7 @@ public class PublishPipelineFinalStepFixture
     public async Task Given_MessageIsNotISubscribedMessage_When_Invoke_Then_ThrowsUsefulException()
     {
         context.Message = new object();
-        await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
+        await Assert.ThrowsExactlyAsync<TypeIsNotISubscribedMessageException>(() =>
             step.Invoke(context, null!));
     }
 

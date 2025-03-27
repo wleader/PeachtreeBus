@@ -64,7 +64,7 @@ public class SendPipelineFinalStepFixture
     public async Task Given_ContextMessageNull_When_Invoke_Then_Throws()
     {
         context.Message = null!;
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
             step.Invoke(context, null!));
     }
 
@@ -215,7 +215,7 @@ public class SendPipelineFinalStepFixture
     public async Task Given_MessageIsNotIQueuedMessage_When_Invoke_Then_ThrowsUsefulException()
     {
         context.Message = new object();
-        await Assert.ThrowsExceptionAsync<TypeIsNotIQueueMessageException>(() =>
+        await Assert.ThrowsExactlyAsync<TypeIsNotIQueueMessageException>(() =>
             step.Invoke(context, null!));
     }
 

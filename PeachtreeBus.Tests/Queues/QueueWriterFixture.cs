@@ -46,7 +46,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task Given_MessageIsNull_When_WriteMessage_Then_Throws()
         {
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+            await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
                 writer.WriteMessage(
                     TestData.DefaultQueueName,
                     null!));

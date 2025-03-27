@@ -54,7 +54,7 @@ public class SubscriptionPublisherFixture
     [TestMethod]
     public async Task Publish_ThrowsWhenMessageIsNull()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
             publisher.Publish(
                 TestData.DefaultTopic2,
                 null!,
