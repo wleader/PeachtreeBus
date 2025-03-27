@@ -1,9 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Abstractions.Tests.TestClasses;
-using PeachtreeBus.Queues;
 using PeachtreeBus.Telemetry;
+using System;
 using System.Diagnostics;
 using System.Linq;
+using MSAssert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace PeachtreeBus.Tests.Telemetry;
 
@@ -14,17 +15,17 @@ public class PipelineActivityFixture()
     [TestMethod]
     public void When_Activity_Then_TagsAreCorrect()
     {
-        var pipeline = new TestQueuePipelineStep();
-        var type = pipeline.GetType();
-        new PipelineActivity<IQueueContext>(pipeline).Dispose();
-
-        _listener.Stopped.SingleOrDefault()
-            .AssertIsNotNull()
-            .AssertOperationName("peachtreebus.pipeline " + type.Name)
-            .AssertKind(ActivityKind.Internal)
-            .AssertPipelineType(type)
-            .AssertStarted();
+        var type = typeof(TestQueuePipelineStep);
+        new PipelineActivity(type).Dispose();
+        Assert(_listener.Stopped.SingleOrDefault(), type);
     }
+
+    public static void Assert(Activity? activity, Type pipelineType) =>
+        activity.AssertIsNotNull()
+            .AssertOperationName("peachtreebus.pipeline " + pipelineType.Name)
+            .AssertKind(ActivityKind.Internal)
+            .AssertPipelineType(pipelineType)
+            .AssertStarted();
 
     [TestMethod]
     public void Given_PipelineStepIsFinalStep_When_Activity_Then_NoActivity()
@@ -32,7 +33,7 @@ public class PipelineActivityFixture()
 
         // We don't want 'Final' steps to be presented to the end user
         // as regular pipeline steps.
-        new PipelineActivity<IQueueContext>(new TestFinalStep()).Dispose();
-        Assert.AreEqual(0, _listener.Stopped.Count);
+        new PipelineActivity(typeof(TestFinalStep)).Dispose();
+        MSAssert.AreEqual(0, _listener.Stopped.Count);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Queues;
 using PeachtreeBus.Telemetry;
 using System;
 using System.Diagnostics;
@@ -17,8 +18,11 @@ public class ReceiveActivityFixture()
         var started = DateTime.UtcNow;
         new ReceiveActivity(context, started).Dispose();
 
-        _listener.Stopped.SingleOrDefault()
-            .AssertIsNotNull()
+        Assert(_listener.Stopped.SingleOrDefault(), context, started);
+    }
+
+    public static void Assert(Activity? activity, QueueContext context, DateTime started) =>
+        activity.AssertIsNotNull()
             .AssertOperationName("receive " + context.SourceQueue.ToString())
             .AssertKind(ActivityKind.Client)
             .AssertStartTime(started)
@@ -27,5 +31,4 @@ public class ReceiveActivityFixture()
             .AssertMessagingClientId()
             .AssertIncomingContext(context)
             .AssertStarted();
-    }
 }

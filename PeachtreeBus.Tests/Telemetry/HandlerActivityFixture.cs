@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Abstractions.Tests.TestClasses;
+using PeachtreeBus.Queues;
 using PeachtreeBus.Telemetry;
+using System;
 using System.Diagnostics;
 using System.Linq;
 
@@ -16,33 +18,14 @@ public class HandlerActivityFixture()
         var context = TestData.CreateQueueContext();
         var handlerType = typeof(TestHandler);
         new HandlerActivity(handlerType, context).Dispose();
+        Assert(_listener.Stopped.SingleOrDefault(), handlerType, context);
+    }
 
-        _listener.Stopped.SingleOrDefault()
-            .AssertIsNotNull()
+    public static void Assert(Activity? activity, Type handlerType, QueueContext context) =>
+        activity.AssertIsNotNull()
             .AssertOperationName("peachtreebus.handler " + handlerType.Name)
             .AssertKind(ActivityKind.Internal)
             .AssertHandlerType(handlerType)
             .AssertIncomingContext(context)
             .AssertStarted();
-    }
-}
-
-[TestClass]
-public class SendActivityFixture()
-    : ActivityFixtureBase(ActivitySources.Messaging)
-{
-    [TestMethod]
-    public void When_Activity_Then_TagsAreCorrect()
-    {
-        var context = TestData.CreateSendContext();
-        new SendActivity(context).Dispose();
-
-        _listener.Stopped.SingleOrDefault()
-            .AssertIsNotNull()
-            .AssertOperationName("send " + context.Destination.ToString())
-            .AssertKind(ActivityKind.Producer)
-            .AssertOutgoingContext(context)
-            .AssertDestination(context.Destination)
-            .AssertStarted();
-    }
 }

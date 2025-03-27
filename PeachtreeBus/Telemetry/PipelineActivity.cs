@@ -4,19 +4,16 @@ using System.Diagnostics;
 
 namespace PeachtreeBus.Telemetry;
 
-public class PipelineActivity<TContext> : BaseActivity, IDisposable
+public class PipelineActivity : BaseActivity, IDisposable
 {
-    public PipelineActivity(IPipelineStep<TContext> step)
+    public PipelineActivity(Type pipelineType)
     {
-        var type = step.GetType();
-
-        _activity = DoNotTrace(type)
+        _activity = DoNotTrace(pipelineType)
             ? null
             : ActivitySources.User.StartActivity(
-                $"peachtreebus.pipeline {type.Name}",
-                ActivityKind.Internal);
-
-        _activity.AddPipelineType(type);
+                $"peachtreebus.pipeline {pipelineType.Name}",
+                ActivityKind.Internal)
+                .AddPipelineType(pipelineType);
     }
 
     private static bool DoNotTrace(Type type)
