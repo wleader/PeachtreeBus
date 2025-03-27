@@ -35,10 +35,6 @@ public class TestActivityListener : IDisposable
 
     public void Dispose()
     {
-        // not sure if this is needed?
-        Started.ForEach(a => a.Dispose());
-        Stopped.ForEach(a => a.Dispose());
-
         _listener?.Dispose();
         GC.SuppressFinalize(this);
     }
