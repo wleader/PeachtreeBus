@@ -26,19 +26,7 @@ public class ActivityFactoryFixture
         _listener?.Dispose();
     }
 
-    [TestMethod]
-    [TestCategory("Trace Version")]
-    public void Then_VersionDoesNotNeedToChange()
-    {
-        const string ChangeVersionMessage =
-            "If the instruments change, then the Meter.Version must change.";
-        const string Version = "0.11.0";
 
-        // do not change these asserts unless there really is version change.
-        Then_SourceHasNameAndKind(ActivityFactory.Messaging, "PeachtreeBus.Messaging", Version, ChangeVersionMessage);
-        Then_SourceHasNameAndKind(ActivityFactory.User, "PeachtreeBus.User", Version, ChangeVersionMessage);
-        Then_SourceHasNameAndKind(ActivityFactory.Internal, "PeachtreeBus.Internal", Version, ChangeVersionMessage);
-    }
 
     [TestMethod]
     [TestCategory("Receive")]
@@ -195,15 +183,6 @@ public class ActivityFactoryFixture
         Assert.AreEqual(tag.Key, tagName, $"Tag not found: {tagName}");
         Assert.AreEqual(expectedValue, tag.Value, "Tag value incorrect.");
     }
-
-    private static void Then_SourceHasNameAndKind(ActivitySource source,
-        string expectedName, string expectedVersion,
-        string? message = default)
-    {
-        Assert.AreEqual(expectedName, source.Name, message);
-        Assert.AreEqual(expectedVersion, source.Version, message);
-    }
-
     private void Given_Listener()
     {
         static ActivitySamplingResult SampleAllData(

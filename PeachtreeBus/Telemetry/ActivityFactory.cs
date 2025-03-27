@@ -1,10 +1,8 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using PeachtreeBus.Data;
+﻿using PeachtreeBus.Data;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using System;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace PeachtreeBus.Telemetry;
 
@@ -18,18 +16,11 @@ public interface IActivityFactory
 
 public class ActivityFactory : IActivityFactory
 {
-    // Core messaging activities.
-    public static readonly ActivitySource Messaging = new("PeachtreeBus.Messaging", "0.11.0");
 
-    // calls into user code.
-    public static readonly ActivitySource User = new("PeachtreeBus.User", "0.11.0");
-
-    // Stuff that peachtree bus developers could be interested in, but most users wouldn't
-    public static readonly ActivitySource Internal = new("PeachtreeBus.Internal", "0.11.0");
 
     public Activity? Receive(QueueContext context, DateTime started)
     {
-        return Messaging.StartActivity(
+        return ActivitySources.Messaging.StartActivity(
             "receive " + context.SourceQueue.ToString(),
             ActivityKind.Client,
             null, // parent context
@@ -47,7 +38,7 @@ public class ActivityFactory : IActivityFactory
         var type = step?.GetType();
         if (DoNotTrace(type)) return null;
 
-        return User.StartActivity(
+        return ActivitySources.User.StartActivity(
             "peachtreebus.pipeline " + type!.Name,
             ActivityKind.Internal)
             ?.AddTag("peachtreebus.pipeline.type", type.FullName);
@@ -58,7 +49,7 @@ public class ActivityFactory : IActivityFactory
         var type = handler?.GetType();
         if (type is null) return null;
 
-        return User.StartActivity(
+        return ActivitySources.User.StartActivity(
             "peachtreebus.handler " + type.Name,
             ActivityKind.Internal)
             ?.AddTag("peachtreebus.handler.type", type.FullName)
@@ -67,7 +58,7 @@ public class ActivityFactory : IActivityFactory
 
     public Activity? Send(ISendContext context)
     {
-        return Messaging.StartActivity(
+        return ActivitySources.Messaging.StartActivity(
             "send " + context.Destination.ToString(),
             ActivityKind.Producer)
             ?.AddOutgoingContext(context)
@@ -109,8 +100,8 @@ public static class ActivityExtensions
             ?.AddMessageClass(context.MessageClass)
             ?.AddEnqueued(context.EnqueuedTime)
             ?.AddNotBefore(context.NotBefore);
-            // todo add conversation id
-            //?.AddTag("messaging.message.conversation_id", ????)
+        // todo add conversation id
+        //?.AddTag("messaging.message.conversation_id", ????)
     }
 
     public static Activity? AddOutgoingContext(this Activity? activity, IOutgoingContext? context)
