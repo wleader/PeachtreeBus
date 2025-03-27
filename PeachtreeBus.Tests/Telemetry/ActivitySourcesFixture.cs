@@ -18,6 +18,7 @@ public class ActivitySourcesFixture
         AssertSource(ActivitySources.Messaging, "PeachtreeBus.Messaging", Version, ChangeVersionMessage);
         AssertSource(ActivitySources.User, "PeachtreeBus.User", Version, ChangeVersionMessage);
         AssertSource(ActivitySources.Internal, "PeachtreeBus.Internal", Version, ChangeVersionMessage);
+        AssertSource(ActivitySources.Internal, "PeachtreeBus.DataAccess", Version, ChangeVersionMessage);
     }
 
     private static void AssertSource(ActivitySource source,

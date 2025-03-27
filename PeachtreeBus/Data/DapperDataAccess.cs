@@ -4,7 +4,9 @@ using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Telemetry;
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -56,6 +58,8 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
+            using var _ = StartActivity(nameof(AddMessage));
+
             string statement = string.Format(EnqueueMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
@@ -90,6 +94,8 @@ namespace PeachtreeBus.Data
                 ORDER BY [Priority] DESC
                 """;
 
+            using var _ = StartActivity(nameof(GetPendingQueued));
+
             var query = string.Format(GetOnePendingMessageStatement, _configuration.Schema, queueName);
 
             return await LogIfError(
@@ -111,6 +117,9 @@ namespace PeachtreeBus.Data
                 FROM [{0}].[{1}_Pending] WITH (READPAST, READCOMMITTEDLOCK)
                 WHERE NotBefore < SYSUTCDATETIME()
                 """;
+
+            using var _ = StartActivity(nameof(EstimateQueuePending));
+
             var query = string.Format(EstimateQueuedStatement, _configuration.Schema, queueName);
 
             return await LogIfError(
@@ -138,6 +147,8 @@ namespace PeachtreeBus.Data
                 """;
 
             ArgumentNullException.ThrowIfNull(message);
+
+            using var _ = StartActivity(nameof(CompleteMessage));
 
             string statement = string.Format(CompleteMessageStatement, _configuration.Schema, queueName);
 
@@ -170,6 +181,8 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
+            using var _ = StartActivity(nameof(FailMessage));
+
             string statement = string.Format(FailMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
@@ -200,6 +213,8 @@ namespace PeachtreeBus.Data
                 """;
 
             ArgumentNullException.ThrowIfNull(message);
+
+            using var _ = StartActivity(nameof(UpdateMessage));
 
             var statement = string.Format(UpdateMessageStatement, _configuration.Schema, queueName);
 
@@ -234,6 +249,8 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(data);
 
+            using var _ = StartActivity(nameof(InsertSagaData));
+
             string statement = string.Format(InsertSagaStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
@@ -264,6 +281,8 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(data);
 
+            using var _ = StartActivity(nameof(UpdateSagaData));
+
             var statement = string.Format(UpdateSagaStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
@@ -288,6 +307,8 @@ namespace PeachtreeBus.Data
                 DELETE FROM [{0}].[{1}_SagaData] WITH (ROWLOCK)
                 WHERE [Key] = @Key
                 """;
+
+            using var _ = StartActivity(nameof(DeleteSagaData));
 
             string statement = string.Format(DeleteSagaStatement, _configuration.Schema, sagaName);
             var p = new DynamicParameters();
@@ -354,6 +375,8 @@ namespace PeachtreeBus.Data
                 END CATCH
                 """;
 
+            using var _ = StartActivity(nameof(GetSagaData));
+
             var query = string.Format(GetSagaDataStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
@@ -376,6 +399,8 @@ namespace PeachtreeBus.Data
                 WHERE [ValidUntil] < SYSUTCDATETIME()
                 SELECT @@ROWCOUNT
                 """;
+
+            using var _ = StartActivity(nameof(ExpireSubscriptions));
 
             string statement = string.Format(ExpireSubscriptionsStatement, _configuration.Schema);
 
@@ -411,6 +436,8 @@ namespace PeachtreeBus.Data
                 END
                 """;
 
+            using var _ = StartActivity(nameof(Subscribe));
+
             string statement = string.Format(SubscribeStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -444,6 +471,8 @@ namespace PeachtreeBus.Data
                     ORDER BY [Priority] DESC
                 """;
 
+            using var _ = StartActivity(nameof(GetPendingSubscribed));
+
             var query = string.Format(statement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -466,6 +495,9 @@ namespace PeachtreeBus.Data
                 WHERE SubscriberId = @SubscriberId
                 AND NotBefore < SYSUTCDATETIME()
                 """;
+
+            using var _ = StartActivity(nameof(EstimateSubscribedPending));
+
             var query = string.Format(EstimateQueuedStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -489,6 +521,8 @@ namespace PeachtreeBus.Data
                 """;
 
             ArgumentNullException.ThrowIfNull(message);
+
+            using var _ = StartActivity(nameof(Publish));
 
             string statement = string.Format(PublishStatement, _configuration.Schema);
 
@@ -525,6 +559,8 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
+            using var _ = StartActivity(nameof(CompleteMessage));
+
             string statement = string.Format(completeStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -555,6 +591,8 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
+            using var _ = StartActivity(nameof(FailMessage));
+
             string statement = string.Format(FailMessageStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -584,6 +622,8 @@ namespace PeachtreeBus.Data
                 """;
 
             ArgumentNullException.ThrowIfNull(message);
+
+            using var _ = StartActivity(nameof(UpdateMessage));
 
             var statement = string.Format(UpdateMessageStatement, _configuration.Schema);
 
@@ -617,6 +657,8 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
+            using var _ = StartActivity(nameof(ExpireSubscriptionMessages));
+
             var statement = string.Format(ExpireStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -642,6 +684,8 @@ namespace PeachtreeBus.Data
                     WHERE Completed < @OlderThan
                 SELECT @@ROWCOUNT
                 """;
+
+            using var _ = StartActivity(nameof(CleanSubscribedFailed));
 
             string statement = string.Format(statementTemplate, _configuration.Schema);
 
@@ -670,6 +714,8 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
+            using var _ = StartActivity(nameof(CleanSubscribedFailed));
+
             string statement = string.Format(statementTemplate, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -696,6 +742,8 @@ namespace PeachtreeBus.Data
                     WHERE Completed < @OlderThan
                 SELECT @@ROWCOUNT
                 """;
+
+            using var _ = StartActivity(nameof(CleanQueueCompleted));
 
             string statement = string.Format(statementTemplate, _configuration.Schema, queueName);
 
@@ -724,6 +772,8 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
+            using var _ = StartActivity(nameof(CleanQueueFailed));
+
             string statement = string.Format(statementTemplate, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
@@ -748,11 +798,17 @@ namespace PeachtreeBus.Data
             }
         }
 
+        private Activity? StartActivity(string name) =>
+            ActivitySources.DataAccess.StartActivity(
+                "peachtreebus.dataaccess " + name,
+                ActivityKind.Internal);
+
         /// <summary>
         /// Begins a database transaction.
         /// </summary>
         public void BeginTransaction()
         {
+            using var _ = StartActivity(nameof(BeginTransaction));
             _database.BeginTransaction();
         }
 
@@ -761,6 +817,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         public void CommitTransaction()
         {
+            using var _ = StartActivity(nameof(CommitTransaction));
             _database.CommitTransaction();
         }
 
@@ -770,6 +827,7 @@ namespace PeachtreeBus.Data
         /// <param name="name"></param>
         public void CreateSavepoint(string name)
         {
+            using var _ = StartActivity(nameof(CreateSavepoint));
             _database.CreateSavepoint(name);
         }
 
@@ -779,6 +837,7 @@ namespace PeachtreeBus.Data
         /// <param name="name"></param>
         public void RollbackToSavepoint(string name)
         {
+            using var _ = StartActivity(nameof(RollbackToSavepoint));
             _database.RollbackToSavepoint(name);
         }
 
@@ -787,11 +846,13 @@ namespace PeachtreeBus.Data
         /// </summary>
         public void RollbackTransaction()
         {
+            using var _ = StartActivity(nameof(RollbackTransaction));
             _database.RollbackTransaction();
         }
 
         public void Reconnect()
         {
+            using var _ = StartActivity(nameof(Reconnect));
             _database.Reconnect();
         }
     }
