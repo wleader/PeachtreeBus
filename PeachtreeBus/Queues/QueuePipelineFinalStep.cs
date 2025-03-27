@@ -2,6 +2,7 @@
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -78,6 +79,7 @@ namespace PeachtreeBus.Queues
 
         private async Task InvokeHandler(IQueueContext context, Type messageType, object handler)
         {
+            using var activity = new HandlerActivity(handler.GetType(), context);
 
             // determine if this handler is a saga.
             var handlerType = handler.GetType();
@@ -94,6 +96,7 @@ namespace PeachtreeBus.Queues
                 // if the saga is blocked. Stop.
                 if (InternalContext.SagaBlocked)
                 {
+                    activity.SagaBlocked();
                     return;
                 }
 

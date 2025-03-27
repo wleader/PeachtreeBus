@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -31,6 +32,13 @@ public class TestActivityListener : IDisposable
             },
         };
         ActivitySource.AddActivityListener(_listener);
+    }
+
+    public Activity ExpectOneCompleteActivity()
+    {
+        Assert.AreEqual(0, Started.Count, "There are incomplete activities.");
+        Assert.AreEqual(1, Stopped.Count, "There is not exactly 1 compeleted activity.");
+        return Stopped[0];
     }
 
     public void Dispose()

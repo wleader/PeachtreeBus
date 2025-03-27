@@ -29,6 +29,5 @@ public class ReceiveActivityFixture()
             .AssertMessagingSystem()
             .AssertMessagingOperation("receive")
             .AssertMessagingClientId()
-            .AssertIncomingContext(context)
-            .AssertStarted();
+            .AssertIncomingContext(context);
 }

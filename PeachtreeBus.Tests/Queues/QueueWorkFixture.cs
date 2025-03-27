@@ -4,6 +4,8 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Telemetry;
+using PeachtreeBus.Tests.Fakes;
+using PeachtreeBus.Tests.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -40,6 +42,7 @@ namespace PeachtreeBus.Tests.Queues
                 .ReturnsAsync(context);
 
             work = new QueueWork(log.Object,
+                FakeClock.Instance,
                 meters.Object,
                 reader.Object,
                 dataAccess.Object,
@@ -130,6 +133,17 @@ namespace PeachtreeBus.Tests.Queues
         {
             var result = await work.DoWork();
             dataAccess.Verify(d => d.CreateSavepoint("BeforeMessageHandler"), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Given_AMessage_When_DoWork_Then_Activity()
+        {
+            using var listener = new TestActivityListener(ActivitySources.Messaging);
+
+            var result = await work.DoWork();
+
+            var activity = listener.ExpectOneCompleteActivity();
+            ReceiveActivityFixture.AssertActivity(activity, context, FakeClock.Instance.UtcNow);
         }
 
         [TestMethod]

@@ -13,4 +13,9 @@ public class HandlerActivity : BaseActivity, IDisposable
             ?.AddHandlerType(handlerType)
             ?.AddIncomingContext(context);
     }
+
+    public void SagaBlocked()
+    {
+        _activity?.AddTag("peachtreebus.sagablocked", "true");
+    }
 }
