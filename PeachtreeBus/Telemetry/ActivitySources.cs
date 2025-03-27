@@ -12,4 +12,5 @@ public static class ActivitySources
 
     // Stuff that peachtree bus developers could be interested in, but most users wouldn't
     public static readonly ActivitySource Internal = new("PeachtreeBus.Internal", "0.11.0");
+    public static readonly ActivitySource DataAccess = new("PeachtreeBus.DataAccess", "0.11.0");
 }
