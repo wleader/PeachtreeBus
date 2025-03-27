@@ -4,6 +4,8 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
+using PeachtreeBus.Tests.Fakes;
+using PeachtreeBus.Tests.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -42,6 +44,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             pipelineInvoker = new();
 
             work = new SubscribedWork(
+                FakeClock.Instance,
                 reader.Object,
                 meters.Object,
                 log.Object,
@@ -77,6 +80,19 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             meters.Verify(c => c.StartMessage(), Times.Once);
             meters.Verify(c => c.FinishMessage(), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Given_AMessage_When_DoWork_Then_Activity()
+        {
+            work.SubscriberId = SubscriberId.New();
+
+            using var listener = new TestActivityListener(ActivitySources.Messaging);
+
+            var result = await work.DoWork();
+
+            var activity = listener.ExpectOneCompleteActivity();
+            ReceiveActivityFixture.AssertActivity(activity, context, FakeClock.Instance.UtcNow);
         }
 
         /// <summary>
@@ -134,6 +150,23 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             List<string> expected = ["Rollback", "Fail"];
             CollectionAssert.AreEqual(expected, invocations);
+        }
+
+
+        [TestMethod]
+        public async Task Given_PipelineWillThrow_When_DoWork_Then_ActityHasException()
+        {
+            List<string> invocations = [];
+
+            var exception = new TestException();
+            pipelineInvoker.Setup(i => i.Invoke(It.IsAny<SubscribedContext>())).Throws(exception);
+
+            var listener = new TestActivityListener(ActivitySources.Messaging);
+
+            var result = await work.DoWork();
+
+            var activity = listener.ExpectOneCompleteActivity();
+            activity.AssertException(exception);
         }
     }
 }

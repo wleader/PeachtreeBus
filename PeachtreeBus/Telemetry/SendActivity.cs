@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Diagnostics;
 
@@ -14,5 +15,15 @@ public class SendActivity : BaseActivity, IDisposable
             ActivityKind.Producer)
             ?.AddOutgoingContext(context)
             ?.AddDestination(context.Destination);
+    }
+
+    public SendActivity(IPublishContext context)
+    {
+        _activity =
+        ActivitySources.Messaging.StartActivity(
+            "send " + context.Topic.ToString(),
+            ActivityKind.Producer)
+            ?.AddOutgoingContext(context)
+            ?.AddDestination(context.Topic);
     }
 }

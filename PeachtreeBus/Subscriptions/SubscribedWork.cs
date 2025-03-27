@@ -18,6 +18,7 @@ namespace PeachtreeBus.Subscriptions
     /// A unit of work that reads one subscribed message and processes it.
     /// </summary>
     public class SubscribedWork(
+        ISystemClock clock,
         ISubscribedReader reader,
         IMeters meters,
         ILogger<SubscribedWork> log,
@@ -25,6 +26,7 @@ namespace PeachtreeBus.Subscriptions
         ISubscribedPipelineInvoker pipelineInvoker)
         : ISubscribedWork
     {
+        private readonly ISystemClock _clock = clock;
         private readonly ISubscribedReader _reader = reader;
         private readonly IMeters _meters = meters;
         private readonly ILogger<SubscribedWork> _log = log;
@@ -41,6 +43,8 @@ namespace PeachtreeBus.Subscriptions
         {
             const string savepointName = "BeforeSubscriptionHandler";
 
+            var started = _clock.UtcNow;
+
             // get a message.
             var context = await _reader.GetNext(SubscriberId);
 
@@ -50,11 +54,13 @@ namespace PeachtreeBus.Subscriptions
                 return false;
             }
 
+            using var activity = new ReceiveActivity(context, started);
+
             // we found a message to process.
             _log.SubscribedWork_ProcessingMessage(
                 context.Data.MessageId,
                 SubscriberId);
-            var started = DateTime.UtcNow;
+
             try
             {
                 _meters.StartMessage();
@@ -81,6 +87,7 @@ namespace PeachtreeBus.Subscriptions
                 _dataAccess.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
                 await _reader.Fail(context, ex);
+                activity.AddException(ex);
                 // return true so the transaction commits and the main loop looks for another mesage right away.
                 return true;
             }

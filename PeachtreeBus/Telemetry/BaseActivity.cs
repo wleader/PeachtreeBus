@@ -15,6 +15,8 @@ public abstract class BaseActivity : IDisposable
 
     public void AddException(Exception exception)
     {
-        _activity?.AddException(exception);
+        _activity?
+            .AddException(exception)
+            .AddTag("error.type", exception.GetType().FullName);
     }
 }

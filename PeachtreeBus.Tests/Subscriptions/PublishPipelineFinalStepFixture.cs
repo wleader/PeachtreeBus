@@ -5,6 +5,7 @@ using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
 using PeachtreeBus.Tests.Fakes;
+using PeachtreeBus.Tests.Telemetry;
 using System;
 using System.Threading.Tasks;
 
@@ -250,5 +251,16 @@ public class PublishPipelineFinalStepFixture
         await step.Invoke(context, null!);
 
         Assert.AreEqual(expectedValidUntil, PublishedMessage?.ValidUntil);
+    }
+
+    [TestMethod]
+    public async Task When_Invoke_Then_Activity()
+    {
+        using var listener = new TestActivityListener(ActivitySources.Messaging);
+
+        await step.Invoke(context, null);
+
+        var activity = listener.ExpectOneCompleteActivity();
+        SendActivityFixture.AssertActivity(activity, context);
     }
 }

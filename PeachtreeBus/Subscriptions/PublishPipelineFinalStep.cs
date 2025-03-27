@@ -33,6 +33,8 @@ public class PublishPipelineFinalStep(
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(type);
 
+        using var activity = new SendActivity(context);
+
         // note the type in the headers so it can be deserialized.
         var headers = new Headers(type, context.Headers);
 

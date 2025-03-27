@@ -30,7 +30,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestInitialize]
         public void TestInitialize()
         {
-            log = new ();
+            log = new();
             meters = new();
             pipelineInvoker = new();
             reader = new();
@@ -110,6 +110,20 @@ namespace PeachtreeBus.Tests.Queues
 
             List<string> expected = ["Rollback", "Fail"];
             CollectionAssert.AreEqual(expected, invocations);
+        }
+
+        [TestMethod]
+        public async Task Given_PipelineWillThrow_When_DoWork_Then_ActivityHasError()
+        {
+            var exception = new TestException();
+            pipelineInvoker.Setup(i => i.Invoke(It.IsAny<QueueContext>())).Throws(exception);
+
+            using var listener = new TestActivityListener(ActivitySources.Messaging);
+
+            var result = await work.DoWork();
+
+            var activity = listener.ExpectOneCompleteActivity();
+            activity.AssertException(exception);
         }
 
         /// <summary>

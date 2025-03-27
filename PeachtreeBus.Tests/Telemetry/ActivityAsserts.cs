@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
 using System;
 using System.Diagnostics;
@@ -10,6 +11,9 @@ namespace PeachtreeBus.Tests.Telemetry;
 
 public static class ActivityAsserts
 {
+    public static Activity AssertException(this Activity activity, Exception exception) =>
+        activity.AssertTag("error.type", exception.GetType().FullName);
+
     public static Activity AssertOutgoingContext(this Activity activity, IOutgoingContext context) =>
         activity
             .AssertNotBefore(context.NotBefore)
@@ -31,14 +35,21 @@ public static class ActivityAsserts
         return activity;
     }
 
+    public static Activity AssertSubscribedContext(this Activity activity, SubscribedContext context) =>
+    activity
+        .AssertDestination(context.Topic)
+        .AssertIncomingContext(context);
+
     public static Activity AssertQueueContext(this Activity activity, QueueContext context) =>
         activity
             .AssertDestination(context.SourceQueue)
             .AssertIncomingContext(context);
 
+    public static Activity AssertDestination(this Activity activity, Topic topic) =>
+        activity.AssertTag("messaging.destination.name", topic.ToString());
+
     public static Activity AssertDestination(this Activity activity, QueueName queueName) =>
         activity.AssertTag("messaging.destination.name", queueName.ToString());
-
 
     public static Activity AssertIncomingContext(this Activity activity, IIncomingContext context) =>
         activity

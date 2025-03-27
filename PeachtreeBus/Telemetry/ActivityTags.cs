@@ -1,5 +1,6 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 using System;
 using System.Diagnostics;
 
@@ -49,13 +50,17 @@ public static class ActivityTags
     public static Activity? AddDestination(this Activity? activity, QueueName queueName) =>
         activity?.AddTag("messaging.destination.name", queueName.ToString());
 
-    public static Activity? AddQueueContext(this Activity? activity, QueueContext? context)
-    {
-        if (context is null) return activity;
-        return activity
+    public static Activity? AddDestination(this Activity? activity, Topic topic) =>
+        activity?.AddTag("messaging.destination.name", topic.ToString());
+
+    public static Activity? AddQueueContext(this Activity? activity, QueueContext context) => activity
             ?.AddIncomingContext(context)
             ?.AddDestination(context.SourceQueue);
-    }
+
+    public static Activity? AddSubscribedContext(this Activity? activity, SubscribedContext context) =>
+        activity
+            ?.AddIncomingContext(context)
+            ?.AddDestination(context.Topic);
 
     public static Activity? AddIncomingContext(this Activity? activity, IIncomingContext? context)
     {

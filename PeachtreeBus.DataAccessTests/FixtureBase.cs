@@ -257,6 +257,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
         Assert.AreEqual(expected.Retries, actual.Retries);
         Assert.AreEqual(expected.SubscriberId, actual.SubscriberId);
         AssertSqlDbDateTime(expected.ValidUntil, actual.ValidUntil);
+        Assert.AreEqual(expected.Topic, actual.Topic);
     }
 
     protected void AssertPublishedEquals(SubscribedData expected, SubscribedData actual)
@@ -273,6 +274,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
         AssertSqlDbDateTime(expected.Failed, actual.Failed);
         Assert.AreEqual(expected.Retries, actual.Retries);
         AssertSqlDbDateTime(expected.ValidUntil, actual.ValidUntil);
+        Assert.AreEqual(expected.Topic, actual.Topic);
     }
 
     /// <summary>
@@ -329,10 +331,10 @@ public abstract class FixtureBase<TAccess> : TestConfig
         const string EnqueueMessageStatement =
             """
             INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
-            ([SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+            ([SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
             OUTPUT INSERTED.[Id]
             VALUES
-            (@SubscriberId, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
+            (@SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
             """;
 
         ArgumentNullException.ThrowIfNull(message);
@@ -347,6 +349,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
         p.Add("@NotBefore", message.NotBefore);
         p.Add("@Headers", message.Headers);
         p.Add("@Body", message.Body);
+        p.Add("@Topic", message.Topic);
 
         message.Id = await SecondaryConnection.Connection.QueryFirstAsync<Identity>(statement, p);
     }
