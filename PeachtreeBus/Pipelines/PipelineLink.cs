@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PeachtreeBus.Telemetry;
+using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Pipelines
@@ -20,6 +21,9 @@ namespace PeachtreeBus.Pipelines
                 _next is null
                 ? NullNext
                 : _next.Invoke;
+
+            using var activity = new PipelineActivity(_step.GetType());
+
             await _step.Invoke(context, stepParam);
         }
 

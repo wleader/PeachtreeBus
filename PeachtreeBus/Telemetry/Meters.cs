@@ -50,8 +50,8 @@ public class Meters : IMeters
             UnitMessages,
             "A count of messages that got scheduled for a retry.");
 
-    public static readonly Counter<long> LockedSagaMessageCount =
-        Messaging.CreateCounter<long>("peachtreebus.client.lockedsaga.messsages",
+    public static readonly Counter<long> BlockedSagaMessageCount =
+        Messaging.CreateCounter<long>("peachtreebus.client.blockedsaga.messsages",
             UnitMessages,
             "A count of times when a message was re-queued because it's saga was locked.");
 
@@ -69,7 +69,7 @@ public class Meters : IMeters
 
     public void RetryMessage() => RetryMessageCount.Add(1);
 
-    public void SagaBlocked() => LockedSagaMessageCount.Add(1);
+    public void SagaBlocked() => BlockedSagaMessageCount.Add(1);
 
     public void StartMessage()
     {

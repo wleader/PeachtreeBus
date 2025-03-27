@@ -53,6 +53,8 @@ public class SendPipelineFinalStep(
         var type = message.GetType();
         TypeIsNotIQueueMessageException.ThrowIfMissingInterface(type);
 
+        using var activity = new SendActivity(context);
+
         // note the type in the headers so it can be deserialized.
         var headers = new Headers(type, context.Headers);
 

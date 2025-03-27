@@ -17,12 +17,14 @@ namespace PeachtreeBus.Queues
     /// <inheritdoc/>>
     public class QueueWork(
         ILogger<QueueWork> log,
+        ISystemClock clock,
         IMeters meters,
         IQueueReader queueReader,
         IBusDataAccess dataAccess,
         IQueuePipelineInvoker pipelineInvoker) : IQueueWork
     {
         private readonly ILogger<QueueWork> _log = log;
+        private readonly ISystemClock _clock = clock;
         private readonly IMeters _meters = meters;
         private readonly IQueueReader _queueReader = queueReader;
         private readonly IBusDataAccess _dataAccess = dataAccess;
@@ -39,6 +41,10 @@ namespace PeachtreeBus.Queues
         /// <returns></returns>
         public async Task<bool> DoWork()
         {
+            // make a note of when we started, so that we can back-date the activity
+            // if we found a message to process.
+            var started = _clock.UtcNow;
+
             // get a message.
             var context = await _queueReader.GetNext(QueueName);
 
@@ -48,10 +54,11 @@ namespace PeachtreeBus.Queues
                 return false;
             }
 
+            // we got a message, generate an activity.
+            using var activity = new ReceiveActivity(context, started);
+
             // we found a message to process.
             _log.QueueWork_ProcessingMessage(context.MessageId, context.MessageClass);
-
-            var started = DateTime.UtcNow;
 
             try
             {
@@ -86,6 +93,8 @@ namespace PeachtreeBus.Queues
                 _dataAccess.RollbackToSavepoint(savepointName);
                 // increment the retry count, (or maybe even fail the message)
                 await _queueReader.Fail(context, ex);
+
+                activity.AddException(ex);
                 // return true so the transaction commits and the main loop looks for another mesage right away.
                 return true;
             }

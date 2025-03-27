@@ -5,6 +5,7 @@ using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Telemetry;
 using PeachtreeBus.Tests.Fakes;
+using PeachtreeBus.Tests.Telemetry;
 using System;
 using System.Threading.Tasks;
 
@@ -196,6 +197,17 @@ public class SendPipelineFinalStepFixture
         await step.Invoke(context, null!);
 
         dataAccess.Verify(d => d.AddMessage(It.IsAny<QueueData>(), TestData.DefaultQueueName), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task When_Invoke_Then_Activity()
+    {
+        using var listener = new TestActivityListener(ActivitySources.Messaging);
+
+        await step.Invoke(context, null);
+
+        var activity = listener.ExpectOneCompleteActivity();
+        SendActivityFixture.AssertActivity(activity, context);
     }
 
     /// <summary>

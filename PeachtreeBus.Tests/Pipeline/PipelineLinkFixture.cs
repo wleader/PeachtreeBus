@@ -2,6 +2,8 @@
 using Moq;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Telemetry;
+using PeachtreeBus.Tests.Telemetry;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Tests.Pipeline;
@@ -9,25 +11,44 @@ namespace PeachtreeBus.Tests.Pipeline;
 [TestClass]
 public class PipelineLinkFixture
 {
+    private readonly QueueContext _context = TestData.CreateQueueContext();
+    private readonly Mock<IPipelineStep<QueueContext>> _pipelineStep = new();
+
+    private PipelineLink<QueueContext> _pipelineLink = default!;
+
+    [TestInitialize]
+    public void Initialize()
+    {
+        _pipelineStep.Reset();
+        _pipelineLink = new(_pipelineStep.Object);
+    }
+
     [TestMethod]
     public async Task Given_NextIsNull_When_Invoke_Then_StepIsPassed_NullTask()
     {
-        var step = new Mock<IPipelineStep<QueueContext>>();
-        var link = new PipelineLink<QueueContext>(step.Object);
-        link.SetNext(null!);
-        var context = TestData.CreateQueueContext();
+        _pipelineLink.SetNext(null!);
 
-        await link.Invoke(context);
+        await _pipelineLink.Invoke(_context);
 
-        step.Verify(s => s.Invoke(context, PipelineLink<QueueContext>.NullNext), Times.Once);
+        _pipelineStep.Verify(s => s.Invoke(_context, PipelineLink<QueueContext>.NullNext), Times.Once);
     }
 
     [TestMethod]
     public void When_NullNext_Then_Nothing()
     {
-        var context = TestData.CreateQueueContext();
-        var result = PipelineLink<QueueContext>.NullNext(context);
+        var result = PipelineLink<QueueContext>.NullNext(_context);
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsCompleted);
+    }
+
+    [TestMethod]
+    public async Task When_Invoke_Then_ActivityIsStarted()
+    {
+        using var listener = new TestActivityListener(ActivitySources.User);
+
+        await _pipelineLink.Invoke(_context);
+
+        var activity = listener.ExpectOneCompleteActivity();
+        PipelineActivityFixture.AssertActivity(activity, _pipelineStep.Object.GetType());
     }
 }

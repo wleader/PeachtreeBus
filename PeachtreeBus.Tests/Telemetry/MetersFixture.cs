@@ -66,8 +66,8 @@ public class MetersFixture
             "messaging.client.sent.messages", "messages", typeof(long), ChangeVersionMessage);
         AssertInstrumentUnchanged(Meters.RetryMessageCount,
             "peachtreebus.client.retry.messages", "messages", typeof(long), ChangeVersionMessage);
-        AssertInstrumentUnchanged(Meters.LockedSagaMessageCount,
-            "peachtreebus.client.lockedsaga.messsages", "messages", typeof(long), ChangeVersionMessage);
+        AssertInstrumentUnchanged(Meters.BlockedSagaMessageCount,
+            "peachtreebus.client.blockedsaga.messsages", "messages", typeof(long), ChangeVersionMessage);
 
         // if this fails, add or remove above as needed.
         Assert.AreEqual(instrumentCount, _assertedUnchangedInstruments.Distinct().Count(),
@@ -127,7 +127,7 @@ public class MetersFixture
     [TestMethod]
     public void When_SagaBlocked_Then_LockedSagaIncrements()
     {
-        AssertMeasurement(Meters.LockedSagaMessageCount, _meters.SagaBlocked, 1);
+        AssertMeasurement(Meters.BlockedSagaMessageCount, _meters.SagaBlocked, 1);
     }
 
     [TestMethod]
