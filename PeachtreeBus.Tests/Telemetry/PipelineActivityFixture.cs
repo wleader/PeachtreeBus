@@ -4,7 +4,6 @@ using PeachtreeBus.Telemetry;
 using System;
 using System.Diagnostics;
 using System.Linq;
-using MSAssert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace PeachtreeBus.Tests.Telemetry;
 
@@ -17,10 +16,10 @@ public class PipelineActivityFixture()
     {
         var type = typeof(TestQueuePipelineStep);
         new PipelineActivity(type).Dispose();
-        Assert(_listener.Stopped.SingleOrDefault(), type);
+        AssertActivity(_listener.Stopped.SingleOrDefault(), type);
     }
 
-    public static void Assert(Activity? activity, Type pipelineType) =>
+    public static void AssertActivity(Activity? activity, Type pipelineType) =>
         activity.AssertIsNotNull()
             .AssertOperationName("peachtreebus.pipeline " + pipelineType.Name)
             .AssertKind(ActivityKind.Internal)
@@ -34,6 +33,6 @@ public class PipelineActivityFixture()
         // We don't want 'Final' steps to be presented to the end user
         // as regular pipeline steps.
         new PipelineActivity(typeof(TestFinalStep)).Dispose();
-        MSAssert.AreEqual(0, _listener.Stopped.Count);
+        Assert.AreEqual(0, _listener.Stopped.Count);
     }
 }

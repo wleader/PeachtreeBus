@@ -16,10 +16,10 @@ public class SendActivityFixture()
         var context = TestData.CreateSendContext();
         new SendActivity(context).Dispose();
 
-        Assert(_listener.Stopped.SingleOrDefault(), context);
+        AssertActivity(_listener.Stopped.SingleOrDefault(), context);
     }
 
-    public static void Assert(Activity? activity, SendContext context)
+    public static void AssertActivity(Activity? activity, SendContext context)
     {
         activity
             .AssertIsNotNull()

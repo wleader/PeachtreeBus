@@ -18,10 +18,10 @@ public class HandlerActivityFixture()
         var context = TestData.CreateQueueContext();
         var handlerType = typeof(TestHandler);
         new HandlerActivity(handlerType, context).Dispose();
-        Assert(_listener.Stopped.SingleOrDefault(), handlerType, context);
+        AssertActivity(_listener.Stopped.SingleOrDefault(), handlerType, context);
     }
 
-    public static void Assert(Activity? activity, Type handlerType, QueueContext context) =>
+    public static void AssertActivity(Activity? activity, Type handlerType, QueueContext context) =>
         activity.AssertIsNotNull()
             .AssertOperationName("peachtreebus.handler " + handlerType.Name)
             .AssertKind(ActivityKind.Internal)

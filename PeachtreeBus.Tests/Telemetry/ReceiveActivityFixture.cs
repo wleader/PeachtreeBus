@@ -18,10 +18,10 @@ public class ReceiveActivityFixture()
         var started = DateTime.UtcNow;
         new ReceiveActivity(context, started).Dispose();
 
-        Assert(_listener.Stopped.SingleOrDefault(), context, started);
+        AssertActivity(_listener.Stopped.SingleOrDefault(), context, started);
     }
 
-    public static void Assert(Activity? activity, QueueContext context, DateTime started) =>
+    public static void AssertActivity(Activity? activity, QueueContext context, DateTime started) =>
         activity.AssertIsNotNull()
             .AssertOperationName("receive " + context.SourceQueue.ToString())
             .AssertKind(ActivityKind.Client)
