@@ -13,5 +13,6 @@ public interface ISubscribedPublisher
         ISubscribedMessage message,
         UtcDateTime? notBefore = null,
         int priority = 0,
-        UserHeaders? userHeaders = null);
+        UserHeaders? userHeaders = null,
+        bool newConveration = false);
 }

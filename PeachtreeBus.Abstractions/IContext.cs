@@ -41,4 +41,5 @@ public interface IOutgoingContext : IContext
 {
     UtcDateTime NotBefore { get; set; }
     int MessagePriority { get; set; }
+    bool StartNewConversation { get; set; }
 }

@@ -23,7 +23,8 @@ public interface IQueueWriter
         IQueueMessage message,
         DateTime? notBefore = null,
         int priority = 0,
-        UserHeaders? userHeaders = null);
+        UserHeaders? userHeaders = null,
+        bool newConversation = false);
 }
 
 /// <summary>
@@ -41,7 +42,8 @@ public class QueueWriter(
         IQueueMessage message,
         DateTime? notBefore = null,
         int priority = 0,
-        UserHeaders? userHeaders = null)
+        UserHeaders? userHeaders = null,
+        bool newConveration = false)
     {
         ArgumentNullException.ThrowIfNull(message, nameof(message));
 
@@ -52,6 +54,7 @@ public class QueueWriter(
             MessagePriority = priority,
             Message = message,
             Headers = userHeaders ?? [],
+            StartNewConversation = newConveration,
         };
 
         await pipelineInvoker.Invoke(context);

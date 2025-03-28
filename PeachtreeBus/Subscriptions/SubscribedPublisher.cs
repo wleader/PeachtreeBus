@@ -32,7 +32,8 @@ public class SubscribedPublisher(
         ISubscribedMessage message,
         UtcDateTime? notBefore = null,
         int priority = 0,
-        UserHeaders? userHeaders = null)
+        UserHeaders? userHeaders = null,
+        bool newConversation = false)
     {
         ArgumentNullException.ThrowIfNull(message, nameof(message));
 
@@ -43,6 +44,7 @@ public class SubscribedPublisher(
             Headers = userHeaders ?? [],
             NotBefore = notBefore ?? _clock.UtcNow,
             MessagePriority = priority,
+            StartNewConversation = newConversation
         };
 
         // give the publish pipeline steps a chance to

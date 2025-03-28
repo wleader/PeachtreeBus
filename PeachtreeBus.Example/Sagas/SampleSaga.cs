@@ -69,7 +69,8 @@ namespace PeachtreeBus.Example.Sagas
                 // that this saga has finished.
                 _log.CompletingSaga(message.AppId);
                 await _queueWriter.WriteMessage(context.SourceQueue,
-                    new SampleSagaComplete { AppId = message.AppId });
+                    new SampleSagaComplete { AppId = message.AppId },
+                    newConversation: true);
                 SagaComplete = true;
             }
             else
@@ -83,7 +84,8 @@ namespace PeachtreeBus.Example.Sagas
                         B = (Data.PendingTasks - 1) * 3,
                         A = (Data.PendingTasks - 1) * 4,
                         Operation = "+"
-                    });
+                    },
+                    newConversation: true);
             }
 
             // demonstrate interaction with our application database.

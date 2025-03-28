@@ -49,8 +49,8 @@ public abstract class OutgoingContext<TQueueData>
 {
     public UtcDateTime NotBefore { get; set; } = DateTime.UtcNow;
     public int MessagePriority { get; set; }
+    public bool StartNewConversation { get; set; }
 }
-
 
 
 

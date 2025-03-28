@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Serialization;
+using System;
 
 namespace PeachtreeBus.Tests.Serialization;
 
@@ -25,6 +26,8 @@ public class DefaultSerializerFixture
         };
         headers.UserHeaders.Add("UserHeader.One", "One");
         headers.UserHeaders.Add("UserHeader.Two", "Two");
+        headers.Diagnostics.TraceParent = Guid.NewGuid().ToString();
+        headers.Diagnostics.StartNewTraceOnReceive = true;
 
         var serialized = serializer.SerializeHeaders(headers);
         var deserialized = serializer.DeserializeHeaders(serialized);
@@ -37,6 +40,8 @@ public class DefaultSerializerFixture
         Assert.AreEqual("One", deserialized.UserHeaders["UserHeader.One"]);
         Assert.IsTrue(headers.UserHeaders.ContainsKey("UserHeader.Two"));
         Assert.AreEqual("Two", deserialized.UserHeaders["UserHeader.Two"]);
+        Assert.AreEqual(headers.Diagnostics.TraceParent, deserialized.Diagnostics.TraceParent);
+        Assert.AreEqual(headers.Diagnostics.StartNewTraceOnReceive, deserialized.Diagnostics.StartNewTraceOnReceive);
     }
 
     public class UserMessage : IQueueMessage

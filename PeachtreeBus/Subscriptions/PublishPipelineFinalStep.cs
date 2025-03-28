@@ -4,6 +4,7 @@ using PeachtreeBus.Pipelines;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Telemetry;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions;
@@ -37,6 +38,9 @@ public class PublishPipelineFinalStep(
 
         // note the type in the headers so it can be deserialized.
         var headers = new Headers(type, context.Headers);
+
+        headers.Diagnostics.StartNewTraceOnReceive = context.StartNewConversation;
+        headers.Diagnostics.TraceParent = Activity.Current?.Id;
 
         // create the message entity, serializing the headers and body.
         var sm = new SubscribedData

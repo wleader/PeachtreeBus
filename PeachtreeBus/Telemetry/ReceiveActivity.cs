@@ -12,7 +12,7 @@ public class ReceiveActivity : BaseActivity, IDisposable
         _activity = ActivitySources.Messaging.StartActivity(
             $"receive {context.SourceQueue}",
             ActivityKind.Client,
-            null, // parent context
+            GetParent(context),
             startTime: started)
             ?.AddMessagingSystem()
             ?.AddMessagingOperation("receive")
@@ -25,11 +25,18 @@ public class ReceiveActivity : BaseActivity, IDisposable
         _activity = ActivitySources.Messaging.StartActivity(
             $"receive {context.Topic}",
             ActivityKind.Client,
-            null, // parent context
+            GetParent(context),
             startTime: started)
             ?.AddMessagingSystem()
             ?.AddMessagingOperation("receive")
             ?.AddMessagingClientId()
             ?.AddSubscribedContext(context);
+    }
+
+    private static string? GetParent<T>(IncomingContext<T> context)
+        where T: QueueData
+    {
+        return context.InternalHeaders.Diagnostics.StartNewTraceOnReceive 
+            ? null : context.InternalHeaders.Diagnostics.TraceParent;
     }
 }
