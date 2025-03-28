@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Abstractions.Tests.TestClasses;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
@@ -10,9 +11,6 @@ namespace PeachtreeBus.Tests;
 
 public static class TestData
 {
-    public class TestQueuedMessage : IQueueMessage;
-    public class TestSubscribedMessage : ISubscribedMessage;
-
     public static readonly UniqueIdentity DefaultMessageId = new(Guid.Parse("36dcb8bb-8717-4307-927d-4947ee1ea1ad"));
     public static readonly SubscriberId DefaultSubscriberId = new(Guid.Parse("e8291248-c4fb-4b7e-ab7d-86df2bcea319"));
     public static readonly SerializedData DefaultHeaders = new("{}");

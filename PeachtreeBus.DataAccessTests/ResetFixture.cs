@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Tests.Fakes;
 
 namespace PeachtreeBus.DataAccessTests
 {
@@ -20,7 +21,7 @@ namespace PeachtreeBus.DataAccessTests
             _sharedDb = new();
             _configuration = new();
             _logger = new();
-            _dataAccess = new DapperDataAccess(_sharedDb.Object, _configuration.Object, _logger.Object);
+            _dataAccess = new DapperDataAccess(_sharedDb.Object, _configuration.Object, _logger.Object, FakeClock.Instance);
         }
 
         [TestMethod]

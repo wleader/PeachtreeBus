@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Abstractions.Tests.TestClasses;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using System;
@@ -21,7 +22,7 @@ public class SubscriptionPublisherFixture
     private readonly Mock<ISystemClock> clock = new();
 
     // a message to send.
-    private TestData.TestSubscribedMessage userMessage = default!;
+    private TestSubscribedMessage userMessage = default!;
 
     // stores the parameters to the AddMessage calls.
     private IPublishContext? invokedContext = default;

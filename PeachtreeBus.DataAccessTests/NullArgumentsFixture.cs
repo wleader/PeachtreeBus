@@ -5,6 +5,7 @@ using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Tests;
+using PeachtreeBus.Tests.Fakes;
 using System;
 using System.Threading.Tasks;
 
@@ -28,7 +29,8 @@ public class NullArgumentsFixture
         dataAccess = new(
             sharedDatabase.Object,
             schemaConfig.Object,
-            log.Object);
+            log.Object,
+            FakeClock.Instance);
     }
 
     [TestMethod]

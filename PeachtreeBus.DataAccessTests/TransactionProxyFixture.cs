@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Tests.Fakes;
 using System;
 using System.Threading.Tasks;
 
@@ -85,6 +86,6 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
 
     protected override DapperDataAccess CreateDataAccess()
     {
-        return new DapperDataAccess(SharedDB, Configuration.Object, MockLog.Object);
+        return new DapperDataAccess(SharedDB, Configuration.Object, MockLog.Object, FakeClock.Instance);
     }
 }

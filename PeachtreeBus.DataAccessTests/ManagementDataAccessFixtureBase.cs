@@ -7,6 +7,7 @@ using PeachtreeBus.Management;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tests;
+using PeachtreeBus.Tests.Fakes;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -29,7 +30,7 @@ namespace PeachtreeBus.DataAccessTests
 
         protected override ManagementDataAccess CreateDataAccess()
         {
-            BusAccess = new(SharedDB, Configuration.Object, new Mock<ILogger<DapperDataAccess>>().Object);
+            BusAccess = new(SharedDB, Configuration.Object, new Mock<ILogger<DapperDataAccess>>().Object, FakeClock.Instance);
             return new ManagementDataAccess(SharedDB, Configuration.Object, MockLog.Object);
         }
 

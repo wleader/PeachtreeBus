@@ -25,7 +25,8 @@ namespace PeachtreeBus.Data
     public class DapperDataAccess(
         ISharedDatabase database,
         IBusConfiguration configuration,
-        ILogger<DapperDataAccess> log)
+        ILogger<DapperDataAccess> log,
+        ISystemClock clock)
         : IBusDataAccess
     {
         static DapperDataAccess()
@@ -35,6 +36,7 @@ namespace PeachtreeBus.Data
 
         private readonly ISharedDatabase _database = database;
         private readonly ILogger<DapperDataAccess> _log = log;
+        private readonly ISystemClock _clock = clock;
         private readonly IBusConfiguration _configuration = configuration;
 
         /// <summary>
@@ -69,7 +71,7 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
-            return message.Id = await LogIfError(
+            return message.Id = await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<Identity>(statement, p, _database.Transaction));
         }
 
@@ -94,12 +96,18 @@ namespace PeachtreeBus.Data
                 ORDER BY [Priority] DESC
                 """;
 
-            using var _ = StartActivity(nameof(GetPendingQueued));
-
             var query = string.Format(GetOnePendingMessageStatement, _configuration.Schema, queueName);
 
-            return await LogIfError(
+            var start = _clock.UtcNow;
+
+            var result = await LogIfError(
                 _database.Connection.QueryFirstOrDefaultAsync<QueueData>(query, transaction: _database.Transaction));
+
+            // only generate the trace if it found something.
+            // this method gets called often. We can change this when Queue Peeking gets added
+            if (result is not null) { using var _ = StartActivity(started: start); }
+
+            return result;
         }
 
         /// <inheritdoc/>
@@ -118,11 +126,9 @@ namespace PeachtreeBus.Data
                 WHERE NotBefore < SYSUTCDATETIME()
                 """;
 
-            using var _ = StartActivity(nameof(EstimateQueuePending));
-
             var query = string.Format(EstimateQueuedStatement, _configuration.Schema, queueName);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.ExecuteScalarAsync<long>(query, transaction: _database.Transaction));
         }
 
@@ -148,14 +154,12 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            using var _ = StartActivity(nameof(CompleteMessage));
-
             string statement = string.Format(CompleteMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -181,15 +185,13 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            using var _ = StartActivity(nameof(FailMessage));
-
             string statement = string.Format(FailMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -214,8 +216,6 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            using var _ = StartActivity(nameof(UpdateMessage));
-
             var statement = string.Format(UpdateMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
@@ -224,7 +224,7 @@ namespace PeachtreeBus.Data
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -249,8 +249,6 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(data);
 
-            using var _ = StartActivity(nameof(InsertSagaData));
-
             string statement = string.Format(InsertSagaStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
@@ -258,7 +256,7 @@ namespace PeachtreeBus.Data
             p.Add("@Key", data.Key);
             p.Add("@Data", data.Data);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<Identity>(statement, p, _database.Transaction));
         }
 
@@ -281,15 +279,13 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(data);
 
-            using var _ = StartActivity(nameof(UpdateSagaData));
-
             var statement = string.Format(UpdateSagaStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@Id", data.Id);
             p.Add("@Data", data.Data);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -308,13 +304,11 @@ namespace PeachtreeBus.Data
                 WHERE [Key] = @Key
                 """;
 
-            using var _ = StartActivity(nameof(DeleteSagaData));
-
             string statement = string.Format(DeleteSagaStatement, _configuration.Schema, sagaName);
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -375,14 +369,12 @@ namespace PeachtreeBus.Data
                 END CATCH
                 """;
 
-            using var _ = StartActivity(nameof(GetSagaData));
-
             var query = string.Format(GetSagaDataStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstOrDefaultAsync<SagaData>(query, p, _database.Transaction));
         }
 
@@ -400,14 +392,12 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            using var _ = StartActivity(nameof(ExpireSubscriptions));
-
             string statement = string.Format(ExpireSubscriptionsStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
@@ -436,8 +426,6 @@ namespace PeachtreeBus.Data
                 END
                 """;
 
-            using var _ = StartActivity(nameof(Subscribe));
-
             string statement = string.Format(SubscribeStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -445,7 +433,7 @@ namespace PeachtreeBus.Data
             p.Add("@Topic", topic);
             p.Add("@ValidUntil", until);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -471,15 +459,21 @@ namespace PeachtreeBus.Data
                     ORDER BY [Priority] DESC
                 """;
 
-            using var _ = StartActivity(nameof(GetPendingSubscribed));
-
             var query = string.Format(statement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
 
-            return await LogIfError(
+            var start = _clock.UtcNow;
+
+            var result = await LogIfError(
                 _database.Connection.QueryFirstOrDefaultAsync<SubscribedData>(query, p, _database.Transaction));
+
+            // only generate the trace if it found something.
+            // this method gets called often. We can change this when Queue Peeking gets added
+            if (result is not null) { using var _ = StartActivity(started: start); }
+
+            return result;
         }
 
         /// <inheritdoc/>
@@ -496,14 +490,12 @@ namespace PeachtreeBus.Data
                 AND NotBefore < SYSUTCDATETIME()
                 """;
 
-            using var _ = StartActivity(nameof(EstimateSubscribedPending));
-
             var query = string.Format(EstimateQueuedStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.ExecuteScalarAsync<long>(query, p, transaction: _database.Transaction));
         }
 
@@ -522,8 +514,6 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            using var _ = StartActivity(nameof(Publish));
-
             string statement = string.Format(PublishStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -534,7 +524,7 @@ namespace PeachtreeBus.Data
             p.Add("@Body", message.Body);
             p.Add("@Topic", topic);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
@@ -559,14 +549,12 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            using var _ = StartActivity(nameof(CompleteMessage));
-
             string statement = string.Format(completeStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -591,15 +579,13 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            using var _ = StartActivity(nameof(FailMessage));
-
             string statement = string.Format(FailMessageStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -623,8 +609,6 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            using var _ = StartActivity(nameof(UpdateMessage));
-
             var statement = string.Format(UpdateMessageStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
@@ -633,7 +617,7 @@ namespace PeachtreeBus.Data
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
-            await LogIfError(
+            await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
         }
 
@@ -657,14 +641,12 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            using var _ = StartActivity(nameof(ExpireSubscriptionMessages));
-
             var statement = string.Format(ExpireStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
@@ -685,15 +667,13 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            using var _ = StartActivity(nameof(CleanSubscribedFailed));
-
             string statement = string.Format(statementTemplate, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
@@ -714,15 +694,13 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            using var _ = StartActivity(nameof(CleanSubscribedFailed));
-
             string statement = string.Format(statementTemplate, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
@@ -743,15 +721,13 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            using var _ = StartActivity(nameof(CleanQueueCompleted));
-
             string statement = string.Format(statementTemplate, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
@@ -772,20 +748,25 @@ namespace PeachtreeBus.Data
                 SELECT @@ROWCOUNT
                 """;
 
-            using var _ = StartActivity(nameof(CleanQueueFailed));
-
-            string statement = string.Format(statementTemplate, _configuration.Schema, queueName);
+            var statement = string.Format(statementTemplate, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return await LogIfError(
+            return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<long>(statement, p, _database.Transaction));
         }
 
-        [ExcludeFromCodeCoverage]
-        private async Task<T> LogIfError<T>(Task<T> task, [CallerMemberName] string caller = "Unnamed")
+        private async Task<T> MeasureAndLogErrors<T>(Task<T> task,
+            [CallerMemberName] string caller = "Unnamed")
+        {
+            using var _ = StartActivity(caller); // Create a trace.
+            return await LogIfError(task, caller);
+        }
+
+        private async Task<T> LogIfError<T>(Task<T> task,
+            [CallerMemberName] string caller = "Unnamed")
         {
             try
             {
@@ -798,17 +779,23 @@ namespace PeachtreeBus.Data
             }
         }
 
-        private static Activity? StartActivity(string name) =>
-            ActivitySources.DataAccess.StartActivity(
-                "peachtreebus.dataaccess " + name,
-                ActivityKind.Internal);
+        private Activity? StartActivity(
+            [CallerMemberName] string caller = "Unnamed",
+            DateTime? started = null)
+        {
+            return ActivitySources.DataAccess.StartActivity(
+                "peachtreebus.dataaccess " + caller,
+                ActivityKind.Internal,
+                null,
+                startTime: started ?? _clock.UtcNow);
+        }
 
         /// <summary>
         /// Begins a database transaction.
         /// </summary>
         public void BeginTransaction()
         {
-            using var _ = StartActivity(nameof(BeginTransaction));
+            using var _ = StartActivity();
             _database.BeginTransaction();
         }
 
@@ -817,7 +804,7 @@ namespace PeachtreeBus.Data
         /// </summary>
         public void CommitTransaction()
         {
-            using var _ = StartActivity(nameof(CommitTransaction));
+            using var _ = StartActivity();
             _database.CommitTransaction();
         }
 
@@ -827,7 +814,7 @@ namespace PeachtreeBus.Data
         /// <param name="name"></param>
         public void CreateSavepoint(string name)
         {
-            using var _ = StartActivity(nameof(CreateSavepoint));
+            using var _ = StartActivity();
             _database.CreateSavepoint(name);
         }
 
@@ -837,7 +824,7 @@ namespace PeachtreeBus.Data
         /// <param name="name"></param>
         public void RollbackToSavepoint(string name)
         {
-            using var _ = StartActivity(nameof(RollbackToSavepoint));
+            using var _ = StartActivity();
             _database.RollbackToSavepoint(name);
         }
 
@@ -846,13 +833,13 @@ namespace PeachtreeBus.Data
         /// </summary>
         public void RollbackTransaction()
         {
-            using var _ = StartActivity(nameof(RollbackTransaction));
+            using var _ = StartActivity();
             _database.RollbackTransaction();
         }
 
         public void Reconnect()
         {
-            using var _ = StartActivity(nameof(Reconnect));
+            using var _ = StartActivity();
             _database.Reconnect();
         }
     }

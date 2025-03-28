@@ -78,7 +78,7 @@ public class SendPipelineFinalStepFixture
     {
         await step.Invoke(context, null!);
         Assert.AreEqual(1, serializer.SerializedHeaders.Count);
-        Assert.AreEqual("PeachtreeBus.Tests.TestQueuedMessage, PeachtreeBus.Tests",
+        Assert.AreEqual("PeachtreeBus.Abstractions.Tests.TestClasses.TestQueuedMessage, PeachtreeBus.Abstractions.Tests",
             serializer.SerializedHeaders[0].MessageClass);
     }
 
