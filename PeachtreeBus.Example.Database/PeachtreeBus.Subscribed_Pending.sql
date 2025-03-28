@@ -5,6 +5,7 @@ CREATE TABLE [PeachtreeBus].[Subscribed_Pending]
 (
     [Id] BIGINT NOT NULL IDENTITY,
     [SubscriberId] UNIQUEIDENTIFIER NOT NULL,
+    [Topic] NVARCHAR(128) NOT NULL,
     [ValidUntil] DATETIME2 NOT NULL,
     [MessageId] UNIQUEIDENTIFIER NOT NULL,
     [Priority] INT NOT NULL,
