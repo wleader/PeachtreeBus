@@ -47,14 +47,12 @@ public class SendPipelineFinalStepFixture
             })
             .Returns(Task.FromResult<Identity>(new(12345)));
 
-        context = new()
-        {
-            Destination = TestData.DefaultQueueName,
-            Message = TestData.CreateQueueUserMessage(),
-            Headers = TestData.DefaultUserHeaders,
-        };
+        context = TestData.CreateSendContext();
 
-        step = new(clock.Object, serializer.Object, dataAccess.Object, meters.Object);
+        step = new(clock.Object, serializer.Object, dataAccess.Object, meters.Object)
+        {
+            InternalContext = context
+        };
     }
 
     /// <summary>
