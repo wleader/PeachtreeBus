@@ -90,7 +90,7 @@ public class PublishPipelineFinalStepFixture
     {
         await step.Invoke(context, null!);
         Assert.AreEqual(1, serializer.SerializedHeaders.Count);
-        Assert.AreEqual("PeachtreeBus.Tests.TestData+TestSubscribedMessage, PeachtreeBus.Tests",
+        Assert.AreEqual("PeachtreeBus.Tests.TestSubscribedMessage, PeachtreeBus.Tests",
             serializer.SerializedHeaders[0].MessageClass);
     }
 

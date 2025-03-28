@@ -15,7 +15,7 @@ public class Headers
 
     public Headers(Type userMessageType, UserHeaders? userHeaders = null)
     {
-        MessageClass = GetMessageClassString(userMessageType);
+        MessageClass = userMessageType.GetMessageClass();
         UserHeaders = userHeaders ?? [];
     }
 
@@ -33,10 +33,5 @@ public class Headers
     /// A place for user code to store additional values along with the message.
     /// </summary>
     public UserHeaders UserHeaders { get; set; }
-
-    public static string GetMessageClassString(Type type)
-    {
-        return type.FullName + ", " + type.Assembly.GetName().Name;
-    }
 }
 

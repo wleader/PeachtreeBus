@@ -9,23 +9,18 @@ namespace PeachtreeBus.Telemetry;
 public static class ActivityTags
 {
     public static Activity? AddHandlerType(this Activity? activity, Type type) =>
-        activity?.AddTag("peachtreebus.handler.type", type.FullName);
+        activity?.AddTag("peachtreebus.handler.type", type.GetTypeFullName());
 
     public static Activity? AddPipelineType(this Activity? activity, Type type) =>
-        activity?.AddTag("peachtreebus.pipeline.type", type.FullName);
+        activity?.AddTag("peachtreebus.pipeline.type", type.GetTypeFullName());
 
-    public static Activity? AddException(this Activity? activity, Exception ex)
-    {
-        ArgumentNullException.ThrowIfNull(ex);
-        return activity?.AddTag("error.type", ex.GetType().FullName);
-    }
+    public static Activity? AddException(this Activity? activity, Exception ex) =>
+        activity?.AddTag("error.type", ex.GetTypeFullName());
 
-    public static Activity? AddOutgoingContext(this Activity? activity, IOutgoingContext? context)
-    {
-        if (context is null) return activity;
-        return activity?.AddPriority(context.MessagePriority)
-            ?.AddNotBefore(context.NotBefore);
-    }
+    public static Activity? AddOutgoingContext(this Activity? activity, IOutgoingContext context) =>
+        activity?.AddPriority(context.MessagePriority)
+            ?.AddNotBefore(context.NotBefore)
+            ?.AddMessageClass(context.Message);
 
     public static Activity? AddMessageId(this Activity? activity, UniqueIdentity id) =>
         activity?.AddTag("messaging.message.id", id.ToString());
@@ -36,16 +31,13 @@ public static class ActivityTags
     public static Activity? AddEnqueued(this Activity? activity, UtcDateTime enqueued) =>
         activity?.AddTag("peachtreebus.message.enqueued", enqueued.ToTagString());
 
-    public static Activity? AddMessageClass(this Activity? activity, string messageClass) =>
-        activity?.AddTag("peachtreebus.message.class", messageClass);
+    public static Activity? AddMessageClass(this Activity? activity, object message) =>
+        activity?.AddTag("peachtreebus.message.class", message.GetType().GetMessageClass());
 
-    public static Activity? AddNotBefore(this Activity? activity, UtcDateTime? notBefore)
-    {
-        if (!notBefore.HasValue) return activity;
-        return activity?.AddTag("peachtreebus.message.notbefore", notBefore.Value.ToTagString());
-    }
+    public static Activity? AddNotBefore(this Activity? activity, UtcDateTime notBefore) =>
+        activity?.AddTag("peachtreebus.message.notbefore", notBefore.ToTagString());
 
-    public static string ToTagString(this UtcDateTime value) => value.Value.ToString("O");
+    public static string ToTagString(this UtcDateTime value) => value.ToString("O");
 
     public static Activity? AddDestination(this Activity? activity, QueueName queueName) =>
         activity?.AddTag("messaging.destination.name", queueName.ToString());
@@ -68,7 +60,7 @@ public static class ActivityTags
         return activity
             ?.AddMessageId(context.MessageId)
             ?.AddPriority(context.MessagePriority)
-            ?.AddMessageClass(context.MessageClass)
+            ?.AddMessageClass(context.Message)
             ?.AddEnqueued(context.EnqueuedTime)
             ?.AddNotBefore(context.NotBefore);
         // todo add conversation id
@@ -85,5 +77,5 @@ public static class ActivityTags
         activity?.AddTag("messaging.operation.type", value);
 
     public static Activity? AddMessagingClientId(this Activity? activity) =>
-        activity?.AddTag("messaging.client.id", System.Environment.MachineName);
+        activity?.AddTag("messaging.client.id", Environment.MachineName);
 }

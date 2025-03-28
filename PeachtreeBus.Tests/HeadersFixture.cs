@@ -10,13 +10,6 @@ public class HeadersFixture
         = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests";
 
     [TestMethod]
-    public void Given_Type_When_GetMessageClassString_Then_Result()
-    {
-        var actual = Headers.GetMessageClassString(typeof(TestSagaMessage1));
-        Assert.AreEqual(TestSagaMessage1ClassString, actual);
-    }
-
-    [TestMethod]
     public void Given_Type_When_New_Then_MessageClassInitialized()
     {
         var actual = new Headers(typeof(TestSagaMessage1));
