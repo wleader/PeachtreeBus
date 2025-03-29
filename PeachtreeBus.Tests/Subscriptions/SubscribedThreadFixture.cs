@@ -5,71 +5,49 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Subscriptions
+namespace PeachtreeBus.Tests.Subscriptions;
+
+/// <summary>
+/// Proves the behavior of SubscribedThread
+/// </summary>
+[TestClass]
+public class SubscribedThreadFixture : ThreadFixtureBase<SubscribedThread>
 {
-    /// <summary>
-    /// Proves the behavior of SubscribedThread
-    /// </summary>
-    [TestClass]
-    public class SubscribedThreadFixture
+    private readonly Mock<IBusDataAccess> dataAccess = new();
+    private readonly Mock<ILogger<SubscribedThread>> log = new();
+    private readonly Mock<ISubscribedWork> work = new();
+    private BusConfiguration config = default!;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private SubscribedThread thread = default!;
-        private Mock<IProvideShutdownSignal> shutdown = default!;
-        private int loopCount = 1;
-        private Mock<IBusDataAccess> dataAccess = default!;
-        private Mock<ILogger<SubscribedThread>> log = default!;
-        private Mock<ISubscribedWork> work = default!;
-        private Mock<ISubscriptionUpdateWork> updater = default!;
-        private BusConfiguration config = default!;
+        config = TestData.CreateBusConfiguration();
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            updater = new();
+        log.Reset();
+        dataAccess.Reset();
+        work.Reset();
 
-            config = TestData.CreateBusConfiguration();
-            //config = new SubscriberConfiguration(
-            //    SubscriberId.New(),
-            //    TimeSpan.FromSeconds(30),
-            //    new("cat1"), new("cat2"));
+        work.Setup(p => p.DoWork())
+            .Callback(CancelToken)
+            .ReturnsAsync(true);
 
-            shutdown = new();
+        _testSubject = new SubscribedThread(
+            log.Object,
+            dataAccess.Object,
+            config,
+            work.Object);
+    }
 
-            shutdown.SetupGet(s => s.ShouldShutdown)
-                .Returns(() => loopCount > 0)
-                .Callback(() => loopCount--);
-
-            log = new();
-
-            dataAccess = new();
-
-            work = new();
-
-            work.Setup(p => p.DoWork())
-                .Returns(Task.FromResult(true));
-
-            updater.Setup(u => u.DoWork()).Returns(Task.FromResult(true));
-
-            thread = new SubscribedThread(
-                shutdown.Object,
-                log.Object,
-                dataAccess.Object,
-                config,
-                work.Object);
-        }
-
-        /// <summary>
-        /// Proves the unit of work is invoked.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Run_CallsWorkDoDork()
-        {
-            Assert.IsNotNull(config.SubscriptionConfiguration);
-
-            await thread.Run();
-            work.VerifySet(p => p.SubscriberId = config.SubscriptionConfiguration.SubscriberId, Times.Once);
-            work.Verify(p => p.DoWork(), Times.Once);
-        }
+    /// <summary>
+    /// Proves the unit of work is invoked.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Run_Then_WorkRuns()
+    {
+        Assert.IsNotNull(config.SubscriptionConfiguration);
+        await When_Run();
+        work.VerifySet(p => p.SubscriberId = config.SubscriptionConfiguration.SubscriberId, Times.Once);
+        work.Verify(p => p.DoWork(), Times.Once);
     }
 }

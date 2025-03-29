@@ -16,10 +16,9 @@ namespace PeachtreeBus.Cleaners
     public class SubscriptionCleanupThread(
         IBusDataAccess dataAccess,
         ILogger<SubscriptionCleanupThread> log,
-        IProvideShutdownSignal shutdown,
         ISubscriptionCleanupWork cleaner,
         ISystemClock clock)
-        : BaseThread("Subscription Cleaner", 500, log, dataAccess, shutdown)
+        : BaseThread("Subscription Cleaner", 500, log, dataAccess)
         , ISubscriptionCleanupThread
     {
         private readonly ISubscriptionCleanupWork _cleaner = cleaner;

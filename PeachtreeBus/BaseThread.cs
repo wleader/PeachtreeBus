@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus;
@@ -11,7 +12,7 @@ namespace PeachtreeBus;
 /// </summary>
 public interface IThread
 {
-    Task Run();
+    Task Run(CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -31,19 +32,17 @@ public abstract class BaseThread(
     string name,
     int delayMs,
     ILogger log,
-    IBusDataAccess dataAccess,
-    IProvideShutdownSignal shutdown)
+    IBusDataAccess dataAccess)
     : IThread
 {
     private readonly string _name = name;
     private readonly int delayMs = delayMs;
     private readonly ILogger _log = log;
     private readonly IBusDataAccess _dataAccess = dataAccess;
-    private readonly IProvideShutdownSignal _shutdown = shutdown;
 
     public abstract Task<bool> DoUnitOfWork();
 
-    public async Task Run()
+    public async Task Run(CancellationToken cancellationToken)
     {
         _log.BaseThread_ThreadStart(_name);
         do
@@ -63,7 +62,8 @@ public abstract class BaseThread(
                     // there was no work to do.
                     // Rollback and go to sleep.
                     _dataAccess.RollbackTransaction();
-                    await Task.Delay(delayMs);
+                    if (!cancellationToken.IsCancellationRequested)
+                        await Task.Delay(delayMs, cancellationToken);
                 }
             }
             catch (Exception e)
@@ -79,7 +79,7 @@ public abstract class BaseThread(
                 }
             }
         }
-        while (!_shutdown.ShouldShutdown);
+        while (!cancellationToken.IsCancellationRequested);
 
         _log.BaseThread_ThreadStop(_name);
     }

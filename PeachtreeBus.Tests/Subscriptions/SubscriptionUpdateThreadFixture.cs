@@ -11,28 +11,24 @@ namespace PeachtreeBus.Tests.Subscriptions
     /// Proves the behavior of SubscriptionUpdateThread
     /// </summary>
     [TestClass]
-    public class SubscriptionUpdateThreadFixture
+    public class SubscriptionUpdateThreadFixture : ThreadFixtureBase<SubscriptionUpdateThread>
     {
-        private SubscriptionUpdateThread thread = default!;
-        private Mock<IProvideShutdownSignal> shutdown = default!;
-        private int loopCount = 1;
-        private Mock<ILogger<SubscriptionUpdateThread>> log = default!;
-        private Mock<IBusDataAccess> dataAccess = default!;
-        private Mock<ISubscriptionUpdateWork> updater = default!;
+        private readonly Mock<ILogger<SubscriptionUpdateThread>> log = new();
+        private readonly Mock<IBusDataAccess> dataAccess = new();
+        private readonly Mock<ISubscriptionUpdateWork> updater = new();
 
         [TestInitialize]
         public void TestInitialize()
         {
-            shutdown = new Mock<IProvideShutdownSignal>();
-            log = new Mock<ILogger<SubscriptionUpdateThread>>();
-            dataAccess = new Mock<IBusDataAccess>();
-            updater = new Mock<ISubscriptionUpdateWork>();
+            log.Reset();
+            dataAccess.Reset();
+            updater.Reset();
 
-            shutdown.SetupGet(s => s.ShouldShutdown)
-                .Returns(() => loopCount > 0)
-                .Callback(() => loopCount--);
+            updater.Setup(u => u.DoWork())
+                .Callback(CancelToken)
+                .ReturnsAsync(true);
 
-            thread = new SubscriptionUpdateThread(shutdown.Object, log.Object, dataAccess.Object, updater.Object);
+            _testSubject = new SubscriptionUpdateThread(log.Object, dataAccess.Object, updater.Object);
         }
 
         /// <summary>
@@ -40,9 +36,9 @@ namespace PeachtreeBus.Tests.Subscriptions
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Run_CallsUpdate()
+        public async Task When_Run_Then_WorkRuns()
         {
-            await thread.Run();
+            await When_Run();
             updater.Verify(u => u.DoWork(), Times.Once);
         }
     }

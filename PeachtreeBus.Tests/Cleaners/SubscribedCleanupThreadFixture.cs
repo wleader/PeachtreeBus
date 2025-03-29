@@ -5,41 +5,43 @@ using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Cleaners
+namespace PeachtreeBus.Tests.Cleaners;
+
+/// <summary>
+/// Proves the behavior of SubscribedCleanupThread
+/// </summary>
+[TestClass]
+public class SubscribedCleanupThreadFixture : ThreadFixtureBase<SubscribedCleanupThread>
 {
-    /// <summary>
-    /// Proves the behavior of SubscribedCleanupThread
-    /// </summary>
-    [TestClass]
-    public class SubscribedCleanupThreadFixture
+    private readonly Mock<ILogger<SubscribedCleanupThread>> log = new();
+    private readonly Mock<IBusDataAccess> dataAccess = new();
+    private readonly Mock<ISubscribedCleanupWork> cleaner = new();
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private SubscribedCleanupThread thread = default!;
-        private Mock<ILogger<SubscribedCleanupThread>> log = default!;
-        private Mock<IBusDataAccess> dataAccess = default!;
-        private Mock<IProvideShutdownSignal> shutdown = default!;
-        private Mock<ISubscribedCleanupWork> cleaner = default!;
+        log.Reset();
+        dataAccess.Reset();
+        cleaner.Reset();
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            log = new Mock<ILogger<SubscribedCleanupThread>>();
-            dataAccess = new Mock<IBusDataAccess>();
-            shutdown = new Mock<IProvideShutdownSignal>();
-            cleaner = new Mock<ISubscribedCleanupWork>();
+        cleaner.Setup(x => x.DoWork())
+            .Callback(CancelToken)
+            .ReturnsAsync(true);
 
-            thread = new SubscribedCleanupThread(log.Object,
-                dataAccess.Object, shutdown.Object, cleaner.Object);
-        }
+        _testSubject = new SubscribedCleanupThread(
+            log.Object,
+            dataAccess.Object,
+            cleaner.Object);
+    }
 
-        /// <summary>
-        /// Proves the cleaner is invoked.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task DoUnitOfwork_DoesWork()
-        {
-            await thread.DoUnitOfWork();
-            cleaner.Verify(c => c.DoWork(), Times.Once);
-        }
+    /// <summary>
+    /// Proves the cleaner is invoked.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Run_Then_WorkRuns()
+    {
+        await When_Run();
+        cleaner.Verify(c => c.DoWork(), Times.Once);
     }
 }

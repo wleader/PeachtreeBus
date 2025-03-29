@@ -17,12 +17,12 @@ namespace PeachtreeBus.Subscriptions
     {
         private readonly ISubscribedWork _subscribedWork;
 
-        public SubscribedThread(IProvideShutdownSignal provideShutdownSignal,
+        public SubscribedThread(
             ILogger<SubscribedThread> log,
             IBusDataAccess busDataAccess,
             IBusConfiguration configuration,
             ISubscribedWork subscribeWork)
-            : base("Subscription Message", 100, log, busDataAccess, provideShutdownSignal)
+            : base("Subscription Message", 100, log, busDataAccess)
         {
             _subscribedWork = subscribeWork;
             _subscribedWork.SubscriberId = UnreachableException.ThrowIfNull(configuration.SubscriptionConfiguration,

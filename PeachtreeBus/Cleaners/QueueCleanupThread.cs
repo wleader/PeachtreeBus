@@ -16,9 +16,8 @@ namespace PeachtreeBus.Cleaners
     public class QueueCleanupThread(
         ILogger<QueueCleanupThread> log,
         IBusDataAccess dataAccess,
-        IProvideShutdownSignal shutdown,
         IQueueCleanupWork cleaner)
-        : BaseThread("QueueCleaner", 500, log, dataAccess, shutdown)
+        : BaseThread("QueueCleaner", 500, log, dataAccess)
         , IQueueCleanupThread
     {
         private readonly IQueueCleanupWork _cleaner = cleaner;

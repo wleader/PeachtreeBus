@@ -13,11 +13,10 @@ namespace PeachtreeBus.Subscriptions
     /// A thread that keeps the subscribers subscriptions updated.
     /// </summary>
     public class SubscriptionUpdateThread(
-        IProvideShutdownSignal shutdown,
         ILogger<SubscriptionUpdateThread> log,
         IBusDataAccess transactionContext,
         ISubscriptionUpdateWork updater)
-        : BaseThread("Subscription Update", 500, log, transactionContext, shutdown)
+        : BaseThread("Subscription Update", 500, log, transactionContext)
         , ISubscriptionUpdateThread
     {
         private readonly ISubscriptionUpdateWork _updater = updater;

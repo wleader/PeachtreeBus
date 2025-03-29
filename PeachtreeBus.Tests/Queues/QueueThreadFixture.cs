@@ -5,53 +5,43 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Queues
+namespace PeachtreeBus.Tests.Queues;
+
+[TestClass]
+public class QueueThreadFixture : ThreadFixtureBase<QueueThread>
 {
-    /// <summary>
-    /// Proves the behavior of QueueThread
-    /// </summary>
-    [TestClass]
-    public class QueueThreadFixture
+    private readonly Mock<IBusDataAccess> dataAccess = new();
+    private readonly Mock<ILogger<QueueThread>> log = new();
+    private readonly Mock<IQueueWork> work = new();
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private QueueThread thread = default!;
-        private Mock<IProvideShutdownSignal> shutdown = default!;
-        private int loopCount = 1;
-        private Mock<IBusDataAccess> dataAccess = default!;
-        private Mock<ILogger<QueueThread>> log = default!;
-        private Mock<IQueueWork> work = default!;
+        log.Reset();
+        dataAccess.Reset();
+        work.Reset();
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            shutdown = new Mock<IProvideShutdownSignal>();
+        work.Setup(p => p.DoWork())
+            .Callback(CancelToken)
+            .ReturnsAsync(true);
 
-            shutdown.SetupGet(s => s.ShouldShutdown)
-                .Returns(() => loopCount > 0)
-                .Callback(() => loopCount--);
+        var config = TestData.CreateBusConfiguration();
 
-            log = new Mock<ILogger<QueueThread>>();
+        _testSubject = new QueueThread(
+            dataAccess.Object,
+            log.Object,
+            work.Object,
+            config);
+    }
 
-            dataAccess = new Mock<IBusDataAccess>();
-
-            work = new Mock<IQueueWork>();
-
-            work.Setup(p => p.DoWork())
-                .Returns(Task.FromResult(true));
-
-            var config = TestData.CreateBusConfiguration();
-
-            thread = new QueueThread(shutdown.Object, dataAccess.Object, log.Object, work.Object, config);
-        }
-
-        /// <summary>
-        /// Proves the unit of work is invoked
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task Run_CallsWorkDoWork()
-        {
-            await thread.Run();
-            work.Verify(p => p.DoWork(), Times.Once);
-        }
+    /// <summary>
+    /// Proves the unit of work is invoked
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task When_Run_Then_WorkRuns()
+    {
+        await When_Run();
+        work.Verify(p => p.DoWork(), Times.Once);
     }
 }

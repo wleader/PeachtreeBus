@@ -4,6 +4,7 @@ using PeachtreeBus.Subscriptions;
 using SimpleInjector;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.SimpleInjector
@@ -21,34 +22,41 @@ namespace PeachtreeBus.SimpleInjector
             var factory = container.GetInstance<IWrappedScopeFactory>();
             var tasks = new List<Task>();
 
+            var shutdownProvider = container.GetInstance<IProvideShutdownSignal>();
+            var token = shutdownProvider.GetCancellationToken();
+
             if (Configuration.SubscriptionConfiguration is not null)
             {
-                tasks.AddIfRegistered<ISubscribedCleanupThread>(container, factory);
-                tasks.AddIfRegistered<ISubscriptionCleanupThread>(container, factory);
-                tasks.AddIfRegistered<ISubscriptionUpdateThread>(container, factory);
-                tasks.AddIfRegistered<ISubscribedThread>(container, factory);
+                tasks.AddIfRegistered<ISubscribedCleanupThread>(container, factory, token);
+                tasks.AddIfRegistered<ISubscriptionCleanupThread>(container, factory, token);
+                tasks.AddIfRegistered<ISubscriptionUpdateThread>(container, factory, token);
+                tasks.AddIfRegistered<ISubscribedThread>(container, factory, token);
             }
 
             if (Configuration.QueueConfiguration is not null)
             {
-                tasks.AddIfRegistered<IQueueCleanupThread>(container, factory);
+                tasks.AddIfRegistered<IQueueCleanupThread>(container, factory, token);
                 for (var i = 0; i < concurrency; i++)
                 {
-                    tasks.AddIfRegistered<IQueueThread>(container, factory);
+                    tasks.AddIfRegistered<IQueueThread>(container, factory, token);
                 }
             }
 
             return tasks;
         }
 
-        private static void AddIfRegistered<T>(this List<Task> list, Container container, IWrappedScopeFactory scopeFactory)
+        private static void AddIfRegistered<T>(
+            this List<Task> list,
+            Container container,
+            IWrappedScopeFactory scopeFactory,
+            CancellationToken cancellationToken)
             where T : IThread
         {
             if (container.IsRegistered<T>())
             {
                 var scope = scopeFactory.Create();
                 var p = (T)scope.GetInstance(typeof(T));
-                list.Add(p.Run());
+                list.Add(p.Run(cancellationToken));
             }
         }
 

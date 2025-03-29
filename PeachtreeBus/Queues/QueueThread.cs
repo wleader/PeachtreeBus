@@ -17,12 +17,12 @@ namespace PeachtreeBus.Queues
     {
         private readonly IQueueWork _queueWork;
 
-        public QueueThread(IProvideShutdownSignal shutdown,
+        public QueueThread(
             IBusDataAccess dataAccess,
             ILogger<QueueThread> log,
             IQueueWork queueWork,
             IBusConfiguration config)
-            : base("Queue", 100, log, dataAccess, shutdown)
+            : base("Queue", 100, log, dataAccess)
         {
             _queueWork = queueWork;
             _queueWork.QueueName = UnreachableException.ThrowIfNull(config.QueueConfiguration,

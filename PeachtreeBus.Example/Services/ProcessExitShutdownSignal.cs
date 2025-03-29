@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace PeachtreeBus.Example.Services
 {
@@ -9,7 +10,10 @@ namespace PeachtreeBus.Example.Services
     /// </summary>
     public class ProcessExitShutdownSignal : IProvideShutdownSignal
     {
-        public bool ShouldShutdown { get; private set; } = false;
+        private CancellationTokenSource _cts = new();
+        public CancellationToken GetCancellationToken() => _cts.Token;
+
+        public void SignalShutdown() => _cts.Cancel();
 
         public ProcessExitShutdownSignal()
         {
@@ -21,9 +25,6 @@ namespace PeachtreeBus.Example.Services
             AppDomain.CurrentDomain.ProcessExit -= CurrentDomain_ProcessExit;
         }
 
-        private void CurrentDomain_ProcessExit(object? sender, EventArgs e)
-        {
-            ShouldShutdown = true;
-        }
+        private void CurrentDomain_ProcessExit(object? sender, EventArgs e) => _cts.Cancel();
     }
 }

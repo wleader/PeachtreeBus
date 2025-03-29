@@ -66,9 +66,10 @@ public class PublishPipelineFinalStepFixture
             configuration,
             serializer.Object,
             dataAccess.Object,
-            meters.Object);
-
-        step.InternalContext = context;
+            meters.Object)
+        {
+            InternalContext = context
+        };
     }
 
     /// <summary>
