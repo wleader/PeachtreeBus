@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
+using PeachtreeBus.Serialization;
 using PeachtreeBus.Tests;
 using PeachtreeBus.Tests.Fakes;
 using System;
@@ -11,7 +12,12 @@ public abstract class DapperDataAccessFixtureBase : FixtureBase<DapperDataAccess
 {
     protected override DapperDataAccess CreateDataAccess()
     {
-        return new DapperDataAccess(SharedDB, Configuration.Object, MockLog.Object, FakeClock.Instance);
+        return new DapperDataAccess(
+            SharedDB,
+            Configuration.Object,
+            MockLog.Object,
+            FakeClock.Instance,
+            TestDapperTypesHandler.Instance);
     }
 
     protected async Task Given_MessagesInQueue(int count)

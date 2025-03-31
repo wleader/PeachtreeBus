@@ -18,7 +18,7 @@ namespace PeachtreeBus.DataAccessTests
             var failed = await dataAccess.GetFailedQueueMessages(DefaultQueue, 0, 1);
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(s1.MessageId, failed[0].MessageId);
-            Assert.AreEqual(s1.Headers, failed[0].Headers);
+            AssertHeadersEquals(s1.Headers, failed[0].Headers);
             Assert.AreEqual(s1.Body, failed[0].Body);
             AssertSqlDbDateTime(s1.Enqueued, failed[0].Enqueued);
             Assert.AreEqual(0, failed[0].Retries);

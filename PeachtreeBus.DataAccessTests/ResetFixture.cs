@@ -21,7 +21,12 @@ namespace PeachtreeBus.DataAccessTests
             _sharedDb = new();
             _configuration = new();
             _logger = new();
-            _dataAccess = new DapperDataAccess(_sharedDb.Object, _configuration.Object, _logger.Object, FakeClock.Instance);
+            _dataAccess = new DapperDataAccess(
+                _sharedDb.Object,
+                _configuration.Object,
+                _logger.Object,
+                FakeClock.Instance,
+                TestDapperTypesHandler.Instance);
         }
 
         [TestMethod]

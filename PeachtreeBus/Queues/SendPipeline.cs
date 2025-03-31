@@ -57,10 +57,12 @@ public class SendPipelineFinalStep(
         using var activity = new SendActivity(context);
 
         // note the type in the headers so it can be deserialized.
-        var headers = new Headers(type, context.Headers);
-
-        headers.Diagnostics.StartNewTraceOnReceive = InternalContext.StartNewConversation;
-        headers.Diagnostics.TraceParent = Activity.Current?.Id;
+        var headers = new Headers(type, context.Headers)
+        {
+            Diagnostics = new(
+                Activity.Current?.Id,
+                InternalContext.StartNewConversation)
+        };
 
         // create the message entity, serializing the headers and body.
         var sm = new QueueData
@@ -72,8 +74,8 @@ public class SendPipelineFinalStep(
             Completed = null,
             Failed = null,
             Retries = 0,
-            Headers = _serializer.SerializeHeaders(headers),
-            Body = _serializer.SerializeMessage(message, type)
+            Headers = headers,
+            Body = _serializer.Serialize(message, type)
         };
 
         await _dataAccess.AddMessage(sm, context.Destination);

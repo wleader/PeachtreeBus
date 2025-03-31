@@ -26,11 +26,10 @@ public class DefaultSerializerFixture
         };
         headers.UserHeaders.Add("UserHeader.One", "One");
         headers.UserHeaders.Add("UserHeader.Two", "Two");
-        headers.Diagnostics.TraceParent = Guid.NewGuid().ToString();
-        headers.Diagnostics.StartNewTraceOnReceive = true;
+        headers.Diagnostics = new(Guid.NewGuid().ToString(), true);
 
-        var serialized = serializer.SerializeHeaders(headers);
-        var deserialized = serializer.DeserializeHeaders(serialized);
+        var serialized = serializer.Serialize(headers);
+        var deserialized = serializer.Deserialize<Headers>(serialized);
 
         Assert.IsNotNull(deserialized);
         Assert.AreEqual(headers.ExceptionDetails, deserialized.ExceptionDetails);
@@ -55,8 +54,8 @@ public class DefaultSerializerFixture
     {
         var message = new UserMessage() { Foo = "Baz", Bar = 42 };
 
-        var serialized = serializer.SerializeMessage(message, typeof(UserMessage));
-        var deserialized = (UserMessage)serializer.DeserializeMessage(serialized, typeof(UserMessage));
+        var serialized = serializer.Serialize(message, typeof(UserMessage));
+        var deserialized = (UserMessage)serializer.Deserialize(serialized, typeof(UserMessage));
 
         Assert.IsNotNull(deserialized);
         Assert.AreEqual(message.Foo, deserialized.Foo);
@@ -74,8 +73,8 @@ public class DefaultSerializerFixture
     {
         var message = new UserSaga() { Foo = "Baz", Bar = 42 };
 
-        var serialized = serializer.SerializeSaga(message, typeof(UserSaga));
-        var deserialized = (UserSaga)serializer.DeserializeSaga(serialized, typeof(UserSaga));
+        var serialized = serializer.Serialize(message, typeof(UserSaga));
+        var deserialized = (UserSaga)serializer.Deserialize(serialized, typeof(UserSaga));
 
         Assert.IsNotNull(deserialized);
         Assert.AreEqual(message.Foo, deserialized.Foo);

@@ -51,7 +51,7 @@ public class QueueData
     /// <summary>
     /// Serialized Message Headers
     /// </summary>
-    public required virtual SerializedData Headers { get; set; } = default;
+    public required virtual Headers? Headers { get; set; }
 
     /// <summary>
     /// Serialized Message Body

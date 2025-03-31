@@ -3,8 +3,8 @@ using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Serialization;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests.Fakes;
 using PeachtreeBus.Tests.Telemetry;
 using System;
 using System.Threading.Tasks;
@@ -22,7 +22,7 @@ public class SendPipelineFinalStepFixture
     private SendPipelineFinalStep step = default!;
     private Mock<IBusDataAccess> dataAccess = default!;
     private Mock<IMeters> meters = default!;
-    private FakeSerializer serializer = default!;
+    private readonly Mock<ISerializer> _serializer = new();
     private Mock<ISystemClock> clock = default!;
 
     private QueueData? AddedMessage = null;
@@ -34,10 +34,12 @@ public class SendPipelineFinalStepFixture
     {
         dataAccess = new();
         meters = new();
-        serializer = new();
+        _serializer.Reset();
         clock = new();
 
         clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
+
+        
 
         dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueData>(), It.IsAny<QueueName>()))
             .Callback<QueueData, QueueName>((msg, qn) =>
@@ -49,7 +51,10 @@ public class SendPipelineFinalStepFixture
 
         context = TestData.CreateSendContext();
 
-        step = new(clock.Object, serializer.Object, dataAccess.Object, meters.Object)
+        _serializer.Setup(x => x.Serialize(context.Message, context.Message.GetType()))
+            .Returns(TestData.DefaultBody);
+
+        step = new(clock.Object, _serializer.Object, dataAccess.Object, meters.Object)
         {
             InternalContext = context
         };
@@ -75,9 +80,8 @@ public class SendPipelineFinalStepFixture
     public async Task When_Invoke_Then_HeadersTypeIsSet()
     {
         await step.Invoke(context, null!);
-        Assert.AreEqual(1, serializer.SerializedHeaders.Count);
         Assert.AreEqual("PeachtreeBus.Abstractions.Tests.TestClasses.TestQueuedMessage, PeachtreeBus.Abstractions.Tests",
-            serializer.SerializedHeaders[0].MessageClass);
+            AddedMessage?.Headers?.MessageClass);
     }
 
     /// <summary>
@@ -152,12 +156,10 @@ public class SendPipelineFinalStepFixture
     /// </summary>
     /// <returns></returns>
     [TestMethod]
-    public async Task When_Invoke_UsesHeadersFromSerializer()
+    public async Task When_Invoke_UserHeadersAreSet()
     {
         await step.Invoke(context, null!);
-
-        Assert.IsNotNull(AddedMessage);
-        Assert.AreEqual(serializer.SerializeHeadersResult, AddedMessage.Headers);
+        Assert.AreSame(context.Headers, AddedMessage?.Headers?.UserHeaders);
     }
 
     /// <summary>
@@ -170,7 +172,7 @@ public class SendPipelineFinalStepFixture
         await step.Invoke(context, null!);
 
         Assert.IsNotNull(AddedMessage);
-        Assert.AreEqual(serializer.SerializeMessageResult, AddedMessage.Body);
+        Assert.AreEqual(TestData.DefaultBody, AddedMessage.Body);
     }
 
     /// <summary>
@@ -244,8 +246,6 @@ public class SendPipelineFinalStepFixture
     {
         context.Headers = TestData.DefaultUserHeaders;
         await step.Invoke(context, null!);
-
-        Assert.AreEqual(1, serializer.SerializedHeaders.Count);
-        Assert.AreSame(TestData.DefaultUserHeaders, serializer.SerializedHeaders[0].UserHeaders);
+        Assert.AreSame(context.Headers, AddedMessage?.Headers?.UserHeaders);
     }
 }

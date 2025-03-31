@@ -2,9 +2,9 @@
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
+using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests.Fakes;
 using PeachtreeBus.Tests.Telemetry;
 using System;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ public class PublishPipelineFinalStepFixture
     // Dependencies
     private Mock<IBusDataAccess> dataAccess = default!;
     private Mock<IMeters> meters = default!;
-    private FakeSerializer serializer = default!;
+    private Mock<ISerializer> serializer = new();
     private Mock<ISystemClock> clock = default!;
     private BusConfiguration configuration = default!;
 
@@ -61,6 +61,9 @@ public class PublishPipelineFinalStepFixture
             Topic = TestData.DefaultTopic,
         };
 
+        serializer.Setup(x => x.Serialize(context.Message, context.Message.GetType()))
+            .Returns(TestData.DefaultBody);
+
         step = new PublishPipelineFinalStep(
             clock.Object,
             configuration,
@@ -92,9 +95,8 @@ public class PublishPipelineFinalStepFixture
     public async Task Invoke_SetsTypeOnHeaders()
     {
         await step.Invoke(context, null!);
-        Assert.AreEqual(1, serializer.SerializedHeaders.Count);
         Assert.AreEqual("PeachtreeBus.Abstractions.Tests.TestClasses.TestSubscribedMessage, PeachtreeBus.Abstractions.Tests",
-            serializer.SerializedHeaders[0].MessageClass);
+            PublishedMessage?.Headers?.MessageClass);
     }
 
     /// <summary>
@@ -163,18 +165,6 @@ public class PublishPipelineFinalStepFixture
     }
 
     /// <summary>
-    /// Proves headers are serialized.
-    /// </summary>
-    /// <returns></returns>
-    [TestMethod]
-    public async Task Invoke_UsesHeadersFromSerializer()
-    {
-        await step.Invoke(context, null!);
-
-        Assert.AreEqual(serializer.SerializeHeadersResult, PublishedMessage?.Headers);
-    }
-
-    /// <summary>
     /// Proves Body is serialized
     /// </summary>
     /// <returns></returns>
@@ -182,8 +172,7 @@ public class PublishPipelineFinalStepFixture
     public async Task Invoke_UsesBodyFromSerializer()
     {
         await step.Invoke(context, null!);
-
-        Assert.AreEqual(serializer.SerializeMessageResult, PublishedMessage?.Body);
+        Assert.AreEqual(TestData.DefaultBody, PublishedMessage?.Body);
     }
 
     /// <summary>
@@ -241,9 +230,7 @@ public class PublishPipelineFinalStepFixture
     {
         context.Headers = TestData.DefaultUserHeaders;
         await step.Invoke(context, null!);
-
-        Assert.AreEqual(1, serializer.SerializedHeaders.Count);
-        Assert.AreSame(TestData.DefaultUserHeaders, serializer.SerializedHeaders[0].UserHeaders);
+        Assert.AreSame(context.Headers, PublishedMessage?.Headers?.UserHeaders);
     }
 
     [TestMethod]

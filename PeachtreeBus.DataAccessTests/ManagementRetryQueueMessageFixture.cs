@@ -17,7 +17,7 @@ namespace PeachtreeBus.DataAccessTests
             var pending = await dataAccess.GetPendingQueueMessages(DefaultQueue, 0, 1);
             Assert.AreEqual(1, pending.Count);
             Assert.AreEqual(s1.MessageId, pending[0].MessageId);
-            Assert.AreEqual(s1.Headers, pending[0].Headers);
+            AssertHeadersEquals(s1.Headers, pending[0].Headers);
             Assert.AreEqual(s1.Body, pending[0].Body);
             AssertSqlDbDateTime(s1.Enqueued, pending[0].Enqueued);
             Assert.AreEqual(0, pending[0].Retries);

@@ -19,7 +19,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(s1.MessageId, failed[0].MessageId);
-            Assert.AreEqual(s1.Headers, failed[0].Headers);
+            AssertHeadersEquals(s1.Headers, failed[0].Headers);
             AssertSqlDbDateTime(s1.ValidUntil, failed[0].ValidUntil);
             Assert.AreEqual(s1.Body, failed[0].Body);
             AssertSqlDbDateTime(s1.Enqueued, failed[0].Enqueued);

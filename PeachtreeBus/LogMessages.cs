@@ -83,8 +83,8 @@ namespace PeachtreeBus
         /// <summary>
         /// (3001001) Warning: Headers could not be deserialized for message {MessageId} from queue {QueueName}.
         /// </summary>
-        public static void QueueReader_HeaderNotDeserializable(this ILogger logger, UniqueIdentity messageId, QueueName queueName, Exception ex)
-            => PeachtreeBus_Queues_QueueReader_HeaderNotDeserializable_Action(logger, messageId, queueName, ex);
+        public static void QueueReader_HeaderNotDeserializable(this ILogger logger, UniqueIdentity messageId, QueueName queueName)
+            => PeachtreeBus_Queues_QueueReader_HeaderNotDeserializable_Action(logger, messageId, queueName, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_BodyNotDeserializable_Event
             = new(3001002, "PeachtreeBus_Queues_QueueReader_BodyNotDeserializable");
@@ -287,8 +287,8 @@ namespace PeachtreeBus
         /// <summary>
         /// (4002002) Warning: Headers could not be deserialized for message {MessageId} for subscriber {SubscriberId}.
         /// </summary>
-        public static void SubscribedReader_HeaderNotDeserializable(this ILogger logger, UniqueIdentity messageId, SubscriberId subscriberId, Exception ex)
-            => PeachtreeBus_Subscriptions_SubscribedReader_HeaderNotDeserializable_Action(logger, messageId, subscriberId, ex);
+        public static void SubscribedReader_HeaderNotDeserializable(this ILogger logger, UniqueIdentity messageId, SubscriberId subscriberId)
+            => PeachtreeBus_Subscriptions_SubscribedReader_HeaderNotDeserializable_Action(logger, messageId, subscriberId, null!);
 
         internal static readonly EventId PeachtreeBus_Subscriptions_SubscribedReader_BodyNotDeserializable_Event
             = new(4002003, "PeachtreeBus_Subscriptions_SubscribedReader_BodyNotDeserializable");

@@ -23,7 +23,12 @@ namespace PeachtreeBus.DataAccessTests
         {
             MockLog = new Mock<ILogger<DapperDataAccess>>();
             MockSharedDatabase = new Mock<ISharedDatabase>();
-            dataAccess = new DapperDataAccess(MockSharedDatabase.Object, null!, MockLog.Object, FakeClock.Instance);
+            dataAccess = new DapperDataAccess(
+                MockSharedDatabase.Object,
+                null!,
+                MockLog.Object,
+                FakeClock.Instance,
+                TestDapperTypesHandler.Instance);
         }
 
         /// <summary>

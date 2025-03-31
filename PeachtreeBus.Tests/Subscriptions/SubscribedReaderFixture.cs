@@ -60,25 +60,28 @@ namespace PeachtreeBus.Tests.Subscriptions
                 failures.Object,
                 retryStrategy.Object);
 
-            NextMessage = TestData.CreateSubscribedData(id: new(12345), priority: 24,
-                subscriberId: SubscriberId);
-
-            dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
-                .ReturnsAsync(() => NextMessage);
 
             NextMessageHeaders = new()
             {
                 MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
             };
-            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<SerializedData>()))
+
+            NextMessage = TestData.CreateSubscribedData(id: new(12345), priority: 24,
+                subscriberId: SubscriberId,
+                headers: NextMessageHeaders);
+
+            dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
+                .ReturnsAsync(() => NextMessage);
+
+            serializer.Setup(s => s.Deserialize<Headers>(It.IsAny<SerializedData>()))
                 .Returns(() => NextMessageHeaders);
 
             NextUserMessage = new();
-            serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
+            serializer.Setup(s => s.Deserialize(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
                 .Returns(() => NextUserMessage);
 
             SerializedHeaderData = new("SerializedHeaderData");
-            serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
+            serializer.Setup(s => s.Serialize(It.IsAny<Headers>()))
                 .Returns(() => SerializedHeaderData);
 
             retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<SubscribedContext>(), It.IsAny<Exception>(), It.IsAny<FailureCount>()))
@@ -102,25 +105,19 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             var exception = new ApplicationException();
 
-            serializer.Setup(s => s.SerializeHeaders(Context.InternalHeaders))
-                .Callback((Headers h) =>
-                {
-                    Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
-                })
-                .Returns(() => SerializedHeaderData);
-
             dataAccess.Setup(d => d.UpdateMessage(Context.Data))
                 .Callback((SubscribedData m) =>
                 {
                     Assert.AreEqual(expectedId, m.Id);
                     Assert.AreEqual(1, m.Retries);
                     Assert.AreEqual(expectedNotBefore, m.NotBefore);
-                    Assert.AreEqual(SerializedHeaderData, m.Headers);
+                    Assert.AreSame(Context.Data, m);
+                    Assert.AreSame(Context.InternalHeaders, m.Headers);
+                    Assert.AreEqual(exception.ToString(), m.Headers?.ExceptionDetails);
                 });
 
             await reader.Fail(Context, exception);
 
-            serializer.Verify(s => s.SerializeHeaders(Context.InternalHeaders), Times.Once);
             meters.Verify(c => c.RetryMessage(), Times.Once);
             dataAccess.Verify(c => c.UpdateMessage(Context.Data), Times.Once);
         }
@@ -136,26 +133,19 @@ namespace PeachtreeBus.Tests.Subscriptions
             var exception = new ApplicationException();
             var expectedId = Context.Data.Id;
 
-            serializer.Setup(s => s.SerializeHeaders(Context.InternalHeaders))
-                .Callback((Headers h) =>
-                {
-                    Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
-                })
-                .Returns(() => SerializedHeaderData);
-
             dataAccess.Setup(d => d.FailMessage(Context.Data))
                 .Callback((SubscribedData m) =>
                 {
+                    Assert.AreSame(Context.Data, m);
                     Assert.AreEqual(expectedId, m.Id);
-                    Assert.AreEqual(SerializedHeaderData, m.Headers);
+                    Assert.AreSame(Context.InternalHeaders, m.Headers);
+                    Assert.AreEqual(exception.ToString(), m.Headers?.ExceptionDetails);
                 });
 
             await reader.Fail(Context, new ApplicationException());
 
             meters.Verify(c => c.FailMessage(), Times.Once);
-            serializer.Verify(s => s.SerializeHeaders(Context.InternalHeaders), Times.Once);
             dataAccess.Verify(c => c.FailMessage(It.IsAny<SubscribedData>()), Times.Once);
-            Assert.AreEqual(1, dataAccess.Invocations.Count);
         }
 
         /// <summary>
@@ -215,8 +205,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task GetNext_HandlesUndeserializableHeaders()
         {
-            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<SerializedData>()))
-               .Throws(new Exception("Test Exception"));
+            NextMessage.Headers = null!;
 
             var context = await reader.GetNext(SubscriberId);
 
@@ -257,7 +246,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         [TestMethod]
         public async Task GetNext_HandlesUnserializableMessageBody()
         {
-            serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
+            serializer.Setup(s => s.Deserialize(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
                 .Throws(new Exception("Test Exception"));
 
             var context = await reader.GetNext(SubscriberId);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.Tests;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -48,7 +49,8 @@ namespace PeachtreeBus.DataAccessTests
                 Blocked = true, // doesn't actually get stored.
                 Data = new("NewData"), // check this gets updated
                 Key = new("NewKey"), // check this doesn't update
-                SagaId = UniqueIdentity.New() // check this doesn't update
+                SagaId = UniqueIdentity.New(), // check this doesn't update
+                MetaData = TestData.CreateSagaMetaData(),
             };
 
             await dataAccess.UpdateSagaData(updatedSaga, DefaultSagaName);

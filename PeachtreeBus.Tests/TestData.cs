@@ -37,7 +37,7 @@ public static class TestData
         int priority = 0,
         UtcDateTime? notBefore = null,
         UtcDateTime? enqueued = null,
-        SerializedData? headers = null,
+        Headers? headers = null,
         SerializedData? body = null)
     {
         return new()
@@ -47,7 +47,7 @@ public static class TestData
             Priority = priority,
             NotBefore = notBefore ?? DateTime.UtcNow,
             Enqueued = enqueued ?? DateTime.UtcNow,
-            Headers = headers ?? DefaultHeaders,
+            Headers = headers ?? new(),
             Body = body ?? DefaultBody
         };
     }
@@ -60,7 +60,7 @@ public static class TestData
         UtcDateTime? notBefore = null,
         UtcDateTime? enqueued = null,
         UtcDateTime? validUntil = null,
-        SerializedData? headers = null,
+        Headers? headers = null,
         SerializedData? body = null,
         Topic? topic = null)
     {
@@ -73,7 +73,7 @@ public static class TestData
             NotBefore = notBefore ?? DateTime.UtcNow,
             Enqueued = enqueued ?? DateTime.UtcNow,
             ValidUntil = validUntil ?? DateTime.UtcNow.AddMinutes(5),
-            Headers = headers ?? DefaultHeaders,
+            Headers = headers ?? new(),
             Body = body ?? DefaultBody,
             Topic = topic ?? DefaultTopic,
         };
@@ -170,5 +170,17 @@ public static class TestData
             Message = userMessage ?? CreateSubscribedUserMessage(),
             Topic = topic ?? DefaultTopic,
         };
+    }
+
+    public static SagaMetaData CreateSagaMetaData(
+        DateTime? started = null,
+        DateTime? lastMessageTime = null)
+    {
+        return new()
+        {
+            Started = started ?? DateTime.UtcNow,
+            LastMessageTime = lastMessageTime ?? DateTime.UtcNow,
+        };
+
     }
 }

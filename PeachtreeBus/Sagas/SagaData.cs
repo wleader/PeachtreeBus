@@ -1,4 +1,5 @@
 ﻿using PeachtreeBus.Data;
+using System;
 
 namespace PeachtreeBus.Sagas
 {
@@ -26,8 +27,17 @@ namespace PeachtreeBus.Sagas
         /// <summary>
         /// The serialized Saga Data.
         /// </summary>
-        public required virtual SerializedData Data { get; set; } = default;
+        public required virtual SerializedData Data { get; set; }
+
+        /// <summary>
+        /// Supplimentary information about the saga.
+        /// </summary>
+        public required virtual SagaMetaData MetaData { get; set; }
 
         public required virtual bool Blocked { get; set; }
     }
+
+    public readonly record struct SagaMetaData(
+        UtcDateTime Started,
+        UtcDateTime LastMessageTime);
 }

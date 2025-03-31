@@ -21,7 +21,6 @@ namespace PeachtreeBus.Tests.Queues
     public class QueueReaderFixture
     {
         private static readonly SerializedData SerializedTestSagaData = new("SerializedTestSagaData");
-        private static readonly SerializedData SerializedHeaderData = new("SerializedHeaderData");
         private static readonly QueueName NextMessageQueue = new("NextMessageQueue");
         private static readonly SagaKey SagaKey = new("SagaKey");
 
@@ -55,10 +54,8 @@ namespace PeachtreeBus.Tests.Queues
             clock.SetupGet(x => x.UtcNow)
                 .Returns(new DateTime(2022, 2, 22, 14, 22, 22, 222, DateTimeKind.Utc));
 
-            serializer.Setup(s => s.SerializeSaga(It.IsAny<object>(), typeof(TestSagaData)))
+            serializer.Setup(s => s.Serialize(It.IsAny<object>(), typeof(TestSagaData)))
                 .Returns(() => SerializedTestSagaData);
-            serializer.Setup(s => s.SerializeHeaders(It.IsAny<Headers>()))
-                .Returns(() => SerializedHeaderData);
 
             reader = new QueueReader(
                 dataAccess.Object,
@@ -72,22 +69,19 @@ namespace PeachtreeBus.Tests.Queues
             Context = TestData.CreateQueueContext(
                 messageData: TestData.CreateQueueMessage(id: new(12345), notBefore: clock.Object.UtcNow));
 
-            NextMessage = TestData.CreateQueueMessage(id: new(678890), priority: 12);
-
             NextMessageHeaders = new()
             {
                 MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
             };
+
+            NextMessage = TestData.CreateQueueMessage(id: new(678890), priority: 12, headers: NextMessageHeaders);
 
             NextUserMessage = new();
 
             dataAccess.Setup(d => d.GetPendingQueued(NextMessageQueue))
                 .ReturnsAsync(() => NextMessage);
 
-            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<SerializedData>()))
-                .Returns(() => NextMessageHeaders);
-
-            serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
+            serializer.Setup(s => s.Deserialize(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
                 .Returns(() => NextUserMessage);
 
             retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<QueueContext>(), It.IsAny<Exception>(), It.IsAny<FailureCount>()))
@@ -188,6 +182,7 @@ namespace PeachtreeBus.Tests.Queues
                 Data = new("DataToBeReplaced"),
                 Id = sagaDataId,
                 SagaId = UniqueIdentity.New(),
+                MetaData = TestData.CreateSagaMetaData(),
                 Blocked = false,
             };
 
@@ -239,13 +234,14 @@ namespace PeachtreeBus.Tests.Queues
                 Data = SerializedTestSagaData,
                 Key = Context.SagaKey,
                 SagaId = UniqueIdentity.New(),
+                MetaData = TestData.CreateSagaMetaData(),
             };
 
             dataAccess.Setup(d => d.GetSagaData(testSaga.SagaName, Context.SagaKey))
                 .ReturnsAsync(sagaData);
 
             var data = new TestSagaData();
-            serializer.Setup(s => s.DeserializeSaga(sagaData.Data, typeof(TestSagaData))).Returns(data);
+            serializer.Setup(s => s.Deserialize(sagaData.Data, typeof(TestSagaData))).Returns(data);
 
             await reader.LoadSaga(testSaga, Context);
 
@@ -268,6 +264,7 @@ namespace PeachtreeBus.Tests.Queues
                 Blocked = true,
                 Data = SerializedTestSagaData,
                 Key = SagaKey,
+                MetaData = TestData.CreateSagaMetaData(),
                 SagaId = UniqueIdentity.New(),
             };
 
@@ -276,7 +273,7 @@ namespace PeachtreeBus.Tests.Queues
 
             await reader.LoadSaga(testSaga, Context);
 
-            serializer.Verify(s => s.DeserializeSaga(sagaData.Data, typeof(TestSagaData)), Times.Never);
+            serializer.Verify(s => s.Deserialize(sagaData.Data, typeof(TestSagaData)), Times.Never);
             Assert.IsNull(testSaga.Data);
             Assert.IsTrue(Context.SagaData!.Blocked);
         }
@@ -295,19 +292,13 @@ namespace PeachtreeBus.Tests.Queues
 
             var exception = new ApplicationException();
 
-            serializer.Setup(s => s.SerializeHeaders(Context.InternalHeaders))
-                .Callback((Headers h) =>
-                {
-                    Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
-                })
-                .Returns(SerializedHeaderData);
-
             dataAccess.Setup(c => c.UpdateMessage(Context.Data, Context.SourceQueue))
                 .Callback((QueueData m, QueueName n) =>
                 {
                     Assert.AreEqual(1, m.Retries);
                     Assert.AreEqual(expectedNotBefore, m.NotBefore);
-                    Assert.AreEqual(SerializedHeaderData, m.Headers);
+                    Assert.AreSame(Context.InternalHeaders, m.Headers);
+                    Assert.AreEqual(exception.ToString(), m.Headers?.ExceptionDetails);
                 })
                 .Returns(Task.CompletedTask);
 
@@ -328,18 +319,12 @@ namespace PeachtreeBus.Tests.Queues
             var expectedMessageId = Context.Data.Id;
             var exception = new ApplicationException();
 
-            serializer.Setup(s => s.SerializeHeaders(Context.InternalHeaders))
-                .Callback((Headers h) =>
-                {
-                    Assert.AreEqual(exception.ToString(), h.ExceptionDetails);
-                })
-                .Returns(SerializedHeaderData);
-
             dataAccess.Setup(c => c.FailMessage(Context.Data, Context.SourceQueue))
                 .Callback((QueueData m, QueueName n) =>
                 {
                     Assert.AreEqual(expectedMessageId, m.Id);
-                    Assert.AreEqual(SerializedHeaderData, m.Headers);
+                    Assert.IsNotNull(m.Headers);
+                    Assert.AreEqual(exception.ToString(), m.Headers.ExceptionDetails);
                 })
                 .Returns(Task.CompletedTask);
 
@@ -407,12 +392,9 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task GetNext_HandlesUndeserializableHeaders()
         {
-            var deserializeException = new Exception("Test Exception");
+            NextMessage.Headers = null;
 
-            serializer.Setup(s => s.DeserializeHeaders(It.IsAny<SerializedData>()))
-               .Throws(deserializeException);
-
-            serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(object)))
+            serializer.Setup(s => s.Deserialize(It.IsAny<SerializedData>(), typeof(object)))
                 .Returns(null!);
 
             var context = await reader.GetNext(NextMessageQueue);
@@ -458,7 +440,7 @@ namespace PeachtreeBus.Tests.Queues
         [TestMethod]
         public async Task GetNext_HandlesUndeserializableMessageBody()
         {
-            serializer.Setup(s => s.DeserializeMessage(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
+            serializer.Setup(s => s.Deserialize(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
                 .Throws(new Exception("Test Exception"));
 
             var context = await reader.GetNext(NextMessageQueue);

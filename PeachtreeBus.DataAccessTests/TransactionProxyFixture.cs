@@ -52,7 +52,7 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
         {
             MessageId = UniqueIdentity.New(),
             Body = new SerializedData("Foo"),
-            Headers = new SerializedData("Baz"),
+            Headers = new(),
             Priority = 0,
             NotBefore = DateTime.UtcNow,
             Retries = 0,
@@ -86,6 +86,11 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
 
     protected override DapperDataAccess CreateDataAccess()
     {
-        return new DapperDataAccess(SharedDB, Configuration.Object, MockLog.Object, FakeClock.Instance);
+        return new DapperDataAccess(
+            SharedDB,
+            Configuration.Object,
+            MockLog.Object,
+            FakeClock.Instance,
+            TestDapperTypesHandler.Instance);
     }
 }

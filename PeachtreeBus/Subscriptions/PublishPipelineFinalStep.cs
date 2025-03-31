@@ -39,8 +39,9 @@ public class PublishPipelineFinalStep(
         // note the type in the headers so it can be deserialized.
         var headers = new Headers(type, context.Headers);
 
-        headers.Diagnostics.StartNewTraceOnReceive = context.StartNewConversation;
-        headers.Diagnostics.TraceParent = Activity.Current?.Id;
+        headers.Diagnostics = new(
+            Activity.Current?.Id,
+            context.StartNewConversation);
 
         // create the message entity, serializing the headers and body.
         var sm = new SubscribedData
@@ -53,8 +54,8 @@ public class PublishPipelineFinalStep(
             Completed = null,
             Failed = null,
             Retries = 0,
-            Headers = _serializer.SerializeHeaders(headers),
-            Body = _serializer.SerializeMessage(message, type),
+            Headers = headers,
+            Body = _serializer.Serialize(message, type),
             Topic = context.Topic,
         };
 

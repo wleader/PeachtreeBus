@@ -5,6 +5,7 @@ using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 
 namespace PeachtreeBus.SimpleInjector.Tests
 {
@@ -15,10 +16,12 @@ namespace PeachtreeBus.SimpleInjector.Tests
         private readonly Mock<IProvideDbConnectionString> _provideDBConnectionString = new();
         private Mock<IProvideShutdownSignal> _provideShutdownSignal = default!;
         protected List<Assembly> _assemblies = default!;
+        private CancellationTokenSource _cts = new();
 
         [TestInitialize]
         public void Intialize()
         {
+            _cts = new();
             _assemblies = [Assembly.GetExecutingAssembly()];
 
             _container = new Container();
@@ -37,8 +40,9 @@ namespace PeachtreeBus.SimpleInjector.Tests
             // users must provide their own shutdown signal.
             // provide one that immediatly shuts down so the tests complete.
             _provideShutdownSignal = new();
-            _provideShutdownSignal.SetupGet(p => p.ShouldShutdown)
-                .Returns(() => true);
+            _provideShutdownSignal.Setup(p => p.GetCancellationToken())
+                .Returns(_cts.Token);
+            _cts.Cancel();
             _container.RegisterInstance(_provideShutdownSignal.Object);
         }
 

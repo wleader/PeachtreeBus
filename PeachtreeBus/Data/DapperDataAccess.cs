@@ -26,18 +26,16 @@ namespace PeachtreeBus.Data
         ISharedDatabase database,
         IBusConfiguration configuration,
         ILogger<DapperDataAccess> log,
-        ISystemClock clock)
+        ISystemClock clock,
+        IDapperTypesHandler configureDapper)
         : IBusDataAccess
     {
-        static DapperDataAccess()
-        {
-            DapperTypeHandlers.AddHandlers();
-        }
-
         private readonly ISharedDatabase _database = database;
         private readonly ILogger<DapperDataAccess> _log = log;
         private readonly ISystemClock _clock = clock;
         private readonly IBusConfiguration _configuration = configuration;
+
+        public bool DapperConfigured { get; } = configureDapper.Configure();
 
         /// <summary>
         /// Adds a queue message to the queue's pending table.
@@ -241,10 +239,10 @@ namespace PeachtreeBus.Data
             const string InsertSagaStatement =
                 """
                 INSERT INTO[{0}].[{1}_SagaData] WITH (ROWLOCK)
-                ([SagaId], [Key], [Data])
+                ([SagaId], [Key], [Data], [MetaData])
                 OUTPUT INSERTED.[Id]
                 VALUES
-                (@SagaId, @Key, @Data)
+                (@SagaId, @Key, @Data, @MetaData)
                 """;
 
             ArgumentNullException.ThrowIfNull(data);
@@ -255,6 +253,7 @@ namespace PeachtreeBus.Data
             p.Add("@SagaId", data.SagaId);
             p.Add("@Key", data.Key);
             p.Add("@Data", data.Data);
+            p.Add("@MetaData", data.MetaData);
 
             return await MeasureAndLogErrors(
                 _database.Connection.QueryFirstAsync<Identity>(statement, p, _database.Transaction));
@@ -273,7 +272,8 @@ namespace PeachtreeBus.Data
             const string UpdateSagaStatement =
                 """
                 UPDATE [{0}].[{1}_SagaData] WITH (ROWLOCK) SET
-                [Data] = @Data
+                [Data] = @Data,
+                [MetaData] = @MetaData
                 WHERE [Id] = @Id
                 """;
 
@@ -284,6 +284,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Id", data.Id);
             p.Add("@Data", data.Data);
+            p.Add("@MetaData", data.MetaData);
 
             await MeasureAndLogErrors(
                 _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
@@ -340,11 +341,13 @@ namespace PeachtreeBus.Data
                 DECLARE
                     @Id bigint,
                     @SagaId uniqueidentifier,
-                    @Data nvarchar(max)
+                    @Data nvarchar(max),
+                    @MetaData nvarchar(max)
                 BEGIN TRY
                     SELECT @Id = [Id],
                            @SagaId = [SagaId],
-                           @Data = [Data]
+                           @Data = [Data],
+                           @MetaData = [MetaData]
                         FROM [{0}].[{1}_SagaData] WITH (NOWAIT, UPDLOCK, ROWLOCK)
                         WHERE[Key] = @Key
 
@@ -353,9 +356,10 @@ namespace PeachtreeBus.Data
                                @SagaId as [SagaId],
                                @Key as [Key],
                                @Data as [Data],
+                               @MetaData as [MetaData],
                                0 as [Blocked]
                     ELSE
-                        SELECT [Id], [SagaId], [Key], [Data], 1 as [Blocked]
+                        SELECT [Id], [SagaId], [Key], [Data], [MetaData], 1 as [Blocked]
                             FROM [{0}].[{1}_SagaData] WITH (NOWAIT)
                             WHERE [Key] = @Key
                 END TRY
@@ -365,6 +369,7 @@ namespace PeachtreeBus.Data
                            CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000') as [SagaId],
                            @Key as [Key],
                            'BLOCKED' as [Data],
+                           '' as [MetaData],
                            1 as [Blocked]
                 END CATCH
                 """;

@@ -37,8 +37,6 @@ public class Headers
     public Diagnostics Diagnostics { get; set; } = new();
 }
 
-public class Diagnostics
-{
-    public string? TraceParent { get; set; } = null;
-    public bool StartNewTraceOnReceive { get; set; } = false;
-}
+public readonly record struct Diagnostics(
+    string? TraceParent = null, 
+    bool StartNewTraceOnReceive = false);

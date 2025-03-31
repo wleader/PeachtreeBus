@@ -168,6 +168,7 @@ namespace PeachtreeBus.Tests.Queues
                 Blocked = true,
                 Data = new("Data"),
                 Key = new("SagaKey"),
+                MetaData = TestData.CreateSagaMetaData(),
                 SagaId = UniqueIdentity.New(),
             };
 

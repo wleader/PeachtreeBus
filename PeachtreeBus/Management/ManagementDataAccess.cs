@@ -16,13 +16,11 @@ namespace PeachtreeBus.Management
     public class ManagementDataAccess(
         ISharedDatabase database,
         IBusConfiguration configuration,
-        ILogger<ManagementDataAccess> log)
+        ILogger<ManagementDataAccess> log,
+        IDapperTypesHandler configureDapper)
         : IManagementDataAccess
     {
-        static ManagementDataAccess()
-        {
-            DapperTypeHandlers.AddHandlers();
-        }
+        public bool DapperConfigured { get; } = configureDapper.Configure();
 
         private readonly ISharedDatabase _database = database;
         private readonly IBusConfiguration _configuration = configuration;

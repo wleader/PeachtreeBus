@@ -8,6 +8,7 @@ using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tests;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -213,6 +214,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
         // don't check the blocked because its not really part of the
         // entity. Test that as needed in tests.
         //Assert.AreEqual(expected.Blocked, actual.Blocked);
+        Assert.AreEqual(expected.MetaData, actual.MetaData);
     }
 
     /// <summary>
@@ -225,7 +227,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
         Assert.IsFalse(expected is null && actual is null, "Do not assert Null is Null.");
         Assert.IsNotNull(actual, "Actual is null, expected is not.");
         Assert.IsNotNull(expected, "Expected is null, actual is not.");
-        Assert.AreEqual(expected.Headers, actual.Headers);
+        AssertHeadersEquals(expected.Headers, actual.Headers);
         Assert.AreEqual(expected.MessageId, actual.MessageId);
         AssertSqlDbDateTime(expected.NotBefore, actual.NotBefore);
         Assert.AreEqual(expected.Id, actual.Id);
@@ -246,7 +248,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
         Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
         Assert.IsNotNull(actual, "Actual is null, expected is not.");
         Assert.IsNotNull(expected, "Expected is null, actual is not.");
-        Assert.AreEqual(expected.Headers, actual.Headers);
+        AssertHeadersEquals(expected.Headers, actual.Headers);
         Assert.AreEqual(expected.MessageId, actual.MessageId);
         AssertSqlDbDateTime(expected.NotBefore, actual.NotBefore);
         Assert.AreEqual(expected.Id, actual.Id);
@@ -265,7 +267,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
         Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
         Assert.IsNotNull(actual, "Actual is null, expected is not.");
         Assert.IsNotNull(expected, "Expected is null, actual is not.");
-        Assert.AreEqual(expected.Headers, actual.Headers);
+        AssertHeadersEquals(expected.Headers, actual.Headers);
         AssertSqlDbDateTime(expected.NotBefore, actual.NotBefore);
         // Do not assert the actual.Id as it is database generated.
         Assert.AreEqual(expected.Body, actual.Body);
@@ -275,6 +277,17 @@ public abstract class FixtureBase<TAccess> : TestConfig
         Assert.AreEqual(expected.Retries, actual.Retries);
         AssertSqlDbDateTime(expected.ValidUntil, actual.ValidUntil);
         Assert.AreEqual(expected.Topic, actual.Topic);
+    }
+
+    protected void AssertHeadersEquals(Headers? expected, Headers? actual)
+    {
+        Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
+        Assert.IsNotNull(actual, "Actual is null, expected is not.");
+        Assert.IsNotNull(expected, "Expected is null, actual is not.");
+        Assert.AreEqual(expected.MessageClass, actual.MessageClass);
+        Assert.AreEqual(expected.ExceptionDetails, actual.ExceptionDetails);
+        CollectionAssert.AreEqual(expected.UserHeaders, actual.UserHeaders);
+        Assert.AreEqual(expected.Diagnostics, actual.Diagnostics);
     }
 
     /// <summary>
@@ -322,7 +335,8 @@ public abstract class FixtureBase<TAccess> : TestConfig
             Blocked = false,
             Data = new("Data"),
             SagaId = UniqueIdentity.New(),
-            Key = new("Key")
+            Key = new("Key"),
+            MetaData = TestData.CreateSagaMetaData(),
         };
     }
 

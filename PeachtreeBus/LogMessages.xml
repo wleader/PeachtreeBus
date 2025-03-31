@@ -24,7 +24,7 @@
     </Namespace>
     <Namespace name="PeachtreeBus_Queues">
         <Class name="QueueReader">
-            <Event name="HeaderNotDeserializable" level="Warning" exception="true">
+            <Event name="HeaderNotDeserializable" level="Warning">
                 Headers could not be deserialized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
             <Event name="BodyNotDeserializable" level="Warning" exception="true">
@@ -83,7 +83,7 @@
             <Event name="MessageFailed" level="Warning">
                 Message {MessageId:UniqueIdentity} for Subscriber {SubscriberId:SubscriberId} has failed and will not be retried.
             </Event>
-            <Event name="HeaderNotDeserializable" level="Warning" exception="true">
+            <Event name="HeaderNotDeserializable" level="Warning">
                 Headers could not be deserialized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
             </Event>
             <Event name="BodyNotDeserializable" level="Warning" exception="true">

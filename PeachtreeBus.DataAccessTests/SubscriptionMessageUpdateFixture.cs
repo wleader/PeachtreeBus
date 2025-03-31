@@ -54,7 +54,7 @@ namespace PeachtreeBus.DataAccessTests
             toUpdate.MessageId = UniqueIdentity.New(); // this should never persist a change.
             toUpdate.Enqueued = toUpdate.Enqueued.AddMinutes(-1); // this should never change.
             toUpdate.Body = new("Changed Body"); // should never change.
-            toUpdate.Headers = new("Changed Headers");
+            toUpdate.Headers = new();
             toUpdate.NotBefore = toUpdate.NotBefore.AddMinutes(1);
             toUpdate.Completed = DateTime.UtcNow;
             toUpdate.Failed = DateTime.UtcNow;
@@ -83,7 +83,7 @@ namespace PeachtreeBus.DataAccessTests
             AssertSqlDbDateTime(changedOriginal.ValidUntil, actualChanged.ValidUntil);
 
             // compare the changeable fields.
-            Assert.AreEqual(toUpdate.Headers, actualChanged.Headers);
+            AssertHeadersEquals(toUpdate.Headers, actualChanged.Headers);
             AssertSqlDbDateTime(toUpdate.NotBefore, actualChanged.NotBefore);
             Assert.AreEqual(toUpdate.Retries, actualChanged.Retries);
 

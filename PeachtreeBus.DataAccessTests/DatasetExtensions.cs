@@ -4,6 +4,7 @@ using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text.Json;
 
 namespace PeachtreeBus.DataAccessTests
 {
@@ -83,7 +84,7 @@ namespace PeachtreeBus.DataAccessTests
                 Completed = row.ToDateTimeNullable("Completed"),
                 Enqueued = row.ToDateTime("Enqueued"),
                 Failed = row.ToDateTimeNullable("Failed"),
-                Headers = new((string)row["Headers"]),
+                Headers = JsonSerializer.Deserialize<Headers>((string)row["Headers"]),
                 Id = new((long)row["Id"]),
                 MessageId = new((Guid)row["MessageId"]),
                 NotBefore = row.ToDateTime("NotBefore"),
@@ -105,7 +106,8 @@ namespace PeachtreeBus.DataAccessTests
                 Data = new((string)row["Data"]),
                 Id = new((long)row["Id"]),
                 Key = new((string)row["Key"]),
-                SagaId = new((Guid)row["SagaId"])
+                SagaId = new((Guid)row["SagaId"]),
+                MetaData = JsonSerializer.Deserialize<SagaMetaData>((string)row["MetaData"])
             };
         }
 
@@ -138,7 +140,7 @@ namespace PeachtreeBus.DataAccessTests
                 Completed = row.ToDateTimeNullable("Completed"),
                 Enqueued = row.ToDateTime("Enqueued"),
                 Failed = row.ToDateTimeNullable("Failed"),
-                Headers = new((string)row["Headers"]),
+                Headers = JsonSerializer.Deserialize<Headers>((string)row["Headers"]),
                 Id = new((long)row["Id"]),
                 MessageId = new((Guid)row["MessageId"]),
                 NotBefore = row.ToDateTime("NotBefore"),

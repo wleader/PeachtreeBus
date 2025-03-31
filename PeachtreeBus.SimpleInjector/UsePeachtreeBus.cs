@@ -69,6 +69,7 @@ public static partial class SimpleInjectorExtensions
         // Subscribed to messages
         // do cleanups
         // pretty much everything, so always register these things.
+        container.Register(typeof(IDapperTypesHandler), typeof(DapperTypesHandler), Lifestyle.Singleton);
         container.Register(typeof(IBusDataAccess), typeof(DapperDataAccess), Lifestyle.Scoped);
         container.Register(typeof(ISqlConnection), () => container.GetInstance<ISqlConnectionFactory>().GetConnection(), Lifestyle.Scoped);
         container.Register(typeof(ISqlConnectionFactory), typeof(SqlConnectionFactory), Lifestyle.Scoped);

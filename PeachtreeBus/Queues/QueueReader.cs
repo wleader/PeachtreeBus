@@ -89,54 +89,46 @@ namespace PeachtreeBus.Queues
         public async Task<QueueContext?> GetNext(QueueName queueName)
         {
             // get a message.
-            // if it retuned null there is no message to pocess currently.
+            // if it returned null there is no message to pocess currently.
             var queueMessage = await _dataAccess.GetPendingQueued(queueName);
             if (queueMessage == null) return null;
 
+            var result = new QueueContext()
+            {
+                Data = queueMessage,
+                SourceQueue = queueName,
+                InternalHeaders = queueMessage.Headers!,
+                Message = null!
+            };
 
-            // deserialize the headers.
-            Headers headers;
-            try
+            if (result.InternalHeaders is null)
             {
-                headers = _serializer.DeserializeHeaders(queueMessage.Headers);
-            }
-            catch (Exception ex)
-            {
-                _log.QueueReader_HeaderNotDeserializable(queueMessage.MessageId, queueName, ex);
+                _log.QueueReader_HeaderNotDeserializable(queueMessage.MessageId, queueName);
                 // this might not work, The body might deserialize but there won't be an
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
                 // this message would proably have to be removed from the database by hand?
-                headers = new Headers { MessageClass = "System.Object" };
+                result.InternalHeaders = new() { MessageClass = "System.Object" };
             }
 
             // Deserialize the message.
-            var messageType = Type.GetType(headers.MessageClass);
-            object message = null!;
-            if (messageType != null)
+            var messageType = Type.GetType(result.InternalHeaders.MessageClass);
+            if (messageType is null)
             {
-                try
-                {
-                    message = _serializer.DeserializeMessage(queueMessage.Body, messageType);
-                }
-                catch (Exception ex)
-                {
-                    _log.QueueReader_BodyNotDeserializable(queueMessage.MessageId, queueName, ex);
-                }
-            }
-            else
-            {
-                _log.QueueReader_MessageClassNotRecognized(headers.MessageClass, queueMessage.MessageId, queueName);
+                _log.QueueReader_MessageClassNotRecognized(result.InternalHeaders.MessageClass, queueMessage.MessageId, queueName);
+                return result;
             }
 
-            // return the new message context.
-            return new QueueContext
+            try
             {
-                Data = queueMessage,
-                InternalHeaders = headers,
-                Message = message,
-                SourceQueue = queueName,
-            };
+                result.Message = _serializer.Deserialize(queueMessage.Body, messageType);
+            }
+            catch (Exception ex)
+            {
+                _log.QueueReader_BodyNotDeserializable(queueMessage.MessageId, queueName, ex);
+            }
+
+            return result;
         }
 
         /// <inheritdoc/>
@@ -152,7 +144,7 @@ namespace PeachtreeBus.Queues
         {
             context.Data.Retries++;
             context.InternalHeaders.ExceptionDetails = exception.ToString();
-            context.Data.Headers = _serializer.SerializeHeaders(context.InternalHeaders);
+            context.Data.Headers = context.InternalHeaders;
 
             var retryResult = _retryStrategy.DetermineRetry(context, exception, context.Data.Retries);
 
@@ -222,7 +214,7 @@ namespace PeachtreeBus.Queues
                 // deserialize
                 // try catch needed? Probably better to throw and let the error handling deal with it.
                 // Someone may have to fix the saga data and retry the failed message though.
-                dataObject = _serializer.DeserializeSaga(context.SagaData.Data, sagaDataType);
+                dataObject = _serializer.Deserialize(context.SagaData.Data, sagaDataType);
             }
 
             // assign the data to the saga.
@@ -273,7 +265,7 @@ namespace PeachtreeBus.Queues
             dataObject = UnreachableException.ThrowIfNull(dataObject,
                 message: "Saga<TSagaData> type parameter must be a reference type (where TSagaData : class, new()).");
 
-            var serializedData = _serializer.SerializeSaga(dataObject, dataProperty.PropertyType);
+            var serializedData = _serializer.Serialize(dataObject, dataProperty.PropertyType);
 
             if (context.SagaData == null)
             {
@@ -284,6 +276,11 @@ namespace PeachtreeBus.Queues
                     SagaId = UniqueIdentity.New(),
                     Key = context.SagaKey,
                     Data = serializedData,
+                    MetaData = new()
+                    {
+                        Started = DateTime.UtcNow,
+                        LastMessageTime = DateTime.UtcNow,
+                    },
                     Blocked = false,
                 };
 

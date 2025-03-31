@@ -31,7 +31,8 @@ namespace PeachtreeBus.Tests.Queues
             SagaId = UniqueIdentity.New(),
             Blocked = false,
             Key = new("SagaKey"),
-            Data = new("Data")
+            Data = new("Data"),
+            MetaData = TestData.CreateSagaMetaData(),
         };
 
         private List<IHandleQueueMessage<TestSagaMessage1>> _handlers = [];

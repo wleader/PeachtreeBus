@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Tests;
@@ -30,7 +29,8 @@ public class NullArgumentsFixture
             sharedDatabase.Object,
             schemaConfig.Object,
             log.Object,
-            FakeClock.Instance);
+            FakeClock.Instance,
+            TestDapperTypesHandler.Instance);
     }
 
     [TestMethod]

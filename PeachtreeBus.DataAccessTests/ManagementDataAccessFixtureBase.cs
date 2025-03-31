@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Management;
 using PeachtreeBus.Queues;
@@ -30,8 +29,18 @@ namespace PeachtreeBus.DataAccessTests
 
         protected override ManagementDataAccess CreateDataAccess()
         {
-            BusAccess = new(SharedDB, Configuration.Object, new Mock<ILogger<DapperDataAccess>>().Object, FakeClock.Instance);
-            return new ManagementDataAccess(SharedDB, Configuration.Object, MockLog.Object);
+            BusAccess = new(
+                SharedDB,
+                Configuration.Object,
+                new Mock<ILogger<DapperDataAccess>>().Object,
+                FakeClock.Instance,
+                TestDapperTypesHandler.Instance);
+
+            return new ManagementDataAccess(
+                SharedDB,
+                Configuration.Object,
+                MockLog.Object,
+                TestDapperTypesHandler.Instance);
         }
 
         protected async Task<SubscribedData> CreatePendingSubscribed()

@@ -20,7 +20,7 @@ public class QueueContextFixture
             {
                 Body = new("BODY"),
                 Enqueued = enqueuedTime,
-                Headers = new("HEADERS"),
+                Headers = new(),
                 MessageId = UniqueIdentity.New(),
                 NotBefore = DateTime.UtcNow,
                 Priority = 0
@@ -43,7 +43,7 @@ public class QueueContextFixture
             {
                 Body = new("BODY"),
                 Enqueued = DateTime.UtcNow,
-                Headers = new("HEADERS"),
+                Headers = new(),
                 MessageId = messageId,
                 NotBefore = DateTime.UtcNow,
                 Priority = 0

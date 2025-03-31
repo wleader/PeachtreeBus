@@ -66,7 +66,7 @@ namespace PeachtreeBus.Subscriptions
         {
             context.Data.Retries++;
             context.InternalHeaders.ExceptionDetails = exception.ToString();
-            context.Data.Headers = _serializer.SerializeHeaders(context.InternalHeaders);
+            context.Data.Headers = context.InternalHeaders;
 
             var retryResult = _retryStrategy.DetermineRetry(context, exception, context.Data.Retries);
 
@@ -99,48 +99,45 @@ namespace PeachtreeBus.Subscriptions
             var subscriptionMessage = await _dataAccess.GetPendingSubscribed(subscriberId);
             if (subscriptionMessage == null) return null;
 
-            // deserialize the headers.
-            Headers headers;
-            try
+            var context = new SubscribedContext()
             {
-                headers = _serializer.DeserializeHeaders(subscriptionMessage.Headers);
-            }
-            catch (Exception ex)
+                Data = subscriptionMessage,
+                InternalHeaders = subscriptionMessage.Headers!,
+                Message = null!,
+            };
+
+            if (context.InternalHeaders is null)
             {
-                _log.SubscribedReader_HeaderNotDeserializable(subscriptionMessage.MessageId, subscriberId, ex);
+                _log.SubscribedReader_HeaderNotDeserializable(subscriptionMessage.MessageId, subscriberId);
                 // this might not work, The body might deserialize but there won't be an
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
                 // this message woulld proably have to be removed from the database by hand?
-                headers = new Headers { MessageClass = "System.Object" };
+                context.InternalHeaders = new Headers { MessageClass = "System.Object" };
             }
 
             // Deserialize the message.
-            var messageType = Type.GetType(headers.MessageClass);
-            object message = null!;
-            if (messageType != null)
+            var messageType = Type.GetType(context.InternalHeaders.MessageClass);
+            if (messageType is null)
             {
-                try
-                {
-                    message = _serializer.DeserializeMessage(subscriptionMessage.Body, messageType);
-                }
-                catch (Exception ex)
-                {
-                    _log.SubscribedReader_BodyNotDeserializable(subscriptionMessage.MessageId, subscriberId, ex);
-                }
-            }
-            else
-            {
-                _log.SubscribedReader_MessageClassNotRecognized(headers.MessageClass, subscriptionMessage.MessageId, subscriberId);
+                _log.SubscribedReader_MessageClassNotRecognized(
+                    context.InternalHeaders.MessageClass,
+                    subscriptionMessage.MessageId,
+                    subscriberId);
+
+                return context;
             }
 
-            // return the new message context.
-            return new()
+            try
             {
-                Data = subscriptionMessage,
-                InternalHeaders = headers,
-                Message = message,
-            };
+                context.Message = _serializer.Deserialize(subscriptionMessage.Body, messageType);
+            }
+            catch (Exception ex)
+            {
+                _log.SubscribedReader_BodyNotDeserializable(subscriptionMessage.MessageId, subscriberId, ex);
+            }
+
+            return context;
         }
     }
 }

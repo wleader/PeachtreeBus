@@ -6,6 +6,7 @@ CREATE TABLE [PeachtreeBus].[SampleSaga_SagaData]
     [SagaId] UNIQUEIDENTIFIER NOT NULL, 
     [Key] NVARCHAR(128) NOT NULL,
     [Data] NVARCHAR(MAX) NOT NULL,
+    [MetaData] NVARCHAR(MAX) NOT NULL, 
     CONSTRAINT PK_SampleSaga_SagaData_Id PRIMARY KEY ([Id])
 )
 GO
