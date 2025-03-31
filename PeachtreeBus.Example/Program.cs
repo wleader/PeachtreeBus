@@ -5,6 +5,7 @@ using PeachtreeBus.Example.Services;
 using PeachtreeBus.Example.Subsciptions;
 using PeachtreeBus.SimpleInjector;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Telemetry;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;
@@ -141,7 +142,18 @@ namespace PeachtreeBus.Example
             // objects has been registered.
             _container.Verify();
 
-            using var _ = new Telemetry.OpenTelemetryProviders("PeachtreeBus-Example");
+            // optionally turn on and configure telemetry.
+            using var _ = new Telemetry.OpenTelemetryProviders("PeachtreeBus-Example",
+                tracerSources: [ActivitySources.Messaging.Name],
+                traceExportOptions: options => {
+                    //options.Endpoint = new("https://server.domain.com/v1/meters");
+                    //options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+                },
+                meterSources: [ActivitySources.Messaging.Name],
+                meterExportOptions: options => {
+                    //options.Endpoint = new("https://server.domain.com/v1/meters");
+                    //options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+                });
 
             // run!
             // this will run different looping threads based on the above code
