@@ -3,27 +3,42 @@ A Message Bus Library
 
 ## What's New
 
+### April 1st 2025
+The 'Enterprise' Update
+
+Oh Baby this is a big one. I feel bad for anyone upgrading from 0.10.5.(which as far as I know is only me at this time.) A lot has changed. Here is a summary:
+
+* Simplified some SQL operations to make selecing the next message simpler.
+* Constraints and Indexs on tables are now named.
+* A priority can be supplied when sending or publishing a message. Higer priority messages get selected first, presuming they meet other requirements like the not before time.
+* Some vulnerable 3rd party packages have been upated.
+* The Dapper code internally now no longer attempts to set a Dapper.SqlMapper.TypeHandler for System.DateTime, in case users want to manage the mapping for System.DateTime themselves. PeachtreeBus now uses an internal PeachtreeBus.Data.UtcDateTime data type, and all the time values it stores in the database are stored as UTC values.
+* Priority and other header values are exposed via the Context objects.
+* Lots of things have strong types now instead of just being a System.String. SchemaName, QueueName, SagaName, and more.
+* Users can supply an IRetryStrategy to the DI Container to control message retries.
+* The library now targets .Net 8.0. Older versions, and .Net Standard 2.1 are no longer targeted.
+* Publishing subscribed messages is now a single database operation and is much faster.
+* Subscription 'Category' has been renamed to 'Topic'. This a more common terminology. 
+* There is a new configuration scheme in place. Users of the library now create a new PeachtreeBus.BusConfiguation object to configure everything. 
+* Contexts all have interfaces now.
+* Outgoing messages now have support for Pipelines allowing running custom code before or after messages are sent.
+* Anything that user code should have to reference has been moved into the PeachtreeBus.Abstractions assembly/package. This allows writing code tht interacts with PeachtreeBus, but without creating a dependency on the Core Library, and its dependencies.
+* Messages now have 'UserHeaders', which is really just a System.Collections.Generic.Dictionary<string,string> that is saved in the message headers. 
+* Support for Telemetry systems via System.Diagnostics.Tracing, and System.Diagnostics.Metrics. This means that if you create a listener for the Tracing and Metrics sources, you can collect and direct this data. The Example application has code that can setup an OpenTelemetry Exporter. The names for spans and metrics attempts to follow established conventions for messaging platforms.
+* Telemetry Context Propagation means that when one message causes another message, those messages will be automatically linked in Telemetry data. You can control this be specifying a newConversation when sending or publishing.
+* The Topic is now part of the subscribed message tables. This is used for setting attributes in received message telemetry, but its also just nicer to look at when peeking at the tables directly.
+* DataAccess activity tracing can be used to measure and observe the performance of SQL Server activities from PeachtreeBus.
+* Sagas have a MetaData column in the Saga Data tables. Currently this just contains the time the Saga instance was created and the last time a message was handled. It does not affect message processing, but may be useful when investigating if a defect in a user's saga code causes the saga to never complete and delete the row in the saga data table.
+* Like previous releases, more and better test coverage.
+* 20% Cooler than the previous release.
+* Yes, I am aware that this is an April 1st release. How could I not?
+
 ### August 1st 2024
 Connect On Demand Update 
 
 The ISharedDatabase implementation now no longer attempts to connect inside its constructor. This can cause problems when a Dependency Injection Container tries to verify the registrations by creating instances of everything. Now, the connection will be made when it is needed.
 
 Additionally the message context objects for Queued and Subscribed messages expose a property containing the current dependency injection scope. This is an experimental feature, and may be removed in a future update. Its preferable that you use constructor injection wherever possible. Chances are if you think you need this, there's likely to be a change to your application code that can be made to avoid using it.
-
-### July 19th, 2024
-SQL Performance Update
-
-The last couple weeks have forced a level-up in SQL skills, and as a result some of those lessons learned have been applied to PeachtreeBus.
-
-The bus now creates a new connection object between each message processed. This means that the connection is properly reset between messages. Normally this is not needed but hypothetically the application code could do something like create an SQL temporary table and expect it to be cleaned up automatically, but since before the SQL session did not end between messages the temporary table did not get cleaned up. Anyway, you can expect the sp_reset_connection system stored procedure to be run in between messages now, which is automagically done for us by the connection pooling in SqlClient.
-
-The second change is that all the SQL batches that the library uses have been reviewed and had locking hints added to them. Locking hints help SQL server understand how much data should be locked by a given client. By locking less data, it is less likely that one message processing thread will lock data that is needed by another message processing thread and cause the second message processor to wait for the data to unlock. This can improve performance in applications with a higher volume of messages. A low volume application might not notice any difference.
-
-The third change is improvements to operations where a message is moved between tables. Previously these were multi-step operations where the data was read into variables, inserted into the destination, then deleted from the origin. It works, but there is a small chance for a race-condition between operations. These have been re-worked. It is somewhat upside down from how programmers usually think. First it does the delete operation, outputting the values of the delete operation, and the output data is selected, and provided to an insert operation. The upside here is that it is now a single operation so there is no time in between for weirdness, and SQL doesn't have to deal with any variables, so SQL should be able to perform this task a bit more efficiently.
-
-SQL Statements for the most part now use explicit column names. This is a bit of future proofing in case there is ever a future upgrade that changes the column order.
-
-Dependencies have also been updated to their latest versions, including at least one package that had a known security vulnerability.
 
 ### What's Old
 You can also read the [Old News](WhatsOld.md) if you like.
@@ -42,6 +57,7 @@ I wanted a message bus that has the following features:
 * Sagas!
 * Publish and Subscribe!
 * A Simple way to send a message from "send only" code such as Asp.Net Core.
+
 
 ## SQL Transport
 A lot of message buses shy away from SQL server as a transport. It does sorta make sense in a lot of scenarios. If you are exchanging message with an unknown system you don't really want them to have access to queue tables. In this case its totally appropriate to pass the message through some kind of independant messaging system. And Indeed if thats what I was doing then I certainly would want to do that. However, the kind of message bus based software I typically work on, the vast majority of what goes on is the system sending messages to itself, and when that is the case, Its not a huge risk for two processes that are already sharing the same database, to use that database for the message transport. If you are installing my application do you want to have a database server and a messaging service just so the application can talk to itself, or would you rather just have just the database server? Eliminating the need for a messaging service reduces the deployment complexity of the application so thats a good thing. Of course this doesn't completely eliminate the ability to communicate with other messaging services. If you really had to send a message out of the system itself, you could always build in a broker that takes a message from the Database, forwards the message onto some other message queue service. And likewise if you need to recieve messages from some other queue service, a broker could read that other service, deduplicate, and insert the message into the database. 

@@ -13,11 +13,11 @@
         <description>
             PeachtreeBus.EntityFrameworkCore is a package that contains classes and extensions for integrating PeachtreeBus's DatabaseSharing with EntityFrameworkCore.
         </description>
-        <copyright>Copyright 2024 William Leader</copyright>
+        <copyright>Copyright 2025 William Leader</copyright>
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="net8.0">
-            <dependency id="PeachtreeBus" version="0.11.0" />
+            <dependency id="PeachtreeBus.Core" version="0.11.0" />
             <dependency id="Microsoft.EntityFrameworkCore" version="9.0.3" />
             <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="9.0.3" />
             </group>

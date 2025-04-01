@@ -1,5 +1,20 @@
 ## What's Old
 
+### July 19th, 2024
+SQL Performance Update
+
+The last couple weeks have forced a level-up in SQL skills, and as a result some of those lessons learned have been applied to PeachtreeBus.
+
+The bus now creates a new connection object between each message processed. This means that the connection is properly reset between messages. Normally this is not needed but hypothetically the application code could do something like create an SQL temporary table and expect it to be cleaned up automatically, but since before the SQL session did not end between messages the temporary table did not get cleaned up. Anyway, you can expect the sp_reset_connection system stored procedure to be run in between messages now, which is automagically done for us by the connection pooling in SqlClient.
+
+The second change is that all the SQL batches that the library uses have been reviewed and had locking hints added to them. Locking hints help SQL server understand how much data should be locked by a given client. By locking less data, it is less likely that one message processing thread will lock data that is needed by another message processing thread and cause the second message processor to wait for the data to unlock. This can improve performance in applications with a higher volume of messages. A low volume application might not notice any difference.
+
+The third change is improvements to operations where a message is moved between tables. Previously these were multi-step operations where the data was read into variables, inserted into the destination, then deleted from the origin. It works, but there is a small chance for a race-condition between operations. These have been re-worked. It is somewhat upside down from how programmers usually think. First it does the delete operation, outputting the values of the delete operation, and the output data is selected, and provided to an insert operation. The upside here is that it is now a single operation so there is no time in between for weirdness, and SQL doesn't have to deal with any variables, so SQL should be able to perform this task a bit more efficiently.
+
+SQL Statements for the most part now use explicit column names. This is a bit of future proofing in case there is ever a future upgrade that changes the column order.
+
+Dependencies have also been updated to their latest versions, including at least one package that had a known security vulnerability.
+
 ### March 31st, 2024
 
 Easter Update 0.10.3
