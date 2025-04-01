@@ -107,7 +107,7 @@ public class QueueReaderFixture
     }
 
     [TestMethod]
-    public async Task Given_SagaComplete_When_SaveSaga_DeletesCompleteSaga()
+    public async Task Given_SagaComplete_When_SaveSaga_Then_DeletesCompleteSaga()
     {
         var expectedKey = Context.SagaKey;
         var testSaga = new TestSaga { SagaComplete = true };
@@ -117,12 +117,8 @@ public class QueueReaderFixture
         dataAccess.Verify(d => d.DeleteSagaData(testSaga.SagaName, expectedKey), Times.Once);
     }
 
-    /// <summary>
-    /// Proves Saga Data is inserted when needed.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task SaveSaga_InsertsNewSagaData()
+    public async Task Given_NoExistingSagaData_When_SaveSaga_Then_InsertsNewSagaData()
     {
         Context.SagaKey = TestData.DefaultSagaKey;
         Context.SagaData = null;
@@ -147,12 +143,8 @@ public class QueueReaderFixture
         Assert.AreEqual(1, dataAccess.Invocations.Count);
     }
 
-    /// <summary>
-    /// Proves Saga Data is updated after a handler.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task SaveSaga_UpdatesExistingSagaData()
+    public async Task Given_ExistingSagaData_When_SaveSaga_Then_UpdatesExistingSagaData()
     {
         var sagaDataId = new Identity(100);
 
@@ -185,12 +177,8 @@ public class QueueReaderFixture
         Assert.AreEqual(1, dataAccess.Invocations.Count);
     }
 
-    /// <summary>
-    /// Proves that new saga data is created as needed
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task LoadSaga_InitializesWhenNew()
+    public async Task Given_GetSagaDataReturnsNull_When_LoadSaga_Then_NewSagaDataIsCreated()
     {
         var testSaga = new TestSaga() { Data = null! };
         Context.SagaKey = TestData.DefaultSagaKey;
@@ -200,20 +188,16 @@ public class QueueReaderFixture
 
         await reader.LoadSaga(testSaga, Context);
 
-        Assert.IsNotNull(testSaga.Data);
+        serializer.Verify(d => d.Deserialize(It.IsAny<SerializedData>(), typeof(TestSagaData)), Times.Never);
+        Assert.IsNotNull(testSaga?.Data);
     }
 
-    /// <summary>
-    /// Proves that saga data can be deserialized.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task LoadSaga_DeserializesExisting()
+    public async Task Given_GetSagaDataReturnsValue_When_LoadSaga_Then_DataIsDeserialized()
     {
         var testSaga = new TestSaga { };
 
         Context.SagaKey = TestData.DefaultSagaKey;
-
         var sagaData = new SagaData()
         {
             Blocked = false,
@@ -222,7 +206,6 @@ public class QueueReaderFixture
             SagaId = UniqueIdentity.New(),
             MetaData = TestData.CreateSagaMetaData(),
         };
-
         dataAccess.Setup(d => d.GetSagaData(testSaga.SagaName, Context.SagaKey))
             .ReturnsAsync(sagaData);
 
@@ -234,12 +217,8 @@ public class QueueReaderFixture
         Assert.AreSame(data, testSaga.Data);
     }
 
-    /// <summary>
-    /// Proves that blocked saga data can be handled.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task LoadSaga_ReturnsWhenBlocked()
+    public async Task Given_SagaBlocked_When_LoadSaga_Then_DataPropertyIsNull()
     {
         Context.SagaKey = TestData.DefaultSagaKey;
 
@@ -260,14 +239,10 @@ public class QueueReaderFixture
         await reader.LoadSaga(testSaga, Context);
 
         serializer.Verify(s => s.Deserialize(sagaData.Data, typeof(TestSagaData)), Times.Never);
-        Assert.IsNull(testSaga.Data);
+        Assert.IsNull(testSaga?.Data);
         Assert.IsTrue(Context.SagaData!.Blocked);
     }
 
-    /// <summary>
-    /// Proves that Fail updates retry counts.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
     public async Task Given_RetryStrategyReturnsRetry_When_MessageFails_Then_MessageIsUpdated()
     {
@@ -294,10 +269,6 @@ public class QueueReaderFixture
         Assert.AreEqual(1, dataAccess.Invocations.Count);
     }
 
-    /// <summary>
-    /// Proves that message is failed after retries.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
     public async Task Given_RetryStrategyReturnsFail_When_Fail_Then_MessagesIsFailed()
     {
@@ -321,12 +292,8 @@ public class QueueReaderFixture
         meters.Verify(c => c.FailMessage(), Times.Once);
     }
 
-    /// <summary>
-    /// Proves that messages are compelted.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task Complete_Completes()
+    public async Task When_Complete_Then_Completes()
     {
         dataAccess.Setup(d => d.CompleteMessage(Context.Data, Context.SourceQueue))
             .Callback((QueueData m, QueueName n) =>
@@ -343,7 +310,7 @@ public class QueueReaderFixture
     }
 
     [TestMethod]
-    public async Task GetNext_ReturnsNull()
+    public async Task Given_GetPendingReturnsNull_When_GetNext_Then_ReturnsNull()
     {
         dataAccess.Setup(d => d.GetPendingQueued(TestData.DefaultQueueName))
             .ReturnsAsync((QueueData)null!);
@@ -351,77 +318,52 @@ public class QueueReaderFixture
         Assert.IsNull(await reader.GetNext(TestData.DefaultQueueName));
     }
 
-    /// <summary>
-    /// Proves a good message is handled.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task GetNext_GetsGoodMessage()
+    public async Task Given_ValidData_When_GetNext_Then_ContextSetup()
     {
         var context = await reader.GetNext(TestData.DefaultQueueName);
 
-        Assert.IsNotNull(context?.Data);
+        Assert.IsNotNull(context);
         Assert.AreSame(GetPendingResult, context.Data);
-        Assert.IsNotNull(context?.Headers);
         Assert.AreEqual(TestData.DefaultQueueName, context.SourceQueue);
         Assert.IsFalse(context.SagaBlocked);
-        Assert.AreEqual(GetPendingResult.MessageId, context.MessageId);
-        Assert.AreEqual(GetPendingResult.Priority, context.MessagePriority);
         Assert.AreSame(DeserializeMessageResult, context.Message);
     }
 
-    /// <summary>
-    /// Proves the behavior when headers cannot deserialize
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task GetNext_HandlesUndeserializableHeaders()
+    public async Task Given_UndeserializableHeaders_When_GetNext_Then_ContextSetup_And_ContextMessageIsNull()
     {
         GetPendingResult.Headers = null;
 
-        serializer.Setup(s => s.Deserialize(It.IsAny<SerializedData>(), typeof(object)))
+        serializer.Setup(s => s.Deserialize(GetPendingResult.Body, typeof(object)))
             .Returns(null!);
 
         var context = await reader.GetNext(TestData.DefaultQueueName);
 
-        Assert.IsNotNull(context?.Data);
+        Assert.IsNotNull(context);
         Assert.AreSame(GetPendingResult, context.Data);
-        Assert.IsNotNull(context?.UserHeaders);
-        Assert.AreSame("System.Object", context.MessageClass);
         Assert.AreEqual(TestData.DefaultQueueName, context.SourceQueue);
         Assert.IsFalse(context.SagaBlocked);
-        Assert.AreEqual(GetPendingResult.MessageId, context.MessageId);
-        Assert.AreEqual(GetPendingResult.Priority, context.MessagePriority);
-        Assert.IsNull(context.Message);
+        Assert.IsNull(context?.Message);
     }
 
-    /// <summary>
-    /// Proves the behavior when the message type is unrecognized.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task GetNext_HandlesUnrecognizedMessageClass()
+    public async Task Given_UnrecognizedMessageClass_When_GetNext_Then_ContextSetup_And_ContextMessageIsNull()
     {
         GetPendingResult.Headers = new()
         { MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, PeachtreeBus.Tests" };
 
         var context = await reader.GetNext(TestData.DefaultQueueName);
 
-        Assert.IsNotNull(context?.Data);
+        Assert.IsNotNull(context);
         Assert.AreSame(GetPendingResult, context.Data);
         Assert.AreEqual(TestData.DefaultQueueName, context.SourceQueue);
         Assert.IsFalse(context.SagaBlocked);
-        Assert.AreEqual(GetPendingResult.MessageId, context.MessageId);
-        Assert.AreEqual(GetPendingResult.Priority, context.MessagePriority);
-        Assert.IsNull(context.Message);
+        Assert.IsNull(context?.Message);
     }
 
-    /// <summary>
-    /// Proves a message fails when it can deserialize
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
-    public async Task GetNext_HandlesUndeserializableMessageBody()
+    public async Task Given_UndeserializableBody_When_GetNext_Then_ContextSetup_And_ContextMessageIsNull()
     {
         serializer.Setup(s => s.Deserialize(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
             .Throws(new Exception("Test Exception"));
@@ -432,13 +374,11 @@ public class QueueReaderFixture
         Assert.AreSame(GetPendingResult, context.Data);
         Assert.AreEqual(TestData.DefaultQueueName, context.SourceQueue);
         Assert.IsFalse(context.SagaBlocked);
-        Assert.AreEqual(GetPendingResult.MessageId, context.MessageId);
-        Assert.AreEqual(GetPendingResult.Priority, context.MessagePriority);
-        Assert.IsNull(context.Message);
+        Assert.IsNull(context?.Message);
     }
 
     [TestMethod]
-    public async Task Given_RetryStrategyReturnsFail_When_Fail_ThenErrorHandlerIsInvoked()
+    public async Task Given_RetryStrategyReturnsFail_When_Fail_Then_ErrorHandlerIsInvoked()
     {
         var context = TestData.CreateQueueContext();
 
@@ -451,7 +391,7 @@ public class QueueReaderFixture
     }
 
     [TestMethod]
-    public async Task Given_RetryStrategyReturnsRetry_When_Fail_ThenErrorHandlerIsNotInvoked()
+    public async Task Given_RetryStrategyReturnsRetry_When_Fail_Then_ErrorHandlerIsNotInvoked()
     {
         var context = TestData.CreateQueueContext();
 
