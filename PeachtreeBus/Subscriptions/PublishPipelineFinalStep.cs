@@ -37,11 +37,12 @@ public class PublishPipelineFinalStep(
         using var activity = new SendActivity(context);
 
         // note the type in the headers so it can be deserialized.
-        var headers = new Headers(type, context.UserHeaders);
-
-        headers.Diagnostics = new(
-            Activity.Current?.Id,
-            context.StartNewConversation);
+        var headers = new Headers(type, context.UserHeaders)
+        {
+            Diagnostics = new(
+                Activity.Current?.Id,
+                context.StartNewConversation)
+        };
 
         // create the message entity, serializing the headers and body.
         var sm = new SubscribedData
