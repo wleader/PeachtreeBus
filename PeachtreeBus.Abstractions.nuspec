@@ -24,7 +24,7 @@
     <files>
         <file src="icon.png" target="icon.png" />
         <file src=".\Docs\README.md" target="docs\" />
-        <file src=".\PeachtreeBus\bin\Release\net8.0\PeachtreeBus.Abstractions.dll" target="lib\net8.0\PeachtreeBus.Abstractions.dll" />
-        <file src=".\PeachtreeBus\bin\Release\net8.0\PeachtreeBus.Abstractions.pdb" target="lib\net8.0\PeachtreeBus.Abstractions.pdb" />
+        <file src=".\PeachtreeBus.Abstractions\bin\Release\net8.0\PeachtreeBus.Abstractions.dll" target="lib\net8.0\PeachtreeBus.Abstractions.dll" />
+        <file src=".\PeachtreeBus.Abstractions\bin\Release\net8.0\PeachtreeBus.Abstractions.pdb" target="lib\net8.0\PeachtreeBus.Abstractions.pdb" />
     </files>
 </package>

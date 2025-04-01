@@ -11,10 +11,14 @@ function Quiet-Remove-Folder
     }
 }
 
-Quiet-Remove-Folder .\PeachtreeBus.Core\bin\Release
-Quiet-Remove-Folder .\PeachtreeBus.SimpleInjector\bin\Release
-Quiet-Remove-Folder .\PeachtreeBus.EntityFrameworkCore\bin\Release
+Quiet-Remove-Folder .\PeachtreeBus.Abstractions\bin\Debug
 Quiet-Remove-Folder .\PeachtreeBus.Abstractions\bin\Release
+Quiet-Remove-Folder .\PeachtreeBus.Core\bin\Debug
+Quiet-Remove-Folder .\PeachtreeBus.Core\bin\Release
+Quiet-Remove-Folder .\PeachtreeBus.SimpleInjector\bin\Debug
+Quiet-Remove-Folder .\PeachtreeBus.SimpleInjector\bin\Release
+Quiet-Remove-Folder .\PeachtreeBus.EntityFrameworkCore\bin\Debug
+Quiet-Remove-Folder .\PeachtreeBus.EntityFrameworkCore\bin\Release
 
 .\nuget.exe restore PeachtreeBus.sln
 
