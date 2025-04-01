@@ -7,7 +7,7 @@ namespace PeachtreeBus.Tests;
 public class HeadersFixture
 {
     private const string TestSagaMessage1ClassString
-        = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests";
+        = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Core.Tests";
 
     [TestMethod]
     public void Given_Type_When_New_Then_MessageClassInitialized()

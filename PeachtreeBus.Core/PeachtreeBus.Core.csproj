@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>PeachtreeBus</RootNamespace>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Include="LogMessages.cs">

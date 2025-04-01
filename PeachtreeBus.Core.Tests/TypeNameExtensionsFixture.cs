@@ -71,7 +71,7 @@ public class TypeNameExtensionsFixture
         Assert.AreEqual(
             "PeachtreeBus.Tests.TypeNameExtensionsFixture+Nested", type.GetTypeFullName());
         Assert.AreEqual(
-            "PeachtreeBus.Tests.TypeNameExtensionsFixture+Nested, PeachtreeBus.Tests", type.GetMessageClass());
+            "PeachtreeBus.Tests.TypeNameExtensionsFixture+Nested, PeachtreeBus.Core.Tests", type.GetMessageClass());
     }
 
     [TestMethod]
@@ -81,7 +81,7 @@ public class TypeNameExtensionsFixture
         Assert.AreEqual(
             "PeachtreeBus.Tests.TypeNameExtensionsFixture+Nested+Nested2`1[[System.Int32, System.Private.CoreLib]]", type.GetTypeFullName());
         Assert.AreEqual(
-            "PeachtreeBus.Tests.TypeNameExtensionsFixture+Nested+Nested2`1[[System.Int32, System.Private.CoreLib]], PeachtreeBus.Tests", type.GetMessageClass());
+            "PeachtreeBus.Tests.TypeNameExtensionsFixture+Nested+Nested2`1[[System.Int32, System.Private.CoreLib]], PeachtreeBus.Core.Tests", type.GetMessageClass());
     }
 
 

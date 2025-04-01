@@ -20,8 +20,8 @@
   <ItemGroup>
     <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
     <ProjectReference Include="..\PeachtreeBus.Database\PeachtreeBus.Database.sqlproj" />
-    <ProjectReference Include="..\PeachtreeBus.Tests\PeachtreeBus.Tests.csproj" />
-    <ProjectReference Include="..\PeachtreeBus\PeachtreeBus.csproj" />
+    <ProjectReference Include="..\PeachtreeBus.Core.Tests\PeachtreeBus.Core.Tests.csproj" />
+    <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">

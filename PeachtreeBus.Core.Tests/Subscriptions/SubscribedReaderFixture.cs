@@ -63,7 +63,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             NextMessageHeaders = new()
             {
-                MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Tests"
+                MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Core.Tests"
             };
 
             NextMessage = TestData.CreateSubscribedData(id: new(12345), priority: 24,
