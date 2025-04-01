@@ -38,5 +38,5 @@ public class Headers
 }
 
 public readonly record struct Diagnostics(
-    string? TraceParent = null, 
+    string? TraceParent = null,
     bool StartNewTraceOnReceive = false);

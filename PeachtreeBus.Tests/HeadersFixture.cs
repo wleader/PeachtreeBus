@@ -20,7 +20,7 @@ public class HeadersFixture
     public void When_New_Then_UserHeadersIntialized()
     {
         var actual = new Headers();
-        Assert.IsNotNull(actual.UserHeaders);
+        Assert.IsNotNull(actual?.UserHeaders);
         Assert.AreEqual(0, actual.UserHeaders.Count);
     }
 }

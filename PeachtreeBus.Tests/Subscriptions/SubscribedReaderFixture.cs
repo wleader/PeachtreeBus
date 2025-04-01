@@ -212,8 +212,8 @@ namespace PeachtreeBus.Tests.Subscriptions
             Assert.IsNotNull(context);
             Assert.AreSame("System.Object", context.MessageClass);
             Assert.AreSame(NextMessage, context.Data);
-            Assert.IsNull(context.Message);
-            Assert.AreEqual(SubscriberId, context.SubscriberId);
+            Assert.IsNull(context?.Message);
+            Assert.AreEqual(SubscriberId, context!.SubscriberId);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
             Assert.AreEqual(NextMessage.Priority, context.MessagePriority);
         }
@@ -233,8 +233,8 @@ namespace PeachtreeBus.Tests.Subscriptions
             Assert.IsNotNull(context);
             Assert.AreSame(NextMessageHeaders, context.Headers);
             Assert.AreSame(NextMessage, context.Data);
-            Assert.IsNull(context.Message);
-            Assert.AreEqual(SubscriberId, context.SubscriberId);
+            Assert.IsNull(context?.Message);
+            Assert.AreEqual(SubscriberId, context!.SubscriberId);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
             Assert.AreEqual(NextMessage.Priority, context.MessagePriority);
         }
@@ -254,8 +254,8 @@ namespace PeachtreeBus.Tests.Subscriptions
             Assert.IsNotNull(context);
             Assert.AreSame(NextMessageHeaders, context.Headers);
             Assert.AreSame(NextMessage, context.Data);
-            Assert.IsNull(context.Message);
-            Assert.AreEqual(SubscriberId, context.SubscriberId);
+            Assert.IsNull(context?.Message);
+            Assert.AreEqual(SubscriberId, context!.SubscriberId);
             Assert.AreEqual(NextMessage.MessageId, context.MessageId);
             Assert.AreEqual(NextMessage.Priority, context.MessagePriority);
         }
