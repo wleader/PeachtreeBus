@@ -16,8 +16,6 @@ public abstract class Context : IContext
     /// Experimmental. This may be removed in a future update.
     /// </summary>
     public IWrappedScope? Scope { get; set; }
-
-    public UserHeaders UserHeaders { get; set; } = [];
 }
 
 public abstract class IncomingContext<TQueueData>
@@ -41,6 +39,7 @@ public abstract class IncomingContext<TQueueData>
     public UtcDateTime NotBefore { get => Data.NotBefore; }
     public UniqueIdentity MessageId { get => Data.MessageId; }
     public string MessageClass { get => Headers.MessageClass; }
+    public IReadOnlyUserHeaders UserHeaders { get => Headers.UserHeaders; }
 }
 
 public abstract class OutgoingContext<TQueueData>
@@ -51,6 +50,7 @@ public abstract class OutgoingContext<TQueueData>
     public UtcDateTime NotBefore { get; set; } = DateTime.UtcNow;
     public int MessagePriority { get; set; }
     public bool StartNewConversation { get; set; }
+    public UserHeaders UserHeaders { get; set; } = [];
 }
 
 

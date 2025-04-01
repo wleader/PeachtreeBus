@@ -9,46 +9,34 @@ namespace PeachtreeBus.Tests.Queues;
 public class QueueContextFixture
 {
     [TestMethod]
-    public void Given_QueueContext_When_GetEnqueuedTime_Then_Value()
+    public void Given_QueueContext_Then_PropertiesPassThrough()
     {
-        UtcDateTime enqueuedTime = DateTime.UtcNow;
-
-        IQueueContext context = new QueueContext()
-        {
-            Message = new object(),
-            Data = new()
-            {
-                Body = new("BODY"),
-                Enqueued = enqueuedTime,
-                Headers = new(),
-                MessageId = UniqueIdentity.New(),
-                NotBefore = DateTime.UtcNow,
-                Priority = 0
-            },
-        };
-
-        Assert.AreEqual(enqueuedTime, context.EnqueuedTime);
-    }
-
-    [TestMethod]
-    public void Given_QueueContext_When_GetMessageId_Then_Value()
-    {
+        UtcDateTime enqueued = DateTime.UtcNow;
+        UtcDateTime notBefore = enqueued.AddMinutes(1);
         var messageId = UniqueIdentity.New();
+        var headers = new Headers(typeof(object));
+        int priority = 23;
 
-        IQueueContext context = new QueueContext()
+        var context = new QueueContext()
         {
             Message = new object(),
             Data = new()
             {
                 Body = new("BODY"),
-                Enqueued = DateTime.UtcNow,
-                Headers = new(),
+                Enqueued = enqueued,
+                Headers = headers,
                 MessageId = messageId,
-                NotBefore = DateTime.UtcNow,
-                Priority = 0
+                NotBefore = notBefore,
+                Priority = priority,
             },
         };
 
+        Assert.AreEqual(enqueued, context.EnqueuedTime);
+        Assert.AreEqual(notBefore, context.NotBefore);
         Assert.AreEqual(messageId, context.MessageId);
+        Assert.AreSame(headers, context.Headers);
+        Assert.AreEqual(priority, context.MessagePriority);
+        Assert.AreEqual("System.Object, System.Private.CoreLib", context.MessageClass);
+        Assert.AreSame(headers.UserHeaders, context.UserHeaders);
     }
 }

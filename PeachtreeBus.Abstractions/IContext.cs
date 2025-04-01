@@ -9,7 +9,6 @@ public interface IContext
 {
     IWrappedScope? Scope { get; }
     object Message { get; }
-    UserHeaders UserHeaders { get; }
 }
 
 /// <summary>
@@ -35,6 +34,7 @@ public interface IIncomingContext : IContext
     int MessagePriority { get; }
 
     string MessageClass { get; }
+    IReadOnlyUserHeaders UserHeaders { get; }
 }
 
 public interface IOutgoingContext : IContext
@@ -42,4 +42,5 @@ public interface IOutgoingContext : IContext
     UtcDateTime NotBefore { get; set; }
     int MessagePriority { get; set; }
     bool StartNewConversation { get; set; }
+    UserHeaders UserHeaders { get; set; }
 }
