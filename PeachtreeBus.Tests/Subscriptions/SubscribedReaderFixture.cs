@@ -112,7 +112,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                     Assert.AreEqual(1, m.Retries);
                     Assert.AreEqual(expectedNotBefore, m.NotBefore);
                     Assert.AreSame(Context.Data, m);
-                    Assert.AreSame(Context.InternalHeaders, m.Headers);
+                    Assert.AreSame(Context.Headers, m.Headers);
                     Assert.AreEqual(exception.ToString(), m.Headers?.ExceptionDetails);
                 });
 
@@ -138,7 +138,7 @@ namespace PeachtreeBus.Tests.Subscriptions
                 {
                     Assert.AreSame(Context.Data, m);
                     Assert.AreEqual(expectedId, m.Id);
-                    Assert.AreSame(Context.InternalHeaders, m.Headers);
+                    Assert.AreSame(Context.Headers, m.Headers);
                     Assert.AreEqual(exception.ToString(), m.Headers?.ExceptionDetails);
                 });
 
@@ -190,7 +190,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var context = await reader.GetNext(SubscriberId);
 
             Assert.IsNotNull(context);
-            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
+            Assert.AreSame(NextMessageHeaders, context.Headers);
             Assert.AreSame(NextMessage, context.Data);
             Assert.AreSame(NextUserMessage, context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
@@ -231,7 +231,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var context = await reader.GetNext(SubscriberId);
 
             Assert.IsNotNull(context);
-            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
+            Assert.AreSame(NextMessageHeaders, context.Headers);
             Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);
@@ -252,7 +252,7 @@ namespace PeachtreeBus.Tests.Subscriptions
             var context = await reader.GetNext(SubscriberId);
 
             Assert.IsNotNull(context);
-            Assert.AreSame(NextMessageHeaders, context.InternalHeaders);
+            Assert.AreSame(NextMessageHeaders, context.Headers);
             Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context.Message);
             Assert.AreEqual(SubscriberId, context.SubscriberId);

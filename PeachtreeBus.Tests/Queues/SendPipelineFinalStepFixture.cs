@@ -39,7 +39,7 @@ public class SendPipelineFinalStepFixture
 
         clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
 
-        
+
 
         dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueData>(), It.IsAny<QueueName>()))
             .Callback<QueueData, QueueName>((msg, qn) =>
@@ -54,10 +54,7 @@ public class SendPipelineFinalStepFixture
         _serializer.Setup(x => x.Serialize(context.Message, context.Message.GetType()))
             .Returns(TestData.DefaultBody);
 
-        step = new(clock.Object, _serializer.Object, dataAccess.Object, meters.Object)
-        {
-            InternalContext = context
-        };
+        step = new(clock.Object, _serializer.Object, dataAccess.Object, meters.Object);
     }
 
     /// <summary>
@@ -159,7 +156,7 @@ public class SendPipelineFinalStepFixture
     public async Task When_Invoke_UserHeadersAreSet()
     {
         await step.Invoke(context, null!);
-        Assert.AreSame(context.Headers, AddedMessage?.Headers?.UserHeaders);
+        Assert.AreSame(context.UserHeaders, AddedMessage?.Headers?.UserHeaders);
     }
 
     /// <summary>
@@ -244,8 +241,8 @@ public class SendPipelineFinalStepFixture
     [TestMethod]
     public async Task Given_UserHeaders_When_Publish_Then_UserHeadersAreUsed()
     {
-        context.Headers = TestData.DefaultUserHeaders;
+        context.UserHeaders = TestData.DefaultUserHeaders;
         await step.Invoke(context, null!);
-        Assert.AreSame(context.Headers, AddedMessage?.Headers?.UserHeaders);
+        Assert.AreSame(context.UserHeaders, AddedMessage?.Headers?.UserHeaders);
     }
 }

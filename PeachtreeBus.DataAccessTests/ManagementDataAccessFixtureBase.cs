@@ -67,7 +67,7 @@ namespace PeachtreeBus.DataAccessTests
 
         protected async Task<QueueData> CreatePendingQueued()
         {
-            var message = TestData.CreateQueueMessage();
+            var message = TestData.CreateQueueData();
             message.Id = await BusAccess.AddMessage(message, DefaultQueue);
             await Task.Delay(10); // make sure that messages get sequential enqueued times.
             return message;

@@ -21,6 +21,7 @@ public static class TestData
     public static readonly Topic DefaultTopic2 = new(nameof(DefaultTopic2));
     public static readonly QueueName DefaultQueueName = new(nameof(DefaultQueueName));
     public static readonly SagaName DefaultSagaName = new(nameof(DefaultSagaName));
+    public static readonly SagaKey DefaultSagaKey = new(nameof(DefaultSagaKey));
     public static readonly UtcDateTime Now = new DateTime(2022, 2, 23, 10, 49, 32, 33, DateTimeKind.Utc);
 
     public static readonly UserHeaders DefaultUserHeaders = new()
@@ -31,7 +32,7 @@ public static class TestData
 
     public static readonly SubscriberId UnintializedSubscriberId = (SubscriberId)RuntimeHelpers.GetUninitializedObject(typeof(SubscriberId));
 
-    public static QueueData CreateQueueMessage(
+    public static QueueData CreateQueueData(
         Identity? id = null,
         UniqueIdentity? messageId = null,
         int priority = 0,
@@ -47,7 +48,7 @@ public static class TestData
             Priority = priority,
             NotBefore = notBefore ?? DateTime.UtcNow,
             Enqueued = enqueued ?? DateTime.UtcNow,
-            Headers = headers ?? new(),
+            Headers = headers ?? new(typeof(TestQueuedMessage)),
             Body = body ?? DefaultBody
         };
     }
@@ -79,6 +80,25 @@ public static class TestData
         };
     }
 
+    public static SagaData CreateSagaData(
+        UniqueIdentity? sagaId = null,
+        Identity? id = null,
+        bool blocked = false,
+        SagaKey? sagaKey = null,
+        SagaMetaData? metaData = null,
+        SerializedData? data = null)
+    {
+        return new()
+        {
+            SagaId = sagaId ?? UniqueIdentity.New(),
+            Blocked = blocked,
+            Id = id ?? DefaultId,
+            Key = sagaKey ?? DefaultSagaKey,
+            MetaData = metaData ?? new(),
+            Data = data ?? DefaultSagaData
+        };
+    }
+
     public static TestQueuedMessage CreateQueueUserMessage() => new();
     public static TestSubscribedMessage CreateSubscribedUserMessage() => new();
 
@@ -99,18 +119,18 @@ public static class TestData
         Func<object>? userMessageFunc = null,
         QueueData? messageData = null,
         QueueName? sourceQueue = null,
-        Headers? headers = null)
+        SagaData? sagaData = null)
     {
         var messageObject = userMessageFunc?.Invoke() ?? CreateQueueUserMessage();
-        messageData ??= CreateQueueMessage();
-        headers ??= CreateHeaders(messageObject);
+        messageData ??= CreateQueueData();
+        sagaData ??= CreateSagaData();
 
         return new()
         {
             Message = messageObject,
             Data = messageData,
             SourceQueue = sourceQueue ?? DefaultQueueName,
-            InternalHeaders = headers,
+            SagaData = sagaData,
         };
     }
 
@@ -120,13 +140,12 @@ public static class TestData
         Headers? headers = null)
     {
         userMessage ??= CreateQueueUserMessage();
-        messageData ??= CreateSubscribedData();
-        headers ??= CreateHeaders(userMessage);
+        messageData ??= CreateSubscribedData(
+            headers: headers ?? CreateHeaders(userMessage));
         return new()
         {
             Message = userMessage,
             Data = messageData,
-            InternalHeaders = headers,
         };
     }
 

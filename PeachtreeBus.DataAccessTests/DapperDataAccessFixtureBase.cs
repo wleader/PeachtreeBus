@@ -26,7 +26,7 @@ public abstract class DapperDataAccessFixtureBase : FixtureBase<DapperDataAccess
         for (var i = 0; i < count; i++)
         {
             await dataAccess.AddMessage(
-                TestData.CreateQueueMessage(
+                TestData.CreateQueueData(
                     notBefore: DateTime.Now.AddMinutes(-1)),
                 DefaultQueue);
         }

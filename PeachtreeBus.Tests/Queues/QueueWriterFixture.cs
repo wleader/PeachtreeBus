@@ -101,7 +101,7 @@ namespace PeachtreeBus.Tests.Queues
                 userMessage,
                 userHeaders: TestData.DefaultUserHeaders);
 
-            Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.Headers);
+            Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.UserHeaders);
         }
     }
 }

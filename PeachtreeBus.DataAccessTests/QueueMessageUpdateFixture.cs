@@ -35,9 +35,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task Update_UpdatesPendingTable()
         {
             // Add two messages;
-            var testMessage1 = TestData.CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueData();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = TestData.CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueData();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 

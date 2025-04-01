@@ -12,7 +12,7 @@ public abstract class PipelineFactoryFixture
     where TContext : IContext
     where TPipeline : class, IPipeline<TContext>
     where TFindSteps : class, IFindPipelineSteps<TContext>
-    where TFinalStep : class, IPipelineFinalStep<TInternalContext, TContext>
+    where TFinalStep : class, IPipelineFinalStep<TContext>
 {
     protected PipelineFactory<TInternalContext, TContext, TPipeline, TFindSteps, TFinalStep> _factory = default!;
     protected Mock<TPipeline> _pipeline = default!;

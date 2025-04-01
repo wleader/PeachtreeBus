@@ -126,7 +126,7 @@ public class SubscriptionPublisherFixture
             TestData.DefaultTopic,
             userMessage,
             userHeaders: TestData.DefaultUserHeaders);
-        Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.Headers);
+        Assert.AreSame(TestData.DefaultUserHeaders, invokedContext?.UserHeaders);
     }
 
     [TestMethod]
@@ -155,7 +155,7 @@ public class SubscriptionPublisherFixture
         var context = pipelineInvoker.Invocations[0].Arguments[0] as PublishContext;
         Assert.IsNotNull(context);
         Assert.AreSame(userMessage, context.Message);
-        Assert.AreSame(userHeaders, context.Headers);
+        Assert.AreSame(userHeaders, context.UserHeaders);
         Assert.AreEqual(245, context.MessagePriority);
         Assert.AreEqual(notBefore, context.NotBefore);
     }

@@ -9,7 +9,7 @@ public interface IContext
 {
     IWrappedScope? Scope { get; }
     object Message { get; }
-    UserHeaders Headers { get; }
+    UserHeaders UserHeaders { get; }
 }
 
 /// <summary>

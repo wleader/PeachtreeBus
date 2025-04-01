@@ -34,9 +34,9 @@ public class ReceiveActivity : BaseActivity, IDisposable
     }
 
     private static string? GetParent<T>(IncomingContext<T> context)
-        where T: QueueData
+        where T : QueueData
     {
-        return context.InternalHeaders.Diagnostics.StartNewTraceOnReceive 
-            ? null : context.InternalHeaders.Diagnostics.TraceParent;
+        return context.Headers.Diagnostics.StartNewTraceOnReceive
+            ? null : context.Headers.Diagnostics.TraceParent;
     }
 }

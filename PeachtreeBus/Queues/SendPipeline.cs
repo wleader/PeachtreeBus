@@ -32,14 +32,14 @@ public class SendPipelineInvoker(
     : OutgoingPipelineInvoker<SendContext, ISendContext, ISendPipeline, ISendPipelineFactory>(scope)
     , ISendPipelineInvoker;
 
-public interface ISendPipelineFinalStep : IPipelineFinalStep<SendContext, ISendContext>;
+public interface ISendPipelineFinalStep : IPipelineFinalStep<ISendContext>;
 
 public class SendPipelineFinalStep(
     ISystemClock clock,
     ISerializer serializer,
     IBusDataAccess dataAccess,
     IMeters meters)
-    : PipelineFinalStep<SendContext, ISendContext>
+    : PipelineFinalStep<ISendContext>
     , ISendPipelineFinalStep
 {
     private readonly ISystemClock _clock = clock;
@@ -56,12 +56,14 @@ public class SendPipelineFinalStep(
 
         using var activity = new SendActivity(context);
 
+        var sendContext = (SendContext)context;
+
         // note the type in the headers so it can be deserialized.
-        var headers = new Headers(type, context.Headers)
+        var headers = new Headers(type, context.UserHeaders)
         {
             Diagnostics = new(
                 Activity.Current?.Id,
-                InternalContext.StartNewConversation)
+                sendContext.StartNewConversation)
         };
 
         // create the message entity, serializing the headers and body.

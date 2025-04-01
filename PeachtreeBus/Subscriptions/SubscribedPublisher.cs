@@ -41,7 +41,7 @@ public class SubscribedPublisher(
         {
             Message = message,
             Topic = topic,
-            Headers = userHeaders ?? [],
+            UserHeaders = userHeaders ?? [],
             NotBefore = notBefore ?? _clock.UtcNow,
             MessagePriority = priority,
             StartNewConversation = newConversation

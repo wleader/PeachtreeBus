@@ -17,7 +17,7 @@ public abstract class Context : IContext
     /// </summary>
     public IWrappedScope? Scope { get; set; }
 
-    public UserHeaders Headers { get; set; } = [];
+    public UserHeaders UserHeaders { get; set; } = [];
 }
 
 public abstract class IncomingContext<TQueueData>
@@ -29,7 +29,8 @@ public abstract class IncomingContext<TQueueData>
     /// The Model of the message as was stored the database.
     /// </summary>
     public required TQueueData Data { get; set; } = default!;
-    public required Headers InternalHeaders { get; set; }
+
+    public Headers Headers => Data.Headers!;
 
     /// <summary>
     /// The priority value of the message being handled.
@@ -39,7 +40,7 @@ public abstract class IncomingContext<TQueueData>
     public UtcDateTime EnqueuedTime { get => Data.Enqueued; }
     public UtcDateTime NotBefore { get => Data.NotBefore; }
     public UniqueIdentity MessageId { get => Data.MessageId; }
-    public string MessageClass { get => InternalHeaders.MessageClass; }
+    public string MessageClass { get => Headers.MessageClass; }
 }
 
 public abstract class OutgoingContext<TQueueData>

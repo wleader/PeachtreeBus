@@ -14,7 +14,7 @@ namespace PeachtreeBus.Pipelines
         where TInternalContext : Context
         where TPipeline : IPipeline<TContext>
         where TFindPipelineSteps : IFindPipelineSteps<TContext>
-        where TFinalStep : IPipelineFinalStep<TInternalContext, TContext>
+        where TFinalStep : IPipelineFinalStep<TContext>
     {
         private readonly IWrappedScope _scope = scope;
 
@@ -37,7 +37,6 @@ namespace PeachtreeBus.Pipelines
             // the very last step in the chain is to pass the message to the
             // handlers.
             var handlersStep = (TFinalStep)_scope.GetInstance(typeof(TFinalStep));
-            handlersStep.InternalContext = context;
             result.Add(handlersStep);
 
             // Pipeline is ready.

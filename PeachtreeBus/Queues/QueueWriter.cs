@@ -53,7 +53,7 @@ public class QueueWriter(
             NotBefore = notBefore ?? _clock.UtcNow,
             MessagePriority = priority,
             Message = message,
-            Headers = userHeaders ?? [],
+            UserHeaders = userHeaders ?? [],
             StartNewConversation = newConveration,
         };
 

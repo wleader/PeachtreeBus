@@ -2,16 +2,15 @@
 using PeachtreeBus.Pipelines;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions
 {
-    public interface ISubscribedPipelineFinalStep : IPipelineFinalStep<SubscribedContext, ISubscribedContext> { }
+    public interface ISubscribedPipelineFinalStep : IPipelineFinalStep<ISubscribedContext> { }
 
     public class SubscribedPipelineFinalStep(
         IFindSubscribedHandlers findHandlers)
-        : PipelineFinalStep<SubscribedContext, ISubscribedContext>
+        : PipelineFinalStep<ISubscribedContext>
         , ISubscribedPipelineFinalStep
     {
         private readonly IFindSubscribedHandlers _findHandlers = findHandlers;

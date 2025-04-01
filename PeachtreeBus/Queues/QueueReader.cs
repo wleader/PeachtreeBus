@@ -97,25 +97,24 @@ namespace PeachtreeBus.Queues
             {
                 Data = queueMessage,
                 SourceQueue = queueName,
-                InternalHeaders = queueMessage.Headers!,
                 Message = null!
             };
 
-            if (result.InternalHeaders is null)
+            if (result.Headers is null)
             {
                 _log.QueueReader_HeaderNotDeserializable(queueMessage.MessageId, queueName);
                 // this might not work, The body might deserialize but there won't be an
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
                 // this message would proably have to be removed from the database by hand?
-                result.InternalHeaders = new() { MessageClass = "System.Object" };
+                result.Data.Headers = new() { MessageClass = "System.Object" };
             }
 
             // Deserialize the message.
-            var messageType = Type.GetType(result.InternalHeaders.MessageClass);
+            var messageType = Type.GetType(result.MessageClass);
             if (messageType is null)
             {
-                _log.QueueReader_MessageClassNotRecognized(result.InternalHeaders.MessageClass, queueMessage.MessageId, queueName);
+                _log.QueueReader_MessageClassNotRecognized(result.MessageClass, queueMessage.MessageId, queueName);
                 return result;
             }
 
@@ -143,8 +142,8 @@ namespace PeachtreeBus.Queues
         public async Task Fail(QueueContext context, Exception exception)
         {
             context.Data.Retries++;
-            context.InternalHeaders.ExceptionDetails = exception.ToString();
-            context.Data.Headers = context.InternalHeaders;
+            context.Headers.ExceptionDetails = exception.ToString();
+            context.Data.Headers = context.Headers;
 
             var retryResult = _retryStrategy.DetermineRetry(context, exception, context.Data.Retries);
 
@@ -276,11 +275,7 @@ namespace PeachtreeBus.Queues
                     SagaId = UniqueIdentity.New(),
                     Key = context.SagaKey,
                     Data = serializedData,
-                    MetaData = new()
-                    {
-                        Started = DateTime.UtcNow,
-                        LastMessageTime = DateTime.UtcNow,
-                    },
+                    MetaData = new(_clock.UtcNow, _clock.UtcNow),
                     Blocked = false,
                 };
 
@@ -292,6 +287,7 @@ namespace PeachtreeBus.Queues
             {
                 // update the existing row.
                 context.SagaData.Data = serializedData;
+                context.SagaData.MetaData = context.SagaData.MetaData with { LastMessageTime = _clock.UtcNow };
                 await _dataAccess.UpdateSagaData(context.SagaData, sagaName);
             }
         }

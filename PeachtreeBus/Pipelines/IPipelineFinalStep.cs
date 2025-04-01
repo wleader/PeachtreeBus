@@ -1,5 +1,4 @@
-﻿using PeachtreeBus.Queues;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
@@ -11,17 +10,10 @@ namespace PeachtreeBus.Pipelines;
 /// </summary>
 /// <typeparam name="TInternalContext"></typeparam>
 /// <typeparam name="TContext"></typeparam>
-public interface IPipelineFinalStep<TInternalContext, TContext> : IPipelineStep<TContext>
-    where TInternalContext : Context
-{
-    TInternalContext InternalContext { get; set; }
-}
+public interface IPipelineFinalStep<TContext> : IPipelineStep<TContext>;
 
-public abstract class PipelineFinalStep<TInternalContext, TContext> : IPipelineStep<TContext>
-     where TInternalContext : Context
+public abstract class PipelineFinalStep<TContext> : IPipelineStep<TContext>
 {
-    public TInternalContext InternalContext { get; set; } = default!;
-
     // This property isn't used as the final step is always last in the pipeline
     // but it is requred by the interface.
     [ExcludeFromCodeCoverage]

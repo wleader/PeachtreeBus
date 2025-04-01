@@ -69,10 +69,7 @@ public class PublishPipelineFinalStepFixture
             configuration,
             serializer.Object,
             dataAccess.Object,
-            meters.Object)
-        {
-            InternalContext = context
-        };
+            meters.Object);
     }
 
     /// <summary>
@@ -228,9 +225,9 @@ public class PublishPipelineFinalStepFixture
     [TestMethod]
     public async Task Given_UserHeaders_When_Invoke_Then_UserHeadersAreUsed()
     {
-        context.Headers = TestData.DefaultUserHeaders;
+        context.UserHeaders = TestData.DefaultUserHeaders;
         await step.Invoke(context, null!);
-        Assert.AreSame(context.Headers, PublishedMessage?.Headers?.UserHeaders);
+        Assert.AreSame(context.UserHeaders, PublishedMessage?.Headers?.UserHeaders);
     }
 
     [TestMethod]

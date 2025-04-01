@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Subscriptions;
 
-public interface IPublishPipelineFinalStep : IPipelineFinalStep<PublishContext, IPublishContext>;
+public interface IPublishPipelineFinalStep : IPipelineFinalStep<IPublishContext>;
 
 public class PublishPipelineFinalStep(
     ISystemClock clock,
@@ -17,7 +17,7 @@ public class PublishPipelineFinalStep(
     ISerializer serializer,
     IBusDataAccess dataAccess,
     IMeters meters)
-    : PipelineFinalStep<PublishContext, IPublishContext>
+    : PipelineFinalStep<IPublishContext>
     , IPublishPipelineFinalStep
 {
     private readonly ISystemClock _clock = clock;
@@ -37,7 +37,7 @@ public class PublishPipelineFinalStep(
         using var activity = new SendActivity(context);
 
         // note the type in the headers so it can be deserialized.
-        var headers = new Headers(type, context.Headers);
+        var headers = new Headers(type, context.UserHeaders);
 
         headers.Diagnostics = new(
             Activity.Current?.Id,

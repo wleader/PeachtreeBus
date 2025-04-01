@@ -33,7 +33,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingQueued_GetsMessage()
         {
             // Add one message;
-            var testMessage = TestData.CreateQueueMessage();
+            var testMessage = TestData.CreateQueueData();
             testMessage.Id = await dataAccess.AddMessage(testMessage, DefaultQueue);
 
             await Task.Delay(10); // wait for the rows to be ready
@@ -52,9 +52,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingQueued_LocksTheMessage()
         {
             // Add two messages;
-            var testMessage1 = TestData.CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueData();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = TestData.CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueData();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
 
             await Task.Delay(10); // wait for the rows to be ready
@@ -87,7 +87,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingQueued_DoesNotReturnLocked()
         {
             // Add one message;
-            var testMessage = TestData.CreateQueueMessage();
+            var testMessage = TestData.CreateQueueData();
             testMessage.Id = await dataAccess.AddMessage(testMessage, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -107,7 +107,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingQueued_DoesNotReturnDelayedMessage()
         {
             // Add one message;
-            var testMessage = TestData.CreateQueueMessage();
+            var testMessage = TestData.CreateQueueData();
             testMessage.NotBefore = testMessage.NotBefore.AddHours(1);
             testMessage.Id = await dataAccess.AddMessage(testMessage, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
@@ -123,7 +123,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingQueued_DoesReturnDelayedAfterWait()
         {
             // Add one message;
-            var testMessage = TestData.CreateQueueMessage();
+            var testMessage = TestData.CreateQueueData();
             testMessage.NotBefore = testMessage.NotBefore.AddMilliseconds(200);
             testMessage.Id = await dataAccess.AddMessage(testMessage, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
@@ -138,12 +138,12 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task GetPendingQueued_ReturnsHigherPriorityMessage()
         {
-            var lowMessage = TestData.CreateQueueMessage();
+            var lowMessage = TestData.CreateQueueData();
             lowMessage.Priority = 1;
             lowMessage.NotBefore = DateTime.UtcNow.AddMinutes(-2);
             lowMessage.Id = await dataAccess.AddMessage(lowMessage, DefaultQueue);
 
-            var highMessage = TestData.CreateQueueMessage();
+            var highMessage = TestData.CreateQueueData();
             highMessage.Priority = 2;
             highMessage.NotBefore = DateTime.UtcNow.AddMinutes(-1);
             highMessage.Id = await dataAccess.AddMessage(highMessage, DefaultQueue);

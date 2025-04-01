@@ -29,7 +29,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task AddMessage_StoresTheMessage()
         {
-            var newMessage = TestData.CreateQueueMessage();
+            var newMessage = TestData.CreateQueueData();
 
             Assert.AreEqual(0, CountRowsInTable(QueuePending));
 

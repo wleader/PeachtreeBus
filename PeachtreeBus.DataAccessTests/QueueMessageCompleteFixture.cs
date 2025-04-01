@@ -34,9 +34,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task CompleteMessage_InsertsIntoCompleteTable()
         {
             // Add two messages;
-            var testMessage1 = TestData.CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueData();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = TestData.CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueData();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -61,9 +61,9 @@ namespace PeachtreeBus.DataAccessTests
         public async Task CompleteMessage_DeletesFromPendingTable()
         {
             // Add two messages;
-            var testMessage1 = TestData.CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueData();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
-            var testMessage2 = TestData.CreateQueueMessage();
+            var testMessage2 = TestData.CreateQueueData();
             testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
@@ -86,7 +86,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task CompleteMessage_CantMutateFields()
         {
             // Add two messages;
-            var testMessage1 = TestData.CreateQueueMessage();
+            var testMessage1 = TestData.CreateQueueData();
             testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 

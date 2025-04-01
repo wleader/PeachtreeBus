@@ -26,6 +26,6 @@ public class PipelineActivity : BaseActivity, IDisposable
         return
             baseType is not null &&
             baseType.IsGenericType &&
-            baseType.GetGenericTypeDefinition() == typeof(PipelineFinalStep<,>);
+            baseType.GetGenericTypeDefinition() == typeof(PipelineFinalStep<>);
     }
 }

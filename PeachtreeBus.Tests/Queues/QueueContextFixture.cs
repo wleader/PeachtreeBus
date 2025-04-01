@@ -25,7 +25,6 @@ public class QueueContextFixture
                 NotBefore = DateTime.UtcNow,
                 Priority = 0
             },
-            InternalHeaders = new(),
         };
 
         Assert.AreEqual(enqueuedTime, context.EnqueuedTime);
@@ -48,7 +47,6 @@ public class QueueContextFixture
                 NotBefore = DateTime.UtcNow,
                 Priority = 0
             },
-            InternalHeaders = new(),
         };
 
         Assert.AreEqual(messageId, context.MessageId);

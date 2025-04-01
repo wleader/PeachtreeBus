@@ -6,11 +6,9 @@ using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests.Fakes;
 using PeachtreeBus.Tests.Sagas;
 using PeachtreeBus.Tests.Telemetry;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Tests.Queues
@@ -22,7 +20,7 @@ namespace PeachtreeBus.Tests.Queues
         private readonly Mock<ILogger<QueuePipelineFinalStep>> _log = new();
         private readonly Mock<ISagaMessageMapManager> _sagaMessageMapManager = new();
         private readonly Mock<IQueueReader> _queueReader = new();
-        
+
         private QueuePipelineFinalStep _testSubject = default!;
         private TestSaga _testSaga = default!;
 
@@ -37,6 +35,8 @@ namespace PeachtreeBus.Tests.Queues
 
         private List<IHandleQueueMessage<TestSagaMessage1>> _handlers = [];
 
+        private QueueContext Context = default!;
+
         [TestInitialize]
         public void Initialize()
         {
@@ -50,7 +50,7 @@ namespace PeachtreeBus.Tests.Queues
             _queueReader.Setup(x => x.LoadSaga(
                 It.IsAny<object>(),
                 It.IsAny<QueueContext>()))
-                .Callback((object o, QueueContext c) => 
+                .Callback((object o, QueueContext c) =>
                 {
                     c.SagaData = _sagaData;
                     c.SagaKey = _sagaData?.Key ?? new("SagaKey");
@@ -59,21 +59,22 @@ namespace PeachtreeBus.Tests.Queues
             _findHandlers.Setup(x => x.FindHandlers<TestSagaMessage1>())
                 .Returns(() => _handlers);
 
+            Context = TestData.CreateQueueContext(
+                userMessageFunc: () => new TestSagaMessage1(),
+                messageData: TestData.CreateQueueData(
+                    headers: TestData.CreateHeaders(new TestSagaMessage1())));
+
             _testSubject = new(
                 _findHandlers.Object,
                 _log.Object,
                 _sagaMessageMapManager.Object,
-                _queueReader.Object)
-            {
-                InternalContext = TestData.CreateQueueContext(
-                    userMessageFunc: () => new TestSagaMessage1())
-            };
+                _queueReader.Object);
 
             Assert.AreEqual(typeof(TestSagaMessage1), Context.Message.GetType(),
                 "This test suite expects the default user message type to be TestSagaMessage1");
         }
 
-        private QueueContext Context { get => _testSubject.InternalContext; set => _testSubject.InternalContext = value; }
+
 
         [TestMethod]
         public async Task Given_Handler_When_Invoke_Then_Activity()
@@ -91,7 +92,9 @@ namespace PeachtreeBus.Tests.Queues
         public async Task Given_MessageIsNotIQueuedMessage_Then_ThrowsUsefulException()
         {
             Context = TestData.CreateQueueContext(
-                headers: new(typeof(object)));
+                userMessageFunc: () => new object(),
+                messageData: TestData.CreateQueueData(
+                    headers: new(typeof(object))));
             await Assert.ThrowsExactlyAsync<TypeIsNotIQueueMessageException>(() => _testSubject.Invoke(Context, null));
         }
 
@@ -223,7 +226,8 @@ namespace PeachtreeBus.Tests.Queues
         public async Task Given_AMessageContextWithAnUnrecognizedMessageType_When_Invoke_Then_Throws()
         {
             var context = TestData.CreateQueueContext(
-                headers: TestData.CreateHeadersWithUnrecognizedMessageClass());
+                messageData: TestData.CreateQueueData(
+                    headers: TestData.CreateHeadersWithUnrecognizedMessageClass()));
             await Assert.ThrowsExactlyAsync<QueueMessageClassNotRecognizedException>(() =>
                 _testSubject.Invoke(context, null));
         }
@@ -232,7 +236,9 @@ namespace PeachtreeBus.Tests.Queues
         public async Task Given_AMessageThatDoesNotImplementIQueueMessage_When_Invoke_Then_Throws()
         {
             var context = TestData.CreateQueueContext(
-                userMessageFunc: () => new object()); // object does not implement IQueueMessage
+                userMessageFunc: () => new object(),
+                messageData: TestData.CreateQueueData(
+                    headers: TestData.CreateHeaders(new object()))); // object does not implement IQueueMessage
             await Assert.ThrowsExactlyAsync<TypeIsNotIQueueMessageException>(() => _testSubject.Invoke(context, null));
         }
 
