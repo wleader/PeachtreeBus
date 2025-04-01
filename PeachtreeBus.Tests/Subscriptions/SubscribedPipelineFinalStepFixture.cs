@@ -29,7 +29,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             var context = TestData.CreateSubscribedContext(
                 headers: new(typeof(MessageWithoutInterface)));
-            await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
+            await Assert.ThrowsExactlyAsync<TypeIsNotISubscribedMessageException>(() =>
                 _testSubject.Invoke(context, null));
         }
 
@@ -64,7 +64,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
-            await Assert.ThrowsExceptionAsync<SubscribedMessageNoHandlerException>(() =>
+            await Assert.ThrowsExactlyAsync<SubscribedMessageNoHandlerException>(() =>
                 _testSubject.Invoke(context, null));
         }
 
@@ -77,7 +77,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         {
             var context = TestData.CreateSubscribedContext(
                 headers: TestData.CreateHeadersWithUnrecognizedMessageClass());
-            await Assert.ThrowsExceptionAsync<SubscribedMessageClassNotRecognizedException>(() =>
+            await Assert.ThrowsExactlyAsync<SubscribedMessageClassNotRecognizedException>(() =>
                 _testSubject.Invoke(context, null));
         }
 
@@ -85,7 +85,7 @@ namespace PeachtreeBus.Tests.Subscriptions
         public async Task Given_AMessageThatDoesNotImplementISubscribedMessage_When_Invoke_Then_Throws()
         {
             var context = TestData.CreateSubscribedContext(userMessage: new object());// object does not implement IQueueMessage
-            await Assert.ThrowsExceptionAsync<TypeIsNotISubscribedMessageException>(() =>
+            await Assert.ThrowsExactlyAsync<TypeIsNotISubscribedMessageException>(() =>
                 _testSubject.Invoke(context, null));
         }
 
@@ -97,7 +97,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
-            await Assert.ThrowsExceptionAsync<IncorrectImplementationException>(() =>
+            await Assert.ThrowsExactlyAsync<IncorrectImplementationException>(() =>
                 _testSubject.Invoke(context, null));
         }
     }

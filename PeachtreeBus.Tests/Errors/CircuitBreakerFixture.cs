@@ -59,7 +59,7 @@ public class CircuitBreakerFixture
         sw.Start();
         var task = _breaker.Guard(Cancellable, tokenSource.Token);
         tokenSource.Cancel();
-        await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => task);
+        await Assert.ThrowsExactlyAsync<TaskCanceledException>(() => task);
         sw.Stop();
         Assert.IsTrue(sw.Elapsed.Subtract(Tolerance) < _config.FaultedDelay);
     }
@@ -74,7 +74,7 @@ public class CircuitBreakerFixture
         sw.Start();
         var task = _breaker.Guard(Cancellable, tokenSource.Token);
         tokenSource.Cancel();
-        await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => task);
+        await Assert.ThrowsExactlyAsync<TaskCanceledException>(() => task);
         sw.Stop();
         await Then_BreakerIsCleared();
     }
@@ -83,7 +83,7 @@ public class CircuitBreakerFixture
     public async Task When_ReturnFailure_Then_Throws_And_BreakerIsArmed()
     {
         static Task<string> Fail() { throw new TestException(); }
-        await Assert.ThrowsExceptionAsync<TestException>(
+        await Assert.ThrowsExactlyAsync<TestException>(
             () => _breaker.Guard(Fail));
         await Then_BreakerIsArmed();
     }
@@ -93,7 +93,7 @@ public class CircuitBreakerFixture
     public async Task When_CancellableReturnFailure_Then_Throws_And_BreakerIsArmed()
     {
         static Task<int> Fail(CancellationToken token) { throw new TestException(); }
-        await Assert.ThrowsExceptionAsync<TestException>(
+        await Assert.ThrowsExactlyAsync<TestException>(
             () => _breaker.Guard((t) => Fail(t), default));
         await Then_BreakerIsArmed();
     }
@@ -102,7 +102,7 @@ public class CircuitBreakerFixture
     public async Task When_Failure_Then_Throws_And_BreakerIsArmed()
     {
         static Task Fail() { throw new TestException(); }
-        await Assert.ThrowsExceptionAsync<TestException>(
+        await Assert.ThrowsExactlyAsync<TestException>(
             () => _breaker.Guard(Fail));
         await Then_BreakerIsArmed();
     }
@@ -111,7 +111,7 @@ public class CircuitBreakerFixture
     public async Task When_CancellableFailure_Then_Throws_And_BreakerIsArmed()
     {
         static Task Fail(CancellationToken token) { throw new TestException(); }
-        await Assert.ThrowsExceptionAsync<TestException>(
+        await Assert.ThrowsExactlyAsync<TestException>(
             () => _breaker.Guard(Fail, default));
         await Then_BreakerIsArmed();
     }
@@ -233,7 +233,7 @@ public class CircuitBreakerFixture
     /// </summary>
     private async Task ArmBreaker()
     {
-        await Assert.ThrowsExceptionAsync<TestException>(
+        await Assert.ThrowsExactlyAsync<TestException>(
             () => _breaker.Guard(() => throw new TestException()));
     }
 
