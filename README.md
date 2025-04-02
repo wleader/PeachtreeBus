@@ -8,10 +8,10 @@ The 'Enterprise' Update
 
 Oh Baby this is a big one. I feel bad for anyone upgrading from 0.10.5.(which as far as I know is only me at this time.) A lot has changed. Here is a summary:
 
-* Simplified some SQL operations to make selecing the next message simpler.
-* Constraints and Indexs on tables are now named.
-* A priority can be supplied when sending or publishing a message. Higer priority messages get selected first, presuming they meet other requirements like the not before time.
-* Some vulnerable 3rd party packages have been upated.
+* Simplified some SQL operations to make selecting the next message simpler.
+* Constraints and Indexes on tables are now named.
+* A priority can be supplied when sending or publishing a message. Higher priority messages get selected first, presuming they meet other requirements like the not before time.
+* Some vulnerable 3rd party packages have been updated.
 * The Dapper code internally now no longer attempts to set a Dapper.SqlMapper.TypeHandler for System.DateTime, in case users want to manage the mapping for System.DateTime themselves. PeachtreeBus now uses an internal PeachtreeBus.Data.UtcDateTime data type, and all the time values it stores in the database are stored as UTC values.
 * Priority and other header values are exposed via the Context objects.
 * Lots of things have strong types now instead of just being a System.String. SchemaName, QueueName, SagaName, and more.
@@ -22,10 +22,10 @@ Oh Baby this is a big one. I feel bad for anyone upgrading from 0.10.5.(which as
 * There is a new configuration scheme in place. Users of the library now create a new PeachtreeBus.BusConfiguation object to configure everything. 
 * Contexts all have interfaces now.
 * Outgoing messages now have support for Pipelines allowing running custom code before or after messages are sent.
-* Anything that user code should have to reference has been moved into the PeachtreeBus.Abstractions assembly/package. This allows writing code tht interacts with PeachtreeBus, but without creating a dependency on the Core Library, and its dependencies.
+* Anything that user code should have to reference has been moved into the PeachtreeBus.Abstractions assembly/package. This allows writing code that interacts with PeachtreeBus, but without creating a dependency on the Core Library, and its dependencies.
 * Messages now have 'UserHeaders', which is really just a System.Collections.Generic.Dictionary<string,string> that is saved in the message headers. 
 * Support for Telemetry systems via System.Diagnostics.Tracing, and System.Diagnostics.Metrics. This means that if you create a listener for the Tracing and Metrics sources, you can collect and direct this data. The Example application has code that can setup an OpenTelemetry Exporter. The names for spans and metrics attempts to follow established conventions for messaging platforms.
-* Telemetry Context Propagation means that when one message causes another message, those messages will be automatically linked in Telemetry data. You can control this be specifying a newConversation when sending or publishing.
+* Telemetry Context Propagation means that when one message causes another message, those messages will be automatically linked in Telemetry data. You can control this by specifying a new Conversation when sending or publishing.
 * The Topic is now part of the subscribed message tables. This is used for setting attributes in received message telemetry, but its also just nicer to look at when peeking at the tables directly.
 * DataAccess activity tracing can be used to measure and observe the performance of SQL Server activities from PeachtreeBus.
 * Sagas have a MetaData column in the Saga Data tables. Currently this just contains the time the Saga instance was created and the last time a message was handled. It does not affect message processing, but may be useful when investigating if a defect in a user's saga code causes the saga to never complete and delete the row in the saga data table.
