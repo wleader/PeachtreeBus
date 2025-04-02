@@ -9,7 +9,7 @@
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>Message Prioritzation Release</releaseNotes>
+        <releaseNotes>The Enterprise Release</releaseNotes>
         <description>
             PeachtreeBus.EntityFrameworkCore is a package that contains classes and extensions for integrating PeachtreeBus's DatabaseSharing with EntityFrameworkCore.
         </description>
