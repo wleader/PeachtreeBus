@@ -9,7 +9,7 @@
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>Message Prioritzation Release</releaseNotes>
+        <releaseNotes>The Enterprise Release</releaseNotes>
         <description>
         PeachtreeBus Abstractions for Applications.
         </description>
