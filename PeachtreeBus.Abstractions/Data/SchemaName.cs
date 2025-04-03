@@ -7,6 +7,8 @@ namespace PeachtreeBus.Data;
 [JsonConverter(typeof(SchemaNameJsonConverter))]
 public readonly record struct SchemaName
 {
+    public const string AllowedCharacters = "abcdefghijklmnopqrstuvwxyz0123456789";
+
     private readonly string _value;
 
     public string Value => _value
@@ -14,8 +16,8 @@ public readonly record struct SchemaName
 
     public SchemaName(string value)
     {
-        DbSafeNameException.ThrowIfNotSafe(value, nameof(SchemaName));
-        _value = value;
+        _value = StringNotAllowedException.ThrowIfNotAllowed(
+            value, nameof(SchemaName), AllowedCharacters);
     }
 
     public override string ToString() => Value;

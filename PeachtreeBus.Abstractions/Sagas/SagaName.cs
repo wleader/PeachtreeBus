@@ -7,6 +7,8 @@ namespace PeachtreeBus.Sagas;
 [JsonConverter(typeof(SagaNameJsonConverter))]
 public readonly record struct SagaName
 {
+    public const string AllowedCharacters = "abcdefghijklmnopqrstuvwxyz0123456789_";
+
     private readonly string _value;
 
     public string Value => _value
@@ -14,7 +16,8 @@ public readonly record struct SagaName
 
     public SagaName(string value)
     {
-        DbSafeNameException.ThrowIfNotSafe(value, nameof(SagaName));
+        StringNotAllowedException.ThrowIfNotAllowed(
+            value, nameof(SagaName), AllowedCharacters);
         _value = value;
     }
 
