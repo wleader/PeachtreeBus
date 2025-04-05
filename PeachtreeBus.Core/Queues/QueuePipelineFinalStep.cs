@@ -103,16 +103,16 @@ namespace PeachtreeBus.Queues
 
                 if (queueContext.SagaData == null && !handlerType.IsSagaStartHandler(messageType))
                 {
-                    // the saga was not locked, and it doesn't exist, and this message doesn't start a saga.
-                    // we are processing a saga message but it is not a saga start message and we didnt read previous
-                    // saga data from the DB. This means we are processing a non-start messge before the saga is started.
-                    // we could continute but that would mean that the saga handler might not know it needs to initialize
-                    // the saga data, so its better to stop and make things get fixed.
-                    throw new SagaNotStartedException(context.MessageId,
-                        context.SourceQueue,
-                        messageType,
-                        handlerType,
-                        context.SagaKey);
+                    // Its possible that a message was sent when the saga was still active,
+                    // or as a time delayed message, but by the time the message was handled,
+                    // the saga completed. Its actually normal for that to happen, so an exception
+                    // would be a false positive. Likewise writing a warning would also be a false
+                    // positive. This code is assuming that the user knows that they completed the
+                    // saga, or if they send a message before starting, that they will discover 
+                    // their error. All we can really do is log something so that its discoverable.
+                    _log.QueueWork_SagaNotStarted(queueContext.CurrentHandler, context.SagaKey,
+                        context.MessageId);
+                    return;
                 }
             }
 

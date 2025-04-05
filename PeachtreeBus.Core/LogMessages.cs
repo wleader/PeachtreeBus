@@ -242,6 +242,18 @@ namespace PeachtreeBus
         public static void QueueWork_HandlerException(this ILogger logger, string handlerType, UniqueIdentity messageId, string messageType, Exception ex)
             => PeachtreeBus_Queues_QueueWork_HandlerException_Action(logger, handlerType, messageId, messageType, ex);
 
+        internal static readonly EventId PeachtreeBus_Queues_QueueWork_SagaNotStarted_Event
+            = new(3002007, "PeachtreeBus_Queues_QueueWork_SagaNotStarted");
+        internal static readonly Action<ILogger, string, SagaKey, UniqueIdentity, Exception> PeachtreeBus_Queues_QueueWork_SagaNotStarted_Action
+            = LoggerMessage.Define<string, SagaKey, UniqueIdentity>(LogLevel.Information,
+                PeachtreeBus_Queues_QueueWork_SagaNotStarted_Event,
+                "The saga {SagaType} for key '{SagaKey}' has not been started, or has completed. The Message {MessageId} will not be handled by the saga.");
+        /// <summary>
+        /// (3002007) Information: The saga {SagaType} for key '{SagaKey}' has not been started, or has completed. The Message {MessageId} will not be handled by the saga.
+        /// </summary>
+        public static void QueueWork_SagaNotStarted(this ILogger logger, string sagaType, SagaKey sagaKey, UniqueIdentity messageId)
+            => PeachtreeBus_Queues_QueueWork_SagaNotStarted_Action(logger, sagaType, sagaKey, messageId, null!);
+
         internal static readonly EventId PeachtreeBus_Subscriptions_SubscribedWork_ProcessingMessage_Event
             = new(4001001, "PeachtreeBus_Subscriptions_SubscribedWork_ProcessingMessage");
         internal static readonly Action<ILogger, UniqueIdentity, SubscriberId, Exception> PeachtreeBus_Subscriptions_SubscribedWork_ProcessingMessage_Action

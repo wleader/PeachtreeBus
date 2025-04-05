@@ -68,6 +68,9 @@
             <Event name="HandlerException" level="Warning" exception="true">
                 There was an exception in {HandlerType:string} when handling Message {MessageId:UniqueIdentity} of type {MessageType:string}.
             </Event>
+            <Event name="SagaNotStarted" level="Information">
+                The saga {SagaType:string} for key '{SagaKey:SagaKey}' has not been started, or has completed. The Message {MessageId:UniqueIdentity} will not be handled by the saga.
+            </Event>
         </Class>
     </Namespace>
     <Namespace name="PeachtreeBus_Subscriptions">
