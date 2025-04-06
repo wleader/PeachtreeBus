@@ -1,0 +1,164 @@
+﻿using PeachtreeBus.Data;
+using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace PeachtreeBus.Tasks;
+
+public interface ITaskManager
+{
+    Task Run();
+}
+
+public class TaskManager(
+    IProvideShutdownSignal shutdownSignal,
+    IBusConfiguration configuration,
+    IBusDataAccess dataAccess,
+    IWrappedScopeFactory scopeFactory,
+    ISubscriptionUpdateTracker subscriptionUpdateTracker,
+    ICleanQueuedTracker cleanQueuedTracker,
+    ICleanSubscribedTracker cleanSubscribedTracker,
+    ICleanSubscriptionsTracker cleanSubscriptionsTracker)
+    : ITaskManager
+{
+    private readonly IProvideShutdownSignal _shutdownSignal = shutdownSignal;
+    private readonly IBusConfiguration _configuration = configuration;
+    private readonly IBusDataAccess _dataAccess = dataAccess;
+    private readonly IWrappedScopeFactory _scopeFactory = scopeFactory;
+    private readonly ISubscriptionUpdateTracker _subscriptionUpdateTracker = subscriptionUpdateTracker;
+    private readonly ICleanQueuedTracker _cleanQueuedTracker = cleanQueuedTracker;
+    private readonly INextRunTracker _cleanSubscribedTracker = cleanSubscribedTracker;
+    private readonly INextRunTracker _cleanSubscriptionsTracker = cleanSubscriptionsTracker;
+
+    private readonly ConcurrentDictionary<int, Task> currentTasks = new();
+    private CancellationTokenSource cts = new();
+    private int taskNumber = 0;
+
+    public async Task Run()
+    {
+        var shutdownToken = _shutdownSignal.GetCancellationToken();
+
+        do
+        {
+            // these always get a chance to run.
+            // that does mean though that if the subscribed and queued
+            // use up the max tasks, then it will go over.
+            UpdateSubscriptions();
+            CleanSubscribed();
+            CleanSubscriptions();
+            CleanQueued();
+
+            var available = await WaitForAvailableTasks();
+            available = await AddSubscribedTasks(available);
+            available = await AddQueuedTasks(available);
+
+            if (available > 0)
+            {
+                cts = new CancellationTokenSource();
+                try
+                {
+                    await Task.Delay(3000, cts.Token);
+                }
+                catch (TaskCanceledException) { }
+            }
+        }
+        while (!shutdownToken.IsCancellationRequested);
+    }
+
+    private void CleanSubscriptions() =>
+        AddIfDue<ICleanSubscriptionsTask>(1, _cleanSubscriptionsTracker);
+
+    private void CleanSubscribed() =>
+        AddIfDue<ICleanSubscribedTask>(1, _cleanSubscribedTracker);
+
+    private void CleanQueued() =>
+        AddIfDue<ICleanQueuedTask>(1, _cleanQueuedTracker);
+
+    private void UpdateSubscriptions() =>
+        AddIfDue<ISubscriptionUpdateTask>(1, _subscriptionUpdateTracker);
+
+    private int AddIfDue<TTask>(int available, INextRunTracker tracker) where TTask : class, IBaseTask
+    {
+        if (available > 0 && tracker.WorkDue)
+        {
+            AddTask<TTask>();
+            return available - 1;
+        }
+        return available;
+    }
+
+    private async Task<int> AddSubscribedTasks(int available)
+    {
+        if (_configuration.SubscriptionConfiguration is null) return available;
+        var estimate = (int)await _dataAccess.EstimateSubscribedPending(_configuration.SubscriptionConfiguration!.SubscriberId);
+        estimate = Math.Min(estimate, available);
+        AddTasks<IProcessSubscribedTask>(estimate);
+        return available - estimate;
+    }
+
+    private async Task<int> AddQueuedTasks(int available)
+    {
+        if (_configuration.QueueConfiguration is null) return available;
+        var estimate = (int)await _dataAccess.EstimateQueuePending(_configuration.QueueConfiguration.QueueName);
+        estimate = Math.Min(estimate, available);
+        AddTasks<IProcessQueuedTask>(estimate);
+        return available - estimate;
+    }
+
+    private void AddTasks<TTask>(int count) where TTask : class, IBaseTask
+    {
+        for (int i = 0; i < count; i++)
+        {
+            AddTask<TTask>();
+        }
+    }
+
+    private void AddTask<TTask>() where TTask : class, IBaseTask
+    {
+        var number = Interlocked.Increment(ref taskNumber);
+        var scope = _scopeFactory.Create();
+        var task = scope.GetInstance<TTask>();
+        var t = task.Run(_shutdownSignal.GetCancellationToken());
+        currentTasks.TryAdd(number, t);
+        t.ContinueWith((t) => WhenTaskCompletes(t, scope, number));
+    }
+
+    private Task WhenTaskCompletes(Task completedTask, IWrappedScope scope, int number)
+    {
+        scope.Dispose();
+        currentTasks.Remove(number, out _);
+        lock (cts)
+        {
+            cts.Cancel();
+        }
+        return completedTask;
+    }
+
+    private async Task<int> WaitForAvailableTasks()
+    {
+        var result = AvailableTasks();
+        if (result > 0) return result;
+        CancellationToken token;
+        lock (cts)
+        {
+            cts = new();
+            token = cts.Token;
+        }
+        do
+        {
+            try
+            {
+                await Task.Delay(100, token);
+            }
+            catch (TaskCanceledException) { }
+            result = AvailableTasks();
+        } while (result < 1);
+        return result;
+    }
+
+    private int AvailableTasks() => _configuration.MessageConcurrency - currentTasks.Count;
+}

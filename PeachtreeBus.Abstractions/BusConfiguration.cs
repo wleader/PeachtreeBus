@@ -44,6 +44,7 @@ public interface IBusConfiguration
     PublishConfiguration PublishConfiguration { get; }
     bool UseDefaultSerialization { get; }
     bool UseStartupTasks { get; }
+    public int MessageConcurrency { get; set; }
 }
 
 public class BusConfiguration : IBusConfiguration
@@ -55,4 +56,5 @@ public class BusConfiguration : IBusConfiguration
     public PublishConfiguration PublishConfiguration { get; init; } = new();
     public bool UseDefaultSerialization { get; init; } = true;
     public bool UseStartupTasks { get; init; } = true;
+    public int MessageConcurrency { get; set; } = Environment.ProcessorCount * 2;
 }

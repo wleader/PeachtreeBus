@@ -1,7 +1,9 @@
 ﻿using PeachtreeBus.Cleaners;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tasks;
 using SimpleInjector;
+using SimpleInjector.Lifestyles;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -69,7 +71,16 @@ namespace PeachtreeBus.SimpleInjector
         {
             container
                 .RunStartupTasks()
-                .RunThreadTasks(concurrency);
+                .RunTaskManager();
+            //.RunThreadTasks(concurrency);
+        }
+
+        private static Container RunTaskManager(this Container container)
+        {
+            using var scope = AsyncScopedLifestyle.BeginScope(container);
+            var manager = scope.GetInstance<ITaskManager>();
+            manager.Run().GetAwaiter().GetResult();
+            return container;
         }
 
         private static Container RunThreadTasks(this Container container, int? concurrency = null)

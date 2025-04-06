@@ -6,6 +6,7 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tasks;
 using PeachtreeBus.Telemetry;
 using SimpleInjector;
 using System;
@@ -92,6 +93,19 @@ public static partial class SimpleInjectorExtensions
         // provide an abstracted access to the system clock 
         // supports unit testable code.
         container.RegisterSingleton(typeof(ISystemClock), typeof(SystemClock));
+
+        // The task manager manages all repeating tasks.
+        container.Register(typeof(ITaskManager), typeof(TaskManager), Lifestyle.Scoped);
+        container.Register(typeof(ISubscriptionUpdateTracker), typeof(SubscriptionUpdateTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanSubscriptionsTracker), typeof(CleanSubscriptionsTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanSubscribedTracker), typeof(CleanSubscribedTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanQueuedTracker), typeof(CleanQueuedTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanQueuedTask), typeof(CleanQueuedTask), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscribedTask), typeof(CleanSubscribedTask), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscriptionsTask), typeof(CleanSubscriptionsTask), Lifestyle.Scoped);
+        container.Register(typeof(IProcessSubscribedTask), typeof(ProcessSubscribedTask), Lifestyle.Scoped);
+        container.Register(typeof(IProcessQueuedTask), typeof(ProcessQueuedTask), Lifestyle.Scoped);
+        container.Register(typeof(ISubscriptionUpdateTask), typeof(SubscriptionUpdateTask), Lifestyle.Scoped);
 
         // anybody should be able to send messages to a queue,
         // or publish subscribed messages without being a 
