@@ -31,7 +31,7 @@ public class TaskManager(
     private readonly ICleanQueuedTracker _cleanQueuedTracker = cleanQueuedTracker;
     private readonly INextRunTracker _cleanSubscribedTracker = cleanSubscribedTracker;
     private readonly INextRunTracker _cleanSubscriptionsTracker = cleanSubscriptionsTracker;
-    private CancellationTokenSource cts = new();
+    private CancellationTokenSource sleepTokenSource = new();
     private long currentTasks = 0;
 
     public async Task Run()
@@ -42,7 +42,9 @@ public class TaskManager(
         {
             // these always get a chance to run.
             // that does mean though that if the subscribed and queued
-            // use up the max tasks, then it will go over.
+            // use up the max tasks, then currentTasks can be 
+            // greater than the configuration MessageConcurrency.
+            // but thats ok.
             UpdateSubscriptions();
             CleanSubscribed();
             CleanSubscriptions();
@@ -54,15 +56,37 @@ public class TaskManager(
 
             if (available > 0)
             {
-                cts = new CancellationTokenSource();
-                try
-                {
-                    await Task.Delay(3000, cts.Token);
-                }
-                catch (TaskCanceledException) { }
+                await Sleep(3000);
             }
         }
         while (!shutdownToken.IsCancellationRequested);
+    }
+
+    private async Task Sleep(int millisecondsDelay)
+    {
+        try
+        {
+            CancellationToken token;
+            lock (sleepTokenSource)
+            {
+                token = sleepTokenSource.Token;
+            }
+            await Task.Delay(millisecondsDelay, token);
+        }
+        catch (TaskCanceledException)
+        {
+            sleepTokenSource = new();
+        }
+    }
+
+    private void Wakeup()
+    {
+        // if the task manager was sleeping,
+        // wake it up so it can start another task.
+        lock (sleepTokenSource)
+        {
+            sleepTokenSource.Cancel();
+        }
     }
 
     private void CleanSubscriptions() =>
@@ -113,6 +137,7 @@ public class TaskManager(
         // fun fact. Interlock.Increment will overflow without an exception
         // which in this case is perfectly fine.
         Interlocked.Increment(ref currentTasks);
+        // Todo, add an Internal Meter
         var scope = _scopeFactory.Create();
         var task = scope.GetInstance<TTask>();
         var t = task.Run(_shutdownSignal.GetCancellationToken());
@@ -122,33 +147,19 @@ public class TaskManager(
     private Task WhenTaskCompletes(Task completedTask, IWrappedScope scope)
     {
         scope.Dispose();
-        lock (cts)
-        {
-            cts.Cancel();
-        }
         Interlocked.Decrement(ref currentTasks);
+        Wakeup();
         return completedTask;
     }
 
     private async Task<int> WaitForAvailableTasks()
     {
         var result = AvailableTasks();
-        if (result > 0) return result;
-        CancellationToken token;
-        lock (cts)
+        while (result < 1)
         {
-            cts = new();
-            token = cts.Token;
-        }
-        do
-        {
-            try
-            {
-                await Task.Delay(100, token);
-            }
-            catch (TaskCanceledException) { }
+            await Sleep(1000);
             result = AvailableTasks();
-        } while (result < 1);
+        }
         return result;
     }
 
