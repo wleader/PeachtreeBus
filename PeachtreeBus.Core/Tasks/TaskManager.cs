@@ -70,25 +70,20 @@ public class TaskManager(
     }
 
     private void CleanSubscriptions() =>
-        AddIfDue<ICleanSubscriptionsTask>(1, _cleanSubscriptionsTracker);
+        AddIfDue<ICleanSubscriptionsTask>(_cleanSubscriptionsTracker);
 
     private void CleanSubscribed() =>
-        AddIfDue<ICleanSubscribedTask>(1, _cleanSubscribedTracker);
+        AddIfDue<ICleanSubscribedTask>(_cleanSubscribedTracker);
 
     private void CleanQueued() =>
-        AddIfDue<ICleanQueuedTask>(1, _cleanQueuedTracker);
+        AddIfDue<ICleanQueuedTask>(_cleanQueuedTracker);
 
     private void UpdateSubscriptions() =>
-        AddIfDue<ISubscriptionUpdateTask>(1, _subscriptionUpdateTracker);
+        AddIfDue<ISubscriptionUpdateTask>(_subscriptionUpdateTracker);
 
-    private int AddIfDue<TTask>(int available, INextRunTracker tracker) where TTask : class, IBaseTask
+    private void AddIfDue<TTask>(INextRunTracker tracker) where TTask : class, IBaseTask
     {
-        if (available > 0 && tracker.WorkDue)
-        {
-            AddTask<TTask>();
-            return available - 1;
-        }
-        return available;
+        if (tracker.WorkDue) AddTask<TTask>();
     }
 
     private async Task<int> AddSubscribedTasks(int available)
