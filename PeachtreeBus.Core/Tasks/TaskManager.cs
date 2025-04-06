@@ -2,8 +2,6 @@
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,10 +31,8 @@ public class TaskManager(
     private readonly ICleanQueuedTracker _cleanQueuedTracker = cleanQueuedTracker;
     private readonly INextRunTracker _cleanSubscribedTracker = cleanSubscribedTracker;
     private readonly INextRunTracker _cleanSubscriptionsTracker = cleanSubscriptionsTracker;
-
-    private readonly ConcurrentDictionary<int, Task> currentTasks = new();
     private CancellationTokenSource cts = new();
-    private int taskNumber = 0;
+    private long currentTasks = 0;
 
     public async Task Run()
     {
@@ -114,22 +110,23 @@ public class TaskManager(
 
     private void AddTask<TTask>() where TTask : class, IBaseTask
     {
-        var number = Interlocked.Increment(ref taskNumber);
+        // fun fact. Interlock.Increment will overflow without an exception
+        // which in this case is perfectly fine.
+        Interlocked.Increment(ref currentTasks);
         var scope = _scopeFactory.Create();
         var task = scope.GetInstance<TTask>();
         var t = task.Run(_shutdownSignal.GetCancellationToken());
-        currentTasks.TryAdd(number, t);
-        t.ContinueWith((t) => WhenTaskCompletes(t, scope, number));
+        t.ContinueWith((t) => WhenTaskCompletes(t, scope));
     }
 
-    private Task WhenTaskCompletes(Task completedTask, IWrappedScope scope, int number)
+    private Task WhenTaskCompletes(Task completedTask, IWrappedScope scope)
     {
         scope.Dispose();
-        currentTasks.Remove(number, out _);
         lock (cts)
         {
             cts.Cancel();
         }
+        Interlocked.Decrement(ref currentTasks);
         return completedTask;
     }
 
@@ -155,5 +152,5 @@ public class TaskManager(
         return result;
     }
 
-    private int AvailableTasks() => _configuration.MessageConcurrency - currentTasks.Count;
+    private int AvailableTasks() => (int)(_configuration.MessageConcurrency - Interlocked.Read(ref currentTasks));
 }
