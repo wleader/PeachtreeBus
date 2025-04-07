@@ -13,6 +13,9 @@ public class SendActivity : BaseActivity, IDisposable
         ActivitySources.Messaging.StartActivity(
             "send " + context.Destination.ToString(),
             ActivityKind.Producer)
+            ?.AddMessagingSystem()
+            ?.AddMessagingOperation("send")
+            ?.AddMessagingClientId()
             ?.AddOutgoingContext(context)
             ?.AddDestination(context.Destination);
     }
@@ -23,6 +26,9 @@ public class SendActivity : BaseActivity, IDisposable
         ActivitySources.Messaging.StartActivity(
             "send " + context.Topic.ToString(),
             ActivityKind.Producer)
+            ?.AddMessagingSystem()
+            ?.AddMessagingOperation("send")
+            ?.AddMessagingClientId()
             ?.AddOutgoingContext(context)
             ?.AddDestination(context.Topic);
     }
