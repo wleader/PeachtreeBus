@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus.EntityFrameworkCore</id>
-        <version>0.11.2</version>
+        <version>0.11.3</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
@@ -17,7 +17,7 @@
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="net8.0">
-            <dependency id="PeachtreeBus.Core" version="0.11.2" />
+            <dependency id="PeachtreeBus.Core" version="0.11.3" />
             <dependency id="Microsoft.EntityFrameworkCore" version="9.0.3" />
             <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="9.0.3" />
             </group>
