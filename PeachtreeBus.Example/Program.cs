@@ -9,6 +9,9 @@ using PeachtreeBus.Telemetry;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: ExcludeFromCodeCoverage(Justification = "This is example code.")]
 
 namespace PeachtreeBus.Example
 {
@@ -145,12 +148,14 @@ namespace PeachtreeBus.Example
             // optionally turn on and configure telemetry.
             using var _ = new Telemetry.OpenTelemetryProviders("PeachtreeBus-Example",
                 tracerSources: [ActivitySources.Messaging.Name],
-                traceExportOptions: options => {
+                traceExportOptions: options =>
+                {
                     //options.Endpoint = new("https://server.domain.com/v1/meters");
                     //options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
                 },
                 meterSources: [ActivitySources.Messaging.Name],
-                meterExportOptions: options => {
+                meterExportOptions: options =>
+                {
                     //options.Endpoint = new("https://server.domain.com/v1/meters");
                     //options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
                 });

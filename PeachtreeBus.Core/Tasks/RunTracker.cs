@@ -15,7 +15,7 @@ public abstract class IntervalRunTracker(
 {
     private readonly ISystemClock _clock = clock;
     private bool _started = false;
-    public void Start() { _started = true; }
+    public void Start() => _started = true;
     public DateTime NextDue { get; private set; } = DateTime.MinValue;
     public bool ShouldStart => !_started && Interval.HasValue && (NextDue <= _clock.UtcNow);
     public void WorkDone()

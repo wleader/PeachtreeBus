@@ -38,10 +38,22 @@ public abstract class IntervalRunTrackerFixtureBase<TTracker>
         Assert.IsTrue(t.ShouldStart);
     }
 
+
+    [TestMethod]
+    public void Given_Configuration_And_Started_When_Elapsed_Then_ShouldNotStart()
+    {
+        Given_Configuration();
+        _tracker.Start();
+        _clock.Returns(DateTime.MaxValue);
+        Assert.IsFalse(_tracker.ShouldStart);
+    }
+
+
     [TestMethod]
     public void Given_Configuration_And_WorkDone_Then_ShouldNotStart()
     {
         Given_Configuration();
+        _tracker.Start();
         _tracker.WorkDone();
         Assert.IsFalse(_tracker.ShouldStart);
     }
@@ -50,6 +62,7 @@ public abstract class IntervalRunTrackerFixtureBase<TTracker>
     public void Given_Configuration_And_WorkDone_When_Elapsed_Then_ShouldStart()
     {
         Given_Configuration();
+        _tracker.Start();
         _tracker.WorkDone();
         _clock.Returns(_tracker.NextDue.AddMilliseconds(1));
         Assert.IsTrue(_tracker.ShouldStart);
@@ -67,6 +80,7 @@ public abstract class IntervalRunTrackerFixtureBase<TTracker>
     public void Given_NoConfiguration_And_WorkDone_Then_ShouldNotStart()
     {
         Given_NoConfiguration();
+        _tracker.Start();
         _tracker.WorkDone();
         Assert.IsFalse(_tracker.ShouldStart);
     }
@@ -75,6 +89,7 @@ public abstract class IntervalRunTrackerFixtureBase<TTracker>
     public void Given_NoConfiguration_And_WorkDone_When_Elapsed_Then_ShouldNotStart()
     {
         Given_NoConfiguration();
+        _tracker.Start();
         _tracker.WorkDone();
         _clock.Returns(DateTime.MaxValue);
         Assert.IsFalse(_tracker.ShouldStart);
