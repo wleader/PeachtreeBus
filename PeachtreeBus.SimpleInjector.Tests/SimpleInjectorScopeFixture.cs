@@ -86,4 +86,12 @@ public class SimpleInjectorScopeFixture
         var actual = _subject.GetInstance(typeof(IQueuePipelineStep));
         Assert.IsNotNull(actual);
     }
+
+    [TestMethod]
+    public void Given_Scope_When_GetService_Then_Result()
+    {
+        Assert.IsNotNull(_subject.Scope);
+        var actual = _subject.GetService(typeof(IQueuePipelineStep));
+        Assert.IsNotNull(actual);
+    }
 }
