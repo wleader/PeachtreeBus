@@ -36,7 +36,5 @@ namespace PeachtreeBus.SimpleInjector
             if (Scope == null) throw new InvalidOperationException("Scope must be set before getting instances.");
             return Scope.GetInstance(t);
         }
-
-        public object? GetService(Type serviceType) => GetInstance(serviceType);
     }
 }
