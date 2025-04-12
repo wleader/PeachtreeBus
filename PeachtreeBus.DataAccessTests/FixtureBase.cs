@@ -79,9 +79,8 @@ public abstract class FixtureBase<TAccess> : TestConfig
 
         // start all tests with an Empty DB.
         // each test will setup rows it needs.
-        BeginSecondaryTransaction();
-        TruncateAll();
-        CommitSecondaryTransaction();
+
+        CleanupEverything();
     }
 
     protected abstract TAccess CreateDataAccess();
@@ -91,13 +90,8 @@ public abstract class FixtureBase<TAccess> : TestConfig
     /// </summary>
     public virtual void TestCleanup()
     {
-        // rollback any uncommitted transaction.
-        transaction?.Rollback();
-
         // Cleanup up any data left behind by the test.
-        BeginSecondaryTransaction();
-        TruncateAll();
-        CommitSecondaryTransaction();
+        CleanupEverything();
 
         // close the connections.
         PrimaryConnection.Close();
@@ -109,36 +103,21 @@ public abstract class FixtureBase<TAccess> : TestConfig
     /// </summary>
     protected ISqlTransaction? transaction = null;
 
-    /// <summary>
-    /// starts a transaction on the secondary connection.
-    /// </summary>
-    protected void BeginSecondaryTransaction()
+    private void CleanupEverything()
     {
-        transaction = SecondaryConnection.BeginTransaction();
-    }
-
-    /// <summary>
-    /// Rolls back the transaction on the secondary connection.
-    /// </summary>
-    protected void RollbackSecondaryTransaction()
-    {
-        if (transaction != null)
-        {
-            transaction.Rollback();
-            transaction = null;
-        }
-    }
-
-    /// <summary>
-    /// Commits the transaction on the secondary connection.
-    /// </summary>
-    protected void CommitSecondaryTransaction()
-    {
-        if (transaction != null)
-        {
-            transaction.Commit();
-            transaction = null;
-        }
+        using var transaction = SecondaryConnection.BeginTransaction();
+        string statement =
+            $"TRUNCATE TABLE [{DefaultSchema}].[{QueueCompleted}]; " +
+            $"TRUNCATE TABLE [{DefaultSchema}].[{QueueFailed}]; " +
+            $"TRUNCATE TABLE [{DefaultSchema}].[{QueuePending}]; " +
+            $"TRUNCATE TABLE [{DefaultSchema}].[{SagaData}]; " +
+            $"TRUNCATE TABLE [{DefaultSchema}].[{Subscriptions}]; " +
+            $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedPending}]; " +
+            $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedFailed}]; " +
+            $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedCompleted}]; ";
+        using var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction.Transaction);
+        cmd.ExecuteNonQuery();
+        transaction.Commit();
     }
 
     /// <summary>
@@ -149,35 +128,8 @@ public abstract class FixtureBase<TAccess> : TestConfig
     protected int CountRowsInTable(TableName table)
     {
         string statment = $"SELECT COUNT(*) FROM [{DefaultSchema}].[{table}]";
-        using var cmd = new SqlCommand(statment, SecondaryConnection.Connection, transaction?.Transaction);
+        using var cmd = new SqlCommand(statment, SecondaryConnection.Connection, null);
         return (int)cmd.ExecuteScalar();
-    }
-
-    /// <summary>
-    /// Truncates all the tables for the test using the secondary connection.
-    /// </summary>
-    protected void TruncateAll()
-    {
-        string statement =
-            $"TRUNCATE TABLE [{DefaultSchema}].[{QueueCompleted}]; " +
-            $"TRUNCATE TABLE [{DefaultSchema}].[{QueueFailed}]; " +
-            $"TRUNCATE TABLE [{DefaultSchema}].[{QueuePending}]; " +
-            $"TRUNCATE TABLE [{DefaultSchema}].[{SagaData}]; " +
-            $"TRUNCATE TABLE [{DefaultSchema}].[{Subscriptions}]; " +
-            $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedPending}]; " +
-            $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedFailed}]; " +
-            $"TRUNCATE TABLE [{DefaultSchema}].[{SubscribedCompleted}]; ";
-        ExecuteNonQuery(statement);
-    }
-
-    /// <summary>
-    /// Executes a statement on the secondary connection.
-    /// </summary>
-    /// <param name="statement"></param>
-    protected void ExecuteNonQuery(string statement)
-    {
-        using var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction?.Transaction);
-        cmd.ExecuteNonQuery();
     }
 
     /// <summary>
@@ -189,7 +141,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
     {
         var result = new DataSet();
         string statement = $"SELECT * FROM [{DefaultSchema}].[{tablename}]";
-        using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, transaction?.Transaction))
+        using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, null))
         using (var adpater = new SqlDataAdapter(cmd))
         {
             adpater.Fill(result);
