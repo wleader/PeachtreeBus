@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Abstractions.Tests;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
-using PeachtreeBus.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

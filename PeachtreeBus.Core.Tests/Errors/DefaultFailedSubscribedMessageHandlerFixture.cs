@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Subscriptions;
 
-namespace PeachtreeBus.Tests.Errors;
+namespace PeachtreeBus.Core.Tests.Errors;
 
 [TestClass]
 public class DefaultFailedSubscribedMessageHandlerFixture

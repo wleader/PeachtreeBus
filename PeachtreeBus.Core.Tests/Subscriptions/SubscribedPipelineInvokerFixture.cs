@@ -1,11 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Subscriptions
+namespace PeachtreeBus.Core.Tests.Subscriptions
 {
     [TestClass]
     public class SubscribedPipelineInvokerFixture

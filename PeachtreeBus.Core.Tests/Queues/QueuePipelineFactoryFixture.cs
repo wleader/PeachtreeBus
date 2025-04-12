@@ -1,8 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Core.Tests.Pipeline;
 using PeachtreeBus.Queues;
-using PeachtreeBus.Tests.Pipeline;
 
-namespace PeachtreeBus.Tests.Queues
+namespace PeachtreeBus.Core.Tests.Queues
 {
     [TestClass]
     public class QueuePipelineFactoryFixture

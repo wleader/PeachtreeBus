@@ -1,14 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Sagas;
+using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests;
-using PeachtreeBus.Tests.Sagas;
-using PeachtreeBus.Tests.Telemetry;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

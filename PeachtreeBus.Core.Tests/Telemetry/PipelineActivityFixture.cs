@@ -1,11 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Abstractions.Tests.TestClasses;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Telemetry;
 using System;
 using System.Diagnostics;
 using System.Linq;
 
-namespace PeachtreeBus.Tests.Telemetry;
+namespace PeachtreeBus.Core.Tests.Telemetry;
 
 [TestClass]
 public class PipelineActivityFixture()

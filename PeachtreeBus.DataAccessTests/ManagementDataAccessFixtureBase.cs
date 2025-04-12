@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.Management;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
-using PeachtreeBus.Tests;
-using PeachtreeBus.Tests.Fakes;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
@@ -33,7 +33,7 @@ namespace PeachtreeBus.DataAccessTests
                 SharedDB,
                 Configuration.Object,
                 new Mock<ILogger<DapperDataAccess>>().Object,
-                FakeClock.Instance,
+                new FakeClock(),
                 TestDapperTypesHandler.Instance);
 
             return new ManagementDataAccess(

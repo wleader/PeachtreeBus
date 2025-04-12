@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Tests;
+using PeachtreeBus.Core.Tests;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

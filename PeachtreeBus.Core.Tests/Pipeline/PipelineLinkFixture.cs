@@ -1,12 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests.Telemetry;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Pipeline;
+namespace PeachtreeBus.Core.Tests.Pipeline;
 
 [TestClass]
 public class PipelineLinkFixture

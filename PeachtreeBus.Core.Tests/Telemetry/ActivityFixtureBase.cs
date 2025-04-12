@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
 
-namespace PeachtreeBus.Tests.Telemetry;
+namespace PeachtreeBus.Core.Tests.Telemetry;
 
 public class ActivityFixtureBase(ActivitySource targetSource)
 {

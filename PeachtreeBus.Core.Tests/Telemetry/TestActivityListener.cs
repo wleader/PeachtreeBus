@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace PeachtreeBus.Tests.Telemetry;
+namespace PeachtreeBus.Core.Tests.Telemetry;
 
 public class TestActivityListener : IDisposable
 {
@@ -39,6 +39,12 @@ public class TestActivityListener : IDisposable
         Assert.AreEqual(0, Started.Count, "There are incomplete activities.");
         Assert.AreEqual(1, Stopped.Count, "There is not exactly 1 compeleted activity.");
         return Stopped[0];
+    }
+
+    public void AssertNoActivity()
+    {
+        Assert.AreEqual(0, Started.Count, "There are incomplete activities.");
+        Assert.AreEqual(0, Stopped.Count, "There are complete activities.");
     }
 
     public void Dispose()

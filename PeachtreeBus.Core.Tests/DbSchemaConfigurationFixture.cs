@@ -1,4 +1,4 @@
-﻿namespace PeachtreeBus.Tests
+﻿namespace PeachtreeBus.Core.Tests
 {
     //[TestClass]
     //public class DbSchemaConfigurationFixture

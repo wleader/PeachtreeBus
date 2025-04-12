@@ -2,7 +2,7 @@
 using PeachtreeBus.Data;
 using System.Text.Json;
 
-namespace PeachtreeBus.Tests;
+namespace PeachtreeBus.Core.Tests;
 
 [TestClass]
 public class BusTypesJsonSerializationFixture

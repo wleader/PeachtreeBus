@@ -1,11 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Queues
+namespace PeachtreeBus.Core.Tests.Queues
 {
     /// <summary>
     /// Proves the behavior of QueueWriter

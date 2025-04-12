@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using PeachtreeBus.Cleaners;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
@@ -96,16 +95,52 @@ public static partial class SimpleInjectorExtensions
 
         // The task manager manages all repeating tasks.
         container.Register(typeof(ITaskManager), typeof(TaskManager), Lifestyle.Scoped);
-        container.Register(typeof(ISubscriptionUpdateTracker), typeof(SubscriptionUpdateTracker), Lifestyle.Singleton);
+        container.Register(typeof(IStarters), typeof(Starters), Lifestyle.Scoped);
+
+        container.Register(typeof(IUpdateSubscriptionsTracker), typeof(UpdateSubscriptionsTracker), Lifestyle.Singleton);
+        container.Register(typeof(IUpdateSubscriptionsTask), typeof(UpdateSubscriptionsTask), Lifestyle.Scoped);
+        container.Register(typeof(IUpdateSubscriptionsStarter), typeof(UpdateSubscriptionsStarter), Lifestyle.Scoped);
+        container.Register(typeof(IUpdateSubscriptionsRunner), typeof(UpdateSubscriptionsRunner), Lifestyle.Scoped);
+
         container.Register(typeof(ICleanSubscriptionsTracker), typeof(CleanSubscriptionsTracker), Lifestyle.Singleton);
-        container.Register(typeof(ICleanSubscribedTracker), typeof(CleanSubscribedTracker), Lifestyle.Singleton);
-        container.Register(typeof(ICleanQueuedTracker), typeof(CleanQueuedTracker), Lifestyle.Singleton);
-        container.Register(typeof(ICleanQueuedTask), typeof(CleanQueuedTask), Lifestyle.Scoped);
-        container.Register(typeof(ICleanSubscribedTask), typeof(CleanSubscribedTask), Lifestyle.Scoped);
         container.Register(typeof(ICleanSubscriptionsTask), typeof(CleanSubscriptionsTask), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscriptionsStarter), typeof(CleanSubscriptionsStarter), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscriptionsRunner), typeof(CleanSubscriptionsRunner), Lifestyle.Scoped);
+
+        container.Register(typeof(ICleanSubscribedPendingTracker), typeof(CleanSubscribedPendingTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanSubscribedPendingTask), typeof(CleanSubscribedPendingTask), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscribedPendingStarter), typeof(CleanSubscribedPendingStarter), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscribedPendingRunner), typeof(CleanSubscribedPendingRunner), Lifestyle.Scoped);
+
+        container.Register(typeof(ICleanSubscribedCompletedTracker), typeof(CleanSubscribedCompletedTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanSubscribedCompletedTask), typeof(CleanSubscribedCompletedTask), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscribedCompletedStarter), typeof(CleanSubscribedCompletedStarter), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscribedCompletedRunner), typeof(CleanSubscribedCompletedRunner), Lifestyle.Scoped);
+
+        container.Register(typeof(ICleanSubscribedFailedTracker), typeof(CleanSubscribedFailedTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanSubscribedFailedTask), typeof(CleanSubscribedFailedTask), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscribedFailedStarter), typeof(CleanSubscribedFailedStarter), Lifestyle.Scoped);
+        container.Register(typeof(ICleanSubscribedFailedRunner), typeof(CleanSubscribedFailedRunner), Lifestyle.Scoped);
+
+        container.Register(typeof(ICleanQueuedCompletedTracker), typeof(CleanQueuedCompletedTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanQueuedCompletedTask), typeof(CleanQueuedCompletedTask), Lifestyle.Scoped);
+        container.Register(typeof(ICleanQueuedCompletedStarter), typeof(CleanQueuedCompletedStarter), Lifestyle.Scoped);
+        container.Register(typeof(ICleanQueuedCompletedRunner), typeof(CleanQueuedCompletedRunner), Lifestyle.Scoped);
+
+        container.Register(typeof(ICleanQueuedFailedTracker), typeof(CleanQueuedFailedTracker), Lifestyle.Singleton);
+        container.Register(typeof(ICleanQueuedFailedTask), typeof(CleanQueuedFailedTask), Lifestyle.Scoped);
+        container.Register(typeof(ICleanQueuedFailedStarter), typeof(CleanQueuedFailedStarter), Lifestyle.Scoped);
+        container.Register(typeof(ICleanQueuedFailedRunner), typeof(CleanQueuedFailedRunner), Lifestyle.Scoped);
+
         container.Register(typeof(IProcessSubscribedTask), typeof(ProcessSubscribedTask), Lifestyle.Scoped);
+        container.Register(typeof(IProcessSubscribedStarter), typeof(ProcessSubscribedStarter), Lifestyle.Scoped);
+        container.Register(typeof(IProcessSubscribedRunner), typeof(ProcessSubscribedRunner), Lifestyle.Scoped);
+
         container.Register(typeof(IProcessQueuedTask), typeof(ProcessQueuedTask), Lifestyle.Scoped);
-        container.Register(typeof(ISubscriptionUpdateTask), typeof(SubscriptionUpdateTask), Lifestyle.Scoped);
+        container.Register(typeof(IProcessQueuedStarter), typeof(ProcessQueuedStarter), Lifestyle.Scoped);
+        container.Register(typeof(IProcessQueuedRunner), typeof(ProcessQueuedRunner), Lifestyle.Scoped);
+
+        container.Register(typeof(IAlwaysRunTracker), typeof(AlwaysRunTracker), Lifestyle.Singleton);
 
         // anybody should be able to send messages to a queue,
         // or publish subscribed messages without being a 
@@ -164,12 +199,10 @@ public static partial class SimpleInjectorExtensions
 
     private static Container RegisterQueueComponents(this Container container)
     {
-        if (Configuration.QueueConfiguration is null) return container;
-
-        if (Configuration.QueueConfiguration.UseDefaultFailedHandler)
+        if (Configuration.QueueConfiguration?.UseDefaultFailedHandler ?? true)
             container.Register(typeof(IHandleFailedQueueMessages), typeof(DefaultFailedQueueMessageHandler), Lifestyle.Scoped);
 
-        if (Configuration.QueueConfiguration.UseDefaultRetryStrategy)
+        if (Configuration.QueueConfiguration?.UseDefaultRetryStrategy ?? true)
             container.Register(typeof(IQueueRetryStrategy), typeof(DefaultQueueRetryStrategy), Lifestyle.Singleton);
 
         // detects missing registrations.
@@ -186,29 +219,21 @@ public static partial class SimpleInjectorExtensions
         container.RegisterSingleton(typeof(ISagaMessageMapManager), typeof(SagaMessageMapManager));
         container.Register(typeof(IFindQueueHandlers), typeof(FindQueueHandlers), Lifestyle.Scoped);
         container.Register(typeof(IFindQueuePipelineSteps), typeof(FindQueuedPipelineSteps), Lifestyle.Scoped);
-        container.Register(typeof(IQueueThread), typeof(QueueThread), Lifestyle.Scoped);
-        container.Register(typeof(IQueueWork), typeof(QueueWork), Lifestyle.Scoped);
         container.Register(typeof(IQueueReader), typeof(QueueReader), Lifestyle.Scoped);
         container.Register(typeof(IQueuePipelineInvoker), typeof(QueuePipelineInvoker), Lifestyle.Scoped);
         container.Register(typeof(IQueuePipelineFactory), typeof(QueuePipelineFactory), Lifestyle.Scoped);
         container.Register(typeof(IQueuePipeline), typeof(QueuePipeline), Lifestyle.Scoped);
         container.Register(typeof(IQueuePipelineFinalStep), typeof(QueuePipelineFinalStep), Lifestyle.Scoped);
 
-        container.Register<IQueueCleanupThread, QueueCleanupThread>(Lifestyle.Scoped);
-        container.Register<IQueueCleanupWork, QueueCleanupWork>(Lifestyle.Scoped);
-        container.Register<IQueueCleaner, QueueCleaner>(Lifestyle.Scoped);
-
         return container;
     }
 
     private static Container RegisterSubscribedComponents(this Container container)
     {
-        if (Configuration.SubscriptionConfiguration is null) return container;
-
-        if (Configuration.SubscriptionConfiguration.UseDefaultFailedHandler)
+        if (Configuration.SubscriptionConfiguration?.UseDefaultFailedHandler ?? true)
             container.Register(typeof(IHandleFailedSubscribedMessages), typeof(DefaultFailedSubscribedMessageHandler), Lifestyle.Scoped);
 
-        if (Configuration.SubscriptionConfiguration.UseDefaultRetryStrategy)
+        if (Configuration.SubscriptionConfiguration?.UseDefaultRetryStrategy ?? true)
             container.Register(typeof(ISubscribedRetryStrategy), typeof(DefaultSubscribedRetryStrategy), Lifestyle.Singleton);
 
         // detects missing registrations.
@@ -221,23 +246,13 @@ public static partial class SimpleInjectorExtensions
         container.FindAndRegisterScopedTypes<ISubscribedPipelineStep>();
 
         // register stuff needed to process subscribed messages.
-        container.Register(typeof(ISubscribedThread), typeof(SubscribedThread), Lifestyle.Scoped);
-        container.Register(typeof(ISubscribedWork), typeof(SubscribedWork), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedReader), typeof(SubscribedReader), Lifestyle.Scoped);
         container.Register(typeof(IFindSubscribedHandlers), typeof(FindSubscribedHandlers), Lifestyle.Scoped);
         container.Register(typeof(IFindSubscribedPipelineSteps), typeof(FindSubscribedPipelineSteps), Lifestyle.Scoped);
-        container.Register(typeof(ISubscriptionUpdateThread), typeof(SubscriptionUpdateThread), Lifestyle.Scoped);
-        container.Register(typeof(ISubscriptionUpdateWork), typeof(SubscriptionUpdateWork), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedPipelineInvoker), typeof(SubscribedPipelineInvoker), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedPipelineFactory), typeof(SubscribedPipelineFactory), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedPipeline), typeof(SubscribedPipeline), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedPipelineFinalStep), typeof(SubscribedPipelineFinalStep), Lifestyle.Scoped);
-
-        container.Register<ISubscriptionCleanupThread, SubscriptionCleanupThread>(Lifestyle.Scoped);
-        container.Register<ISubscriptionCleanupWork, SubscriptionCleanupWork>(Lifestyle.Scoped);
-        container.Register<ISubscribedCleanupThread, SubscribedCleanupThread>(Lifestyle.Scoped);
-        container.Register<ISubscribedCleanupWork, SubscribedCleanupWork>(Lifestyle.Scoped);
-        container.Register<ISubscribedCleaner, SubscribedCleaner>(Lifestyle.Scoped);
 
         return container;
     }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Tests.Fakes;
 
 namespace PeachtreeBus.DataAccessTests
 {
@@ -25,7 +25,7 @@ namespace PeachtreeBus.DataAccessTests
                 _sharedDb.Object,
                 _configuration.Object,
                 _logger.Object,
-                FakeClock.Instance,
+                new FakeClock(),
                 TestDapperTypesHandler.Instance);
         }
 

@@ -1,11 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Subscriptions
+namespace PeachtreeBus.Core.Tests.Subscriptions
 {
     [TestClass]
     public class SubscribedPipelineFinalStepFixture

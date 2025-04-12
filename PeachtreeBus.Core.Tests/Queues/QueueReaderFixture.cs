@@ -1,19 +1,19 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Fakes;
+using PeachtreeBus.Core.Tests.Sagas;
 using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests.Fakes;
-using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
 using RetryResult = PeachtreeBus.Errors.RetryResult;
 
-namespace PeachtreeBus.Tests.Queues;
+namespace PeachtreeBus.Core.Tests.Queues;
 
 [TestClass]
 public class QueueReaderFixture
@@ -25,6 +25,7 @@ public class QueueReaderFixture
     private readonly Mock<ISerializer> serializer = new();
     private readonly Mock<IQueueFailures> failures = new();
     private readonly Mock<IQueueRetryStrategy> retryStrategy = new();
+    private readonly FakeClock clock = new();
 
     private QueueContext Context = default!;
 
@@ -36,6 +37,8 @@ public class QueueReaderFixture
     [TestInitialize]
     public void TestInitialize()
     {
+        clock.Reset();
+
         // default mock return values.
         DeserializeMessageResult = new();
         DetermineRetryResult = new(true, TimeSpan.Zero);
@@ -47,7 +50,7 @@ public class QueueReaderFixture
         Context = TestData.CreateQueueContext(
             messageData: TestData.CreateQueueData(
                 id: new(12345),
-                notBefore: FakeClock.Instance.UtcNow));
+                notBefore: clock.UtcNow));
 
         dataAccess.Reset();
         log.Reset();
@@ -73,7 +76,7 @@ public class QueueReaderFixture
             log.Object,
             meters.Object,
             serializer.Object,
-            FakeClock.Instance,
+            clock,
             failures.Object,
             retryStrategy.Object);
     }
@@ -131,8 +134,8 @@ public class QueueReaderFixture
                 Assert.AreSame(Context.SagaData, d);
                 Assert.AreEqual(TestData.DefaultSagaData, d.Data);
                 Assert.AreEqual(TestData.DefaultSagaKey, d.Key);
-                Assert.AreEqual(FakeClock.Instance.UtcNow, d.MetaData.Started.Value);
-                Assert.AreEqual(FakeClock.Instance.UtcNow, d.MetaData.LastMessageTime.Value);
+                Assert.AreEqual(clock.UtcNow, d.MetaData.Started.Value);
+                Assert.AreEqual(clock.UtcNow, d.MetaData.LastMessageTime.Value);
             })
             .Returns(Task.FromResult<Identity>(new(1)));
 
@@ -156,7 +159,7 @@ public class QueueReaderFixture
             Id = sagaDataId,
             SagaId = UniqueIdentity.New(),
             MetaData = TestData.CreateSagaMetaData(
-                lastMessageTime: FakeClock.Instance.UtcNow.AddDays(-1)),
+                lastMessageTime: clock.UtcNow.AddDays(-1)),
             Blocked = false,
         };
 
@@ -165,7 +168,7 @@ public class QueueReaderFixture
         dataAccess.Setup(d => d.UpdateSagaData(Context.SagaData, testSaga.SagaName))
             .Callback((SagaData data, SagaName name) =>
             {
-                Assert.AreEqual(FakeClock.Instance.UtcNow, data.MetaData.LastMessageTime.Value);
+                Assert.AreEqual(clock.UtcNow, data.MetaData.LastMessageTime.Value);
                 Assert.AreEqual(TestData.DefaultSagaData, data.Data);
                 Assert.AreEqual(TestData.DefaultSagaKey, data.Key);
                 Assert.AreEqual(sagaDataId, data.Id);
@@ -249,7 +252,7 @@ public class QueueReaderFixture
         var delay = TimeSpan.FromSeconds(5);
         DetermineRetryResult = new(true, delay);
         Context.Data.Retries = 0;
-        UtcDateTime expectedNotBefore = FakeClock.Instance.UtcNow.Add(delay);
+        UtcDateTime expectedNotBefore = clock.UtcNow.Add(delay);
 
         var exception = new ApplicationException();
 
@@ -298,7 +301,7 @@ public class QueueReaderFixture
         dataAccess.Setup(d => d.CompleteMessage(Context.Data, Context.SourceQueue))
             .Callback((QueueData m, QueueName n) =>
             {
-                Assert.AreEqual(FakeClock.Instance.UtcNow, m.Completed);
+                Assert.AreEqual(clock.UtcNow, m.Completed);
             })
             .Returns(Task.CompletedTask);
 

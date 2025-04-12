@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Tests;
+using PeachtreeBus.Core.Tests;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests

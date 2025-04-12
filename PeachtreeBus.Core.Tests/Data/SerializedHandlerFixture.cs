@@ -1,15 +1,15 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
-using PeachtreeBus.Tests.Fakes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Data;
+namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
 public class SerializedHandlerFixture

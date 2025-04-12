@@ -1,7 +1,7 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.Serialization;
 
-namespace PeachtreeBus.Tests.Fakes;
+namespace PeachtreeBus.Core.Tests.Fakes;
 
 public static class TestDapperTypesHandler
 {

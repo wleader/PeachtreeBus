@@ -3,7 +3,7 @@ using PeachtreeBus.Queues;
 using PeachtreeBus.Serialization;
 using System;
 
-namespace PeachtreeBus.Tests.Serialization;
+namespace PeachtreeBus.Core.Tests.Serialization;
 
 [TestClass]
 public class DefaultSerializerFixture

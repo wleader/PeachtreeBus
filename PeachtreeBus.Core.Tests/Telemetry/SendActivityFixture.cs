@@ -1,11 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
 using System.Diagnostics;
 using System.Linq;
 
-namespace PeachtreeBus.Tests.Telemetry;
+namespace PeachtreeBus.Core.Tests.Telemetry;
 
 [TestClass]
 public class SendActivityFixture()

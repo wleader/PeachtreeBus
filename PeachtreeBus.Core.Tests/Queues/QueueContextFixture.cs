@@ -3,7 +3,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using System;
 
-namespace PeachtreeBus.Tests.Queues;
+namespace PeachtreeBus.Core.Tests.Queues;
 
 [TestClass]
 public class QueueContextFixture

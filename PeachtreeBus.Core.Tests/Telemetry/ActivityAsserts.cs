@@ -7,7 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 
-namespace PeachtreeBus.Tests.Telemetry;
+namespace PeachtreeBus.Core.Tests.Telemetry;
 
 public static class ActivityAsserts
 {

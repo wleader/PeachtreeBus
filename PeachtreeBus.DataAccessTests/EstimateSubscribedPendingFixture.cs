@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Subscriptions;
-using PeachtreeBus.Tests;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests;

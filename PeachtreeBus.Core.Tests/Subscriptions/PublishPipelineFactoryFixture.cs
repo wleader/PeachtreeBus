@@ -1,8 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Core.Tests.Pipeline;
 using PeachtreeBus.Subscriptions;
-using PeachtreeBus.Tests.Pipeline;
 
-namespace PeachtreeBus.Tests.Subscriptions
+namespace PeachtreeBus.Core.Tests.Subscriptions
 {
     [TestClass]
     public class PublishPipelineFactoryFixture

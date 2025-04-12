@@ -1,15 +1,15 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests.Telemetry;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Queues;
+namespace PeachtreeBus.Core.Tests.Queues;
 
 /// <summary>
 /// Proves the behavior of QueueWriter

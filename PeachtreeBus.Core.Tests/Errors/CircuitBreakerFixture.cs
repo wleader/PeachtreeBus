@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Errors;
+namespace PeachtreeBus.Core.Tests.Errors;
 
 [TestClass]
 public class CircuitBreakerFixture

@@ -2,7 +2,7 @@
 using PeachtreeBus.Sagas;
 using System.Diagnostics.CodeAnalysis;
 
-namespace PeachtreeBus.Tests.Sagas
+namespace PeachtreeBus.Core.Tests.Sagas
 {
     /// <summary>
     /// Proves the behavior of SagaMessageMap

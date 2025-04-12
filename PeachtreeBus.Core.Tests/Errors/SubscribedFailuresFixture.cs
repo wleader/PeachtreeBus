@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Errors
+namespace PeachtreeBus.Core.Tests.Errors
 {
     [TestClass]
     public class SubscribedFailuresFixture

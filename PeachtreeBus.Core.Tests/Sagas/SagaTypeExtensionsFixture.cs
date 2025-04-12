@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Sagas
+namespace PeachtreeBus.Core.Tests.Sagas
 {
     /// <summary>
     /// Proves the behavior of SagaTypeExtensions.

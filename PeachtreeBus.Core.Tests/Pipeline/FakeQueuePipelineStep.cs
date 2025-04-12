@@ -3,7 +3,7 @@ using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Pipeline
+namespace PeachtreeBus.Core.Tests.Pipeline
 {
     public class FakeQueuePipelineStep(
         int priority = 0,

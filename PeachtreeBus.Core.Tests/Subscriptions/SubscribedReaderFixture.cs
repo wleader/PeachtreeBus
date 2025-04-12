@@ -1,17 +1,17 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Sagas;
 using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests.Sagas;
 using System;
 using System.Threading.Tasks;
 using RetryResult = PeachtreeBus.Errors.RetryResult;
 
-namespace PeachtreeBus.Tests.Subscriptions
+namespace PeachtreeBus.Core.Tests.Subscriptions
 {
     /// <summary>
     /// Proves the behavior of SubscribedReader
@@ -63,7 +63,7 @@ namespace PeachtreeBus.Tests.Subscriptions
 
             NextMessageHeaders = new()
             {
-                MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Core.Tests"
+                MessageClass = "PeachtreeBus.Core.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Core.Tests"
             };
 
             NextMessage = TestData.CreateSubscribedData(id: new(12345), priority: 24,

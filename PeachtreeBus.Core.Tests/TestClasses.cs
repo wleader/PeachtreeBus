@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests;
+namespace PeachtreeBus.Core.Tests;
 
 [ExcludeFromCodeCoverage(Justification = "Test Class")]
 public class TestFinalStep : PipelineFinalStep<IQueueContext>

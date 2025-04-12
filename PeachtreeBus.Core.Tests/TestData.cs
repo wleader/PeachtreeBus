@@ -7,7 +7,7 @@ using PeachtreeBus.Subscriptions;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace PeachtreeBus.Tests;
+namespace PeachtreeBus.Core.Tests;
 
 public static class TestData
 {
@@ -149,21 +149,31 @@ public static class TestData
         };
     }
 
+    public static QueueConfiguration CreateQueueConfiguration()
+    {
+        return new()
+        {
+            QueueName = DefaultQueueName
+        };
+    }
+
+    public static SubscriptionConfiguration CreateSubscriptionConfiguration()
+    {
+        return new()
+        {
+            SubscriberId = DefaultSubscriberId,
+            Topics = [DefaultTopic, DefaultTopic2]
+        };
+    }
+
     public static BusConfiguration CreateBusConfiguration()
     {
         return new()
         {
             ConnectionString = "Server=(local);Database=db",
             Schema = new("PeachtreeBus"),
-            QueueConfiguration = new()
-            {
-                QueueName = DefaultQueueName,
-            },
-            SubscriptionConfiguration = new()
-            {
-                SubscriberId = DefaultSubscriberId,
-                Topics = [DefaultTopic, DefaultTopic2]
-            }
+            QueueConfiguration = CreateQueueConfiguration(),
+            SubscriptionConfiguration = CreateSubscriptionConfiguration(),
         };
     }
 

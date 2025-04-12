@@ -7,7 +7,7 @@ using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Reflection;
 
-namespace PeachtreeBus.Tests.Telemetry;
+namespace PeachtreeBus.Core.Tests.Telemetry;
 
 [TestClass]
 public class MetersFixture

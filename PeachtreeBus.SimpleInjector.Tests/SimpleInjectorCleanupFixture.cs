@@ -1,7 +1,4 @@
-﻿using Moq;
-using PeachtreeBus.Cleaners;
-using PeachtreeBus.Subscriptions;
-using System.Threading.Tasks;
+﻿using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 
@@ -75,9 +72,6 @@ public class SimpleInjectorCleanupFixture : SimpleInjectorExtensionFixtureBase
         };
 
         _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
-
-        var cleaner = new Mock<ISubscriptionCleanupWork>();
-        cleaner.Setup(c => c.DoWork()).Returns(Task.FromResult(false));
 
         _container.Verify();
         _container.RunPeachtreeBus();

@@ -1,10 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
 
-namespace PeachtreeBus.Tests.Errors;
+namespace PeachtreeBus.Core.Tests.Errors;
 
 public abstract class DefaultRetryStrategyFixture<TContext, TStrategy>
     where TContext : IIncomingContext

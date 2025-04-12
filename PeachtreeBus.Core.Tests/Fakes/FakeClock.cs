@@ -1,12 +1,15 @@
 ﻿using System;
 
-namespace PeachtreeBus.Tests.Fakes;
+namespace PeachtreeBus.Core.Tests.Fakes;
 
 public class FakeClock : ISystemClock
 {
-    public static readonly FakeClock Instance = new();
-
     public DateTime UtcNow => GetNow();
 
     public Func<DateTime> GetNow = () => TestData.Now;
+
+    public void Reset()
+    {
+        GetNow = () => TestData.Now;
+    }
 }

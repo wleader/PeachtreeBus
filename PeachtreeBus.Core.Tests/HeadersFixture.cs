@@ -1,13 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Tests.Sagas;
+using PeachtreeBus.Core.Tests.Sagas;
 
-namespace PeachtreeBus.Tests;
+namespace PeachtreeBus.Core.Tests;
 
 [TestClass]
 public class HeadersFixture
 {
     private const string TestSagaMessage1ClassString
-        = "PeachtreeBus.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Core.Tests";
+        = "PeachtreeBus.Core.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Core.Tests";
 
     [TestMethod]
     public void Given_Type_When_New_Then_MessageClassInitialized()

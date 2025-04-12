@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Queues;
 
-namespace PeachtreeBus.Tests.Errors;
+namespace PeachtreeBus.Core.Tests.Errors;
 
 [TestClass]
 public class DefaultFailedQueueMessageHandlerFixture

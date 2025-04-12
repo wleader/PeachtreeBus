@@ -1,12 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Abstractions.Tests.TestClasses;
+using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Subscriptions;
+namespace PeachtreeBus.Core.Tests.Subscriptions;
 
 /// <summary>
 /// Proves the behavior of SubscriptionPublisher

@@ -1,15 +1,15 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
-using PeachtreeBus.Tests.Telemetry;
 using System;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Tests.Subscriptions;
+namespace PeachtreeBus.Core.Tests.Subscriptions;
 
 [TestClass]
 public class PublishPipelineFinalStepFixture

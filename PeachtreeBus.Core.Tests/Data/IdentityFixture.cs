@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 
-namespace PeachtreeBus.Tests.Data;
+namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
 public class IdentityFixture

@@ -2,7 +2,7 @@
 using PeachtreeBus.Telemetry;
 using System.Diagnostics;
 
-namespace PeachtreeBus.Tests.Telemetry;
+namespace PeachtreeBus.Core.Tests.Telemetry;
 
 [TestClass]
 public class ActivitySourcesFixture

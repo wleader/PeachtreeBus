@@ -3,7 +3,7 @@ using Moq;
 using PeachtreeBus.Pipelines;
 using System.Collections.Generic;
 
-namespace PeachtreeBus.Tests.Pipeline;
+namespace PeachtreeBus.Core.Tests.Pipeline;
 
 [TestClass]
 public abstract class PipelineFactoryFixture
