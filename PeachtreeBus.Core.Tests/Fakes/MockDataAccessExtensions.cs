@@ -3,11 +3,6 @@ using PeachtreeBus.Data;
 
 namespace PeachtreeBus.Core.Tests.Fakes;
 
-public class DataAccessState
-{
-    public bool Connected { get; set; }
-}
-
 public static class MockDataAccessExtensions
 {
     public static Mock<IBusDataAccess> DisallowTransactions(this Mock<IBusDataAccess> dataAccess)

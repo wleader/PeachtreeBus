@@ -51,7 +51,7 @@ public abstract class IntervalRunTrackerFixtureBase<TTracker>
     {
         Given_Configuration();
         _tracker.WorkDone();
-        _clock.GetNow = () => _tracker.NextDue.AddMilliseconds(1);
+        _clock.Returns(_tracker.NextDue.AddMilliseconds(1));
         Assert.IsTrue(_tracker.ShouldStart);
     }
 
@@ -76,7 +76,7 @@ public abstract class IntervalRunTrackerFixtureBase<TTracker>
     {
         Given_NoConfiguration();
         _tracker.WorkDone();
-        _clock.GetNow = () => DateTime.MaxValue;
+        _clock.Returns(DateTime.MaxValue);
         Assert.IsFalse(_tracker.ShouldStart);
     }
 }

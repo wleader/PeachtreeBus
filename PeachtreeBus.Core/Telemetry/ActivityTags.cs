@@ -14,9 +14,6 @@ public static class ActivityTags
     public static Activity? AddPipelineType(this Activity? activity, Type type) =>
         activity?.AddTag("peachtreebus.pipeline.type", type.GetTypeFullName());
 
-    public static Activity? AddException(this Activity? activity, Exception ex) =>
-        activity?.AddTag("error.type", ex.GetTypeFullName());
-
     public static Activity? AddOutgoingContext(this Activity? activity, IOutgoingContext context) =>
         activity?.AddPriority(context.MessagePriority)
             ?.AddNotBefore(context.NotBefore)
@@ -54,9 +51,8 @@ public static class ActivityTags
             ?.AddIncomingContext(context)
             ?.AddDestination(context.Topic);
 
-    public static Activity? AddIncomingContext(this Activity? activity, IIncomingContext? context)
+    public static Activity? AddIncomingContext(this Activity? activity, IIncomingContext context)
     {
-        if (context is null) return activity;
         return activity
             ?.AddMessageId(context.MessageId)
             ?.AddPriority(context.MessagePriority)
@@ -69,9 +65,6 @@ public static class ActivityTags
 
     public static Activity? AddMessagingSystem(this Activity? activity) =>
         activity?.AddTag("messaging.system", "peachtreebus");
-
-    public static Activity? AddTag(this Activity? activity, string key, string value) =>
-        activity?.AddTag(key, value);
 
     public static Activity? AddMessagingOperation(this Activity? activity, string value) =>
         activity?.AddTag("messaging.operation.type", value);

@@ -139,6 +139,7 @@ public class QueuePipelineFinalStepFixture
         _queueReader.Verify(r => r.SaveSaga(It.IsAny<object>(), It.IsAny<QueueContext>()), Times.Exactly(2));
     }
 
+    [TestMethod]
     public async Task Given_MultipleHanlders_When_Invoke_Then_MultipleActivities()
     {
         _handlers = [new TestSaga(), new TestSaga()];
