@@ -8,6 +8,6 @@ public class SerializerException(
     string? message = null)
     : PeachtreeBusException(message ?? $"Failed to deserialize data as {type}.")
 {
-    public Type Type { get; init; } = type;
-    public string? SerializedData { get; init; } = serializedData;
+    public Type Type { get; } = type;
+    public string? SerializedData { get; } = serializedData;
 }

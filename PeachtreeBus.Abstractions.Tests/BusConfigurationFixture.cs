@@ -70,4 +70,17 @@ public class BusConfigurationFixture
         Assert.IsFalse(c.UseDefaultSerialization);
         Assert.IsFalse(c.UseStartupTasks);
     }
+
+    [TestMethod]
+    public void Given_Configuration_Then_MessageConcurrencyIsReadWrite()
+    {
+        var c = new BusConfiguration()
+        {
+            ConnectionString = null!,
+            Schema = new("Foo"),
+            MessageConcurrency = 12
+        };
+        c.MessageConcurrency = 1345;
+        Assert.AreEqual(1345, c.MessageConcurrency);
+    }
 }

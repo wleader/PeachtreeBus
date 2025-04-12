@@ -49,4 +49,13 @@ public class UtcDateTimeFixture
         Assert.AreEqual(original.AddMilliseconds(1), utcOriginal.AddMilliseconds(1).Value);
         Assert.AreEqual(original.AddDays(1), utcOriginal.AddDays(1).Value);
     }
+
+    [TestMethod]
+    public void Given_Value_When_ToString_Then_Result()
+    {
+        var original = DateTime.UtcNow;
+        var expected = original.ToString();
+        UtcDateTime utcOriginal = original;
+        Assert.AreEqual(expected, utcOriginal.ToString());
+    }
 }
