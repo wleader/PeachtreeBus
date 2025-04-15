@@ -135,4 +135,14 @@
             </Event>
         </Class>
     </Namespace>
+    <Namespace name="PeachtreeBus_Tasks">
+        <Class name="Runner">
+            <Event name="RollbackFailed" level="Error" exception="true">
+                Failed to rollback transaction.
+            </Event>
+            <Event name="TaskException" level="Error" exception="true">
+                The task threw an exception.
+            </Event>
+        </Class>
+    </Namespace>
 </LogMessages>

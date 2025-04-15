@@ -59,13 +59,14 @@ public class UpdateSubscriptionsRunner(
     IBusDataAccess dataAccess,
     ILogger<UpdateSubscriptionsRunner> log,
     IUpdateSubscriptionsTask task)
-    : Runner<IUpdateSubscriptionsTask>(dataAccess, log, task, "SubscriptionUpdate")
+    : Runner<IUpdateSubscriptionsTask>(dataAccess, log, task)
     , IUpdateSubscriptionsRunner;
 
 public interface IUpdateSubscriptionsStarter : IStarter;
 
 public class UpdateSubscriptionsStarter(
     IWrappedScopeFactory scopeFactory,
-    IUpdateSubscriptionsTracker tracker)
-    : Starter<IUpdateSubscriptionsRunner>(scopeFactory, tracker)
+    IUpdateSubscriptionsTracker tracker,
+    ITaskCounter counter)
+    : Starter<IUpdateSubscriptionsRunner>(scopeFactory, tracker, counter)
     , IUpdateSubscriptionsStarter;

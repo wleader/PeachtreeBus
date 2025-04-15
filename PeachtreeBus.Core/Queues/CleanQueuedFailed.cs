@@ -48,13 +48,14 @@ public class CleanQueuedFailedRunner(
     IBusDataAccess dataAccess,
     ILogger<CleanQueuedFailedRunner> log,
     ICleanQueuedFailedTask task)
-    : Runner<ICleanQueuedFailedTask>(dataAccess, log, task, "CleanQueuedFailed")
+    : Runner<ICleanQueuedFailedTask>(dataAccess, log, task)
     , ICleanQueuedFailedRunner;
 
 public interface ICleanQueuedFailedStarter : IStarter;
 
 public class CleanQueuedFailedStarter(
     IWrappedScopeFactory scopeFactory,
-    ICleanQueuedFailedTracker tracker)
-    : Starter<ICleanQueuedFailedRunner>(scopeFactory, tracker)
+    ICleanQueuedFailedTracker tracker,
+    ITaskCounter counter)
+    : Starter<ICleanQueuedFailedRunner>(scopeFactory, tracker, counter)
     , ICleanQueuedFailedStarter;

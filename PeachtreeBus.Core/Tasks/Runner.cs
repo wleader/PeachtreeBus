@@ -9,20 +9,17 @@ namespace PeachtreeBus.Tasks;
 public interface IRunner
 {
     Task RunRepeatedly(CancellationToken token);
-    string Name { get; }
 }
 
 public abstract class Runner<TBaseTask>(
     IBusDataAccess dataAccess,
     ILogger log,
-    TBaseTask task,
-    string name)
+    TBaseTask task)
     where TBaseTask : IBaseTask
 {
     protected readonly IBusDataAccess _dataAccess = dataAccess;
     private readonly ILogger _log = log;
     private readonly TBaseTask _task = task;
-    public string Name { get; } = name;
 
     public async Task RunRepeatedly(CancellationToken token)
     {
@@ -48,14 +45,14 @@ public abstract class Runner<TBaseTask>(
             }
             catch (Exception e)
             {
-                _log.BaseThread_ThreadError(Name, e);
+                _log.Runner_TaskException(e);
                 try
                 {
                     _dataAccess.RollbackTransaction();
                 }
                 catch (Exception rollbackEx)
                 {
-                    _log.BaseThread_RollbackFailed(Name, rollbackEx);
+                    _log.Runner_RollbackFailed(rollbackEx);
                 }
                 break;
             }

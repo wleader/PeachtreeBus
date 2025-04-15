@@ -48,7 +48,7 @@ public class CleanQueuedCompletedRunner(
     IBusDataAccess dataAccess,
     ILogger<CleanQueuedCompletedRunner> log,
     ICleanQueuedCompletedTask task)
-    : Runner<ICleanQueuedCompletedTask>(dataAccess, log, task, "CleanQueuedCompleted")
+    : Runner<ICleanQueuedCompletedTask>(dataAccess, log, task)
     , ICleanQueuedCompletedRunner;
 
 
@@ -56,6 +56,7 @@ public interface ICleanQueuedCompletedStarter : IStarter;
 
 public class CleanQueuedCompletedStarter(
     IWrappedScopeFactory scopeFactory,
-    ICleanQueuedCompletedTracker tracker)
-    : Starter<ICleanQueuedCompletedRunner>(scopeFactory, tracker)
+    ICleanQueuedCompletedTracker tracker,
+    ITaskCounter counter)
+    : Starter<ICleanQueuedCompletedRunner>(scopeFactory, tracker, counter)
     , ICleanQueuedCompletedStarter;

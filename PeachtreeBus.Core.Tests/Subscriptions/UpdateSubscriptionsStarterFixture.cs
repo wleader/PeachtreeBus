@@ -12,6 +12,6 @@ public class UpdateSubscriptionsStarterFixture : StarterFixtureBase<
 {
     public override UpdateSubscriptionsStarter CreateStarter()
     {
-        return new(_scopeFactory.Object, _tracker.Object);
+        return new(_scopeFactory.Object, _tracker.Object, _taskCounter.Object);
     }
 }

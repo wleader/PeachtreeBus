@@ -15,10 +15,4 @@ public class CleanSubscribedPendingRunnerFixture : RunnerFixtureBase<CleanSubscr
             FakeLog.Create<CleanSubscribedPendingRunner>(),
             _task.Object);
     }
-
-    [TestMethod]
-    public void Then_HasName()
-    {
-        Assert.AreEqual("CleanSubscribedPending", _testSubject.Name);
-    }
 }

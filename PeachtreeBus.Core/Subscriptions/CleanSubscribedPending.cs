@@ -45,12 +45,14 @@ public class CleanSubscribedPendingRunner(
     IBusDataAccess dataAccess,
     ILogger<CleanSubscribedPendingRunner> log,
     ICleanSubscribedPendingTask task)
-    : Runner<ICleanSubscribedPendingTask>(dataAccess, log, task, "CleanSubscribedPending")
+    : Runner<ICleanSubscribedPendingTask>(dataAccess, log, task)
     , ICleanSubscribedPendingRunner;
 
 public interface ICleanSubscribedPendingStarter : IStarter;
 
 public class CleanSubscribedPendingStarter(
     IWrappedScopeFactory scopeFactory,
-    ICleanSubscribedPendingTracker tracker) : Starter<ICleanSubscribedPendingRunner>(scopeFactory, tracker)
+    ICleanSubscribedPendingTracker tracker,
+    ITaskCounter counter)
+    : Starter<ICleanSubscribedPendingRunner>(scopeFactory, tracker, counter)
     , ICleanSubscribedPendingStarter;

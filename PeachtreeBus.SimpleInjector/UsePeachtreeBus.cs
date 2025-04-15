@@ -96,6 +96,8 @@ public static partial class SimpleInjectorExtensions
         // The task manager manages all repeating tasks.
         container.Register(typeof(ITaskManager), typeof(TaskManager), Lifestyle.Scoped);
         container.Register(typeof(IStarters), typeof(Starters), Lifestyle.Scoped);
+        container.Register(typeof(ITaskCounter), typeof(TaskCounter), Lifestyle.Singleton);
+        container.Register(typeof(ISleeper), typeof(Sleeper), Lifestyle.Transient);
 
         container.Register(typeof(IUpdateSubscriptionsTracker), typeof(UpdateSubscriptionsTracker), Lifestyle.Singleton);
         container.Register(typeof(IUpdateSubscriptionsTask), typeof(UpdateSubscriptionsTask), Lifestyle.Scoped);

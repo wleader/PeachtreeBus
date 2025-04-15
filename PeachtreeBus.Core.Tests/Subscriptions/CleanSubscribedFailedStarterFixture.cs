@@ -12,7 +12,7 @@ public class CleanSubscribedFailedStarterFixture : StarterFixtureBase<
 {
     public override CleanSubscribedFailedStarter CreateStarter()
     {
-        return new(_scopeFactory.Object, _tracker.Object);
+        return new(_scopeFactory.Object, _tracker.Object, _taskCounter.Object);
     }
 }
 

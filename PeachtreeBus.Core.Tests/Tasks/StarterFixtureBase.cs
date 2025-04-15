@@ -18,6 +18,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
     protected Mock<TTracker> _tracker = new();
     protected Mock<IWrappedScope> _scope = new();
     protected Mock<TRunner> _runner = new();
+    protected Mock<ITaskCounter> _taskCounter = new();
 
     protected List<Task> _runnerTasks = default!;
     protected List<Task> _continuedTasks = default!;
@@ -31,6 +32,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _tracker.Reset();
         _scope.Reset();
         _runner.Reset();
+        _taskCounter.Reset();
 
         _runnerTasks = [];
         _continuedTasks = [];
@@ -80,7 +82,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
 
         _tracker.SetupGet(t => t.ShouldStart).Returns(true);
 
-        Assert.AreEqual(expectedResult, await When_Run(available));
+        await When_Run(available);
 
         Then_RunnersAreStarted(expectedResult);
     }
@@ -92,16 +94,16 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
     public async Task Given_ShouldNotStart_And_Available_When_Start_Then_Result(int available)
     {
         _tracker.SetupGet(t => t.ShouldStart).Returns(false);
-        Assert.AreEqual(0, await When_Run(available));
+        await When_Run(available);
         Then_RunnersAreStarted(0);
     }
 
-    protected async Task<int> When_Run(int available)
+    protected async Task When_Run(int available)
     {
-        var result = await _starter.Start(available, ContinueWith, _cts.Token);
+        _taskCounter.Setup(x => x.Available()).Returns(available);
+        await _starter.Start(ContinueWith, _cts.Token);
         await Task.Delay(10); // give time for continuations
         Task.WaitAll([.. _runnerTasks]);
-        return result;
     }
 
     protected void Then_RunnersAreStarted(int runnerCount)
@@ -112,6 +114,8 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _scope.Verify(s => s.GetInstance<TRunner>(), Times.Exactly(runnerCount));
         _scope.Verify(s => s.Dispose(), Times.Exactly(runnerCount));
         _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Exactly(runnerCount));
+        _taskCounter.Verify(c => c.Increment(), Times.Exactly(runnerCount));
+        _taskCounter.Verify(c => c.Decrement(), Times.Exactly(runnerCount));
         Assert.AreEqual(runnerCount, _continuedTasks.Count);
     }
 }

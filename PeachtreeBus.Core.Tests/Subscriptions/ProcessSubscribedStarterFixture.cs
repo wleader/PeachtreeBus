@@ -35,7 +35,8 @@ public class ProcessSubscribedStarterFixture : StarterFixtureBase<
             _scopeFactory.Object,
             _tracker.Object,
             _dataAccess.Object,
-            _busConfiguration.Object);
+            _busConfiguration.Object,
+            _taskCounter.Object);
     }
 
     public override int SetupEstimate(int estimate)
@@ -51,7 +52,7 @@ public class ProcessSubscribedStarterFixture : StarterFixtureBase<
     {
         _busConfiguration.Given_NoSubscriptionConfiguration();
 
-        Assert.AreEqual(0, await When_Run(1));
+        await When_Run(1);
 
         Then_RunnersAreStarted(0);
     }

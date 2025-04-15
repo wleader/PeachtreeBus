@@ -34,11 +34,11 @@ public abstract class RunnerFixtureBase<TRunner, TTask>
         _dataAccess.Reset();
         _task.Reset();
 
-        _task.Setup(t => t.RunOne()).ReturnsAsync(() =>
-        {
-            if (!_tasks.TryDequeue(out var result)) return false;
-            return result().GetAwaiter().GetResult();
-        });
+        _task.Setup(t => t.RunOne()).Returns(() =>
+         _tasks.TryDequeue(out var result)
+                ? result()
+                : Task.FromResult(false)
+        );
 
         _dataConnected = false;
         _transactionStarted = false;
@@ -116,6 +116,7 @@ public abstract class RunnerFixtureBase<TRunner, TTask>
         Given_Tasks(RunForever);
         var t = When_Run();
         Assert.IsFalse(t.IsCompleted);
+        await Task.Delay(10);
         await CancelToken();
         await Then_TaskIsComplete(t);
     }
@@ -164,7 +165,6 @@ public abstract class RunnerFixtureBase<TRunner, TTask>
     [TestMethod]
     public async Task Given_ReconnectThrows_When_Run_Then_Rollback()
     {
-        Given_Tasks(() => throw new TestException());
         _dataAccess.Setup(d => d.Reconnect()).Throws(new InvalidOperationException("Unable to connect to database."));
 
         await When_Run();
@@ -179,7 +179,6 @@ public abstract class RunnerFixtureBase<TRunner, TTask>
     [TestMethod]
     public async Task Given_BeginTransactionThrows_When_Run_Then_Rollback()
     {
-        Given_Tasks(() => throw new TestException());
         _dataAccess.Setup(d => d.BeginTransaction()).Throws(new InvalidOperationException("Unable to connect to database."));
 
         await When_Run();

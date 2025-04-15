@@ -15,10 +15,4 @@ public class CleanSubscribedCompletedRunnerFixture : RunnerFixtureBase<CleanSubs
             FakeLog.Create<CleanSubscribedCompletedRunner>(),
             _task.Object);
     }
-
-    [TestMethod]
-    public void Then_HasName()
-    {
-        Assert.AreEqual("CleanSubscribedCompleted", _testSubject.Name);
-    }
 }

@@ -69,18 +69,11 @@ public class ProcessQueuedTaskFixture
                 Assert.IsTrue(_savepointCreated, "Rollback to savepoint before creating save point");
                 _rolledBack = true;
             });
-        _dataAccess.Setup(d => d.CommitTransaction())
-            .Callback(() => Assert.Fail("Task should never commit."));
-        _dataAccess.Setup(d => d.BeginTransaction())
-             .Callback(() => Assert.Fail("Task should never begin tran."));
-        _dataAccess.Setup(d => d.Reconnect())
-             .Callback(() => Assert.Fail("Task should never begin tran."));
-        _dataAccess.Setup(d => d.RollbackTransaction())
-             .Callback(() => Assert.Fail("Task should never begin tran."));
 
         _invoker.Setup(i => i.Invoke(It.IsAny<QueueContext>()))
-            .Callback(() =>
+            .Callback((QueueContext c) =>
             {
+                Assert.AreSame(_context, c);
                 Assert.IsTrue(_savepointCreated, "Pipeline Invoked without creating save point.");
                 _pipelineInvoked = true;
             });
@@ -126,7 +119,7 @@ public class ProcessQueuedTaskFixture
         _reader.Setup(r => r.GetNext(TestData.DefaultQueueName))
             .ReturnsAsync((QueueContext?)null);
         Assert.IsFalse(await _task.RunOne());
-        _dataAccess.Verify(d => d.CreateSavepoint("BeforeMessageHandler"), Times.Never);
+        _dataAccess.VerifyNoOtherCalls();
         _invoker.Verify(i => i.Invoke(_context!), Times.Never);
         _reader.Verify(r => r.Complete(_context!), Times.Never);
         _meters.Verify(m => m.FinishMessage(), Times.Never);
@@ -139,6 +132,7 @@ public class ProcessQueuedTaskFixture
         Assert.IsTrue(await _task.RunOne());
         _reader.Verify(r => r.GetNext(TestData.DefaultQueueName), Times.Once());
         _dataAccess.Verify(d => d.CreateSavepoint("BeforeMessageHandler"), Times.Once);
+        _dataAccess.VerifyNoOtherCalls();
         _invoker.Verify(i => i.Invoke(_context!), Times.Once());
         _reader.Verify(r => r.Complete(_context!), Times.Once());
         _meters.Verify(m => m.FinishMessage(), Times.Once());
@@ -162,6 +156,7 @@ public class ProcessQueuedTaskFixture
         _reader.Verify(r => r.Fail(_context!, ex), Times.Once);
         _meters.Verify(m => m.FinishMessage(), Times.Once());
         _meters.Verify(m => m.StartMessage(), Times.Once());
+        _dataAccess.VerifyNoOtherCalls();
     }
 
     [TestMethod]
@@ -212,9 +207,11 @@ public class ProcessQueuedTaskFixture
         };
 
         Assert.IsTrue(await _task.RunOne());
+        _dataAccess.Verify(d => d.CreateSavepoint("BeforeMessageHandler"), Times.Once);
         _meters.Verify(c => c.SagaBlocked(), Times.Once);
         _dataAccess.Verify(d => d.RollbackToSavepoint("BeforeMessageHandler"), Times.Once);
         _reader.Verify(r => r.DelayMessage(_context, 250), Times.Once);
+        _dataAccess.VerifyNoOtherCalls();
     }
 
     [TestMethod]

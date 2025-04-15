@@ -12,6 +12,6 @@ public class CleanQueuedCompletedStarterFixture : StarterFixtureBase<
 {
     public override CleanQueuedCompletedStarter CreateStarter()
     {
-        return new(_scopeFactory.Object, _tracker.Object);
+        return new(_scopeFactory.Object, _tracker.Object, _taskCounter.Object);
     }
 }

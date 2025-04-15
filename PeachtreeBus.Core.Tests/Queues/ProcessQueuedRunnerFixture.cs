@@ -11,10 +11,4 @@ public class ProcessQueuedRunnerFixture : RunnerFixtureBase<ProcessQueuedRunner,
     {
         return new ProcessQueuedRunner(_dataAccess.Object, _log.Object, _task.Object);
     }
-
-    [TestMethod]
-    public void Then_HasName()
-    {
-        Assert.AreEqual("ProcessQueued", _testSubject.Name);
-    }
 }

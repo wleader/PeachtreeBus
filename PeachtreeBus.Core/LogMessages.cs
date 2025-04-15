@@ -446,5 +446,29 @@ namespace PeachtreeBus
         public static void CircuitBreaker_Faulted(this ILogger logger, string friendlyName)
             => PeachtreeBus_Errors_CircuitBreaker_Faulted_Action(logger, friendlyName, null!);
 
+        internal static readonly EventId PeachtreeBus_Tasks_Runner_RollbackFailed_Event
+            = new(6001001, "PeachtreeBus_Tasks_Runner_RollbackFailed");
+        internal static readonly Action<ILogger, Exception> PeachtreeBus_Tasks_Runner_RollbackFailed_Action
+            = LoggerMessage.Define(LogLevel.Error,
+                PeachtreeBus_Tasks_Runner_RollbackFailed_Event,
+                "Failed to rollback transaction.");
+        /// <summary>
+        /// (6001001) Error: Failed to rollback transaction.
+        /// </summary>
+        public static void Runner_RollbackFailed(this ILogger logger, Exception ex)
+            => PeachtreeBus_Tasks_Runner_RollbackFailed_Action(logger, ex);
+
+        internal static readonly EventId PeachtreeBus_Tasks_Runner_TaskException_Event
+            = new(6001002, "PeachtreeBus_Tasks_Runner_TaskException");
+        internal static readonly Action<ILogger, Exception> PeachtreeBus_Tasks_Runner_TaskException_Action
+            = LoggerMessage.Define(LogLevel.Error,
+                PeachtreeBus_Tasks_Runner_TaskException_Event,
+                "The task threw an exception.");
+        /// <summary>
+        /// (6001002) Error: The task threw an exception.
+        /// </summary>
+        public static void Runner_TaskException(this ILogger logger, Exception ex)
+            => PeachtreeBus_Tasks_Runner_TaskException_Action(logger, ex);
+
 	}
 }

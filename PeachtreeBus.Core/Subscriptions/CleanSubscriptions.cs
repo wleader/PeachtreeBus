@@ -45,13 +45,14 @@ public class CleanSubscriptionsRunner(
     IBusDataAccess dataAccess,
     ILogger<CleanSubscriptionsRunner> log,
     ICleanSubscriptionsTask task)
-    : Runner<ICleanSubscriptionsTask>(dataAccess, log, task, "CleanSubscriptions")
+    : Runner<ICleanSubscriptionsTask>(dataAccess, log, task)
     , ICleanSubscriptionsRunner;
 
 public interface ICleanSubscriptionsStarter : IStarter;
 
 public class CleanSubscriptionsStarter(
     IWrappedScopeFactory scopeFactory,
-    ICleanSubscriptionsTracker tracker)
-    : Starter<ICleanSubscriptionsRunner>(scopeFactory, tracker)
+    ICleanSubscriptionsTracker tracker,
+    ITaskCounter counter)
+    : Starter<ICleanSubscriptionsRunner>(scopeFactory, tracker, counter)
     , ICleanSubscriptionsStarter;

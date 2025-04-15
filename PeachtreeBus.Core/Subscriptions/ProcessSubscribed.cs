@@ -92,7 +92,7 @@ public class ProcessSubscribedRunner(
     IBusDataAccess dataAccess,
     ILogger<ProcessSubscribedRunner> log,
     IProcessSubscribedTask task)
-    : Runner<IProcessSubscribedTask>(dataAccess, log, task, "ProcessSubscribed")
+    : Runner<IProcessSubscribedTask>(dataAccess, log, task)
     , IProcessSubscribedRunner;
 
 public interface IProcessSubscribedStarter : IStarter;
@@ -101,8 +101,9 @@ public class ProcessSubscribedStarter(
     IWrappedScopeFactory scopeFactory,
     IAlwaysRunTracker tracker,
     IBusDataAccess dataAccess,
-    IBusConfiguration busConfiguration)
-    : Starter<IProcessSubscribedRunner>(scopeFactory, tracker)
+    IBusConfiguration busConfiguration,
+    ITaskCounter counter)
+    : Starter<IProcessSubscribedRunner>(scopeFactory, tracker, counter)
     , IProcessSubscribedStarter
 {
     private readonly IBusConfiguration _busConfiguration = busConfiguration;

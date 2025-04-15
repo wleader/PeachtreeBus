@@ -11,10 +11,4 @@ public class UpdateSubscriptionsRunnerFixture() : RunnerFixtureBase<UpdateSubscr
     {
         return new(_dataAccess.Object, _log.Object, _task.Object);
     }
-
-    [TestMethod]
-    public void Then_HasName()
-    {
-        Assert.AreEqual("SubscriptionUpdate", _testSubject.Name);
-    }
 }

@@ -6,24 +6,25 @@ namespace PeachtreeBus.Tasks;
 
 public interface IStarter
 {
-    Task<int> Start(int available, Action<Task> continueWith, CancellationToken cancellationToken);
+    Task Start(Action<Task> continueWith, CancellationToken cancellationToken);
 }
 
 public abstract class Starter<TRunner>(
     IWrappedScopeFactory scopeFactory,
-    ITracker tracker)
+    ITracker tracker,
+    ITaskCounter taskCounter)
     : IStarter
     where TRunner : class, IRunner
 {
     private readonly IWrappedScopeFactory _scopeFactory = scopeFactory;
     private readonly ITracker _tracker = tracker;
+    private readonly ITaskCounter _taskCounter = taskCounter;
 
-    public async Task<int> Start(int available, Action<Task> continueWith, CancellationToken cancellationToken)
+    public async Task Start(Action<Task> continueWith, CancellationToken cancellationToken)
     {
-        if (!_tracker.ShouldStart) return 0;
-        var estimate = Math.Min(available, await EstimateDemand());
+        if (!_tracker.ShouldStart) return;
+        var estimate = Math.Min(_taskCounter.Available(), await EstimateDemand());
         AddRunners(estimate, continueWith, cancellationToken);
-        return estimate;
     }
 
     private void AddRunners(int count, Action<Task> continueWith, CancellationToken cancellationToken)
@@ -38,14 +39,17 @@ public abstract class Starter<TRunner>(
     {
         var scope = _scopeFactory.Create();
         var runner = scope.GetInstance<TRunner>();
+        _taskCounter.Increment();
         _tracker.Start();
-        runner.RunRepeatedly(cancellationToken)
+        Task.Run(() => runner.RunRepeatedly(cancellationToken)
             .ContinueWith((_) => WhenRunnerCompletes(scope), CancellationToken.None)
-            .ContinueWith(continueWith, CancellationToken.None);
+            .ContinueWith(continueWith, CancellationToken.None),
+            CancellationToken.None);
     }
 
     private void WhenRunnerCompletes(IWrappedScope scope)
     {
+        _taskCounter.Decrement();
         _tracker.WorkDone();
         scope.Dispose();
     }

@@ -35,7 +35,6 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         private TestSagaMessage1 NextUserMessage = default!;
         private RetryResult RetryResult = default!;
         private SubscribedContext Context = default!;
-        private SerializedData SerializedHeaderData = default!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -73,16 +72,9 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
             dataAccess.Setup(d => d.GetPendingSubscribed(SubscriberId))
                 .ReturnsAsync(() => NextMessage);
 
-            serializer.Setup(s => s.Deserialize<Headers>(It.IsAny<SerializedData>()))
-                .Returns(() => NextMessageHeaders);
-
             NextUserMessage = new();
             serializer.Setup(s => s.Deserialize(It.IsAny<SerializedData>(), typeof(TestSagaMessage1)))
                 .Returns(() => NextUserMessage);
-
-            SerializedHeaderData = new("SerializedHeaderData");
-            serializer.Setup(s => s.Serialize(It.IsAny<Headers>()))
-                .Returns(() => SerializedHeaderData);
 
             retryStrategy.Setup(r => r.DetermineRetry(It.IsAny<SubscribedContext>(), It.IsAny<Exception>(), It.IsAny<FailureCount>()))
                 .Returns(() => RetryResult);

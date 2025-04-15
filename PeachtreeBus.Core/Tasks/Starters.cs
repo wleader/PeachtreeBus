@@ -1,14 +1,16 @@
 ﻿using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
-using System.Collections.Generic;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.Tasks;
 
 public interface IStarters
 {
-    public IEnumerable<IStarter> GetMaintenanceStarters();
-    public IEnumerable<IStarter> GetMessagingStarters();
+    public Task RunStarters(Action<Task> continueWith, CancellationToken token);
 }
+
 public class Starters(
     IUpdateSubscriptionsStarter updateSubscriptions,
     ICleanSubscriptionsStarter cleanSubscriptions,
@@ -21,23 +23,16 @@ public class Starters(
     IProcessQueuedStarter processQueued)
     : IStarters
 {
-    private readonly IStarter[] _maintenanceStarters =
-    [
-        updateSubscriptions,
-        cleanSubscriptions,
-        cleanSubscribedPending,
-        cleanSubscribedCompleted,
-        cleanSubscribedFailed,
-        cleanQueueCompleted,
-        cleanQueueFailed,
-    ];
-
-    private readonly IStarter[] _messageStarters =
-    [
-        processSubscribed,
-        processQueued
-    ];
-
-    public IEnumerable<IStarter> GetMaintenanceStarters() => _maintenanceStarters;
-    public IEnumerable<IStarter> GetMessagingStarters() => _messageStarters;
+    public async Task RunStarters(Action<Task> continueWith, CancellationToken token)
+    {
+        await updateSubscriptions.Start(continueWith, token);
+        await cleanSubscriptions.Start(continueWith, token);
+        await cleanSubscribedPending.Start(continueWith, token);
+        await cleanSubscribedCompleted.Start(continueWith, token);
+        await cleanSubscribedFailed.Start(continueWith, token);
+        await cleanQueueCompleted.Start(continueWith, token);
+        await cleanQueueFailed.Start(continueWith, token);
+        await processSubscribed.Start(continueWith, token);
+        await processQueued.Start(continueWith, token);
+    }
 }

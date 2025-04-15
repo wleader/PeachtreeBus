@@ -15,10 +15,4 @@ public class CleanSubscribedFailedRunnerFixture : RunnerFixtureBase<CleanSubscri
             FakeLog.Create<CleanSubscribedFailedRunner>(),
             _task.Object);
     }
-
-    [TestMethod]
-    public void Then_HasName()
-    {
-        Assert.AreEqual("CleanSubscribedFailed", _testSubject.Name);
-    }
 }

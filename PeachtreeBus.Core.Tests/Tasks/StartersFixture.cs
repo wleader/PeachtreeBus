@@ -3,7 +3,9 @@ using Moq;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tasks;
-using System.Linq;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Tasks;
 
@@ -11,6 +13,7 @@ namespace PeachtreeBus.Core.Tests.Tasks;
 public class StartersFixture
 {
     private Starters _starters = default!;
+    private CancellationTokenSource _cts = default!;
     private readonly Mock<IUpdateSubscriptionsStarter> _updateSubscriptions = new();
     private readonly Mock<ICleanSubscriptionsStarter> _cleanSubscriptions = new();
     private readonly Mock<ICleanSubscribedPendingStarter> _cleanSubscribedPending = new();
@@ -21,9 +24,31 @@ public class StartersFixture
     private readonly Mock<IProcessSubscribedStarter> _processSubscribed = new();
     private readonly Mock<IProcessQueuedStarter> _processQueued = new();
 
+    private bool _subscriptionsUpdated = false;
+
     [TestInitialize]
     public void Initialize()
     {
+        _cts = new();
+
+        _updateSubscriptions.Setup(s => s.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
+            .Callback((Action<Task> continuteWith, CancellationToken token) =>
+            {
+                Assert.IsFalse(_subscriptionsUpdated);
+                Assert.AreEqual(_cts.Token, token);
+                Assert.AreEqual(ContinueWith, continuteWith);
+                _subscriptionsUpdated = true;
+            });
+
+        SetupBeforeAfter(_updateSubscriptions, _cleanSubscriptions);
+        SetupBeforeAfter(_cleanSubscriptions, _cleanSubscribedPending);
+        SetupBeforeAfter(_cleanSubscribedPending, _cleanSubscribedCompleted);
+        SetupBeforeAfter(_cleanSubscribedCompleted, _cleanSubscribedFailed);
+        SetupBeforeAfter(_cleanSubscribedFailed, _cleanQueuedCompleted);
+        SetupBeforeAfter(_cleanQueuedCompleted, _cleanQueuedFailed);
+        SetupBeforeAfter(_cleanQueuedFailed, _processSubscribed);
+        SetupBeforeAfter(_processSubscribed, _processQueued);
+
         _starters = new(
             _updateSubscriptions.Object,
             _cleanSubscriptions.Object,
@@ -36,32 +61,30 @@ public class StartersFixture
             _processQueued.Object);
     }
 
-    [TestMethod]
-    public void Given_Starters_Then_MaintenanceStartersAreCorrect()
+    private void SetupBeforeAfter<TBefore, TAfter>(Mock<TAfter> before, Mock<TBefore> after)
+        where TBefore : class, IStarter
+        where TAfter : class, IStarter
     {
-        var actual = _starters.GetMaintenanceStarters().ToArray();
-        // this order is deliberate. 
-        // always do update subscriptions first so that even if the other things fall behind,
-        // the instance will continue to recieve subscribed messages.
-        Assert.AreEqual(7, actual.Length);
-        Assert.AreSame(_updateSubscriptions.Object, actual[0]);
-        Assert.AreSame(_cleanSubscriptions.Object, actual[1]);
-        Assert.AreSame(_cleanSubscribedPending.Object, actual[2]);
-        Assert.AreSame(_cleanSubscribedCompleted.Object, actual[3]);
-        Assert.AreSame(_cleanSubscribedFailed.Object, actual[4]);
-        Assert.AreSame(_cleanQueuedCompleted.Object, actual[5]);
-        Assert.AreSame(_cleanQueuedFailed.Object, actual[6]);
+        after.Setup(s => s.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
+            .Callback((Action<Task> continuteWith, CancellationToken token) =>
+            {
+                Assert.IsTrue(_subscriptionsUpdated);
+                Assert.AreEqual(_cts.Token, token);
+                Assert.AreEqual(ContinueWith, continuteWith);
+
+                continuteWith(Task.CompletedTask); // This just causes the contine to be covered.
+
+                Assert.AreEqual(1, before.Invocations.Count,
+                    $"{after.GetType()} should come after {before.GetType()}");
+            });
     }
 
+    private void ContinueWith(Task task) { }
+
     [TestMethod]
-    public void Given_Starters_Then_MesagingStartersAreCorrect()
+    public async Task Given_Starters_WhenRun_Then_InvokeOrderIsCorrect()
     {
-        var actual = _starters.GetMessagingStarters().ToArray();
-        // this order is deliberate. 
-        // no one else can process our subscribed messages, so do those first
-        // another copy could pick up the queued messages.
-        Assert.AreEqual(2, actual.Length);
-        Assert.AreSame(_processSubscribed.Object, actual[0]);
-        Assert.AreSame(_processQueued.Object, actual[1]);
+        // the setup Before Afters will ensure that they are in the correct order.
+        await _starters.RunStarters(ContinueWith, _cts.Token);
     }
 }

@@ -22,7 +22,9 @@ namespace PeachtreeBus.SimpleInjector
         {
             using var scope = AsyncScopedLifestyle.BeginScope(container);
             var manager = scope.GetInstance<ITaskManager>();
-            manager.Run().GetAwaiter().GetResult();
+            var shutdown = scope.GetInstance<IProvideShutdownSignal>();
+            // This blocks until it completes
+            manager.Run(shutdown.GetCancellationToken()).GetAwaiter().GetResult();
             return container;
         }
     }

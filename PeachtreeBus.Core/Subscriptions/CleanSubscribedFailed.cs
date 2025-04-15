@@ -48,12 +48,14 @@ public class CleanSubscribedFailedRunner(
     IBusDataAccess dataAccess,
     ILogger<CleanSubscribedFailedRunner> log,
     ICleanSubscribedFailedTask task)
-    : Runner<ICleanSubscribedFailedTask>(dataAccess, log, task, "CleanSubscribedFailed")
+    : Runner<ICleanSubscribedFailedTask>(dataAccess, log, task)
     , ICleanSubscribedFailedRunner;
 
 public interface ICleanSubscribedFailedStarter : IStarter;
 
 public class CleanSubscribedFailedStarter(
     IWrappedScopeFactory scopeFactory,
-    ICleanSubscribedFailedTracker tracker) : Starter<ICleanSubscribedFailedRunner>(scopeFactory, tracker)
+    ICleanSubscribedFailedTracker tracker,
+    ITaskCounter counter)
+    : Starter<ICleanSubscribedFailedRunner>(scopeFactory, tracker, counter)
     , ICleanSubscribedFailedStarter;

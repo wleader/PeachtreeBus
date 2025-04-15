@@ -48,12 +48,14 @@ public class CleanSubscribedCompletedRunner(
     IBusDataAccess dataAccess,
     ILogger<CleanSubscribedCompletedRunner> log,
     ICleanSubscribedCompletedTask task)
-    : Runner<ICleanSubscribedCompletedTask>(dataAccess, log, task, "CleanSubscribedCompleted")
+    : Runner<ICleanSubscribedCompletedTask>(dataAccess, log, task)
     , ICleanSubscribedCompletedRunner;
 
 public interface ICleanSubscribedCompletedStarter : IStarter;
 
 public class CleanSubscribedCompletedStarter(
     IWrappedScopeFactory scopeFactory,
-    ICleanSubscribedCompletedTracker tracker) : Starter<ICleanSubscribedCompletedRunner>(scopeFactory, tracker)
+    ICleanSubscribedCompletedTracker tracker,
+    ITaskCounter counter)
+    : Starter<ICleanSubscribedCompletedRunner>(scopeFactory, tracker, counter)
     , ICleanSubscribedCompletedStarter;

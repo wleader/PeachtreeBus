@@ -38,9 +38,13 @@ public class ProcessSubscribedTaskFixture
         _savepointCreated = false;
         _pipelineInvoked = false;
 
-        _invoker.Setup(i => i.Invoke(_context!))
-            .Callback(() =>
+        _dataAccess.Setup(d => d.CreateSavepoint("BeforeSubscriptionHandler"))
+            .Callback((string _) => _savepointCreated = true);
+
+        _invoker.Setup(i => i.Invoke(It.IsAny<SubscribedContext>()))
+            .Callback((SubscribedContext c) =>
             {
+                Assert.AreSame(_context, c);
                 Assert.IsTrue(_savepointCreated, "Savepoint was not created before invoking the pipeline.");
                 _pipelineInvoked = true;
             });

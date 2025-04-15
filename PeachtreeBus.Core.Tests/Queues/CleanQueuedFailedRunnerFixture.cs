@@ -11,10 +11,4 @@ public class CleanQueuedFailedRunnerFixture : RunnerFixtureBase<CleanQueuedFaile
     {
         return new(_dataAccess.Object, _log.Object, _task.Object);
     }
-
-    [TestMethod]
-    public void Then_HasName()
-    {
-        Assert.AreEqual("CleanQueuedFailed", _testSubject.Name);
-    }
 }

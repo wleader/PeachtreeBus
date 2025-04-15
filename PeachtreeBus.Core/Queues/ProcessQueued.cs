@@ -102,7 +102,7 @@ public class ProcessQueuedRunner(
     IBusDataAccess dataAccess,
     ILogger<ProcessQueuedRunner> log,
     IProcessQueuedTask task)
-    : Runner<IProcessQueuedTask>(dataAccess, log, task, "ProcessQueued")
+    : Runner<IProcessQueuedTask>(dataAccess, log, task)
     , IProcessQueuedRunner;
 
 
@@ -112,8 +112,9 @@ public class ProcessQueuedStarter(
     IWrappedScopeFactory scopeFactory,
     IAlwaysRunTracker tracker,
     IBusDataAccess dataAccess,
-    IBusConfiguration busConfiguration)
-    : Starter<IProcessQueuedRunner>(scopeFactory, tracker)
+    IBusConfiguration busConfiguration,
+    ITaskCounter counter)
+    : Starter<IProcessQueuedRunner>(scopeFactory, tracker, counter)
     , IProcessQueuedStarter
 {
     private readonly IBusDataAccess _dataAccess = dataAccess;

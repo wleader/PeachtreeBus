@@ -11,7 +11,7 @@ public abstract class OutgoingPipelineInvoker<TInternalContext, TContext, TPipel
     where TInternalContext : Context, TContext
     where TContext : IContext
     where TPipeline : IPipeline<TContext>
-    where TFactory : IPipelineFactory<TInternalContext, TContext, TPipeline>
+    where TFactory : class, IPipelineFactory<TInternalContext, TContext, TPipeline>
 {
     private readonly IWrappedScope _scope = scope;
 
@@ -27,7 +27,7 @@ public abstract class OutgoingPipelineInvoker<TInternalContext, TContext, TPipel
 
         // when we create the pipeline factory, it will re-use the shared DB connection,
         // and any objects it uses to build the pipeline will also re-use it.
-        var pipelineFactory = (TFactory)_scope.GetInstance(typeof(TFactory));
+        var pipelineFactory = _scope.GetInstance<TFactory>();
         var pipeline = pipelineFactory.Build(context);
 
         // invoke the pipeline.

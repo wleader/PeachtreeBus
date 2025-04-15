@@ -15,10 +15,4 @@ public class ProcessSubscribedRunnerFixture : RunnerFixtureBase<ProcessSubscribe
             FakeLog.Create<ProcessSubscribedRunner>(),
             _task.Object);
     }
-
-    [TestMethod]
-    public void Then_HasName()
-    {
-        Assert.AreEqual("ProcessSubscribed", _testSubject.Name);
-    }
 }
