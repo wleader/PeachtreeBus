@@ -2,4 +2,7 @@
     <PropertyGroup>
         <RootNamespace>PeachtreeBus</RootNamespace>
     </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\PeachtreeBus.MessageInterfaces\PeachtreeBus.MessageInterfaces.csproj" />
+    </ItemGroup>
 </Project>

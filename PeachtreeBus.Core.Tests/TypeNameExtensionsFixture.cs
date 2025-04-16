@@ -29,10 +29,10 @@ public class TypeNameExtensionsFixture
         var value = new Mock<IQueueMessage>();
 
         Assert.AreEqual(
-            "Moq.Mock`1[[PeachtreeBus.Queues.IQueueMessage, PeachtreeBus.Abstractions]]",
+            "Moq.Mock`1[[PeachtreeBus.Queues.IQueueMessage, PeachtreeBus.MessageInterfaces]]",
             value.GetTypeFullName());
         Assert.AreEqual(
-            "Moq.Mock`1[[PeachtreeBus.Queues.IQueueMessage, PeachtreeBus.Abstractions]], Moq",
+            "Moq.Mock`1[[PeachtreeBus.Queues.IQueueMessage, PeachtreeBus.MessageInterfaces]], Moq",
             value.GetMessageClass());
     }
 
