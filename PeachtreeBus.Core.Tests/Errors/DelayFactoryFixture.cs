@@ -9,7 +9,7 @@ namespace PeachtreeBus.Core.Tests.Errors;
 [TestClass]
 public class DelayFactoryFixture
 {
-    private DelayFactory _factory = new();
+    private readonly DelayFactory _factory = new();
 
     [TestMethod]
     public async Task Given_TimespanZero_When_Delay_Then_TaskIsCompleted()
