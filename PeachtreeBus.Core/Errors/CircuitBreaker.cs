@@ -5,15 +5,22 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Errors;
 
-public interface ICircuitBreaker : IDisposable
+public enum CircuitBreakerState
+{
+    Clear,
+    Armed,
+    Faulted,
+}
+
+public interface ICircuitBreaker
 {
     CircuitBreakerConfiguraton Configuration { get; }
     Task Guard(Func<CancellationToken, Task> asyncAction, CancellationToken cancellationToken);
     Task<T> Guard<T>(Func<CancellationToken, Task<T>> asyncFunction, CancellationToken cancellationToken);
     Task Guard(Func<Task> asyncAction);
     Task<T> Guard<T>(Func<Task<T>> asyncFunction);
+    public CircuitBreakerState State { get; }
 }
-
 
 /// <summary>
 /// Introduces Delays when the Guarded operations throw exceptions.
@@ -29,30 +36,19 @@ public interface ICircuitBreaker : IDisposable
 /// When in the Armed State if the breaker does not return to the Cleared state
 /// after a configured amount of time it will change to the Faulted State.
 /// </remarks>
-public class CircuitBreaker : ICircuitBreaker
+public class CircuitBreaker(
+    IDelayFactory delayFactory,
+    ILogger<CircuitBreaker> log,
+    CircuitBreakerConfiguraton configuraton) : ICircuitBreaker
 {
-    private enum State
-    {
-        Clear,
-        Armed,
-        Faulted,
-    }
+    private readonly ILogger<CircuitBreaker> _log = log;
+    private readonly IDelayFactory _delayFactory = delayFactory;
 
-    private readonly ILogger<CircuitBreaker> _log;
-    private readonly Timer _triggerTimer;
-    private long _failures = 0;
-    private volatile State _state = State.Clear;
+    public CircuitBreakerConfiguraton Configuration { get; } = configuraton;
 
-    public CircuitBreaker(
-        ILogger<CircuitBreaker> log,
-        CircuitBreakerConfiguraton configuraton)
-    {
-        _log = log;
-        Configuration = configuraton;
-        _triggerTimer = new(ArmedTimeout);
-    }
-
-    public CircuitBreakerConfiguraton Configuration { get; }
+    //private long _failures = 0;
+    private volatile CircuitBreakerState _state = CircuitBreakerState.Clear;
+    public CircuitBreakerState State => _state;
 
     public async Task Guard(Func<CancellationToken, Task> asyncAction, CancellationToken cancellationToken)
     {
@@ -89,46 +85,37 @@ public class CircuitBreaker : ICircuitBreaker
     {
         var delay = _state switch
         {
-            State.Armed => Configuration.ArmedDelay,
-            State.Faulted => Configuration.FaultedDelay,
+            CircuitBreakerState.Armed => Configuration.ArmedDelay,
+            CircuitBreakerState.Faulted => Configuration.FaultedDelay,
             _ => TimeSpan.Zero,
         };
-        return Task.Delay(delay, cancellationToken);
+        return _delayFactory.Delay(delay, cancellationToken);
     }
 
     private void Success()
     {
-        var priorValue = Interlocked.Exchange(ref _failures, 0);
-        if (priorValue == 0)
-            return;
-        // cancel any pending timer.
-        _triggerTimer.Change(Timeout.Infinite, Timeout.Infinite);
-        _state = State.Clear;
+        if (_state == CircuitBreakerState.Clear) return;
+        _state = CircuitBreakerState.Clear;
         _log.CircuitBreaker_Cleared(Configuration.FriendlyName);
     }
 
     private void Failure()
     {
-        var newcount = Interlocked.Increment(ref _failures);
-        if (newcount > 1)
-            return;
-        _state = State.Armed;
-        _triggerTimer.Change(Configuration.TimeToFaulted, Timeout.InfiniteTimeSpan);
+        if (_state != CircuitBreakerState.Clear) return;
         _log.CircuitBreaker_Armed(Configuration.FriendlyName);
-    }
+        _state = CircuitBreakerState.Armed;
 
-    private void ArmedTimeout(object? state)
-    {
-        // the breaker was armed, but there was
-        // no success to clear the timer
-        // proceed to faulted state.
-        _state = State.Faulted;
-        _log.CircuitBreaker_Faulted(Configuration.FriendlyName);
-    }
-
-    public void Dispose()
-    {
-        _triggerTimer.Dispose();
-        GC.SuppressFinalize(this);
+        // wait for time to faulted.
+        // if its still in an armed state, escalate to faulted.
+        _ = _delayFactory
+            .Delay(Configuration.TimeToFaulted, CancellationToken.None)
+            .ContinueWith((_) =>
+            {
+                if (_state == CircuitBreakerState.Armed)
+                {
+                    _state = CircuitBreakerState.Faulted;
+                    _log.CircuitBreaker_Faulted(Configuration.FriendlyName);
+                }
+            });
     }
 }
