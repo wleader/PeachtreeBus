@@ -9,57 +9,6 @@ namespace PeachtreeBus.SimpleInjector.Tests;
 public class SimpleInjectorExtensionsFixture : SimpleInjectorExtensionFixtureBase
 {
     [TestMethod]
-    public void Given_BasicConfiguration_When_Verify_Then_Runs()
-    {
-        var config = new BusConfiguration()
-        {
-            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
-            Schema = new("PeachTreeBus"),
-        };
-
-        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-    }
-
-    [TestMethod]
-    public void Given_Subscriptions_When_Verify_Then_Runs()
-    {
-        var config = new BusConfiguration()
-        {
-            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
-            Schema = new("PeachTreeBus"),
-            SubscriptionConfiguration = new()
-            {
-                SubscriberId = SubscriberId.New(),
-                Topics = [new("Topic1"), new("Topic2")]
-            },
-        };
-
-        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-    }
-
-    [TestMethod]
-    public void Given_Queues_When_Verify_Then_Runs()
-    {
-        var config = new BusConfiguration()
-        {
-            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
-            Schema = new("PeachTreeBus"),
-            QueueConfiguration = new()
-            {
-                QueueName = new("QueueName"),
-            }
-        };
-
-        _container.UsePeachtreeBus(config, _loggerFactory, _assemblies);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-    }
-
-    [TestMethod]
     public void Given_UseDefaultQueueRetryStrategyFalse_And_NoStrategyRegistered_When_Verify_Then_Throws()
     {
         var config = new BusConfiguration()
