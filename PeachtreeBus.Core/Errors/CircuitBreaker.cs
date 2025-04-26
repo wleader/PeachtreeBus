@@ -46,7 +46,6 @@ public class CircuitBreaker(
 
     public CircuitBreakerConfiguraton Configuration { get; } = configuraton;
 
-    //private long _failures = 0;
     private volatile CircuitBreakerState _state = CircuitBreakerState.Clear;
     public CircuitBreakerState State => _state;
 
