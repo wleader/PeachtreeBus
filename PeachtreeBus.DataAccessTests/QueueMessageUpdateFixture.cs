@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Abstractions.Tests;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
 using System;
@@ -48,7 +49,7 @@ namespace PeachtreeBus.DataAccessTests
             toUpdate.MessageId = UniqueIdentity.New(); // this should never persist a change.
             toUpdate.Enqueued = toUpdate.Enqueued.AddMinutes(-1); // this should never change.
             toUpdate.Body = new("Changed Body"); // should never change.
-            toUpdate.Headers = new();
+            toUpdate.Headers = new() { MessageClass = ClassName.Default };
             toUpdate.NotBefore = toUpdate.NotBefore.AddMinutes(1);
             toUpdate.Completed = DateTime.UtcNow;
             toUpdate.Failed = DateTime.UtcNow;

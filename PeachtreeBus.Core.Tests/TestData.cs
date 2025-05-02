@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Abstractions.Tests.TestClasses;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
@@ -48,7 +49,7 @@ public static class TestData
             Priority = priority,
             NotBefore = notBefore ?? DateTime.UtcNow,
             Enqueued = enqueued ?? DateTime.UtcNow,
-            Headers = headers ?? new(typeof(TestQueuedMessage)),
+            Headers = headers ?? new() { MessageClass = typeof(TestQueuedMessage).GetClassName() },
             Body = body ?? DefaultBody
         };
     }
@@ -74,7 +75,7 @@ public static class TestData
             NotBefore = notBefore ?? DateTime.UtcNow,
             Enqueued = enqueued ?? DateTime.UtcNow,
             ValidUntil = validUntil ?? DateTime.UtcNow.AddMinutes(5),
-            Headers = headers ?? new(),
+            Headers = headers ?? new() { MessageClass = ClassName.Default },
             Body = body ?? DefaultBody,
             Topic = topic ?? DefaultTopic,
         };
@@ -105,14 +106,20 @@ public static class TestData
     public static Headers CreateHeaders(object? userMessage)
     {
         userMessage ??= CreateQueueUserMessage();
-        return new(userMessage.GetType());
+        return new()
+        {
+            MessageClass = userMessage.GetType().GetClassName()
+        };
     }
 
     public static Headers CreateHeadersWithUnrecognizedMessageClass()
     {
         const string UnrecognizedMessageClass = "PeachtreeBus.Tests.Sagas.NotARealMessageType, PeachtreeBus.Tests";
         Assert.IsNull(Type.GetType(UnrecognizedMessageClass), "A message class that was not supposed to exist, exists.");
-        return new() { MessageClass = UnrecognizedMessageClass };
+        return new()
+        {
+            MessageClass = new(UnrecognizedMessageClass)
+        };
     }
 
     public static QueueContext CreateQueueContext(
@@ -182,11 +189,24 @@ public static class TestData
         QueueName? destination = null,
         UtcDateTime? notBefore = null)
     {
+        userMessage ??= CreateQueueUserMessage();
         return new SendContext()
         {
-            Message = userMessage ?? CreateQueueUserMessage(),
+            Message = userMessage,
             Destination = destination ?? DefaultQueueName,
-            NotBefore = notBefore ?? DateTime.UtcNow,
+            Data = new()
+            {
+                Headers = new()
+                {
+                    MessageClass = userMessage.GetType().GetClassName(),
+                    UserHeaders = [],
+                },
+                Body = default,
+                Enqueued = TestData.Now,
+                NotBefore = notBefore ?? TestData.Now,
+                MessageId = default,
+                Priority = 0,
+            },
         };
     }
 
@@ -194,10 +214,24 @@ public static class TestData
         object? userMessage = null,
         Topic? topic = null)
     {
+        userMessage ??= CreateSubscribedUserMessage();
         return new PublishContext()
         {
-            Message = userMessage ?? CreateSubscribedUserMessage(),
-            Topic = topic ?? DefaultTopic,
+            Message = userMessage,
+            Data = new()
+            {
+                Headers = new()
+                {
+                    MessageClass = userMessage.GetType().GetClassName(),
+                },
+                Body = default,
+                Enqueued = TestData.Now,
+                NotBefore = TestData.Now,
+                MessageId = default,
+                Priority = 0,
+                ValidUntil = TestData.Now.AddDays(1),
+                Topic = topic ?? DefaultTopic,
+            },
         };
     }
 

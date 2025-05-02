@@ -21,8 +21,8 @@ public class DefaultSerializerFixture
     {
         var headers = new Headers()
         {
+            MessageClass = new("MessageClass"),
             ExceptionDetails = "ExceptionDetails",
-            MessageClass = "MessageClass",
         };
         headers.UserHeaders.Add("UserHeader.One", "One");
         headers.UserHeaders.Add("UserHeader.Two", "Two");

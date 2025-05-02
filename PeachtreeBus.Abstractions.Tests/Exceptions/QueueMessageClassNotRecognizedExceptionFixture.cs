@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
@@ -13,11 +14,11 @@ public class QueueMessageClassNotRecognizedExceptionFixture
     {
         var expectedMessageId = UniqueIdentity.New();
         var expectedQueueName = new QueueName("TestQueue");
-        var expectedType = "Type Name";
+        var expectedType = new ClassName("Type Name");
         var e = new QueueMessageClassNotRecognizedException(
             expectedMessageId, expectedQueueName, expectedType);
         Assert.AreEqual(expectedMessageId, e.MessageId);
         Assert.AreEqual(expectedQueueName, e.SourceQueue);
-        Assert.AreEqual(expectedType, e.TypeName);
+        Assert.AreEqual(expectedType, e.ClassName);
     }
 }

@@ -4,6 +4,7 @@
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Subscriptions;
 using Microsoft.Extensions.Logging;
 using System;
@@ -100,14 +101,14 @@ namespace PeachtreeBus
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Event
             = new(3001003, "PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized");
-        internal static readonly Action<ILogger, string, UniqueIdentity, QueueName, Exception> PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Action
-            = LoggerMessage.Define<string, UniqueIdentity, QueueName>(LogLevel.Warning,
+        internal static readonly Action<ILogger, ClassName, UniqueIdentity, QueueName, Exception> PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Action
+            = LoggerMessage.Define<ClassName, UniqueIdentity, QueueName>(LogLevel.Warning,
                 PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Event,
                 "Message class '{MessageClass}' was not recognized for message {MessageId} from queue {QueueName}.");
         /// <summary>
         /// (3001003) Warning: Message class '{MessageClass}' was not recognized for message {MessageId} from queue {QueueName}.
         /// </summary>
-        public static void QueueReader_MessageClassNotRecognized(this ILogger logger, string messageClass, UniqueIdentity messageId, QueueName queueName)
+        public static void QueueReader_MessageClassNotRecognized(this ILogger logger, ClassName messageClass, UniqueIdentity messageId, QueueName queueName)
             => PeachtreeBus_Queues_QueueReader_MessageClassNotRecognized_Action(logger, messageClass, messageId, queueName, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueReader_MessageFailed_Event
@@ -172,14 +173,14 @@ namespace PeachtreeBus
 
         internal static readonly EventId PeachtreeBus_Queues_QueueWork_ProcessingMessage_Event
             = new(3002001, "PeachtreeBus_Queues_QueueWork_ProcessingMessage");
-        internal static readonly Action<ILogger, UniqueIdentity, string, Exception> PeachtreeBus_Queues_QueueWork_ProcessingMessage_Action
-            = LoggerMessage.Define<UniqueIdentity, string>(LogLevel.Debug,
+        internal static readonly Action<ILogger, UniqueIdentity, ClassName, Exception> PeachtreeBus_Queues_QueueWork_ProcessingMessage_Action
+            = LoggerMessage.Define<UniqueIdentity, ClassName>(LogLevel.Debug,
                 PeachtreeBus_Queues_QueueWork_ProcessingMessage_Event,
                 "Processing Message {MessageId}, Type: {MessageClass}.");
         /// <summary>
         /// (3002001) Debug: Processing Message {MessageId}, Type: {MessageClass}.
         /// </summary>
-        public static void QueueWork_ProcessingMessage(this ILogger logger, UniqueIdentity messageId, string messageClass)
+        public static void QueueWork_ProcessingMessage(this ILogger logger, UniqueIdentity messageId, ClassName messageClass)
             => PeachtreeBus_Queues_QueueWork_ProcessingMessage_Action(logger, messageId, messageClass, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueWork_LoadingSaga_Event
@@ -208,14 +209,14 @@ namespace PeachtreeBus
 
         internal static readonly EventId PeachtreeBus_Queues_QueueWork_InvokeHandler_Event
             = new(3002004, "PeachtreeBus_Queues_QueueWork_InvokeHandler");
-        internal static readonly Action<ILogger, UniqueIdentity, string, string, Exception> PeachtreeBus_Queues_QueueWork_InvokeHandler_Action
-            = LoggerMessage.Define<UniqueIdentity, string, string>(LogLevel.Debug,
+        internal static readonly Action<ILogger, UniqueIdentity, ClassName, string, Exception> PeachtreeBus_Queues_QueueWork_InvokeHandler_Action
+            = LoggerMessage.Define<UniqueIdentity, ClassName, string>(LogLevel.Debug,
                 PeachtreeBus_Queues_QueueWork_InvokeHandler_Event,
                 "Handling message {MessageId} of type {MessageClass} with {HandlerType}.");
         /// <summary>
         /// (3002004) Debug: Handling message {MessageId} of type {MessageClass} with {HandlerType}.
         /// </summary>
-        public static void QueueWork_InvokeHandler(this ILogger logger, UniqueIdentity messageId, string messageClass, string handlerType)
+        public static void QueueWork_InvokeHandler(this ILogger logger, UniqueIdentity messageId, ClassName messageClass, string handlerType)
             => PeachtreeBus_Queues_QueueWork_InvokeHandler_Action(logger, messageId, messageClass, handlerType, null!);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueWork_SagaSaved_Event
@@ -232,14 +233,14 @@ namespace PeachtreeBus
 
         internal static readonly EventId PeachtreeBus_Queues_QueueWork_HandlerException_Event
             = new(3002006, "PeachtreeBus_Queues_QueueWork_HandlerException");
-        internal static readonly Action<ILogger, string, UniqueIdentity, string, Exception> PeachtreeBus_Queues_QueueWork_HandlerException_Action
-            = LoggerMessage.Define<string, UniqueIdentity, string>(LogLevel.Warning,
+        internal static readonly Action<ILogger, string, UniqueIdentity, ClassName, Exception> PeachtreeBus_Queues_QueueWork_HandlerException_Action
+            = LoggerMessage.Define<string, UniqueIdentity, ClassName>(LogLevel.Warning,
                 PeachtreeBus_Queues_QueueWork_HandlerException_Event,
                 "There was an exception in {HandlerType} when handling Message {MessageId} of type {MessageType}.");
         /// <summary>
         /// (3002006) Warning: There was an exception in {HandlerType} when handling Message {MessageId} of type {MessageType}.
         /// </summary>
-        public static void QueueWork_HandlerException(this ILogger logger, string handlerType, UniqueIdentity messageId, string messageType, Exception ex)
+        public static void QueueWork_HandlerException(this ILogger logger, string handlerType, UniqueIdentity messageId, ClassName messageType, Exception ex)
             => PeachtreeBus_Queues_QueueWork_HandlerException_Action(logger, handlerType, messageId, messageType, ex);
 
         internal static readonly EventId PeachtreeBus_Queues_QueueWork_SagaNotStarted_Event
@@ -316,14 +317,14 @@ namespace PeachtreeBus
 
         internal static readonly EventId PeachtreeBus_Subscriptions_SubscribedReader_MessageClassNotRecognized_Event
             = new(4002004, "PeachtreeBus_Subscriptions_SubscribedReader_MessageClassNotRecognized");
-        internal static readonly Action<ILogger, string, UniqueIdentity, SubscriberId, Exception> PeachtreeBus_Subscriptions_SubscribedReader_MessageClassNotRecognized_Action
-            = LoggerMessage.Define<string, UniqueIdentity, SubscriberId>(LogLevel.Warning,
+        internal static readonly Action<ILogger, ClassName, UniqueIdentity, SubscriberId, Exception> PeachtreeBus_Subscriptions_SubscribedReader_MessageClassNotRecognized_Action
+            = LoggerMessage.Define<ClassName, UniqueIdentity, SubscriberId>(LogLevel.Warning,
                 PeachtreeBus_Subscriptions_SubscribedReader_MessageClassNotRecognized_Event,
                 "Message class '{MessageClass}' was not recognized for message {MessageId} for subscriber {SubscriberId}.");
         /// <summary>
         /// (4002004) Warning: Message class '{MessageClass}' was not recognized for message {MessageId} for subscriber {SubscriberId}.
         /// </summary>
-        public static void SubscribedReader_MessageClassNotRecognized(this ILogger logger, string messageClass, UniqueIdentity messageId, SubscriberId subscriberId)
+        public static void SubscribedReader_MessageClassNotRecognized(this ILogger logger, ClassName messageClass, UniqueIdentity messageId, SubscriberId subscriberId)
             => PeachtreeBus_Subscriptions_SubscribedReader_MessageClassNotRecognized_Action(logger, messageClass, messageId, subscriberId, null!);
 
         internal static readonly EventId PeachtreeBus_Subscriptions_SubscribedReader_MessageWillBeRetried_Event

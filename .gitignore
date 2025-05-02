@@ -17,3 +17,4 @@
 *.nupkg
 nuget.exe
 *.user
+**/BenchmarkDotNet.Artifacts/

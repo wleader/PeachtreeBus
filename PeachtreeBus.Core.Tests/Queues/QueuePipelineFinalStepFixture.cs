@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests.Sagas;
 using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
@@ -20,6 +21,7 @@ public class QueuePipelineFinalStepFixture
     private readonly Mock<ILogger<QueuePipelineFinalStep>> _log = new();
     private readonly Mock<ISagaMessageMapManager> _sagaMessageMapManager = new();
     private readonly Mock<IQueueReader> _queueReader = new();
+    private readonly ClassNameService _classNameService = new();
 
     private QueuePipelineFinalStep _testSubject = default!;
     private TestSaga _testSaga = default!;
@@ -68,7 +70,8 @@ public class QueuePipelineFinalStepFixture
             _findHandlers.Object,
             _log.Object,
             _sagaMessageMapManager.Object,
-            _queueReader.Object);
+            _queueReader.Object,
+            _classNameService);
 
         Assert.AreEqual(typeof(TestSagaMessage1), Context.Message.GetType(),
             "This test suite expects the default user message type to be TestSagaMessage1");
@@ -94,7 +97,7 @@ public class QueuePipelineFinalStepFixture
         Context = TestData.CreateQueueContext(
             userMessageFunc: () => new object(),
             messageData: TestData.CreateQueueData(
-                headers: new(typeof(object))));
+                headers: new() { MessageClass = typeof(object).GetClassName() }));
         await Assert.ThrowsExactlyAsync<TypeIsNotIQueueMessageException>(() => _testSubject.Invoke(Context, null));
     }
 

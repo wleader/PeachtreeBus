@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using PeachtreeBus.ClassNames;
+using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Serialization;
@@ -36,31 +37,20 @@ public class PublishPipelineFinalStep(
 
         using var activity = new SendActivity(context);
 
-        // note the type in the headers so it can be deserialized.
-        var headers = new Headers(type, context.UserHeaders)
-        {
-            Diagnostics = new(
-                Activity.Current?.Id,
-                context.StartNewConversation)
-        };
+        var publishContext = (PublishContext)context;
+        var data = publishContext.Data;
+        data.Headers.Diagnostics = new(
+            Activity.Current?.Id,
+            context.StartNewConversation);
+        data.MessageId = default; // will be database generated.
+        data.ValidUntil = _clock.UtcNow.Add(_configuration.PublishConfiguration.Lifespan);
+        data.Enqueued = _clock.UtcNow;
+        data.Completed = null;
+        data.Failed = null;
+        data.Retries = 0;
+        data.Body = _serializer.Serialize(message, type);
 
-        // create the message entity, serializing the headers and body.
-        var sm = new SubscribedData
-        {
-            ValidUntil = _clock.UtcNow.Add(_configuration.PublishConfiguration.Lifespan),
-            MessageId = UniqueIdentity.Empty, // will be ignored and the database will generate.
-            Priority = context.MessagePriority,
-            NotBefore = context.NotBefore,
-            Enqueued = _clock.UtcNow,
-            Completed = null,
-            Failed = null,
-            Retries = 0,
-            Headers = headers,
-            Body = _serializer.Serialize(message, type),
-            Topic = context.Topic,
-        };
-
-        context.RecipientCount = await _dataAccess.Publish(sm, context.Topic);
+        context.RecipientCount = await _dataAccess.Publish(data, context.Topic);
         _perfCounters.SentMessage(context.RecipientCount.Value);
     }
 }

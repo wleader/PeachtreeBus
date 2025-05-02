@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
@@ -19,6 +20,7 @@ namespace PeachtreeBus.Core.Tests.Queues
         private QueueWriter writer = default!;
         private Mock<ISendPipelineInvoker> pipelineInvoker = default!;
         private readonly Mock<ISystemClock> clock = new();
+        private readonly ClassNameService classNameService = new();
 
         private IQueueMessage userMessage = default!;
 
@@ -37,7 +39,10 @@ namespace PeachtreeBus.Core.Tests.Queues
 
             userMessage = TestData.CreateQueueUserMessage();
 
-            writer = new QueueWriter(clock.Object, pipelineInvoker.Object);
+            writer = new QueueWriter(
+                clock.Object,
+                pipelineInvoker.Object,
+                classNameService);
         }
 
         /// <summary>

@@ -12,6 +12,7 @@
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Subscriptions;
 using Microsoft.Extensions.Logging;
 using System;

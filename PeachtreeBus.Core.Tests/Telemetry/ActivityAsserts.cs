@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
@@ -65,8 +66,8 @@ public static class ActivityAsserts
     public static Activity AssertEnqueued(this Activity activity, UtcDateTime expected) =>
         activity.AssertTag("peachtreebus.message.enqueued", expected.ToTagString());
 
-    public static Activity AssertMessageClass(this Activity activity, string expected) =>
-        activity.AssertTag("peachtreebus.message.class", expected);
+    public static Activity AssertMessageClass(this Activity activity, ClassName expected) =>
+        activity.AssertTag("peachtreebus.message.class", expected.Value);
 
     public static Activity AssertPriority(this Activity activity, int expected) =>
         activity.AssertTag("peachtreebus.message.priority", expected.ToString());

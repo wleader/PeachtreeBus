@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using PeachtreeBus.ClassNames;
+using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Serialization;
@@ -58,29 +59,18 @@ public class SendPipelineFinalStep(
 
         var sendContext = (SendContext)context;
 
-        // note the type in the headers so it can be deserialized.
-        var headers = new Headers(type, context.UserHeaders)
-        {
-            Diagnostics = new(
+        var data = sendContext.Data;
+        data.Headers.Diagnostics = new(
                 Activity.Current?.Id,
-                sendContext.StartNewConversation)
-        };
+                sendContext.StartNewConversation);
+        data.Enqueued = _clock.UtcNow;
+        data.Completed = null;
+        data.Failed = null;
+        data.Retries = 0;
+        data.Body = _serializer.Serialize(message, type);
+        data.MessageId = default; // this is database generated anyway.
 
-        // create the message entity, serializing the headers and body.
-        var sm = new QueueData
-        {
-            MessageId = UniqueIdentity.New(), // will be ignored and the database will generate.
-            Priority = context.MessagePriority,
-            NotBefore = context.NotBefore,
-            Enqueued = _clock.UtcNow,
-            Completed = null,
-            Failed = null,
-            Retries = 0,
-            Headers = headers,
-            Body = _serializer.Serialize(message, type)
-        };
-
-        await _dataAccess.AddMessage(sm, context.Destination);
+        await _dataAccess.AddMessage(data, context.Destination);
         _meters.SentMessage(1);
     }
 }

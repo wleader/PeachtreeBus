@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using PeachtreeBus.ClassNames;
+using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
@@ -17,7 +18,7 @@ public static class ActivityTags
     public static Activity? AddOutgoingContext(this Activity? activity, IOutgoingContext context) =>
         activity?.AddPriority(context.MessagePriority)
             ?.AddNotBefore(context.NotBefore)
-            ?.AddMessageClass(context.Message);
+            ?.AddMessageClass(context.MessageClass);
 
     public static Activity? AddMessageId(this Activity? activity, UniqueIdentity id) =>
         activity?.AddTag("messaging.message.id", id.ToString());
@@ -28,8 +29,8 @@ public static class ActivityTags
     public static Activity? AddEnqueued(this Activity? activity, UtcDateTime enqueued) =>
         activity?.AddTag("peachtreebus.message.enqueued", enqueued.ToTagString());
 
-    public static Activity? AddMessageClass(this Activity? activity, object message) =>
-        activity?.AddTag("peachtreebus.message.class", message.GetType().GetMessageClass());
+    public static Activity? AddMessageClass(this Activity? activity, ClassName className) =>
+        activity?.AddTag("peachtreebus.message.class", className.Value);
 
     public static Activity? AddNotBefore(this Activity? activity, UtcDateTime notBefore) =>
         activity?.AddTag("peachtreebus.message.notbefore", notBefore.ToTagString());
@@ -56,7 +57,7 @@ public static class ActivityTags
         return activity
             ?.AddMessageId(context.MessageId)
             ?.AddPriority(context.MessagePriority)
-            ?.AddMessageClass(context.Message)
+            ?.AddMessageClass(context.MessageClass)
             ?.AddEnqueued(context.EnqueuedTime)
             ?.AddNotBefore(context.NotBefore);
         // todo add conversation id

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Abstractions.Tests.TestClasses;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
@@ -21,6 +22,7 @@ public class SubscriptionPublisherFixture
     // Dependencies
     private Mock<IPublishPipelineInvoker> pipelineInvoker = default!;
     private readonly Mock<ISystemClock> clock = new();
+    private readonly ClassNameService _classNameService = new();
 
     // a message to send.
     private TestSubscribedMessage userMessage = default!;
@@ -46,7 +48,8 @@ public class SubscriptionPublisherFixture
 
         publisher = new SubscribedPublisher(
             clock.Object,
-            pipelineInvoker.Object);
+            pipelineInvoker.Object,
+            _classNameService);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Core.Tests.Sagas;
 using PeachtreeBus.Data;
@@ -26,6 +27,7 @@ public class QueueReaderFixture
     private readonly Mock<IQueueFailures> failures = new();
     private readonly Mock<IQueueRetryStrategy> retryStrategy = new();
     private readonly FakeClock clock = new();
+    private readonly ClassNameService classNameService = new();
 
     private QueueContext Context = default!;
 
@@ -46,7 +48,7 @@ public class QueueReaderFixture
         GetPendingResult = TestData.CreateQueueData(
             id: new(678890),
             priority: 12,
-            headers: new(typeof(TestSagaMessage1)));
+            headers: new() { MessageClass = typeof(TestSagaMessage1).GetClassName() });
         Context = TestData.CreateQueueContext(
             messageData: TestData.CreateQueueData(
                 id: new(12345),
@@ -78,7 +80,8 @@ public class QueueReaderFixture
             serializer.Object,
             clock,
             failures.Object,
-            retryStrategy.Object);
+            retryStrategy.Object,
+            classNameService);
     }
 
     [TestMethod]
@@ -283,7 +286,6 @@ public class QueueReaderFixture
             .Callback((QueueData m, QueueName n) =>
             {
                 Assert.AreEqual(expectedMessageId, m.Id);
-                Assert.IsNotNull(m.Headers);
                 Assert.AreEqual(exception.ToString(), m.Headers.ExceptionDetails);
             })
             .Returns(Task.CompletedTask);
@@ -336,7 +338,7 @@ public class QueueReaderFixture
     [TestMethod]
     public async Task Given_UndeserializableHeaders_When_GetNext_Then_ContextSetup_And_ContextMessageIsNull()
     {
-        GetPendingResult.Headers = null;
+        GetPendingResult.Headers = null!;
 
         serializer.Setup(s => s.Deserialize(GetPendingResult.Body, typeof(object)))
             .Returns(null!);
@@ -354,7 +356,9 @@ public class QueueReaderFixture
     public async Task Given_UnrecognizedMessageClass_When_GetNext_Then_ContextSetup_And_ContextMessageIsNull()
     {
         GetPendingResult.Headers = new()
-        { MessageClass = "PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, PeachtreeBus.Tests" };
+        {
+            MessageClass = new("PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, PeachtreeBus.Tests")
+        };
 
         var context = await reader.GetNext(TestData.DefaultQueueName);
 

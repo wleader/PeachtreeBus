@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
@@ -17,19 +18,23 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
 
         private SubscribedPipelineFinalStep _testSubject = default!;
         private Mock<IFindSubscribedHandlers> _findSubscribed = default!;
+        private readonly ClassNameService _classNameService = new();
 
         [TestInitialize]
         public void Initialize()
         {
             _findSubscribed = new();
-            _testSubject = new(_findSubscribed.Object);
+
+            _testSubject = new(
+                _findSubscribed.Object,
+                _classNameService);
         }
 
         [TestMethod]
         public async Task Given_MessageIsNotISubscribedMessage_Then_ThrowsUsefulException()
         {
             var context = TestData.CreateSubscribedContext(
-                headers: new(typeof(MessageWithoutInterface)));
+                headers: new() { MessageClass = typeof(MessageWithoutInterface).GetClassName() });
             await Assert.ThrowsExactlyAsync<TypeIsNotISubscribedMessageException>(() =>
                 _testSubject.Invoke(context, null));
         }

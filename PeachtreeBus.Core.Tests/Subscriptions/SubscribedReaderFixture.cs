@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests.Sagas;
 using PeachtreeBus.Data;
 using PeachtreeBus.Errors;
@@ -27,6 +28,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         private Mock<ISystemClock> clock = default!;
         private Mock<ISubscribedFailures> failures = default!;
         private Mock<ISubscribedRetryStrategy> retryStrategy = default!;
+        private readonly ClassNameService classNameService = new();
 
         private static readonly SubscriberId SubscriberId = new(Guid.Parse("5d7ece7e-b9eb-4b97-91fa-af6bfe50394a"));
 
@@ -46,7 +48,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
             clock = new();
             failures = new();
             retryStrategy = new();
-
+            
             clock.SetupGet(x => x.UtcNow)
                 .Returns(new DateTime(2022, 2, 22, 14, 22, 22, 222, DateTimeKind.Utc));
 
@@ -57,12 +59,12 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
                 meters.Object,
                 clock.Object,
                 failures.Object,
-                retryStrategy.Object);
-
+                retryStrategy.Object,
+                classNameService);
 
             NextMessageHeaders = new()
             {
-                MessageClass = "PeachtreeBus.Core.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Core.Tests"
+                MessageClass = new("PeachtreeBus.Core.Tests.Sagas.TestSagaMessage1, PeachtreeBus.Core.Tests")
             };
 
             NextMessage = TestData.CreateSubscribedData(id: new(12345), priority: 24,
@@ -202,7 +204,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
             var context = await reader.GetNext(SubscriberId);
 
             Assert.IsNotNull(context);
-            Assert.AreSame("System.Object", context.MessageClass);
+            Assert.AreEqual(ClassName.Default, context.MessageClass);
             Assert.AreSame(NextMessage, context.Data);
             Assert.IsNull(context?.Message);
             Assert.AreEqual(SubscriberId, context!.SubscriberId);
@@ -218,7 +220,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         public async Task GetNext_HandlesUnrecognizedMessageClass()
         {
             NextMessageHeaders.MessageClass =
-                "PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, PeachtreeBus.Tests";
+                new("PeachtreeBus.Tests.Sagas.TestSagaNotARealMessage, PeachtreeBus.Tests");
 
             var context = await reader.GetNext(SubscriberId);
 

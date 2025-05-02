@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
@@ -159,6 +160,10 @@ public static partial class SimpleInjectorExtensions
 
         container.Register(typeof(IFailedSubscribedMessageHandlerFactory), typeof(FailedSubscribedMessageHandlerFactory), Lifestyle.Scoped);
         container.Register(typeof(ISubscribedFailures), typeof(SubscribedFailures), Lifestyle.Scoped);
+
+        // the class name service uses caching to speed up the conversion of class name strings to types.
+        container.Register(typeof(IClassNameService), typeof(ClassNameService), Lifestyle.Singleton);
+        container.RegisterDecorator(typeof(IClassNameService), typeof(CachedClassNameService));
 
         return container;
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
@@ -39,8 +40,6 @@ public class SendPipelineFinalStepFixture
 
         clock.SetupGet(c => c.UtcNow).Returns(() => TestData.Now);
 
-
-
         dataAccess.Setup(d => d.AddMessage(It.IsAny<QueueData>(), It.IsAny<QueueName>()))
             .Callback<QueueData, QueueName>((msg, qn) =>
             {
@@ -54,7 +53,11 @@ public class SendPipelineFinalStepFixture
         _serializer.Setup(x => x.Serialize(context.Message, context.Message.GetType()))
             .Returns(TestData.DefaultBody);
 
-        step = new(clock.Object, _serializer.Object, dataAccess.Object, meters.Object);
+        step = new(
+            clock.Object,
+            _serializer.Object,
+            dataAccess.Object,
+            meters.Object);
     }
 
     /// <summary>
@@ -77,7 +80,7 @@ public class SendPipelineFinalStepFixture
     public async Task When_Invoke_Then_HeadersTypeIsSet()
     {
         await step.Invoke(context, null!);
-        Assert.AreEqual("PeachtreeBus.Abstractions.Tests.TestClasses.TestQueuedMessage, PeachtreeBus.Abstractions.Tests",
+        Assert.AreEqual(new("PeachtreeBus.Abstractions.Tests.TestClasses.TestQueuedMessage, PeachtreeBus.Abstractions.Tests"),
             AddedMessage?.Headers?.MessageClass);
     }
 
@@ -241,7 +244,7 @@ public class SendPipelineFinalStepFixture
     [TestMethod]
     public async Task Given_UserHeaders_When_Publish_Then_UserHeadersAreUsed()
     {
-        context.UserHeaders = TestData.DefaultUserHeaders;
+        context.Data.Headers.UserHeaders = TestData.DefaultUserHeaders;
         await step.Invoke(context, null!);
         Assert.AreSame(context.UserHeaders, AddedMessage?.Headers?.UserHeaders);
     }
