@@ -95,13 +95,13 @@ public class CircuitBreaker(
     {
         if (_state == CircuitBreakerState.Clear) return;
         _state = CircuitBreakerState.Clear;
-        _log.CircuitBreaker_Cleared(Configuration.FriendlyName);
+        _log.Cleared(Configuration.FriendlyName);
     }
 
     private void Failure()
     {
         if (_state != CircuitBreakerState.Clear) return;
-        _log.CircuitBreaker_Armed(Configuration.FriendlyName);
+        _log.Armed(Configuration.FriendlyName);
         _state = CircuitBreakerState.Armed;
 
         // wait for time to faulted.
@@ -113,7 +113,7 @@ public class CircuitBreaker(
                 if (_state == CircuitBreakerState.Armed)
                 {
                     _state = CircuitBreakerState.Faulted;
-                    _log.CircuitBreaker_Faulted(Configuration.FriendlyName);
+                    _log.Faulted(Configuration.FriendlyName);
                 }
             });
     }

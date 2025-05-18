@@ -1,45 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <RootNamespace>PeachtreeBus</RootNamespace>
-  </PropertyGroup>
+    <PropertyGroup>
+        <RootNamespace>PeachtreeBus</RootNamespace>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="LogMessages.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>LogMessages.tt</DependentUpon>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
+        <PackageReference Include="System.Text.Json" Version="9.0.3" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
-    <PackageReference Include="System.Text.Json" Version="9.0.3" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.SourceGenerators\PeachtreeBus.SourceGenerators.csproj" OutputItemType="Analyzer" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
-    <ProjectReference Include="..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="LogMessages.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>LogMessages.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="LogMessages.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>LogMessages.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
+    <ItemGroup>
+        <!-- if this is not here, the source generator won't see it.-->
+        <AdditionalFiles Include="LogMessages.xml"/>
+    </ItemGroup>
+   
 </Project>

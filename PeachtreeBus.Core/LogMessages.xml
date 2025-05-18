@@ -1,148 +1,152 @@
-﻿<LogMessages xmlns="http://tempuri.org/LogMessages.xsd">
-    <Namespace name="PeachtreeBus">
-        <Class name="BaseThread">
-            <Event name="ThreadStart" level="Information">
-                Starting {ThreadName:string} thread.
-            </Event>
-            <Event name="ThreadStop" level="Information">
-                Thread {ThreadName:string} stopped.
-            </Event>
-            <Event name="ThreadError" level="Error" exception="true">
-                Thread {ThreadName:string} errored.
-            </Event>
-            <Event name="RollbackFailed" level ="Error" exception="true">
-                Thread {ThreadName:string} failed to roll back its transaction.
-            </Event>
-        </Class>
-    </Namespace>
-    <Namespace name="PeachtreeBus_Data">
-        <Class name="DapperDataAccess">
-            <Event name="DataAccessError" level="Error" exception="true">
+﻿<Assembly xmlns="http://tempuri.org/LogMessages.xsd" assemblyId="1" exludeFromCodeCoverage="false">
+    <Usings>
+        <Using>PeachtreeBus.Data</Using>
+        <Using>PeachtreeBus.Sagas</Using>
+    </Usings>
+    <Namespace name="PeachtreeBus.Data" namespaceId="2">
+        <Class name="DapperDataAccess" classId="1">
+            <Event name="DataAccessError" level="Error" exception="true" eventId="1">
                 There was an exception interacting with the database. Method: {Method:string}.
             </Event>
         </Class>
     </Namespace>
-    <Namespace name="PeachtreeBus_Queues">
-        <Class name="QueueReader">
-            <Event name="HeaderNotDeserializable" level="Warning">
+    <Namespace name="PeachtreeBus.Queues" namespaceId="3">
+        <Class name="QueueReader" classId="1">
+            <Event name="HeaderNotDeserializable" level="Warning" eventId="1">
                 Headers could not be deserialized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
-            <Event name="BodyNotDeserializable" level="Warning" exception="true">
+            <Event name="BodyNotDeserializable" level="Warning" exception="true" eventId="2">
                 Body could not be deserialized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
-            <Event name="MessageClassNotRecognized" level="Warning">
+            <Event name="MessageClassNotRecognized" level="Warning" eventId="3">
                 Message class '{MessageClass:string}' was not recognized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
-            <Event name="MessageFailed" level="Warning">
+            <Event name="MessageFailed" level="Warning" eventId="4">
                 Message {MessageId:UniqueIdentity} from queue {QueueName:QueueName} has failed and will not be retried.
             </Event>
-            <Event name="MessageWillBeRetried" level="Warning">
+            <Event name="MessageWillBeRetried" level="Warning" eventId="5">
                 Message {MessageId:UniqueIdentity} from queue {QueueName:QueueName} will be retried after {NotBefore:DateTime}.
             </Event>
-            <Event name="LoadingSagaData" level="Information">
+            <Event name="LoadingSagaData" level="Information" eventId="6">
                 Loading saga data for {SagaName:SagaName} - {SagaKey:SagaKey}.
             </Event>
-            <Event name="DeletingSagaData" level="Information">
+            <Event name="DeletingSagaData" level="Information" eventId ="7">
                 Deleting saga data for {SagaName:SagaName} - {SagaKey:SagaKey}.
             </Event>
-            <Event name="SavingSagaData" level="Information">
+            <Event name="SavingSagaData" level="Information" eventId="8">
                 Saving saga data for {SagaName:SagaName} - {SagaKey:SagaKey}.
             </Event>
         </Class>
-        <Class name="QueueWork">
-            <Event name="ProcessingMessage" level="Debug">
-                Processing Message {MessageId:UniqueIdentity}, Type: {MessageClass:string}.
-            </Event>
-            <Event name="LoadingSaga">
+        <Class name="QueuePipelineFinalStep" classId="2">
+            <Event name="LoadingSaga" eventId="1">
                 Saga Loading {SagaType:string} {SagaKey:SagaKey}.
             </Event>
-            <Event name="SagaBlocked" level="Information">
-                The saga {SagaType:string} for key {SagaKey:SagaKey} is blocked. The current message will be delayed and retried.
-            </Event>
-            <Event name="InvokeHandler" level="Debug">
+            <Event name="InvokeHandler" level="Debug" eventId="2">
                 Handling message {MessageId:UniqueIdentity} of type {MessageClass:string} with {HandlerType:string}.
             </Event>
-            <Event name="SagaSaved" level="Debug">
+            <Event name="SagaSaved" level="Debug" eventId="3">
                 Saga Saved {SagaType:string} {SagaKey:SagaKey}.
             </Event>
-            <Event name="HandlerException" level="Warning" exception="true">
+            <Event name="HandlerException" level="Warning" exception="true" eventId="4">
                 There was an exception in {HandlerType:string} when handling Message {MessageId:UniqueIdentity} of type {MessageType:string}.
             </Event>
-            <Event name="SagaNotStarted" level="Information">
+            <Event name="SagaNotStarted" level="Information" eventId="5">
                 The saga {SagaType:string} for key '{SagaKey:SagaKey}' has not been started, or has completed. The Message {MessageId:UniqueIdentity} will not be handled by the saga.
             </Event>
         </Class>
-    </Namespace>
-    <Namespace name="PeachtreeBus_Subscriptions">
-        <Class name="SubscribedWork">
-            <Event name="ProcessingMessage" level="Debug">
-                Processing message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
-            </Event>
-            <Event name="MessageHandlerException" level="Warning" exception="true">
-                There was an exception while processing message {MessageId:UniqueIdentity} for subscriber {SusbscriberId:SubscriberId}.
-            </Event>
-        </Class>
-        <Class name="SubscribedReader">
-            <Event name="MessageFailed" level="Warning">
-                Message {MessageId:UniqueIdentity} for Subscriber {SubscriberId:SubscriberId} has failed and will not be retried.
-            </Event>
-            <Event name="HeaderNotDeserializable" level="Warning">
-                Headers could not be deserialized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
-            </Event>
-            <Event name="BodyNotDeserializable" level="Warning" exception="true">
-                Message Body could not be deserialized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
-            </Event>
-            <Event name="MessageClassNotRecognized" level="Warning">
-                Message class '{MessageClass:string}' was not recognized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
-            </Event>
-            <Event name="MessageWillBeRetried" level="Warning">
-                Message {MessageId:UniqueIdentity} from Subscriber {SubscriberId:SubscriberId} will be retried after {NotBefore:DateTime}.
-            </Event>
-        </Class>
-    </Namespace>
-    <Namespace name="PeachtreeBus_Errors">
-        <Class name="QueueFailures">
-            <Event name="NoHandler" level="Error" exception="true">
+        <Class name="QueueFailures" classId="3">
+            <Event name="NoHandler" level="Error" exception="true" eventId="1">
                 No implemenation of IHandleFailedQueueMessages was available. You can register DefaultFailedQueueMessageHandler with your dependency injection provider to disable this message.
             </Event>
-            <Event name="HandlerThrow" level="Error" exception="true">
+            <Event name="HandlerThrow" level="Error" exception="true" eventId="2">
                 Failed Queue Message Handler {HandlerType:Type} threw an exception while handling a message of type {MessageType:Type}. Database will be rolled back.
             </Event>
-            <Event name="MessageFailed" level="Warning">
+            <Event name="MessageFailed" level="Warning" eventId="3">
                 A queue message of type {MessageType:Type} exceeded its maximum retries and has failed.
             </Event>
         </Class>
-        <Class name="SubscribedFailures">
-            <Event name="NoHandler" level="Error" exception="true">
+        <Class name="ProcessQueuedTask" classId="4">
+            <Event name="ProcessingMessage" level="Debug" eventId="1">
+                Processing Message {MessageId:UniqueIdentity}, Type: {MessageClass:string}.
+            </Event>
+            <Event name="SagaBlocked" level="Information" eventId="2">
+                The saga {SagaType:string} for key {SagaKey:SagaKey} is blocked. The current message will be delayed and retried.
+            </Event>
+            <Event name="HandlerException" level="Warning" exception="true" eventId="3">
+                There was an exception in {HandlerType:string} when handling Message {MessageId:UniqueIdentity} of type {MessageType:string}.
+            </Event>
+        </Class>
+    </Namespace>
+    <Namespace name="PeachtreeBus.Subscriptions" namespaceId="4">
+        <Class name="SubscribedPipelineFinalStep" classId="1">
+
+
+        </Class>
+        <Class name="SubscribedReader" classId="2">
+            <Event name="MessageFailed" level="Warning" eventId="1">
+                Message {MessageId:UniqueIdentity} for Subscriber {SubscriberId:SubscriberId} has failed and will not be retried.
+            </Event>
+            <Event name="HeaderNotDeserializable" level="Warning" eventId="2">
+                Headers could not be deserialized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
+            </Event>
+            <Event name="BodyNotDeserializable" level="Warning" exception="true" eventId="3">
+                Message Body could not be deserialized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
+            </Event>
+            <Event name="MessageClassNotRecognized" level="Warning" eventId="4">
+                Message class '{MessageClass:string}' was not recognized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
+            </Event>
+            <Event name="MessageWillBeRetried" level="Warning" eventId="5">
+                Message {MessageId:UniqueIdentity} from Subscriber {SubscriberId:SubscriberId} will be retried after {NotBefore:DateTime}.
+            </Event>
+        </Class>
+        <Class name="SubscribedFailures" classId="3">
+            <Event name="NoHandler" level="Error" exception="true" eventId="1">
                 No implemenation of IHandleFailedSubscribedMessages was available. You can register DefaultFailedSubscribedMessageHandler with your dependency injection provider to disable this message.
             </Event>
-            <Event name="HandlerThrow" level="Error" exception="true">
+            <Event name="HandlerThrow" level="Error" exception="true" eventId="2">
                 Failed Subscribed Message Handler {HandlerType:Type} threw an exception while handling a message of type {MessageType:Type}. Database will be rolled back.
             </Event>
-            <Event name="MessageFailed" level="Warning">
+            <Event name="MessageFailed" level="Warning" eventId="3">
                 A subscribed message of type {MessageType:Type} exceeded its maximum retries and has failed.
             </Event>
         </Class>
-        <Class name="CircuitBreaker">
-            <Event name="Cleared" level="Warning" exception="false">
+        <Class name="ProcessSubscribedTask" classId="4">
+            <Event name="MessageHandlerException" level="Warning" exception="true" eventId="1">
+                There was an exception while processing message {MessageId:UniqueIdentity} for subscriber {SusbscriberId:SubscriberId}.
+            </Event>
+            <Event name="ProcessingMessage" level="Debug" eventId="1">
+                Processing message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
+            </Event>
+        </Class>
+    </Namespace>
+    <Namespace name="PeachtreeBus.Errors" namespaceId="5">
+        <Class name="CircuitBreaker" classId="3">
+            <Event name="Cleared" level="Warning" exception="false" eventId="1">
                 The CircuitBreaker '{FriendlyName:string} is cleared.
             </Event>
-            <Event name="Armed" level="Warning" exception="false">
+            <Event name="Armed" level="Warning" exception="false" eventId="2">
                 The CircuitBreaker '{FriendlyName:string} is armed.
             </Event>
-            <Event name="Faulted" level="Warning" exception="false">
+            <Event name="Faulted" level="Warning" exception="false" eventId="3">
                 The CircuitBreaker '{FriendlyName:string} is faulted.
             </Event>
         </Class>
     </Namespace>
-    <Namespace name="PeachtreeBus_Tasks">
-        <Class name="Runner">
-            <Event name="RollbackFailed" level="Error" exception="true">
+    <Namespace name="PeachtreeBus.Tasks" namespaceId="6">
+        <Class name="Runner" classId="1" genericArgs="TBaseTask" genericConstraint="where TBaseTask : IBaseTask">
+            <Event name="RollbackFailed" level="Error" exception="true" eventId="1">
                 Failed to rollback transaction.
             </Event>
-            <Event name="TaskException" level="Error" exception="true">
+            <Event name="TaskException" level="Error" exception="true" eventId="2">
                 The task threw an exception.
             </Event>
         </Class>
     </Namespace>
-</LogMessages>
+    <Namespace name="PeachtreeBus.Management" namespaceId="7">
+        <Class name="ManagementDataAccess" classId="1">
+            <Event name="DataAccessError" level="Error" exception="true" eventId="1">
+                There was an exception interacting with the database. Method: {Method:string}.
+            </Event>
+        </Class>
+    </Namespace>
+</Assembly>

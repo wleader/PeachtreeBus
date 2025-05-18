@@ -48,7 +48,7 @@ public class ProcessSubscribedTask(
         using var activity = new ReceiveActivity(context, started);
 
         // we found a message to process.
-        _log.SubscribedWork_ProcessingMessage(
+        _log.ProcessingMessage(
             context.Data.MessageId,
             context.SubscriberId);
 
@@ -69,7 +69,7 @@ public class ProcessSubscribedTask(
         {
             // there was an exception, Rollback to the save point to undo
             // any db changes done by the handlers.
-            _log.SubscribedWork_MessageHandlerException(
+            _log.MessageHandlerException(
                 context.Data.MessageId,
                 context.SubscriberId,
                 ex);

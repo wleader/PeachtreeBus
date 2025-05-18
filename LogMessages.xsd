@@ -6,9 +6,50 @@
     xmlns:mstns="http://tempuri.org/LogMessages.xsd"
     xmlns="http://www.w3.org/2001/XMLSchema"
 >
+    <simpleType name="NamespaceNameType">
+        <restriction base="string">
+            <pattern value="[a-zA-Z][a-zA-Z0-9_.]*[a-zA-Z0-9_]"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="ClassNameType">
+        <restriction base="string">
+            <pattern value="[a-zA-Z][a-zA-Z0-9_&lt;&gt;]*"/>
+        </restriction>
+    </simpleType>
+    
     <simpleType name="NameType">
         <restriction base="string">
             <pattern value="[a-zA-Z][a-zA-Z0-9_]*"/>
+        </restriction>
+    </simpleType>
+    
+    <simpleType name="EventIdType">
+        <restriction base="int">
+            <minInclusive value="1"/>
+            <maxInclusive value="99" />
+        </restriction>
+    </simpleType>
+
+
+    <simpleType name="ClassIdType">
+        <restriction base="int">
+            <minInclusive value="1"/>
+            <maxInclusive value="99" />
+        </restriction>
+    </simpleType>
+
+    <simpleType name="NamespaceIdType">
+        <restriction base="int">
+            <minInclusive value="1"/>
+            <maxInclusive value="99" />
+        </restriction>
+    </simpleType>
+
+    <simpleType name="AssemblyIdType">
+        <restriction base="int">
+            <minInclusive value="1"/>
+            <maxInclusive value="999" />
         </restriction>
     </simpleType>
 
@@ -35,6 +76,7 @@
                 <attribute name="name" type="lm:NameType" use="required"></attribute>
                 <attribute name="level" type="lm:LevelType" use="optional"></attribute>
                 <attribute name="exception" type="boolean" use="optional"></attribute>
+                <attribute name="eventId" type="lm:EventIdType" use="required"/>
             </extension>
         </simpleContent>
     </complexType>
@@ -43,22 +85,34 @@
         <sequence>
             <element name="Event" minOccurs="0" maxOccurs="unbounded" type="lm:EventType"/>
         </sequence>
-        <attribute name="name" type="lm:NameType" use="required"/>
+        <attribute name="name" type="lm:ClassNameType" use="required"/>
+        <attribute name="classId" type="lm:ClassIdType" use="required"/>
+        <attribute name="genericArgs" type="string" use="optional"/>
+        <attribute name="genericConstraint" type="string" use="optional"/>
     </complexType>
 
     <complexType name="NamespaceType">
         <sequence>
             <element name="Class" minOccurs="0" maxOccurs="unbounded" type="lm:ClassType"/>
         </sequence>
-        <attribute name="name" type="lm:NameType" use="required"/>
+        <attribute name="name" type="lm:NamespaceNameType" use="required"/>
+        <attribute name="namespaceId" type="lm:NamespaceIdType" use="required"/>
     </complexType>
 
-    <complexType name="LogMessagesType">
+    <complexType name="UsingsType">
         <sequence>
-            <element name="Namespace" minOccurs="0" maxOccurs="unbounded" type="lm:NamespaceType">
-            </element>
+            <element name="Using" minOccurs="0" maxOccurs="unbounded" type="lm:NamespaceNameType"/>
         </sequence>
     </complexType>
 
-    <element name="LogMessages" type="lm:LogMessagesType" />
+    <complexType name="AssemblyType">
+        <sequence>
+            <element name="Usings" minOccurs="1" maxOccurs="1" type="lm:UsingsType"/>
+            <element name="Namespace" minOccurs="0" maxOccurs="unbounded" type="lm:NamespaceType"/>
+        </sequence>
+        <attribute name="assemblyId" type="lm:AssemblyIdType" use="required"/>
+        <attribute name="exludeFromCodeCoverage" type="boolean" use="optional"/>
+    </complexType>
+
+    <element name="Assembly" type="lm:AssemblyType" />
 </schema>

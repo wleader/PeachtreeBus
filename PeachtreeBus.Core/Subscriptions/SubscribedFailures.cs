@@ -26,7 +26,7 @@ namespace PeachtreeBus.Subscriptions
 
             IHandleFailedSubscribedMessages handler;
 
-            _log.SubscribedFailures_MessageFailed(message.GetType());
+            _log.MessageFailed(message.GetType());
             try
             {
                 // this can throw if dependency injection cannot provide
@@ -35,7 +35,7 @@ namespace PeachtreeBus.Subscriptions
             }
             catch (Exception ex)
             {
-                _log.SubscribedFailures_NoHandler(ex);
+                _log.NoHandler(ex);
                 return;
             }
 
@@ -46,7 +46,7 @@ namespace PeachtreeBus.Subscriptions
             }
             catch (Exception ex)
             {
-                _log.SubscribedFailures_HandlerThrow(handler.GetType(), message.GetType(), ex);
+                _log.HandlerThrow(handler.GetType(), message.GetType(), ex);
                 _dataAccess.RollbackToSavepoint(SavePointName);
             }
         }

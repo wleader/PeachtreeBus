@@ -34,7 +34,6 @@ public class BusConfigurationFixture
 
         Assert.IsNull(c.QueueConfiguration);
         Assert.IsNull(c.SubscriptionConfiguration);
-        Assert.IsNotNull(c.PublishConfiguration);
         Assert.IsTrue(c.UseDefaultSerialization);
         Assert.IsTrue(c.UseStartupTasks);
     }

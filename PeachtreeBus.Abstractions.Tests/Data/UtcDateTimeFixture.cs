@@ -33,10 +33,10 @@ public class UtcDateTimeFixture
     {
         var expected = DateTime.UtcNow;
         UtcDateTime actual = expected;
-        DateTime actual2 = actual;
+        DateTime expected2 = actual;
 
         Assert.AreEqual(expected, actual.Value);
-        Assert.AreEqual(actual2, actual.Value);
+        Assert.AreEqual(expected2, actual.Value);
     }
 
     [TestMethod]

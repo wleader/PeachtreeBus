@@ -7,7 +7,6 @@ using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -779,7 +778,7 @@ namespace PeachtreeBus.Data
             }
             catch (Exception ex)
             {
-                _log.DapperDataAccess_DataAccessError(caller, ex);
+                _log.DataAccessError(caller, ex);
                 throw;
             }
         }

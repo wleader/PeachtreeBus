@@ -178,7 +178,7 @@ namespace PeachtreeBus.Management
             }
             catch (Exception ex)
             {
-                _log.DapperDataAccess_DataAccessError(caller, ex);
+                _log.DataAccessError(caller, ex);
                 throw;
             }
         }
