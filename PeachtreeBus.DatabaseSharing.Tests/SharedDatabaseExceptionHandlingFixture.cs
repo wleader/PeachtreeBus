@@ -157,26 +157,10 @@ public class SharedDatabaseExceptionHandlingFixture
     }
 
     [TestMethod]
-    public void Given_ConnectionClose_Throws_When_Reconnect_Then_Throws()
-    {
-        _db.Reconnect();
-        _connection.Setup(c => c.Close()).Throws<Exception>();
-        Assert.ThrowsException<Exception>(_db.Reconnect);
-    }
-
-    [TestMethod]
     public void Given_TransactionConsumedHandlerThrows_When_Dispose_Then_Throws()
     {
         _db.BeginTransaction();
         TransactionConsumedHandlerException = new();
-        Assert.ThrowsException<Exception>(_db.Dispose);
-    }
-
-    [TestMethod]
-    public void Given_ConnectionClose_Throws_When_Dispose_Then_Throws()
-    {
-        _db.Reconnect();
-        _connection.Setup(c => c.Close()).Throws<Exception>();
         Assert.ThrowsException<Exception>(_db.Dispose);
     }
 }

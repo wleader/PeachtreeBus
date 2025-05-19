@@ -55,6 +55,8 @@ namespace PeachtreeBus.DatabaseSharing
         /// <param name="name">The name of the savepoint to rollback to.</param>
         void RollbackToSavepoint(string name);
 
+        void SetExternallyManagedConnection(SqlConnection connection, SqlTransaction? transaction);
+
         /// <summary>
         /// The current Transaction (Null when there is no transaction).
         /// </summary>
@@ -194,20 +196,44 @@ namespace PeachtreeBus.DatabaseSharing
             TransactionConsumed?.Invoke(this, EventArgs.Empty);
         }
 
-        /// <inheritdoc/>
-        public void Reconnect()
+        private void DisposeTransactionAndConnection()
+        {
+            if (DenyDispose) return;
+            if (_transaction is not null)
+            {
+                _transaction.Dispose();
+                _transaction = null;
+                TransactionConsumed?.Invoke(this, EventArgs.Empty);
+            }
+
+            _connection?.Dispose();
+            _connection = null;
+        }
+
+        public void SetExternallyManagedConnection(SqlConnection connection, SqlTransaction? transaction)
         {
             lock (_lock)
             {
-                if (_transaction is not null)
-                {
-                    _transaction.Dispose();
-                    _transaction = null;
-                    TransactionConsumed?.Invoke(this, EventArgs.Empty);
-                }
+                DisposeTransactionAndConnection();
+                _connection = new ExternallyManagedSqlConnection(connection, transaction);
+                if (transaction is not null)
+                    _transaction = new ExternallyManagedSqlTransaction(transaction);
+            }
+        }
 
-                _connection?.Close();
-                _connection?.Dispose();
+        /// <inheritdoc/>
+        public void Reconnect()
+        {
+            if (_connection is ExternallyManagedSqlConnection)
+                throw new ExternallManagedSqlConnectionException(
+                    "Reconnection is not allowed when using an Externally Managed Connection.");
+
+            if (DenyDispose)
+                throw new SharedDatabaseException("Reconnection is not allowed when DenyDispose is true.");
+
+            lock (_lock)
+            {
+                DisposeTransactionAndConnection();
                 _connection = _connectionFactory.GetConnection();
                 _connection.Open();
             }
@@ -218,14 +244,7 @@ namespace PeachtreeBus.DatabaseSharing
             if (DenyDispose) return;
             lock (_lock)
             {
-                if (_transaction is not null)
-                {
-                    _transaction.Dispose();
-                    _transaction = null;
-                    TransactionConsumed?.Invoke(this, EventArgs.Empty);
-                }
-                _connection?.Close();
-                _connection?.Dispose();
+                DisposeTransactionAndConnection();
             }
             GC.SuppressFinalize(this);
         }

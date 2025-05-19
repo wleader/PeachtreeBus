@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
 using System.Runtime.CompilerServices;
@@ -33,7 +32,6 @@ public class SqlConnectionFake : ISqlConnection
 
     public void Dispose()
     {
-        Assert.AreEqual(ConnectionState.Closed, State, "Connection was not closed before being disposed.");
         Disposed = true;
         GC.SuppressFinalize(this);
     }
