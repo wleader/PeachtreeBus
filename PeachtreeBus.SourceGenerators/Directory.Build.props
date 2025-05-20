@@ -1,0 +1,10 @@
+﻿<Project>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Copyright>2025 William Leader</Copyright>
+        <Product>PeachtreeBus</Product>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+    </PropertyGroup>
+</Project>

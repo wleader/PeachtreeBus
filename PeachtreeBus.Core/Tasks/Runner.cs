@@ -13,12 +13,12 @@ public interface IRunner
 
 public abstract class Runner<TBaseTask>(
     IBusDataAccess dataAccess,
-    ILogger log,
+    ILogger<Runner<TBaseTask>> log,
     TBaseTask task)
     where TBaseTask : IBaseTask
 {
     protected readonly IBusDataAccess _dataAccess = dataAccess;
-    private readonly ILogger _log = log;
+    private readonly ILogger<Runner<TBaseTask>> _log = log;
     private readonly TBaseTask _task = task;
 
     public async Task RunRepeatedly(CancellationToken token)
@@ -45,14 +45,14 @@ public abstract class Runner<TBaseTask>(
             }
             catch (Exception e)
             {
-                _log.Runner_TaskException(e);
+                _log.TaskException(e);
                 try
                 {
                     _dataAccess.RollbackTransaction();
                 }
                 catch (Exception rollbackEx)
                 {
-                    _log.Runner_RollbackFailed(rollbackEx);
+                    _log.RollbackFailed(rollbackEx);
                 }
                 break;
             }

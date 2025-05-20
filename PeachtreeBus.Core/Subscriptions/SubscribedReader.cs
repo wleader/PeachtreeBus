@@ -73,13 +73,13 @@ namespace PeachtreeBus.Subscriptions
             if (retryResult.ShouldRetry)
             {
                 context.Data.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
-                _log.SubscribedReader_MessageWillBeRetried(context.Data.MessageId, context.SubscriberId, context.Data.NotBefore);
+                _log.MessageWillBeRetried(context.Data.MessageId, context.SubscriberId, context.Data.NotBefore);
                 _meters.RetryMessage();
                 await _dataAccess.UpdateMessage(context.Data);
             }
             else
             {
-                _log.SubscribedReader_MessageFailed(context.Data.MessageId, context.SubscriberId);
+                _log.MessageFailed(context.Data.MessageId, context.SubscriberId);
                 context.Data.Failed = _clock.UtcNow;
                 _meters.FailMessage();
                 await _dataAccess.FailMessage(context.Data);
@@ -107,7 +107,7 @@ namespace PeachtreeBus.Subscriptions
 
             if (context.Headers is null)
             {
-                _log.SubscribedReader_HeaderNotDeserializable(subscriptionMessage.MessageId, subscriberId);
+                _log.HeaderNotDeserializable(subscriptionMessage.MessageId, subscriberId);
                 // this might not work, The body might deserialize but there won't be an
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
@@ -119,7 +119,7 @@ namespace PeachtreeBus.Subscriptions
             var messageType = Type.GetType(context.MessageClass);
             if (messageType is null)
             {
-                _log.SubscribedReader_MessageClassNotRecognized(
+                _log.MessageClassNotRecognized(
                     context.MessageClass,
                     context.MessageId,
                     subscriberId);
@@ -133,7 +133,7 @@ namespace PeachtreeBus.Subscriptions
             }
             catch (Exception ex)
             {
-                _log.SubscribedReader_BodyNotDeserializable(subscriptionMessage.MessageId, subscriberId, ex);
+                _log.BodyNotDeserializable(subscriptionMessage.MessageId, subscriberId, ex);
             }
 
             return context;

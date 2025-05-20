@@ -52,7 +52,7 @@ public class ProcessQueuedTask(
         using var activity = new ReceiveActivity(context, started);
 
         // we found a message to process.
-        _log.QueueWork_ProcessingMessage(context.MessageId, context.MessageClass);
+        _log.ProcessingMessage(context.MessageId, context.MessageClass);
 
         try
         {
@@ -67,7 +67,7 @@ public class ProcessQueuedTask(
             if (context.SagaBlocked)
             {
                 // the saga is blocked. delay the message and try again later.
-                _log.QueueWork_SagaBlocked(context.CurrentHandler!, context.SagaKey);
+                _log.SagaBlocked(context.CurrentHandler!, context.SagaKey);
                 _dataAccess.RollbackToSavepoint(savepointName);
                 await _queueReader.DelayMessage(context, 250);
                 _meters.SagaBlocked();
@@ -81,7 +81,7 @@ public class ProcessQueuedTask(
         {
             // there was an exception, Rollback to the save point to undo
             // any db changes done by the handlers.
-            _log.QueueWork_HandlerException(context.CurrentHandler!, context.MessageId, context.MessageClass, ex);
+            _log.HandlerException(context.CurrentHandler!, context.MessageId, context.MessageClass, ex);
             _dataAccess.RollbackToSavepoint(savepointName);
             // increment the retry count, (or maybe even fail the message)
             await _queueReader.Fail(context, ex);

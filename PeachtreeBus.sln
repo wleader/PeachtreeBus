@@ -55,6 +55,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.AppHos
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MessageInterfaces", "PeachtreeBus.MessageInterfaces\PeachtreeBus.MessageInterfaces.csproj", "{D694D0E6-028A-4582-B7CE-B2E0F45BB646}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.SourceGenerators", "PeachtreeBus.SourceGenerators\PeachtreeBus.SourceGenerators.csproj", "{D249AC73-0399-0A51-0C0F-8B533E585420}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.SourceGenerators.Tests", "PeachtreeBus.SourceGenerators.Tests\PeachtreeBus.SourceGenerators.Tests.csproj", "{9FB22149-4DC7-2B17-1241-75DACD6F86BF}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.ExampleSendOnly", "PeachtreeBus.ExampleSendOnly\PeachtreeBus.ExampleSendOnly.csproj", "{555453DA-C03E-4228-B27D-AAE4CFDE2870}"
 EndProject
 Global
@@ -157,6 +161,18 @@ Global
 		{D694D0E6-028A-4582-B7CE-B2E0F45BB646}.Nuget|Any CPU.Build.0 = Release|Any CPU
 		{D694D0E6-028A-4582-B7CE-B2E0F45BB646}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D694D0E6-028A-4582-B7CE-B2E0F45BB646}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D249AC73-0399-0A51-0C0F-8B533E585420}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D249AC73-0399-0A51-0C0F-8B533E585420}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D249AC73-0399-0A51-0C0F-8B533E585420}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{D249AC73-0399-0A51-0C0F-8B533E585420}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{D249AC73-0399-0A51-0C0F-8B533E585420}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D249AC73-0399-0A51-0C0F-8B533E585420}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FB22149-4DC7-2B17-1241-75DACD6F86BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FB22149-4DC7-2B17-1241-75DACD6F86BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FB22149-4DC7-2B17-1241-75DACD6F86BF}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FB22149-4DC7-2B17-1241-75DACD6F86BF}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{9FB22149-4DC7-2B17-1241-75DACD6F86BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FB22149-4DC7-2B17-1241-75DACD6F86BF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{555453DA-C03E-4228-B27D-AAE4CFDE2870}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{555453DA-C03E-4228-B27D-AAE4CFDE2870}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{555453DA-C03E-4228-B27D-AAE4CFDE2870}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU

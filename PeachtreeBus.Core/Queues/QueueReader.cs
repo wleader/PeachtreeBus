@@ -102,7 +102,7 @@ namespace PeachtreeBus.Queues
 
             if (result.Headers is null)
             {
-                _log.QueueReader_HeaderNotDeserializable(queueMessage.MessageId, queueName);
+                _log.HeaderNotDeserializable(queueMessage.MessageId, queueName);
                 // this might not work, The body might deserialize but there won't be an
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
@@ -114,7 +114,7 @@ namespace PeachtreeBus.Queues
             var messageType = Type.GetType(result.MessageClass);
             if (messageType is null)
             {
-                _log.QueueReader_MessageClassNotRecognized(result.MessageClass, queueMessage.MessageId, queueName);
+                _log.MessageClassNotRecognized(result.MessageClass, queueMessage.MessageId, queueName);
                 return result;
             }
 
@@ -124,7 +124,7 @@ namespace PeachtreeBus.Queues
             }
             catch (Exception ex)
             {
-                _log.QueueReader_BodyNotDeserializable(queueMessage.MessageId, queueName, ex);
+                _log.BodyNotDeserializable(queueMessage.MessageId, queueName, ex);
             }
 
             return result;
@@ -150,13 +150,13 @@ namespace PeachtreeBus.Queues
             if (retryResult.ShouldRetry)
             {
                 context.Data.NotBefore = _clock.UtcNow.Add(retryResult.Delay);
-                _log.QueueReader_MessageWillBeRetried(context.Data.MessageId, context.SourceQueue, context.Data.NotBefore);
+                _log.MessageWillBeRetried(context.Data.MessageId, context.SourceQueue, context.Data.NotBefore);
                 _meters.RetryMessage();
                 await _dataAccess.UpdateMessage(context.Data, context.SourceQueue);
             }
             else
             {
-                _log.QueueReader_MessageFailed(context.Data.MessageId, context.SourceQueue);
+                _log.MessageFailed(context.Data.MessageId, context.SourceQueue);
                 context.Data.Failed = _clock.UtcNow;
                 _meters.FailMessage();
                 await _dataAccess.FailMessage(context.Data, context.SourceQueue);
@@ -184,7 +184,7 @@ namespace PeachtreeBus.Queues
                 message: "Saga<>.SagaName must not return an uninitialized SagaName.");
 
             // fetch the data from the DB.
-            _log.QueueReader_LoadingSagaData(sagaName, context.SagaKey);
+            _log.LoadingSagaData(sagaName, context.SagaKey);
             context.SagaData = await _dataAccess.GetSagaData(sagaName, context.SagaKey);
 
             if (context.SagaBlocked) return;
@@ -247,12 +247,12 @@ namespace PeachtreeBus.Queues
             bool IsComplete = completeProperty.GetValue(saga) is bool completeValue && completeValue;
             if (IsComplete)
             {
-                _log.QueueReader_DeletingSagaData(sagaName, context.SagaKey);
+                _log.DeletingSagaData(sagaName, context.SagaKey);
                 await _dataAccess.DeleteSagaData(sagaName, context.SagaKey);
                 return;
             }
 
-            _log.QueueReader_SavingSagaData(sagaName, context.SagaKey);
+            _log.SavingSagaData(sagaName, context.SagaKey);
 
             // the saga is not complete, serialize it.
             var dataProperty = sagaType.GetProperty("Data");

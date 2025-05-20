@@ -90,7 +90,7 @@ namespace PeachtreeBus.Queues
             if (handlerIsSaga)
             {
                 queueContext.SagaKey = _sagaMessageMapManager.GetKey(handler, context.Message);
-                _log.QueueWork_LoadingSaga(queueContext.CurrentHandler, context.SagaKey);
+                _log.LoadingSaga(queueContext.CurrentHandler, context.SagaKey);
 
                 await _queueReader.LoadSaga(handler, queueContext);
 
@@ -110,7 +110,7 @@ namespace PeachtreeBus.Queues
                     // positive. This code is assuming that the user knows that they completed the
                     // saga, or if they send a message before starting, that they will discover 
                     // their error. All we can really do is log something so that its discoverable.
-                    _log.QueueWork_SagaNotStarted(queueContext.CurrentHandler, context.SagaKey,
+                    _log.SagaNotStarted(queueContext.CurrentHandler, context.SagaKey,
                         context.MessageId);
                     return;
                 }
@@ -125,7 +125,7 @@ namespace PeachtreeBus.Queues
             // should it have a seperate try-catch around this and treat it differently?
             // that would allow us to tell the difference between a problem in a handler, or if the problem was in the bus code.
             // does that mater for the retry?
-            _log.QueueWork_InvokeHandler(context.MessageId, context.MessageClass, queueContext.CurrentHandler);
+            _log.InvokeHandler(context.MessageId, context.MessageClass, queueContext.CurrentHandler);
             {
                 var taskObject = handleMethod.Invoke(handler, [context, context.Message]);
                 var castTask = UnreachableException.ThrowIfNull(taskObject as Task,
@@ -136,7 +136,7 @@ namespace PeachtreeBus.Queues
             if (handlerIsSaga)
             {
                 await _queueReader.SaveSaga(handler, queueContext);
-                _log.QueueWork_SagaSaved(queueContext.CurrentHandler, context.SagaKey!);
+                _log.SagaSaved(queueContext.CurrentHandler, context.SagaKey!);
             }
         }
     }
