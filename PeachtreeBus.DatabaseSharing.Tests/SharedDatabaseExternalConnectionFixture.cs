@@ -26,12 +26,6 @@ public class SharedDatabaseExternalConnectionFixture : SharedDatabaseFixtureBase
     }
 
     [TestMethod]
-    public void Given_ExternalConnection_When()
-    {
-        Assert.Inconclusive("Tests not written.");
-    }
-
-    [TestMethod]
     public void Given_ExternalConnection_When_Reconnect_Then_Throws()
     {
         var connection = GetUninitialzed<SqlConnection>();
