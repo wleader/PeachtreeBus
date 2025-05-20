@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PeachtreeBus.DatabaseSharing;
 
@@ -10,17 +11,20 @@ public class ExternallyManagedSqlTransaction(SqlTransaction transaction) : ISqlT
 
     public void Commit()
     {
-        throw new ExternallManagedSqlConnectionException(
+        throw new ExternallyManagedSqlConnectionException(
             "The transaction cannot be committed because it is an externally managed transaction.");
     }
 
     public void Rollback()
     {
-        throw new ExternallManagedSqlConnectionException(
+        throw new ExternallyManagedSqlConnectionException(
             "The transaction cannot be rolled back because it is an externally managed transaction.");
     }
 
+    [ExcludeFromCodeCoverage(Justification = "Testing requires a live connection.")]
     public void Rollback(string transactionName) => Transaction.Rollback(transactionName);
+
+    [ExcludeFromCodeCoverage(Justification = "Testing requires a live connection.")]
     public void Save(string savePointName) => Transaction.Save(savePointName);
 
     public void Dispose()

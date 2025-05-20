@@ -116,6 +116,13 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
         Assert.AreSame(_lastConnection.Connection, _db.Connection);
     }
 
+    [TestMethod]
+    public void Given_DenyDispose_When_Reconnection_Then_Throws()
+    {
+        _db.DenyDispose = true;
+        Assert.ThrowsExactly<SharedDatabaseException>(_db.Reconnect);
+    }
+
     #endregion
 
     #region When_RollbackToSavepoint

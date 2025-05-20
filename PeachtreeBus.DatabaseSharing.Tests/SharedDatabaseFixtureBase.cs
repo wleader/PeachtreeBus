@@ -42,4 +42,27 @@ public abstract class SharedDatabaseFixtureBase
         Assert.IsFalse(_transactionStarted, "Transaction Started Event Fired Twice.");
         _transactionStarted = true;
     }
+
+    protected ISqlConnection? GetInternalConnection()
+    {
+        return (ISqlConnection?)
+            typeof(SharedDatabase)
+            .GetField(
+                "_connection",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(_db);
+    }
+
+    protected ISqlTransaction? GetInternalTransaction()
+    {
+        return (ISqlTransaction?)
+            typeof(SharedDatabase)
+            .GetField(
+                "_transaction",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(_db);
+    }
+
 }

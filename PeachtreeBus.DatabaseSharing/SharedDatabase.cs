@@ -198,7 +198,12 @@ namespace PeachtreeBus.DatabaseSharing
 
         private void DisposeTransactionAndConnection()
         {
-            if (DenyDispose) return;
+            // this code can call .Dispose
+            // even if the transaction and connection are 
+            // externally managed. That is because the 
+            // external classes do not pass the dispose call
+            // through to the native objects.
+
             if (_transaction is not null)
             {
                 _transaction.Dispose();
@@ -215,7 +220,7 @@ namespace PeachtreeBus.DatabaseSharing
             lock (_lock)
             {
                 DisposeTransactionAndConnection();
-                _connection = new ExternallyManagedSqlConnection(connection, transaction);
+                _connection = new ExternallyManagedSqlConnection(connection);
                 if (transaction is not null)
                     _transaction = new ExternallyManagedSqlTransaction(transaction);
             }
@@ -225,7 +230,7 @@ namespace PeachtreeBus.DatabaseSharing
         public void Reconnect()
         {
             if (_connection is ExternallyManagedSqlConnection)
-                throw new ExternallManagedSqlConnectionException(
+                throw new ExternallyManagedSqlConnectionException(
                     "Reconnection is not allowed when using an Externally Managed Connection.");
 
             if (DenyDispose)
