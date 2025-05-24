@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
@@ -55,10 +56,25 @@ public class PublishPipelineFinalStepFixture
             })
             .ReturnsAsync(() => PublishResult);
 
+        var userMessage = TestData.CreateSubscribedUserMessage();
+
         context = new()
         {
-            Message = TestData.CreateSubscribedUserMessage(),
-            Topic = TestData.DefaultTopic,
+            Data = new()
+            {
+                ValidUntil = TestData.Now.AddDays(1),
+                MessageId = UniqueIdentity.New(),
+                Body = new("{}"),
+                Priority = 0,
+                Enqueued = TestData.Now,
+                NotBefore = TestData.Now,
+                Headers = new()
+                {
+                    MessageClass = userMessage.GetType().GetClassName()
+                },
+                Topic = TestData.DefaultTopic,
+            },
+            Message = userMessage,
         };
 
         serializer.Setup(x => x.Serialize(context.Message, context.Message.GetType()))
@@ -92,7 +108,7 @@ public class PublishPipelineFinalStepFixture
     public async Task Invoke_SetsTypeOnHeaders()
     {
         await step.Invoke(context, null!);
-        Assert.AreEqual("PeachtreeBus.Abstractions.Tests.TestClasses.TestSubscribedMessage, PeachtreeBus.Abstractions.Tests",
+        Assert.AreEqual(new("PeachtreeBus.Abstractions.Tests.TestClasses.TestSubscribedMessage, PeachtreeBus.Abstractions.Tests"),
             PublishedMessage?.Headers?.MessageClass);
     }
 
@@ -198,7 +214,7 @@ public class PublishPipelineFinalStepFixture
     [TestMethod]
     public async Task Given_Topic_When_Invoke_Then_TopicIsUsed()
     {
-        context.Topic = TestData.DefaultTopic;
+        context.Data.Topic = TestData.DefaultTopic;
         await step.Invoke(context, null!);
 
         Assert.IsTrue(PublishedTopic.HasValue);
@@ -225,7 +241,7 @@ public class PublishPipelineFinalStepFixture
     [TestMethod]
     public async Task Given_UserHeaders_When_Invoke_Then_UserHeadersAreUsed()
     {
-        context.UserHeaders = TestData.DefaultUserHeaders;
+        context.Data.Headers.UserHeaders = TestData.DefaultUserHeaders;
         await step.Invoke(context, null!);
         Assert.AreSame(context.UserHeaders, PublishedMessage?.Headers?.UserHeaders);
     }

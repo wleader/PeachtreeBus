@@ -2,6 +2,7 @@
     <Usings>
         <Using>PeachtreeBus.Data</Using>
         <Using>PeachtreeBus.Sagas</Using>
+        <Using>PeachtreeBus.ClassNames</Using>
     </Usings>
     <Namespace name="PeachtreeBus.Data" namespaceId="2">
         <Class name="DapperDataAccess" classId="1">
@@ -19,7 +20,7 @@
                 Body could not be deserialized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
             <Event name="MessageClassNotRecognized" level="Warning" eventId="3">
-                Message class '{MessageClass:string}' was not recognized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
+                Message class '{MessageClass:ClassName}' was not recognized for message {MessageId:UniqueIdentity} from queue {QueueName:QueueName}.
             </Event>
             <Event name="MessageFailed" level="Warning" eventId="4">
                 Message {MessageId:UniqueIdentity} from queue {QueueName:QueueName} has failed and will not be retried.
@@ -42,13 +43,13 @@
                 Saga Loading {SagaType:string} {SagaKey:SagaKey}.
             </Event>
             <Event name="InvokeHandler" level="Debug" eventId="2">
-                Handling message {MessageId:UniqueIdentity} of type {MessageClass:string} with {HandlerType:string}.
+                Handling message {MessageId:UniqueIdentity} of type {MessageClass:ClassName} with {HandlerType:string}.
             </Event>
             <Event name="SagaSaved" level="Debug" eventId="3">
                 Saga Saved {SagaType:string} {SagaKey:SagaKey}.
             </Event>
             <Event name="HandlerException" level="Warning" exception="true" eventId="4">
-                There was an exception in {HandlerType:string} when handling Message {MessageId:UniqueIdentity} of type {MessageType:string}.
+                There was an exception in {HandlerType:string} when handling Message {MessageId:UniqueIdentity} of type {MessageType:ClassName}.
             </Event>
             <Event name="SagaNotStarted" level="Information" eventId="5">
                 The saga {SagaType:string} for key '{SagaKey:SagaKey}' has not been started, or has completed. The Message {MessageId:UniqueIdentity} will not be handled by the saga.
@@ -67,13 +68,13 @@
         </Class>
         <Class name="ProcessQueuedTask" classId="4">
             <Event name="ProcessingMessage" level="Debug" eventId="1">
-                Processing Message {MessageId:UniqueIdentity}, Type: {MessageClass:string}.
+                Processing Message {MessageId:UniqueIdentity}, Type: {MessageClass:ClassName}.
             </Event>
             <Event name="SagaBlocked" level="Information" eventId="2">
                 The saga {SagaType:string} for key {SagaKey:SagaKey} is blocked. The current message will be delayed and retried.
             </Event>
             <Event name="HandlerException" level="Warning" exception="true" eventId="3">
-                There was an exception in {HandlerType:string} when handling Message {MessageId:UniqueIdentity} of type {MessageType:string}.
+                There was an exception in {HandlerType:string} when handling Message {MessageId:UniqueIdentity} of type {MessageType:ClassName}.
             </Event>
         </Class>
     </Namespace>
@@ -93,7 +94,7 @@
                 Message Body could not be deserialized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
             </Event>
             <Event name="MessageClassNotRecognized" level="Warning" eventId="4">
-                Message class '{MessageClass:string}' was not recognized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
+                Message class '{MessageClass:ClassName}' was not recognized for message {MessageId:UniqueIdentity} for subscriber {SubscriberId:SubscriberId}.
             </Event>
             <Event name="MessageWillBeRetried" level="Warning" eventId="5">
                 Message {MessageId:UniqueIdentity} from Subscriber {SubscriberId:SubscriberId} will be retried after {NotBefore:DateTime}.

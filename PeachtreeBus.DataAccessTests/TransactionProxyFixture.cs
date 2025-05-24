@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
@@ -52,7 +53,7 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
         {
             MessageId = UniqueIdentity.New(),
             Body = new SerializedData("Foo"),
-            Headers = new(),
+            Headers = new() { MessageClass = ClassName.Default },
             Priority = 0,
             NotBefore = DateTime.UtcNow,
             Retries = 0,

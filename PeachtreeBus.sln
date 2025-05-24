@@ -61,6 +61,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.SourceGenerato
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.ExampleSendOnly", "PeachtreeBus.ExampleSendOnly\PeachtreeBus.ExampleSendOnly.csproj", "{555453DA-C03E-4228-B27D-AAE4CFDE2870}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Benchmarks", "PeachtreeBus.Benchmarks\PeachtreeBus.Benchmarks.csproj", "{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -179,6 +181,12 @@ Global
 		{555453DA-C03E-4228-B27D-AAE4CFDE2870}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{555453DA-C03E-4228-B27D-AAE4CFDE2870}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{555453DA-C03E-4228-B27D-AAE4CFDE2870}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

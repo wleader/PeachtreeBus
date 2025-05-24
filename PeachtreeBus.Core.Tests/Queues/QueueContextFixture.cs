@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using System;
@@ -14,7 +15,7 @@ public class QueueContextFixture
         UtcDateTime enqueued = DateTime.UtcNow;
         UtcDateTime notBefore = enqueued.AddMinutes(1);
         var messageId = UniqueIdentity.New();
-        var headers = new Headers(typeof(object));
+        Headers headers = new () { MessageClass = ClassName.Default };
         int priority = 23;
 
         var context = new QueueContext()
@@ -36,7 +37,7 @@ public class QueueContextFixture
         Assert.AreEqual(messageId, context.MessageId);
         Assert.AreSame(headers, context.Headers);
         Assert.AreEqual(priority, context.MessagePriority);
-        Assert.AreEqual("System.Object, System.Private.CoreLib", context.MessageClass);
+        Assert.AreEqual(ClassName.Default, context.MessageClass);
         Assert.AreSame(headers.UserHeaders, context.UserHeaders);
     }
 }

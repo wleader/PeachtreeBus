@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Sagas;
@@ -23,7 +24,8 @@ namespace PeachtreeBus.Queues
         IFindQueueHandlers findHandlers,
         ILogger<QueuePipelineFinalStep> log,
         ISagaMessageMapManager sagaMessageMapManager,
-        IQueueReader queueReader)
+        IQueueReader queueReader,
+        IClassNameService classNameService)
         : PipelineFinalStep<IQueueContext>
         , IQueuePipelineFinalStep
     {
@@ -31,11 +33,12 @@ namespace PeachtreeBus.Queues
         private readonly ILogger<QueuePipelineFinalStep> _log = log;
         private readonly ISagaMessageMapManager _sagaMessageMapManager = sagaMessageMapManager;
         private readonly IQueueReader _queueReader = queueReader;
+        private readonly IClassNameService _classNameService = classNameService;
 
         public override async Task Invoke(IQueueContext context, Func<IQueueContext, Task>? next)
         {
             // determine what type of message it is.
-            var messageType = Type.GetType(context.MessageClass)
+            var messageType = _classNameService.GetTypeForClassName(context.MessageClass)
                 ?? throw new QueueMessageClassNotRecognizedException(
                     context.MessageId,
                     context.SourceQueue,

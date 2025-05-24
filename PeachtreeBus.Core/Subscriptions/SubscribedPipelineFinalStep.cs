@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Exceptions;
+﻿using PeachtreeBus.ClassNames;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using System;
 using System.Collections.Generic;
@@ -9,18 +10,20 @@ namespace PeachtreeBus.Subscriptions
     public interface ISubscribedPipelineFinalStep : IPipelineFinalStep<ISubscribedContext> { }
 
     public class SubscribedPipelineFinalStep(
-        IFindSubscribedHandlers findHandlers)
+        IFindSubscribedHandlers findHandlers,
+        IClassNameService classNameService)
         : PipelineFinalStep<ISubscribedContext>
         , ISubscribedPipelineFinalStep
     {
         private readonly IFindSubscribedHandlers _findHandlers = findHandlers;
+        private readonly IClassNameService _classNameService = classNameService;
 
         public override async Task Invoke(ISubscribedContext subscribedcontext, Func<ISubscribedContext, Task>? next)
         {
             var context = (SubscribedContext)subscribedcontext;
 
             // determine what type of message it is.
-            var messageType = Type.GetType(context.MessageClass)
+            var messageType = _classNameService.GetTypeForClassName(context.MessageClass)
                 ?? throw new SubscribedMessageClassNotRecognizedException(context.Data.MessageId,
                     context.SubscriberId,
                     context.MessageClass);

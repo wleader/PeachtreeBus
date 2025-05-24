@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Telemetry;
@@ -33,7 +34,8 @@ namespace PeachtreeBus.Subscriptions
         IMeters meters,
         ISystemClock clock,
         ISubscribedFailures failures,
-        ISubscribedRetryStrategy retryStrategy)
+        ISubscribedRetryStrategy retryStrategy,
+        IClassNameService classNameService)
         : ISubscribedReader
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
@@ -43,6 +45,7 @@ namespace PeachtreeBus.Subscriptions
         private readonly ISystemClock _clock = clock;
         private readonly ISubscribedFailures _failures = failures;
         private readonly ISubscribedRetryStrategy _retryStrategy = retryStrategy;
+        private readonly IClassNameService _classNameService = classNameService;
 
         /// <summary>
         /// Completes a subscribed message
@@ -112,11 +115,11 @@ namespace PeachtreeBus.Subscriptions
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
                 // this message woulld proably have to be removed from the database by hand?
-                context.Data.Headers = new Headers { MessageClass = "System.Object" };
+                context.Data.Headers = new() { MessageClass = ClassName.Default };
             }
 
             // Deserialize the message.
-            var messageType = Type.GetType(context.MessageClass);
+            var messageType = _classNameService.GetTypeForClassName(context.MessageClass);
             if (messageType is null)
             {
                 _log.MessageClassNotRecognized(

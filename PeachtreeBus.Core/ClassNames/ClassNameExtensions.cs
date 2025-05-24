@@ -1,21 +1,21 @@
 ﻿using System;
 using Builder = System.Text.StringBuilder;
 
-namespace PeachtreeBus;
+namespace PeachtreeBus.ClassNames;
 
-public static class TypeNameExtensions
+public static class ClassNameExtensions
 {
     public static string GetTypeFullName<T>(this T _) =>
         typeof(T).GetTypeFullName();
 
-    public static string GetMessageClass<T>(this T _) =>
-        typeof(T).GetMessageClass();
+    public static ClassName GetClassName<T>(this T _) =>
+        typeof(T).GetClassName();
 
     public static string GetTypeFullName(this Type type) =>
         new Builder().AddTypeFullName(type).ToString();
 
-    public static string GetMessageClass(this Type type) =>
-        new Builder().AddMessageClass(type).ToString();
+    public static ClassName GetClassName(this Type type) =>
+        new(new Builder().AddMessageClass(type).ToString());
 
     private static Builder AddTypeFullName(this Builder bldr, Type type) =>
         type.IsGenericType ? bldr.AddGenericFullName(type) : bldr.AddBaseFullName(type);

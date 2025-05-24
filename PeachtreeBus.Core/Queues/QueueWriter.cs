@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PeachtreeBus.ClassNames;
+using PeachtreeBus.Data;
+using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Queues;
@@ -32,10 +34,13 @@ public interface IQueueWriter
 /// </summary>
 public class QueueWriter(
     ISystemClock clock,
-    ISendPipelineInvoker pipelineInvoker) : IQueueWriter
+    ISendPipelineInvoker pipelineInvoker,
+    IClassNameService classNameService)
+    : IQueueWriter
 {
     private readonly ISystemClock _clock = clock;
     private readonly ISendPipelineInvoker pipelineInvoker = pipelineInvoker;
+    private readonly IClassNameService _classNameService = classNameService;
 
     public async Task WriteMessage(
         QueueName queueName,
@@ -49,11 +54,21 @@ public class QueueWriter(
 
         var context = new SendContext()
         {
+            Data = new()
+            {
+                NotBefore = notBefore ?? _clock.UtcNow,
+                Headers = new()
+                {
+                    MessageClass = _classNameService.GetClassNameForType(message.GetType()),
+                    UserHeaders = userHeaders ?? []
+                },
+                MessageId = UniqueIdentity.New(),
+                Body = default!,
+                Enqueued = _clock.UtcNow,
+                Priority = priority,
+            },
             Destination = queueName,
-            NotBefore = notBefore ?? _clock.UtcNow,
-            MessagePriority = priority,
             Message = message,
-            UserHeaders = userHeaders ?? [],
             StartNewConversation = newConveration,
         };
 

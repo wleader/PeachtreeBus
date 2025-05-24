@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using PeachtreeBus.ClassNames;
+using PeachtreeBus.Data;
 
 namespace PeachtreeBus;
 
@@ -9,6 +10,7 @@ public interface IContext
 {
     IWrappedScope? Scope { get; }
     object Message { get; }
+    ClassName MessageClass { get; }
 }
 
 /// <summary>
@@ -33,7 +35,6 @@ public interface IIncomingContext : IContext
     /// </summary>
     int MessagePriority { get; }
 
-    string MessageClass { get; }
     IReadOnlyUserHeaders UserHeaders { get; }
 }
 
@@ -42,5 +43,5 @@ public interface IOutgoingContext : IContext
     UtcDateTime NotBefore { get; set; }
     int MessagePriority { get; set; }
     bool StartNewConversation { get; set; }
-    UserHeaders UserHeaders { get; set; }
+    UserHeaders UserHeaders { get; }
 }

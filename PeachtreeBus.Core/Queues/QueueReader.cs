@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Sagas;
@@ -75,7 +76,8 @@ namespace PeachtreeBus.Queues
         ISerializer serializer,
         ISystemClock clock,
         IQueueFailures failures,
-        IQueueRetryStrategy retryStrategy) : IQueueReader
+        IQueueRetryStrategy retryStrategy,
+        IClassNameService classNameService) : IQueueReader
     {
         private readonly IBusDataAccess _dataAccess = dataAccess;
         private readonly ILogger<QueueReader> _log = log;
@@ -84,6 +86,7 @@ namespace PeachtreeBus.Queues
         private readonly ISystemClock _clock = clock;
         private readonly IQueueFailures _failures = failures;
         private readonly IQueueRetryStrategy _retryStrategy = retryStrategy;
+        private readonly IClassNameService _classNameService = classNameService;
 
         /// <inheritdoc/>
         public async Task<QueueContext?> GetNext(QueueName queueName)
@@ -107,11 +110,11 @@ namespace PeachtreeBus.Queues
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
                 // this message would proably have to be removed from the database by hand?
-                result.Data.Headers = new() { MessageClass = "System.Object" };
+                result.Data.Headers = new() { MessageClass = ClassName.Default };
             }
 
             // Deserialize the message.
-            var messageType = Type.GetType(result.MessageClass);
+            var messageType = _classNameService.GetTypeForClassName(result.MessageClass);
             if (messageType is null)
             {
                 _log.MessageClassNotRecognized(result.MessageClass, queueMessage.MessageId, queueName);

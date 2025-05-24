@@ -1,14 +1,15 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Abstractions.Tests.TestClasses;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Core.Tests.Sagas;
 using PeachtreeBus.Queues;
 using System;
 
-namespace PeachtreeBus.Core.Tests;
+namespace PeachtreeBus.Core.Tests.ClassNames;
 
 [TestClass]
-public class TypeNameExtensionsFixture
+public class ClassNameExtensionsFixture
 {
     [TestMethod]
     public void Given_SimpleObject_Then_NamesAreCorrect()
@@ -19,8 +20,8 @@ public class TypeNameExtensionsFixture
             "PeachtreeBus.Abstractions.Tests.TestClasses.TestQueuedMessage",
             value.GetTypeFullName());
         Assert.AreEqual(
-            "PeachtreeBus.Abstractions.Tests.TestClasses.TestQueuedMessage, PeachtreeBus.Abstractions.Tests",
-            value.GetMessageClass());
+            new("PeachtreeBus.Abstractions.Tests.TestClasses.TestQueuedMessage, PeachtreeBus.Abstractions.Tests"),
+            value.GetClassName());
     }
 
     [TestMethod]
@@ -32,8 +33,8 @@ public class TypeNameExtensionsFixture
             "Moq.Mock`1[[PeachtreeBus.Queues.IQueueMessage, PeachtreeBus.MessageInterfaces]]",
             value.GetTypeFullName());
         Assert.AreEqual(
-            "Moq.Mock`1[[PeachtreeBus.Queues.IQueueMessage, PeachtreeBus.MessageInterfaces]], Moq",
-            value.GetMessageClass());
+            new("Moq.Mock`1[[PeachtreeBus.Queues.IQueueMessage, PeachtreeBus.MessageInterfaces]], Moq"),
+            value.GetClassName());
     }
 
     [TestMethod]
@@ -45,8 +46,8 @@ public class TypeNameExtensionsFixture
             "System.Tuple`2[[System.String, System.Private.CoreLib], [System.Int32, System.Private.CoreLib]]",
             value.GetTypeFullName());
         Assert.AreEqual(
-            "System.Tuple`2[[System.String, System.Private.CoreLib], [System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
-            value.GetMessageClass());
+            new("System.Tuple`2[[System.String, System.Private.CoreLib], [System.Int32, System.Private.CoreLib]], System.Private.CoreLib"),
+            value.GetClassName());
     }
 
     [TestMethod]
@@ -56,7 +57,7 @@ public class TypeNameExtensionsFixture
         Assert.AreEqual(
             "System.Tuple`2", type.GetTypeFullName());
         Assert.AreEqual(
-            "System.Tuple`2, System.Private.CoreLib", type.GetMessageClass());
+            new("System.Tuple`2, System.Private.CoreLib"), type.GetClassName());
     }
 
     private class Nested
@@ -69,9 +70,9 @@ public class TypeNameExtensionsFixture
     {
         var type = typeof(Nested);
         Assert.AreEqual(
-            "PeachtreeBus.Core.Tests.TypeNameExtensionsFixture+Nested", type.GetTypeFullName());
+            "PeachtreeBus.Core.Tests.ClassNames.ClassNameExtensionsFixture+Nested", type.GetTypeFullName());
         Assert.AreEqual(
-            "PeachtreeBus.Core.Tests.TypeNameExtensionsFixture+Nested, PeachtreeBus.Core.Tests", type.GetMessageClass());
+            new("PeachtreeBus.Core.Tests.ClassNames.ClassNameExtensionsFixture+Nested, PeachtreeBus.Core.Tests"), type.GetClassName());
     }
 
     [TestMethod]
@@ -79,9 +80,9 @@ public class TypeNameExtensionsFixture
     {
         var type = typeof(Nested.Nested2<int>);
         Assert.AreEqual(
-            "PeachtreeBus.Core.Tests.TypeNameExtensionsFixture+Nested+Nested2`1[[System.Int32, System.Private.CoreLib]]", type.GetTypeFullName());
+            "PeachtreeBus.Core.Tests.ClassNames.ClassNameExtensionsFixture+Nested+Nested2`1[[System.Int32, System.Private.CoreLib]]", type.GetTypeFullName());
         Assert.AreEqual(
-            "PeachtreeBus.Core.Tests.TypeNameExtensionsFixture+Nested+Nested2`1[[System.Int32, System.Private.CoreLib]], PeachtreeBus.Core.Tests", type.GetMessageClass());
+            new("PeachtreeBus.Core.Tests.ClassNames.ClassNameExtensionsFixture+Nested+Nested2`1[[System.Int32, System.Private.CoreLib]], PeachtreeBus.Core.Tests"), type.GetClassName());
     }
 
 
@@ -98,10 +99,9 @@ public class TypeNameExtensionsFixture
 
     private static void AssertMessageClassRoundTrip(Type type)
     {
-        var classString = type.GetMessageClass();
-        Assert.IsNotNull(classString, $"Could not get MessageClass for {type}");
-        var reconstructedType = Type.GetType(classString);
-        Assert.IsNotNull(reconstructedType, $"Could not get type from string {classString}");
+        var className = type.GetClassName();
+        var reconstructedType = Type.GetType(className.Value);
+        Assert.IsNotNull(reconstructedType, $"Could not get type from string {className}");
         Assert.AreEqual(type, reconstructedType, "Recreated type did not match original type.");
     }
 }

@@ -4,7 +4,7 @@ namespace PeachtreeBus.Subscriptions;
 
 public class PublishContext : OutgoingContext<SubscribedData>, IPublishContext
 {
-    public required Topic Topic { get; set; }
+    public Topic Topic => Data.Topic;
     public long? RecipientCount { get; set; } = null;
 }
 

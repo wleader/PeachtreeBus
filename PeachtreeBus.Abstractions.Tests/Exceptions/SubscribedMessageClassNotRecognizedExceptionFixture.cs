@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
@@ -15,11 +16,11 @@ public class SubscribedMessageClassNotRecognizedExceptionFixture
     {
         var expectedMessageId = UniqueIdentity.New();
         var expectedSubscriberId = SubscriberId.New();
-        var expectedType = typeof(TestMessage).FullName;
+        var expectedType = new ClassName("Foo");
         var e = new SubscribedMessageClassNotRecognizedException(
             expectedMessageId, expectedSubscriberId, expectedType);
         Assert.AreEqual(expectedMessageId, e.MessageId);
         Assert.AreEqual(expectedSubscriberId, e.SubscriberId);
-        Assert.AreEqual(expectedType, e.TypeName);
+        Assert.AreEqual(expectedType, e.ClassName);
     }
 }

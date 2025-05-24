@@ -1,4 +1,5 @@
-﻿using PeachtreeBus.Data;
+﻿using PeachtreeBus.ClassNames;
+using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using System;
 
@@ -16,6 +17,8 @@ public abstract class Context : IContext
     /// Experimmental. This may be removed in a future update.
     /// </summary>
     public IWrappedScope? Scope { get; set; }
+
+    public abstract ClassName MessageClass { get; }
 }
 
 public abstract class IncomingContext<TQueueData>
@@ -38,7 +41,7 @@ public abstract class IncomingContext<TQueueData>
     public UtcDateTime EnqueuedTime { get => Data.Enqueued; }
     public UtcDateTime NotBefore { get => Data.NotBefore; }
     public UniqueIdentity MessageId { get => Data.MessageId; }
-    public string MessageClass { get => Headers.MessageClass; }
+    public override ClassName MessageClass { get => Headers.MessageClass; }
     public IReadOnlyUserHeaders UserHeaders { get => Headers.UserHeaders; }
 }
 
@@ -47,10 +50,17 @@ public abstract class OutgoingContext<TQueueData>
     , IOutgoingContext
     where TQueueData : QueueData
 {
-    public UtcDateTime NotBefore { get; set; } = DateTime.UtcNow;
-    public int MessagePriority { get; set; }
+    public required TQueueData Data { get; set; } = default!;
+
+    public UtcDateTime NotBefore { get => Data.NotBefore; set => Data.NotBefore = value; }
+    
+    public int MessagePriority { get => Data.Priority; set => Data.Priority = value; }
+    
     public bool StartNewConversation { get; set; }
-    public UserHeaders UserHeaders { get; set; } = [];
+    
+    public UserHeaders UserHeaders { get => Data.Headers!.UserHeaders; }
+
+    public override ClassName MessageClass => Data.Headers!.MessageClass;
 }
 
 
