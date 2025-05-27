@@ -63,6 +63,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.ExampleSendOnl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Benchmarks", "PeachtreeBus.Benchmarks\PeachtreeBus.Benchmarks.csproj", "{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.MicrosoftDI", "PeachtreeBus.Example.MicrosoftDI\PeachtreeBus.Example.MicrosoftDI.csproj", "{EB114FBB-4A26-4EB4-9C8E-0B50E97F0343}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MicrosoftDependencyInjection", "PeachtreeBus.MicrosoftDependencyInjection\PeachtreeBus.MicrosoftDependencyInjection.csproj", "{148FA4CE-0430-45F0-8D02-4E28E8C2CE04}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.SimpleInjector", "PeachtreeBus.Example.SimpleInjector\PeachtreeBus.Example.SimpleInjector.csproj", "{ACCD1683-D893-4225-A8EE-C52E6ED4F670}"
@@ -191,6 +193,12 @@ Global
 		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFC053CE-D0D6-4056-AE7E-E1FC85124DA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB114FBB-4A26-4EB4-9C8E-0B50E97F0343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB114FBB-4A26-4EB4-9C8E-0B50E97F0343}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB114FBB-4A26-4EB4-9C8E-0B50E97F0343}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB114FBB-4A26-4EB4-9C8E-0B50E97F0343}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{EB114FBB-4A26-4EB4-9C8E-0B50E97F0343}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB114FBB-4A26-4EB4-9C8E-0B50E97F0343}.Release|Any CPU.Build.0 = Release|Any CPU
 		{148FA4CE-0430-45F0-8D02-4E28E8C2CE04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{148FA4CE-0430-45F0-8D02-4E28E8C2CE04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{148FA4CE-0430-45F0-8D02-4E28E8C2CE04}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
