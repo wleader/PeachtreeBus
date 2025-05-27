@@ -22,6 +22,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
 
     protected List<Task> _runnerTasks = default!;
     protected List<Task> _continuedTasks = default!;
+    protected List<Task> _actualTasks = default!;
     protected CancellationTokenSource _cts = default!;
     private bool _gotRunnerInstance;
 
@@ -101,7 +102,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
     protected async Task When_Run(int available)
     {
         _taskCounter.Setup(x => x.Available()).Returns(available);
-        await _starter.Start(ContinueWith, _cts.Token);
+        _actualTasks = await _starter.Start(ContinueWith, _cts.Token);
         await Task.Delay(10); // give time for continuations
         Task.WaitAll([.. _runnerTasks]);
     }
@@ -117,5 +118,6 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _taskCounter.Verify(c => c.Increment(), Times.Exactly(runnerCount));
         _taskCounter.Verify(c => c.Decrement(), Times.Exactly(runnerCount));
         Assert.AreEqual(runnerCount, _continuedTasks.Count);
+        Assert.AreEqual(runnerCount, _actualTasks.Count);
     }
 }
