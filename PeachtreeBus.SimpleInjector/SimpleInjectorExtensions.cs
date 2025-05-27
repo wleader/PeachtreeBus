@@ -7,11 +7,6 @@ namespace PeachtreeBus.SimpleInjector
 {
     public static partial class SimpleInjectorExtensions
     {
-        internal static bool IsRegistered<T>(this Container container)
-        {
-            return container.GetRegistration(typeof(T)) != null;
-        }
-
         private static void RegisterConcreteTypesIfNeeded(
             this Container container,
             IEnumerable<Type> concreteMessageHandlerTypes,
