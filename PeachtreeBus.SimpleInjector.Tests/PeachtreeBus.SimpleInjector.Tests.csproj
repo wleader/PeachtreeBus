@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PeachtreeBus.DependencyInjection.Tests\PeachtreeBus.DependencyInjection.Tests.csproj" />
       <ProjectReference Include="..\PeachtreeBus.SimpleInjector\PeachtreeBus.SimpleInjector.csproj" />
     </ItemGroup>
 
