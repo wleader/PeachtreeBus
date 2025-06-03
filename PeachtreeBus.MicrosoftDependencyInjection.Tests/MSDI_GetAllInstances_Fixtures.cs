@@ -44,3 +44,19 @@ public class MSDI_GetAllInstances_QueueHandlers_Fixture()
 public class MSDI_GetAllInstances_SubscribedHandlers_Fixture()
     : GetAllInstances_SubscribedHandlers_Fixture<IServiceCollection>(new MSDI_ContainerBuilder());
 
+[TestClass]
+public class MSDI_GetAllInstances_QueuePipelineSteps_Fixture()
+    : GetAllInstances_QueuePipelineSteps_Fixture<IServiceCollection>(new MSDI_ContainerBuilder());
+
+[TestClass]
+public class MSDI_GetAllInstances_SendPipelineSteps_Fixture()
+    : GetAllInstances_SendPipelineSteps_Fixture<IServiceCollection>(new MSDI_ContainerBuilder());
+
+[TestClass]
+public class MSDI_GetAllInstances_PublishPipelineSteps_Fixture()
+    : GetAllInstances_PublishPipelineSteps_Fixture<IServiceCollection>(new MSDI_ContainerBuilder());
+
+[TestClass]
+public class MSDI_GetAllInstances_SubscribedPipelineSteps_Fixture()
+    : GetAllInstances_SubscribedPipelineSteps_Fixture<IServiceCollection>(new MSDI_ContainerBuilder());
+

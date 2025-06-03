@@ -45,3 +45,19 @@ public class SimpleInjector_GetAllInstances_QueueHandlers_Fixture()
 [TestClass]
 public class SimpleInjector_GetAllInstances_SubscribedHandlers_Fixture()
      : GetAllInstances_SubscribedHandlers_Fixture<Container>(new SimpleInjector_ContainerBuilder());
+
+[TestClass]
+public class SimpleInjector_GetAllInstances_QueuePipelineSteps_Fixture()
+     : GetAllInstances_QueuePipelineSteps_Fixture<Container>(new SimpleInjector_ContainerBuilder());
+
+[TestClass]
+public class SimpleInjector_GetAllInstances_SendPipelineSteps_Fixture()
+     : GetAllInstances_SendPipelineSteps_Fixture<Container>(new SimpleInjector_ContainerBuilder());
+
+[TestClass]
+public class SimpleInjector_GetAllInstances_PublishPipelineSteps_Fixture()
+     : GetAllInstances_PublishPipelineSteps_Fixture<Container>(new SimpleInjector_ContainerBuilder());
+
+[TestClass]
+public class SimpleInjector_GetAllInstances_SubscribedPipelineSteps_Fixture()
+     : GetAllInstances_SubscribedPipelineSteps_Fixture<Container>(new SimpleInjector_ContainerBuilder());
