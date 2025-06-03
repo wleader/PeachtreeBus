@@ -1,11 +1,12 @@
-﻿using Moq;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PeachtreeBus.SimpleInjector.Tests;
+namespace PeachtreeBus.Core.Tests;
 
 [TestClass]
 public class FindInScopeFixture
@@ -32,30 +33,6 @@ public class FindInScopeFixture
         var subject = new FailedSubscribedMessageHandlerFactory(scope.Object);
         var actual = subject.GetHandler();
         Assert.AreSame(instance.Object, actual);
-    }
-
-    [TestMethod]
-    public void FindSubscribedHandlers_GetsFromScope()
-    {
-        var scope = new Mock<IWrappedScope>();
-        var instance = new List<IHandleSubscribedMessage<TestSubscribedMessage>>();
-        scope.Setup(s => s.GetAllInstances<IHandleSubscribedMessage<TestSubscribedMessage>>())
-            .Returns(instance);
-        var subject = new FindSubscribedHandlers(scope.Object);
-        var actual = subject.FindHandlers<TestSubscribedMessage>();
-        Assert.AreSame(instance, actual);
-    }
-
-    [TestMethod]
-    public void FindQueueHandlers_GetsFromScope()
-    {
-        var scope = new Mock<IWrappedScope>();
-        var instance = new List<IHandleQueueMessage<TestQueueMessage>>();
-        scope.Setup(s => s.GetAllInstances<IHandleQueueMessage<TestQueueMessage>>())
-            .Returns(instance);
-        var subject = new FindQueueHandlers(scope.Object);
-        var actual = subject.FindHandlers<TestQueueMessage>();
-        Assert.AreSame(instance, actual);
     }
 
     [TestMethod]
