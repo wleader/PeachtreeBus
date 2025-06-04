@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace PeachtreeBus.SimpleInjector;
 
@@ -39,9 +38,6 @@ public static partial class SimpleInjectorExtensions
             .RegisterQueueComponents()
             .RegisterSubscribedComponents()
             .RegisterStartupTasks();
-
-        //// Register tasks that should be run once at startup.
-        //container.RegisterPeachtreeBusStartupTasks();
 
         return container;
     }
@@ -93,6 +89,9 @@ public static partial class SimpleInjectorExtensions
         // provide an abstracted access to the system clock 
         // supports unit testable code.
         container.RegisterSingleton(typeof(ISystemClock), typeof(SystemClock));
+
+        // runs things once at startup.
+        container.Register(typeof(IRunStartupTasks), typeof(RunStarupTasks), Lifestyle.Singleton);
 
         // The task manager manages all repeating tasks.
         container.Register(typeof(ITaskManager), typeof(TaskManager), Lifestyle.Scoped);
@@ -312,24 +311,8 @@ public static partial class SimpleInjectorExtensions
         if (!Configuration.UseStartupTasks)
             return container;
 
-        List<Task> tasks = [];
-        List<IWrappedScope> scopes = [];
-
-        var startupTaskTypes = container.FindTypesThatImplement<IRunOnStartup>();
-        var factory = container.GetInstance<IWrappedScopeFactory>();
-
-        foreach (var t in startupTaskTypes)
-        {
-            var scope = factory.Create();
-            scopes.Add(scope);
-            var startupTask = (IRunOnStartup)scope.GetInstance(t);
-            tasks.Add(startupTask.Run());
-        }
-
-        Task.WaitAll([.. tasks]);
-
-        foreach (var s in scopes)
-        { s.Dispose(); }
+        var runner = container.GetInstance<IRunStartupTasks>();
+        runner.RunStartupTasks();
 
         return container;
     }

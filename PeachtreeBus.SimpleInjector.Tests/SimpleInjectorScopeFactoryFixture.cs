@@ -1,35 +1,24 @@
 ﻿using Moq;
 using SimpleInjector;
-using SimpleInjector.Lifestyles;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 
 [TestClass]
-public class SimpleInjectorScopeFactoryFixture
+public class SimpleInjectorScopeFactoryFixture : SimpleInjectorScopeFactory_FixtureBase
 {
     [TestMethod]
     public void Given_RegisteredIWrappedScopeIsNotSimpleInjectorWrappedScope_When_Create_Then_Throws()
     {
-        var _container = new Container();
-        _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
-
         var wrapped = new Mock<IWrappedScope>();
         _container.RegisterInstance(wrapped.Object);
-
-        var factory = new SimpleInjectorScopeFactory(_container);
-
-        Assert.ThrowsException<SimpleInjectorScopeFactoryException>(() => _ = factory.Create());
+        Assert.ThrowsExactly<SimpleInjectorScopeFactoryException>(() => _ = _factory.Create());
     }
-
 
     [TestMethod]
     public void Given_RegisteredIWrappedScopeIsSimpleInjectorWrappedScope_When_Create_Then_Result()
     {
-        var _container = new Container();
-        _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
         _container.Register(typeof(IWrappedScope), typeof(SimpleInjectorScope), Lifestyle.Scoped);
-        var factory = new SimpleInjectorScopeFactory(_container);
-        var actual = factory.Create();
+        var actual = _factory.Create();
         Assert.AreEqual(typeof(SimpleInjectorScope), actual.GetType());
     }
 }
