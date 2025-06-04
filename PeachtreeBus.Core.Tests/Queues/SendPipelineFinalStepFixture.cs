@@ -151,6 +151,15 @@ public class SendPipelineFinalStepFixture
         Assert.AreEqual(0, AddedMessage.Retries);
     }
 
+    [TestMethod]
+    public async Task When_Invoke_Then_MessageIdIsNotEmpty()
+    {
+        await step.Invoke(context, null!);
+
+        Assert.IsNotNull(AddedMessage);
+        Assert.AreNotEqual(UniqueIdentity.Empty, AddedMessage.MessageId);
+    }
+
     /// <summary>
     /// Proves headers are serialized.
     /// </summary>
