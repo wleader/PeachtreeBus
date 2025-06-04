@@ -1,5 +1,4 @@
-﻿using PeachtreeBus.ClassNames;
-using PeachtreeBus.Data;
+﻿using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Serialization;
@@ -68,7 +67,7 @@ public class SendPipelineFinalStep(
         data.Failed = null;
         data.Retries = 0;
         data.Body = _serializer.Serialize(message, type);
-        data.MessageId = default; // this is database generated anyway.
+        data.MessageId = UniqueIdentity.New();
 
         await _dataAccess.AddMessage(data, context.Destination);
         _meters.SentMessage(1);

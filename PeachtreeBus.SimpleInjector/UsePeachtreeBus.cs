@@ -2,6 +2,7 @@
 using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;

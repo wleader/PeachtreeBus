@@ -1,6 +1,7 @@
 ﻿using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace PeachtreeBus.Tasks;
 
 public interface IStarters
 {
-    public Task RunStarters(Action<Task> continueWith, CancellationToken token);
+    public Task<List<Task>> RunStarters(Action<Task> continueWith, CancellationToken token);
 }
 
 public class Starters(
@@ -23,16 +24,18 @@ public class Starters(
     IProcessQueuedStarter processQueued)
     : IStarters
 {
-    public async Task RunStarters(Action<Task> continueWith, CancellationToken token)
+    public async Task<List<Task>> RunStarters(Action<Task> continueWith, CancellationToken token)
     {
-        await updateSubscriptions.Start(continueWith, token);
-        await cleanSubscriptions.Start(continueWith, token);
-        await cleanSubscribedPending.Start(continueWith, token);
-        await cleanSubscribedCompleted.Start(continueWith, token);
-        await cleanSubscribedFailed.Start(continueWith, token);
-        await cleanQueueCompleted.Start(continueWith, token);
-        await cleanQueueFailed.Start(continueWith, token);
-        await processSubscribed.Start(continueWith, token);
-        await processQueued.Start(continueWith, token);
+        var result = new List<Task>();
+        result.AddRange(await updateSubscriptions.Start(continueWith, token));
+        result.AddRange(await cleanSubscriptions.Start(continueWith, token));
+        result.AddRange(await cleanSubscribedPending.Start(continueWith, token));
+        result.AddRange(await cleanSubscribedCompleted.Start(continueWith, token));
+        result.AddRange(await cleanSubscribedFailed.Start(continueWith, token));
+        result.AddRange(await cleanQueueCompleted.Start(continueWith, token));
+        result.AddRange(await cleanQueueFailed.Start(continueWith, token));
+        result.AddRange(await processSubscribed.Start(continueWith, token));
+        result.AddRange(await processQueued.Start(continueWith, token));
+        return result;
     }
 }
