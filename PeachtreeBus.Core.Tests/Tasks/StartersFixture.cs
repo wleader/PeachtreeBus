@@ -38,8 +38,7 @@ public class StartersFixture
                 Assert.AreEqual(_cts.Token, token);
                 Assert.AreEqual(ContinueWith, continuteWith);
                 _subscriptionsUpdated = true;
-            })
-            .ReturnsAsync([]);
+            });
 
         SetupBeforeAfter(_updateSubscriptions, _cleanSubscriptions);
         SetupBeforeAfter(_cleanSubscriptions, _cleanSubscribedPending);
@@ -77,8 +76,7 @@ public class StartersFixture
 
                 Assert.AreEqual(1, before.Invocations.Count,
                     $"{after.GetType()} should come after {before.GetType()}");
-            })
-            .ReturnsAsync([]);
+            });
     }
 
     private void ContinueWith(Task task) { }

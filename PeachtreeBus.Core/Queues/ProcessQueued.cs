@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Tasks;
 using PeachtreeBus.Telemetry;
 using System;
@@ -121,9 +122,10 @@ public class ProcessQueuedStarter(
 
     protected override async Task<int> EstimateDemand()
     {
-        var c = _busConfiguration.QueueConfiguration;
-        return c is null
-            ? 0
-            : (int)await _dataAccess.EstimateQueuePending(c.QueueName);
+        // If this throws it means the
+        // tracker didn't check the configuration before
+        // returning true on ShouldStart.
+        var qConfig = UnreachableException.ThrowIfNull(_busConfiguration.QueueConfiguration);
+        return (int)await _dataAccess.EstimateQueuePending(qConfig.QueueName);
     }
 }

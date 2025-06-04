@@ -1,5 +1,4 @@
 ﻿using Moq;
-using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System.Collections.Generic;

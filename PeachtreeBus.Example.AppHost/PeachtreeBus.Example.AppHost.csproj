@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.0" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -12,12 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PeachtreeBus.Example.MicrosoftDI\PeachtreeBus.Example.MicrosoftDI.csproj" />
-    <ProjectReference Include="..\PeachtreeBus.Example.SimpleInjector\PeachtreeBus.Example.SimpleInjector.csproj" />
+    <ProjectReference Include="..\PeachtreeBus.Example\PeachtreeBus.Example.csproj" />
   </ItemGroup>
 
 </Project>

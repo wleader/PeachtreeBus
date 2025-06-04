@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,7 +6,7 @@ namespace PeachtreeBus.Tasks;
 
 public interface IStarter
 {
-    Task<List<Task>> Start(Action<Task> continueWith, CancellationToken cancellationToken);
+    Task Start(Action<Task> continueWith, CancellationToken cancellationToken);
 }
 
 public abstract class Starter<TRunner>(
@@ -21,30 +20,28 @@ public abstract class Starter<TRunner>(
     private readonly ITracker _tracker = tracker;
     private readonly ITaskCounter _taskCounter = taskCounter;
 
-    public async Task<List<Task>> Start(Action<Task> continueWith, CancellationToken cancellationToken)
+    public async Task Start(Action<Task> continueWith, CancellationToken cancellationToken)
     {
-        if (!_tracker.ShouldStart) return [];
+        if (!_tracker.ShouldStart) return;
         var estimate = Math.Min(_taskCounter.Available(), await EstimateDemand());
-        return AddRunners(estimate, continueWith, cancellationToken);
+        AddRunners(estimate, continueWith, cancellationToken);
     }
 
-    private List<Task> AddRunners(int count, Action<Task> continueWith, CancellationToken cancellationToken)
+    private void AddRunners(int count, Action<Task> continueWith, CancellationToken cancellationToken)
     {
-        List<Task> result = new(count);
         for (int i = 0; i < count; i++)
         {
-            result.Add(AddRunner(continueWith, cancellationToken));
+            AddRunner(continueWith, cancellationToken);
         }
-        return result;
     }
 
-    private Task AddRunner(Action<Task> continueWith, CancellationToken cancellationToken)
+    private void AddRunner(Action<Task> continueWith, CancellationToken cancellationToken)
     {
         var scope = _scopeFactory.Create();
         var runner = scope.GetInstance<TRunner>();
         _taskCounter.Increment();
         _tracker.Start();
-        return Task.Run(() => runner.RunRepeatedly(cancellationToken)
+        Task.Run(() => runner.RunRepeatedly(cancellationToken)
             .ContinueWith((_) => WhenRunnerCompletes(scope), CancellationToken.None)
             .ContinueWith(continueWith, CancellationToken.None),
             CancellationToken.None);
