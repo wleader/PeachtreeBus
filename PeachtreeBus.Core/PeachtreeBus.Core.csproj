@@ -23,7 +23,6 @@
 
     <ItemGroup>
         <!-- if this is not here, the source generator won't see it.-->
-        <AdditionalFiles Include="LogMessages.xml" />
+        <AdditionalFiles Include="LogMessages.xml"/>
     </ItemGroup>
-   
 </Project>

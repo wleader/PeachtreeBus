@@ -1,19 +1,27 @@
-﻿using System.Reflection;
-using System.Threading.Tasks;
+﻿using PeachtreeBus.Tasks;
+using SimpleInjector;
+using System.Reflection;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 
 [TestClass]
 public class SimpleInjectorStartupTasksFixture : SimpleInjectorExtensionFixtureBase
 {
-    public class FindableStartupTask : IRunOnStartup
+    public class FakeRunStartup : IRunStartupTasks
     {
-        public static int RunCount { get; set; } = 0;
-        public Task Run()
-        {
-            RunCount++;
-            return Task.CompletedTask;
-        }
+        public int RunCount { get; private set; }
+        public void RunStartupTasks() => RunCount++;
+    }
+
+    private void CustomizeContainer(Container container)
+    {
+        container.Register(typeof(IRunStartupTasks), typeof(FakeRunStartup), Lifestyle.Singleton);
+    }
+
+    private void Then_RunCountIs(int expected)
+    {
+        var actual = _container.GetInstance<IRunStartupTasks>();
+        Assert.AreEqual(expected, ((FakeRunStartup)actual).RunCount);
     }
 
     [TestMethod]
@@ -24,13 +32,10 @@ public class SimpleInjectorStartupTasksFixture : SimpleInjectorExtensionFixtureB
             ConnectionString = "Server=(local);Database=PeachtreeBusExample",
             Schema = new("PeachTreeBus"),
         };
-
-        FindableStartupTask.RunCount = 0;
-        _container.UsePeachtreeBus(config, _loggerFactory, []);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-        Assert.AreEqual(0, FindableStartupTask.RunCount);
+        When_RunPeachtreeBus(config, [], CustomizeContainer);
+        Then_RunCountIs(1);
     }
+
 
     [TestMethod]
     public void Given_StartupTasks_When_Run_Then_Runs()
@@ -40,12 +45,8 @@ public class SimpleInjectorStartupTasksFixture : SimpleInjectorExtensionFixtureB
             ConnectionString = "Server=(local);Database=PeachtreeBusExample",
             Schema = new("PeachTreeBus"),
         };
-
-        FindableStartupTask.RunCount = 0;
-        _container.UsePeachtreeBus(config, _loggerFactory, [Assembly.GetExecutingAssembly()]);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-        Assert.AreEqual(1, FindableStartupTask.RunCount);
+        When_RunPeachtreeBus(config, [Assembly.GetExecutingAssembly()], CustomizeContainer);
+        Then_RunCountIs(1);
     }
 
     [TestMethod]
@@ -57,11 +58,7 @@ public class SimpleInjectorStartupTasksFixture : SimpleInjectorExtensionFixtureB
             Schema = new("PeachTreeBus"),
             UseStartupTasks = false
         };
-
-        FindableStartupTask.RunCount = 0;
-        _container.UsePeachtreeBus(config, _loggerFactory, [Assembly.GetExecutingAssembly()]);
-        _container.Verify();
-        _container.RunPeachtreeBus();
-        Assert.AreEqual(0, FindableStartupTask.RunCount);
+        When_RunPeachtreeBus(config, [Assembly.GetExecutingAssembly()], CustomizeContainer);
+        Then_RunCountIs(0);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PeachtreeBus.MicrosoftDependencyInjection;
 
@@ -24,5 +26,10 @@ public class MSDIWrappedScopeFactory(
             throw new ApplicationException("Could not get a PeachtreeBus.IWrappedScope of type PeachtreeBus.SimpleInjector.SimpleInjectorScope from the container. Did you replace the registration for IWrappedScope?");
         }
         return siWrappedScoped;
+    }
+
+    public IEnumerable<Type> GetImplementations<TInteface>()
+    {
+        return serviceProvider.GetServices(typeof(TInteface)).Select(o => o!.GetType());
     }
 }

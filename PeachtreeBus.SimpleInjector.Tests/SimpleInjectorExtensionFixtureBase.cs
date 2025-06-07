@@ -3,6 +3,7 @@ using Moq;
 using PeachtreeBus.DatabaseSharing;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -50,6 +51,14 @@ namespace PeachtreeBus.SimpleInjector.Tests
         public void Cleanup()
         {
             _loggerFactory.Dispose();
+        }
+
+        public void When_RunPeachtreeBus(IBusConfiguration config, List<Assembly>? assemblies = null, Action<Container>? customizeContainer = null)
+        {
+            _container.UsePeachtreeBus(config, _loggerFactory, assemblies);
+            customizeContainer?.Invoke(_container);
+            _container.Verify();
+            _container.RunPeachtreeBus();
         }
     }
 }
