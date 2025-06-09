@@ -37,5 +37,8 @@ public abstract class BaseRegisterComponents
         RegisterSingleton<IDapperTypesHandler, DapperTypesHandler>();
         RegisterScoped<IBusDataAccess, DapperDataAccess>();
         RegisterScoped<ISqlConnectionFactory, SqlConnectionFactory>();
+        RegisterSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
+        RegisterSingleton<IRunStartupTasks, RunStarupTasks>();
+        RegisterScoped<IStarters, Starters>();
     }
 }

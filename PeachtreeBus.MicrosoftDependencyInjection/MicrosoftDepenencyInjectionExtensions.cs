@@ -48,8 +48,6 @@ public static partial class MicrosoftDepenencyInjectionExtensions
 
     private static IServiceCollection RegisterCoreComponents(this IServiceCollection builder)
     {
-        builder.AddScoped(typeof(IStarters), typeof(Starters));
-        builder.AddScoped(typeof(IProvideDbConnectionString), typeof(ProvideDbConnectionString));
         builder.AddSingleton<ClassNameService>();
         builder.AddSingleton<IClassNameService>(sp => new CachedClassNameService(sp.GetRequiredService<ClassNameService>()));
 

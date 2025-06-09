@@ -54,14 +54,6 @@ public static partial class SimpleInjectorExtensions
         // detects missing registrations.
         container.Register(typeof(VerifyBaseRequirements), typeof(VerifyBaseRequirements), Lifestyle.Transient);
 
-        container.Register(typeof(IProvideDbConnectionString), typeof(ProvideDbConnectionString), Lifestyle.Singleton);
-
-        // runs things once at startup.
-        container.Register(typeof(IRunStartupTasks), typeof(RunStarupTasks), Lifestyle.Singleton);
-
-        // The task manager manages all repeating tasks.
-        container.Register(typeof(IStarters), typeof(Starters), Lifestyle.Scoped);
-
         container.Register(typeof(IUpdateSubscriptionsTracker), typeof(UpdateSubscriptionsTracker), Lifestyle.Singleton);
         container.Register(typeof(IUpdateSubscriptionsTask), typeof(UpdateSubscriptionsTask), Lifestyle.Scoped);
         container.Register(typeof(IUpdateSubscriptionsStarter), typeof(UpdateSubscriptionsStarter), Lifestyle.Scoped);
