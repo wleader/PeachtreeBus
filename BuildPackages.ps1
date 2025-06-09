@@ -19,6 +19,8 @@ Quiet-Remove-Folder .\PeachtreeBus.Core\bin\Debug
 Quiet-Remove-Folder .\PeachtreeBus.Core\bin\Release
 Quiet-Remove-Folder .\PeachtreeBus.SimpleInjector\bin\Debug
 Quiet-Remove-Folder .\PeachtreeBus.SimpleInjector\bin\Release
+Quiet-Remove-Folder .\PeachtreeBus.MicrosoftDependencyInjection\bin\Debug
+Quiet-Remove-Folder .\PeachtreeBus.MicrosoftDependencyInjection\bin\Release
 Quiet-Remove-Folder .\PeachtreeBus.EntityFrameworkCore\bin\Debug
 Quiet-Remove-Folder .\PeachtreeBus.EntityFrameworkCore\bin\Release
 
@@ -32,3 +34,4 @@ dotnet build PeachtreeBus.sln -p Configuration=Nuget
 .\nuget.exe pack PeachtreeBus.Core.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
 .\nuget.exe pack PeachtreeBus.SimpleInjector.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
 .\nuget.exe pack PeachtreeBus.EntityFrameworkCore.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
+.\nuget.exe pack PeachtreeBus.MicrosoftDependencyInjection.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
