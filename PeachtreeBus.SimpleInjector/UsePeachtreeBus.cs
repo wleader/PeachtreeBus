@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
@@ -23,17 +24,16 @@ public static partial class SimpleInjectorExtensions
     /// Enables Basic PeachtreeBus functionality.
     /// Registers needed services with the Container.
     /// </summary>
-    public static Container UsePeachtreeBus(this Container container, IBusConfiguration configuration, ILoggerFactory loggerFactory, List<Assembly>? assemblies = null)
+    public static Container UsePeachtreeBus(this Container container, IBusConfiguration busConfiguration, ILoggerFactory loggerFactory, List<Assembly>? assemblies = null)
     {
+        var registerComponents = new SimpleInjectorRegisterComponents(container, loggerFactory);
+        registerComponents.Register(busConfiguration);
+
         Assemblies = assemblies ?? [.. AppDomain.CurrentDomain.GetAssemblies().ToList()];
 
-        Configuration = configuration;
-
-        // put the configuration into the container so it can be used later.
-        container.RegisterInstance(typeof(IBusConfiguration), configuration);
+        Configuration = busConfiguration;
 
         container
-            .RegisterLogging(loggerFactory)
             .RegisterRequiredComponents()
             .RegisterSerializer()
             .RegisterQueueComponents()
@@ -45,13 +45,6 @@ public static partial class SimpleInjectorExtensions
 
     private static IBusConfiguration Configuration = default!;
 
-    private static Container RegisterLogging(this Container container, ILoggerFactory loggerFactory)
-    {
-        container.RegisterInstance(loggerFactory);
-        container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
-        return container;
-    }
-
     /// <summary>
     /// Registers things that a user should not need to replace,
     /// And that are required for basic functionality.
@@ -61,43 +54,13 @@ public static partial class SimpleInjectorExtensions
         // detects missing registrations.
         container.Register(typeof(VerifyBaseRequirements), typeof(VerifyBaseRequirements), Lifestyle.Transient);
 
-        // Data access components are needed to:
-        // send messages (queue or subscribed)
-        // handle message (queue or susbscribed)
-        // Subscribed to messages
-        // do cleanups
-        // pretty much everything, so always register these things.
-        container.Register(typeof(IDapperTypesHandler), typeof(DapperTypesHandler), Lifestyle.Singleton);
-        container.Register(typeof(IBusDataAccess), typeof(DapperDataAccess), Lifestyle.Scoped);
-        container.Register(typeof(ISqlConnection), () => container.GetInstance<ISqlConnectionFactory>().GetConnection(), Lifestyle.Scoped);
-        container.Register(typeof(ISqlConnectionFactory), typeof(SqlConnectionFactory), Lifestyle.Scoped);
-        container.Register(typeof(IShareObjectsBetweenScopes), typeof(ShareObjectsBetweenScopes), Lifestyle.Scoped);
         container.Register(typeof(IProvideDbConnectionString), typeof(ProvideDbConnectionString), Lifestyle.Singleton);
-
-        var sharedDbProducer = Lifestyle.Scoped.CreateProducer<ISharedDatabase>(typeof(SharedDatabase), container);
-        container.Register(typeof(ISharedDatabase),
-            () => container.GetInstance<IShareObjectsBetweenScopes>().SharedDatabase ?? sharedDbProducer.GetInstance(),
-            Lifestyle.Scoped);
-
-        // All of the worker threads need to operate in a scope,
-        // so scope handling is always required.
-        container.Register(typeof(IWrappedScopeFactory), () => new SimpleInjectorScopeFactory(container), Lifestyle.Singleton);
-        container.Register(typeof(IWrappedScope), typeof(SimpleInjectorScope), Lifestyle.Scoped);
-
-        // telemetry services.
-        container.RegisterSingleton(typeof(IMeters), () => new Meters());
-
-        // provide an abstracted access to the system clock 
-        // supports unit testable code.
-        container.RegisterSingleton(typeof(ISystemClock), typeof(SystemClock));
 
         // runs things once at startup.
         container.Register(typeof(IRunStartupTasks), typeof(RunStarupTasks), Lifestyle.Singleton);
 
         // The task manager manages all repeating tasks.
-        container.Register(typeof(ITaskManager), typeof(TaskManager), Lifestyle.Scoped);
         container.Register(typeof(IStarters), typeof(Starters), Lifestyle.Scoped);
-        container.Register(typeof(ITaskCounter), typeof(TaskCounter), Lifestyle.Singleton);
 
         container.Register(typeof(IUpdateSubscriptionsTracker), typeof(UpdateSubscriptionsTracker), Lifestyle.Singleton);
         container.Register(typeof(IUpdateSubscriptionsTask), typeof(UpdateSubscriptionsTask), Lifestyle.Scoped);
@@ -141,8 +104,6 @@ public static partial class SimpleInjectorExtensions
         container.Register(typeof(IProcessQueuedTask), typeof(ProcessQueuedTask), Lifestyle.Scoped);
         container.Register(typeof(IProcessQueuedStarter), typeof(ProcessQueuedStarter), Lifestyle.Scoped);
         container.Register(typeof(IProcessQueuedRunner), typeof(ProcessQueuedRunner), Lifestyle.Scoped);
-
-        container.Register(typeof(IAlwaysRunTracker), typeof(AlwaysRunTracker), Lifestyle.Singleton);
 
         // anybody should be able to send messages to a queue,
         // or publish subscribed messages without being a 

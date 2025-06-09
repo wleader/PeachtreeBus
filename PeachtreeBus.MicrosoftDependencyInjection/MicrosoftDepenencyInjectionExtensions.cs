@@ -35,38 +35,23 @@ public static partial class MicrosoftDepenencyInjectionExtensions
 
         Configuration = busConfiguration;
 
+        var registerComponents = new MSDIRegisterComponents(builder);
+        registerComponents.Register(busConfiguration);
+
         return builder
-            .RegisterCoreComponents(busConfiguration)
+            .RegisterCoreComponents()
             .RegisterQueuedComponents()
             .RegisterSubscribedComponents()
             .RegisterSerializer()
             .RegisterStartupTasks();
     }
 
-    private static IServiceCollection RegisterCoreComponents(this IServiceCollection builder, IBusConfiguration busConfiguration)
+    private static IServiceCollection RegisterCoreComponents(this IServiceCollection builder)
     {
-        builder.AddSingleton(busConfiguration);
-        builder.AddSingleton<IWrappedScopeFactory, MSDIWrappedScopeFactory>();
-        builder.AddScoped(typeof(IWrappedScope), typeof(MSDIWrappedScope));
-        builder.AddSingleton(typeof(ITaskCounter), typeof(TaskCounter));
-        builder.AddScoped(typeof(ITaskManager), typeof(TaskManager));
         builder.AddScoped(typeof(IStarters), typeof(Starters));
-        builder.AddScoped(typeof(ISystemClock), typeof(SystemClock));
-        builder.AddSingleton(typeof(IAlwaysRunTracker), typeof(AlwaysRunTracker));
-        builder.AddScoped(typeof(IBusDataAccess), typeof(DapperDataAccess));
-        builder.AddScoped(typeof(ISqlConnectionFactory), typeof(SqlConnectionFactory));
         builder.AddScoped(typeof(IProvideDbConnectionString), typeof(ProvideDbConnectionString));
-        builder.AddScoped(typeof(IDapperTypesHandler), typeof(DapperTypesHandler));
-        builder.AddSingleton(typeof(IMeters), typeof(Meters));
         builder.AddSingleton<ClassNameService>();
         builder.AddSingleton<IClassNameService>(sp => new CachedClassNameService(sp.GetRequiredService<ClassNameService>()));
-
-        builder.AddScoped(typeof(IShareObjectsBetweenScopes), typeof(ShareObjectsBetweenScopes));
-        // this might be wrong
-        builder.AddScoped(sp => sp.GetRequiredService<IShareObjectsBetweenScopes>().SharedDatabase ??=
-            new SharedDatabase(sp.GetRequiredService<ISqlConnectionFactory>()));
-
-        builder.AddScoped(typeof(ISharedDatabase), typeof(SharedDatabase));
 
         return builder;
     }
