@@ -9,11 +9,15 @@ public interface IRunStartupTasks
 }
 
 public class RunStarupTasks(
+    IBusConfiguration busConfiguration,
     IWrappedScopeFactory scopeFactory)
     : IRunStartupTasks
 {
     public void RunStartupTasks()
     {
+        if (!busConfiguration.UseStartupTasks)
+            return;
+
         List<Task> tasks = [];
         List<IWrappedScope> scopes = [];
 

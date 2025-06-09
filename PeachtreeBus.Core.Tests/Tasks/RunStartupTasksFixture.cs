@@ -25,6 +25,7 @@ public class RunStartupTasksFixture
 
     private RunStarupTasks _runStartupTasks = default!;
     private readonly Mock<IWrappedScopeFactory> _scopeFactory = new();
+    private readonly Mock<IBusConfiguration> _busConfiguration = new();
     private readonly Mock<IWrappedScope> _scope1 = new();
     private readonly Mock<IWrappedScope> _scope2 = new();
     private List<Type> _implementationTypes =
@@ -41,9 +42,12 @@ public class RunStartupTasksFixture
     [TestInitialize]
     public void Initialize()
     {
+        _busConfiguration.Reset();
         _scopeFactory.Reset();
         _scope1.Reset();
         _scope2.Reset();
+
+        _busConfiguration.SetupGet(c => c.UseStartupTasks).Returns(true);
 
         _scopeFactory.Setup(s => s.GetImplementations<IRunOnStartup>())
             .Returns(() => _implementationTypes);
@@ -64,6 +68,7 @@ public class RunStartupTasksFixture
         _task2.RunCount = 0;
 
         _runStartupTasks = new(
+            _busConfiguration.Object,
             _scopeFactory.Object);
     }
 
@@ -80,6 +85,17 @@ public class RunStartupTasksFixture
 
         _scope1.Verify(s => s.Dispose(), Times.Once);
         _scope2.Verify(s => s.Dispose(), Times.Once);
+    }
+
+    [TestMethod]
+    public void Given_StartupTasks_And_UseStartupTasksFalse_When_RunStartupTasks_Then_TasksAreNotRun_And_ScopesAreNotCreated()
+    {
+        _busConfiguration.SetupGet(c => c.UseStartupTasks).Returns(false);
+        _runStartupTasks.RunStartupTasks();
+
+        Assert.AreEqual(0, _task1.RunCount);
+        Assert.AreEqual(0, _task1.RunCount);
+        _scopeFactory.Verify(f => f.Create(), Times.Never);
     }
 
 
