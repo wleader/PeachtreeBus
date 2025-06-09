@@ -23,21 +23,20 @@ public class PeachtreeBusHostedService(
         await _managerTask;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
         _cts = new();
         cancellationToken.Register(() => _cts.Cancel());
 
         _scope = scopeFactory.Create();
 
-        var startupTasks = _scope.GetRequiredService<IEnumerable<IRunOnStartup>>();
-        foreach (var startupTask in startupTasks)
-        {
-            await startupTask.Run().ConfigureAwait(false);
-        }
+        var startupRunner = _scope.GetRequiredService<IRunStartupTasks>();
+        startupRunner.RunStartupTasks();
 
         var manager = _scope.GetRequiredService<ITaskManager>();
         _managerTask = manager.Run(_cts.Token).ConfigureAwait(false);
+
+        return Task.CompletedTask;
     }
 
     public void Dispose()
