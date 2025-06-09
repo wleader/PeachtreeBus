@@ -269,9 +269,6 @@ public static partial class SimpleInjectorExtensions
 
     public static Container RunStartupTasks(this Container container)
     {
-        if (!Configuration.UseStartupTasks)
-            return container;
-
         var runner = container.GetInstance<IRunStartupTasks>();
         runner.RunStartupTasks();
 
