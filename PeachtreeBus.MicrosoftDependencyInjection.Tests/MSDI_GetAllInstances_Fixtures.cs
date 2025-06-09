@@ -1,19 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PeachtreeBus.DependencyInjection.Tests.GetAllInstances;
+using System;
+using System.Collections.Generic;
 
 namespace PeachtreeBus.MicrosoftDependencyInjection.Tests;
 
 public class MSDI_ContainerBuilder : ContainerBuilder<IServiceCollection>
 {
-    public override void AddRegistrations<TInterface>(IServiceCollection container, IEnumerable<Type> concreteTypes)
-    {
-        foreach (var t in concreteTypes)
-        {
-            container.Add(new ServiceDescriptor(typeof(TInterface), t, ServiceLifetime.Scoped));
-        }
-    }
-
     public override IWrappedScope CreateScope(Action<IServiceCollection>? addRegistrations = null)
     {
         var builder = Host.CreateApplicationBuilder([]);
@@ -33,6 +27,14 @@ public class MSDI_ContainerBuilder : ContainerBuilder<IServiceCollection>
         var provider = builder.Services.BuildServiceProvider();
         var factory = provider.GetRequiredService<IWrappedScopeFactory>();
         return factory.Create();
+    }
+
+    public override void AddRegistrations<TInterface>(IServiceCollection container, IEnumerable<Type> concreteTypes)
+    {
+        foreach (var t in concreteTypes)
+        {
+            container.Add(new ServiceDescriptor(typeof(TInterface), t, ServiceLifetime.Scoped));
+        }
     }
 }
 
