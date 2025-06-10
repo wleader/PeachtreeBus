@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Tasks;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Tasks;
@@ -26,43 +24,25 @@ public class RunStartupTasksFixture
     private RunStarupTasks _runStartupTasks = default!;
     private readonly Mock<IWrappedScopeFactory> _scopeFactory = new();
     private readonly Mock<IBusConfiguration> _busConfiguration = new();
-    private readonly Mock<IWrappedScope> _scope1 = new();
-    private readonly Mock<IWrappedScope> _scope2 = new();
-    private List<Type> _implementationTypes =
-    [
-        typeof(FakeStartupTask1),
-        typeof(FakeStartupTask2)
-    ];
+    private readonly Mock<IWrappedScope> _scope = new();
 
     private readonly FakeStartupTask1 _task1 = new();
     private readonly FakeStartupTask2 _task2 = new();
-
-    private readonly Queue<IWrappedScope> _scopes = new();
 
     [TestInitialize]
     public void Initialize()
     {
         _busConfiguration.Reset();
         _scopeFactory.Reset();
-        _scope1.Reset();
-        _scope2.Reset();
+        _scope.Reset();
 
         _busConfiguration.SetupGet(c => c.UseStartupTasks).Returns(true);
 
-        _scopeFactory.Setup(s => s.GetImplementations<IRunOnStartup>())
-            .Returns(() => _implementationTypes);
-
-        _scopes.Clear();
-        _scopes.Enqueue(_scope1.Object);
-        _scopes.Enqueue(_scope2.Object);
-
         _scopeFactory.Setup(s => s.Create())
-            .Returns(_scopes.Dequeue);
+            .Returns(_scope.Object);
 
-        _scope1.Setup(s => s.GetInstance(typeof(FakeStartupTask1)))
-            .Returns(() => _task1);
-        _scope2.Setup(s => s.GetInstance(typeof(FakeStartupTask2)))
-            .Returns(() => _task2);
+        _scope.Setup(s => s.GetAllInstances<IRunOnStartup>())
+            .Returns(() => [_task1, _task2]);
 
         _task1.RunCount = 0;
         _task2.RunCount = 0;
@@ -79,12 +59,8 @@ public class RunStartupTasksFixture
 
         Assert.AreEqual(1, _task1.RunCount);
         Assert.AreEqual(1, _task1.RunCount);
-
-        _scope1.Verify(s => s.GetInstance(typeof(FakeStartupTask1)), Times.Once);
-        _scope2.Verify(s => s.GetInstance(typeof(FakeStartupTask2)), Times.Once);
-
-        _scope1.Verify(s => s.Dispose(), Times.Once);
-        _scope2.Verify(s => s.Dispose(), Times.Once);
+        _scope.Verify(s => s.GetAllInstances<IRunOnStartup>(), Times.Once);
+        _scope.Verify(s => s.Dispose(), Times.Once);
     }
 
     [TestMethod]
@@ -100,14 +76,15 @@ public class RunStartupTasksFixture
 
 
     [TestMethod]
-    public void Given_NoStartupTasks_When_RunStartupTasks_Then_TasksAreNotRun_And_ScopesAreNotCreated()
+    public void Given_NoStartupTasks_When_RunStartupTasks_Then_TasksAreNotRun()
     {
-        _implementationTypes = [];
+        _scope.Setup(s => s.GetAllInstances<IRunOnStartup>())
+            .Returns(() => []);
 
         _runStartupTasks.RunStartupTasks();
 
         Assert.AreEqual(0, _task1.RunCount);
         Assert.AreEqual(0, _task1.RunCount);
-        _scopeFactory.Verify(f => f.Create(), Times.Never);
+        _scopeFactory.Verify(f => f.Create(), Times.Once);
     }
 }
