@@ -40,6 +40,7 @@ public class PeachtreeBusHostedService(
 
     public void Dispose()
     {
+        _cts.Dispose();
         _scope?.Dispose();
         GC.SuppressFinalize(this);
     }
