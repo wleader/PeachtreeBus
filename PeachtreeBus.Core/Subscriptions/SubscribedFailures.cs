@@ -13,41 +13,22 @@ namespace PeachtreeBus.Subscriptions
     public class SubscribedFailures(
         ILogger<SubscribedFailures> log,
         IBusDataAccess dataAccess,
-        IFailedSubscribedMessageHandlerFactory handlerFactory)
+        IHandleFailedSubscribedMessages handler)
         : ISubscribedFailures
     {
-        private readonly ILogger<SubscribedFailures> _log = log;
-        private readonly IBusDataAccess _dataAccess = dataAccess;
-        private readonly IFailedSubscribedMessageHandlerFactory _handlerFactory = handlerFactory;
-
         public async Task Failed(SubscribedContext context, object message, Exception exception)
         {
             const string SavePointName = "BeforeHandleFailed";
 
-            IHandleFailedSubscribedMessages handler;
-
-            _log.MessageFailed(message.GetType());
             try
             {
-                // this can throw if dependency injection cannot provide
-                // the requested type.
-                handler = _handlerFactory.GetHandler();
-            }
-            catch (Exception ex)
-            {
-                _log.NoHandler(ex);
-                return;
-            }
-
-            try
-            {
-                _dataAccess.CreateSavepoint(SavePointName);
+                dataAccess.CreateSavepoint(SavePointName);
                 await handler.Handle(context, message, exception);
             }
             catch (Exception ex)
             {
-                _log.HandlerThrow(handler.GetType(), message.GetType(), ex);
-                _dataAccess.RollbackToSavepoint(SavePointName);
+                log.HandlerThrow(handler.GetType(), message.GetType(), ex);
+                dataAccess.RollbackToSavepoint(SavePointName);
             }
         }
     }

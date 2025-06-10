@@ -13,41 +13,22 @@ namespace PeachtreeBus.Queues
     public class QueueFailures(
         ILogger<QueueFailures> log,
         IBusDataAccess dataAccess,
-        IFailedQueueMessageHandlerFactory handlerFactory)
+        IHandleFailedQueueMessages handleFailed)
         : IQueueFailures
     {
-        private readonly ILogger<QueueFailures> _log = log;
-        private readonly IBusDataAccess _dataAccess = dataAccess;
-        private readonly IFailedQueueMessageHandlerFactory _handlerFactory = handlerFactory;
-
         public async Task Failed(QueueContext context, object message, Exception exception)
         {
             const string SavePointName = "BeforeHandleFailed";
-
-            IHandleFailedQueueMessages handler;
-
-            _log.MessageFailed(message.GetType());
+            log.MessageFailed(message.GetType());
             try
             {
-                // this can throw if dependency injection cannot provide
-                // the requested type.
-                handler = _handlerFactory.GetHandler();
+                dataAccess.CreateSavepoint(SavePointName);
+                await handleFailed.Handle(context, message, exception);
             }
             catch (Exception ex)
             {
-                _log.NoHandler(ex);
-                return;
-            }
-
-            try
-            {
-                _dataAccess.CreateSavepoint(SavePointName);
-                await handler.Handle(context, message, exception);
-            }
-            catch (Exception ex)
-            {
-                _log.HandlerThrow(handler.GetType(), message.GetType(), ex);
-                _dataAccess.RollbackToSavepoint(SavePointName);
+                log.HandlerThrow(handleFailed.GetType(), message.GetType(), ex);
+                dataAccess.RollbackToSavepoint(SavePointName);
             }
         }
     }

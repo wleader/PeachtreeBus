@@ -83,9 +83,7 @@ public abstract class BaseRegisterComponents
         RegisterScoped<IProcessQueuedRunner, ProcessQueuedRunner>();
         RegisterScoped<IQueueWriter, QueueWriter>();
         RegisterScoped<ISubscribedPublisher, SubscribedPublisher>();
-        RegisterScoped<IFailedQueueMessageHandlerFactory, FailedQueueMessageHandlerFactory>();
         RegisterScoped<IQueueFailures, QueueFailures>();
-        RegisterScoped<IFailedSubscribedMessageHandlerFactory, FailedSubscribedMessageHandlerFactory>();
         RegisterScoped<ISubscribedFailures, SubscribedFailures>();
         RegisterScoped<IPublishPipelineInvoker, PublishPipelineInvoker>();
         RegisterScoped<IPublishPipelineFactory, PublishPipelineFactory>();
