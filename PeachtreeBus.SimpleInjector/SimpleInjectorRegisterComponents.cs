@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.DatabaseSharing;
 using SimpleInjector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeachtreeBus.SimpleInjector;
 
@@ -28,14 +27,33 @@ public class SimpleInjectorRegisterComponents(
         container.Register(typeof(ISharedDatabase),
             () => container.GetInstance<IShareObjectsBetweenScopes>().SharedDatabase ?? sharedDbProducer.GetInstance(),
             Lifestyle.Scoped);
+
+        container.Register(typeof(IClassNameService), typeof(ClassNameService), Lifestyle.Singleton);
+        container.RegisterDecorator(typeof(IClassNameService), typeof(CachedClassNameService));
     }
 
-    protected override void RegisterInstance<T>(T instance) => 
+    protected override void RegisterInstance<T>(T instance) =>
         container.RegisterInstance<T>(instance);
 
-    protected override void RegisterSingleton<TInterface, TImplementation>() => 
+    protected override void RegisterSingleton<TInterface, TImplementation>() =>
         container.Register(typeof(TInterface), typeof(TImplementation), Lifestyle.Singleton);
 
-    protected override void RegisterScoped<TInterface, TImplementation>() => 
+    protected override void RegisterScoped<TInterface, TImplementation>() =>
         container.Register(typeof(TInterface), typeof(TImplementation), Lifestyle.Scoped);
+
+    protected override void RegisterScoped(Type interfaceType, IEnumerable<Type> implementations)
+    {
+        container.Collection.Register(interfaceType, implementations, Lifestyle.Scoped);
+        RegisterIfNeeded(implementations);
+    }
+
+    private void RegisterIfNeeded(IEnumerable<Type> implementations)
+    {
+        var current = container.GetCurrentRegistrations().Select(ip => ip.ImplementationType);
+        var needsRegistration = implementations.Except(current);
+        foreach (var item in needsRegistration)
+        {
+            container.Register(item, item, Lifestyle.Scoped);
+        }
+    }
 }

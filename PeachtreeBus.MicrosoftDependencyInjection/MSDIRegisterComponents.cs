@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PeachtreeBus.ClassNames;
 using PeachtreeBus.DatabaseSharing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PeachtreeBus.MicrosoftDependencyInjection;
 
@@ -17,6 +15,9 @@ public class MSDIRegisterComponents(IServiceCollection services) : BaseRegisterC
 
         services.AddScoped(sp => sp.GetRequiredService<IShareObjectsBetweenScopes>().SharedDatabase ??=
             new SharedDatabase(sp.GetRequiredService<ISqlConnectionFactory>()));
+
+        services.AddSingleton<ClassNameService>();
+        services.AddSingleton<IClassNameService>(sp => new CachedClassNameService(sp.GetRequiredService<ClassNameService>()));
     }
 
     protected override void RegisterInstance<T>(T instance) where T : class =>
@@ -27,4 +28,12 @@ public class MSDIRegisterComponents(IServiceCollection services) : BaseRegisterC
 
     protected override void RegisterScoped<TInterface, TImplementation>() =>
         services.AddScoped(typeof(TInterface), typeof(TImplementation));
+
+    protected override void RegisterScoped(Type interfaceType, IEnumerable<Type> implementations)
+    {
+        foreach (var implementationType in implementations)
+        {
+            services.Add(new ServiceDescriptor(interfaceType, implementationType, ServiceLifetime.Scoped));
+        }
+    }
 }
