@@ -1,8 +1,5 @@
 ﻿using SimpleInjector;
 using SimpleInjector.Lifestyles;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PeachtreeBus.SimpleInjector
 {
@@ -33,13 +30,6 @@ namespace PeachtreeBus.SimpleInjector
                 throw new SimpleInjectorScopeFactoryException("Could not get a PeachtreeBus.IWrappedScope of type PeachtreeBus.SimpleInjector.SimpleInjectorScope from the container. Did you replace the registration for IWrappedScope?");
             }
             return siWrappedScoped;
-        }
-
-        public IEnumerable<Type> GetImplementations<TInterface>()
-        {
-            return _container.GetRootRegistrations()
-                .Where(ip => ip.ImplementationType.GetInterfaces().Contains(typeof(TInterface)))
-                .Select(ip => ip.ImplementationType);
         }
     }
 }

@@ -21,5 +21,4 @@ public interface IWrappedScope : IDisposable, IServiceProvider
 public interface IWrappedScopeFactory
 {
     IWrappedScope Create();
-    IEnumerable<Type> GetImplementations<TInterface>();
 }

@@ -28,8 +28,4 @@ public class MSDIWrappedScopeFactory(
         return siWrappedScoped;
     }
 
-    public IEnumerable<Type> GetImplementations<TInteface>()
-    {
-        return serviceProvider.GetServices(typeof(TInteface)).Select(o => o!.GetType());
-    }
 }
