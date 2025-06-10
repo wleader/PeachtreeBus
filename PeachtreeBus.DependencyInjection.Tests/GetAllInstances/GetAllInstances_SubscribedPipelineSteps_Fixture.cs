@@ -28,6 +28,7 @@ public class SubscribedPipelineStep2 : ISubscribedPipelineStep
     }
 }
 
+[TestClass]
 public class GetAllInstances_SubscribedPipelineSteps_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
     : GetAllInstances_Base_Fixture<ISubscribedPipelineStep, TContainer>(containerBuilder)
 {
