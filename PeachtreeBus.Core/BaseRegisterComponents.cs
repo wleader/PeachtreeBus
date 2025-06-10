@@ -25,7 +25,7 @@ public abstract class BaseRegisterComponents
         RegisterConditional(busConfiguration);
     }
 
-    protected virtual void RegisterLogging() { }
+    protected abstract void RegisterLogging();
     protected abstract void RegisterInstance<T>(T instance) where T : class;
     protected abstract void RegisterSpecialized();
     protected abstract void RegisterSingleton<TInterface, TImplementation>();
@@ -147,7 +147,7 @@ public abstract class BaseRegisterComponents
     private void FindAndRegister<TInterface>(List<Assembly> assemblies)
     {
         var matches = Find(typeof(TInterface), assemblies);
-        RegisterScoped(typeof(Type), matches);
+        RegisterScoped(typeof(TInterface), matches);
     }
 
     private void FindAndRegisterMessageHandler(Type handlerInterface, Type messageInterface, List<Assembly> assemblies)
