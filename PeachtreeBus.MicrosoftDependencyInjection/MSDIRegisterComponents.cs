@@ -10,7 +10,7 @@ public class MSDIRegisterComponents(IServiceCollection services) : BaseRegisterC
 {
     protected override void RegisterSpecialized()
     {
-        RegisterSingleton<IWrappedScope, MSDIWrappedScope>();
+        RegisterSingleton<IWrappedScopeFactory, MSDIWrappedScopeFactory>();
         RegisterScoped<IWrappedScope, MSDIWrappedScope>();
 
         services.AddScoped(sp => sp.GetRequiredService<IShareObjectsBetweenScopes>().SharedDatabase ??=
@@ -19,6 +19,8 @@ public class MSDIRegisterComponents(IServiceCollection services) : BaseRegisterC
         services.AddSingleton<ClassNameService>();
         services.AddSingleton<IClassNameService>(sp => new CachedClassNameService(sp.GetRequiredService<ClassNameService>()));
     }
+
+    protected override void RegisterLogging() { }
 
     protected override void RegisterInstance<T>(T instance) where T : class =>
         services.AddSingleton(instance);

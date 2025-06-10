@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using PeachtreeBus.Exceptions;
+using System.Collections.Generic;
 
 namespace PeachtreeBus.Subscriptions;
 
@@ -17,6 +18,10 @@ public class FindSubscribedHandlers(
         // this is because when multiple threads are handling messages, each thread needs 
         // to have its own instance of the handler object, so that mulitple threads do not
         // intefere with each other.
-        return _scope.GetAllInstances<IHandleSubscribedMessage<T>>();
+        return _scope.GetAllInstances<IHandleSubscribedMessage<T>>()
+            ?? throw new IncorrectImplementationException(
+                "An IWrappedScope must not return null, when GetAllInstances is called.",
+                _scope.GetType(),
+                typeof(IWrappedScope));
     }
 }
