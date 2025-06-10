@@ -20,7 +20,7 @@ public class FindQueueHandlers(
         // intefere with each other.
         return _scope.GetAllInstances<IHandleQueueMessage<T>>()
             ?? throw new IncorrectImplementationException(
-                "An IWrappedScope must  not return null, when GetAllInstances is called.",
+                "An IWrappedScope must not return null, when GetAllInstances is called.",
                 _scope.GetType(),
                 typeof(IWrappedScope));
     }

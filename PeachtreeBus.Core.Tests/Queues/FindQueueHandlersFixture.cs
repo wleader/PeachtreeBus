@@ -12,7 +12,7 @@ public class FindQueueHandlersFixture
     private class FindableMessage : IQueueMessage;
 
     private FindQueueHandlers _finder = default!;
-    private Mock<IWrappedScope> _scope = new();
+    private readonly Mock<IWrappedScope> _scope = new();
 
     [TestInitialize]
     public void Initialize()

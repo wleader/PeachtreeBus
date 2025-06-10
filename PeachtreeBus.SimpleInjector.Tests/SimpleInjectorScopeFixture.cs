@@ -41,14 +41,14 @@ public class SimpleInjectorScopeFixture
     public void Given_ScopeNull_When_GetAllInstances_Then_Throws()
     {
         _subject.Scope = null;
-        Assert.ThrowsException<InvalidOperationException>(_subject.GetAllInstances<IQueuePipelineStep>);
+        Assert.ThrowsExactly<InvalidOperationException>(() => _subject.GetAllInstances<IQueuePipelineStep>());
     }
 
     [TestMethod]
     public void Given_ScopeNull_When_GetInstanceGeneric_Then_Throws()
     {
         _subject.Scope = null;
-        Assert.ThrowsException<InvalidOperationException>(_subject.GetInstance<IQueuePipelineStep>);
+        Assert.ThrowsExactly<InvalidOperationException>(() => _subject.GetInstance<IQueuePipelineStep>());
     }
 
 
@@ -56,7 +56,7 @@ public class SimpleInjectorScopeFixture
     public void Given_ScopeNull_When_GetInstance_Then_Throws()
     {
         _subject.Scope = null;
-        Assert.ThrowsException<InvalidOperationException>(() => _subject.GetInstance(typeof(IQueuePipelineStep)));
+        Assert.ThrowsExactly<InvalidOperationException>(() => _subject.GetInstance(typeof(IQueuePipelineStep)));
     }
 
     [TestMethod]
