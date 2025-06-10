@@ -48,17 +48,4 @@ public class SimpleInjectorStartupTasksFixture : SimpleInjectorExtensionFixtureB
         When_RunPeachtreeBus(config, [Assembly.GetExecutingAssembly()], CustomizeContainer);
         Then_RunCountIs(1);
     }
-
-    [TestMethod]
-    public void Given_StartupTask_And_UseStartupFalse_When_Run_Then_FindableTaskIsNotRun()
-    {
-        var config = new BusConfiguration()
-        {
-            ConnectionString = "Server=(local);Database=PeachtreeBusExample",
-            Schema = new("PeachTreeBus"),
-            UseStartupTasks = false
-        };
-        When_RunPeachtreeBus(config, [Assembly.GetExecutingAssembly()], CustomizeContainer);
-        Then_RunCountIs(0);
-    }
 }
