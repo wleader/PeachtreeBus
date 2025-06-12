@@ -3,6 +3,18 @@ A Message Bus Library
 
 ## What's New
 
+### June 11th 2025
+The Microsoft Dependency Injection Release
+
+There have been a few updates since April:
+
+* 0.11.1 - Allow Underscores in Saga Names.
+* 0.11.2 - Messages for sagas that have not been started or have completed no longer throw. They now log a Info level message.
+* 0.11.3 - Creation of the MessageInterfaces assembly/package. Fixed an issue with the messaging tags for telemetry.
+* 0.11.4 - Reworked the 'main' loop to auto scale the number of Tasks that are running based on how many messages are available to be processed (up to a maximum).
+* 0.11.5 - Added the IRunStartupTasks inteface which can be replaced in the DI Container to enable users to unit test their Main() code that would run PeachtreeBus. ISharedDatabase can now have its connection set allowing IQueueWriter or ISubscribedPublisher to write using an existing database connection. (Useful for Send-Only operations).
+* 0.11.6 - Creation of the PeachtreeBus.MicrosoftDependencyInjection assembly/package. This offers extensions to make it easy to register PeachtreeBus with an IServiceCollection, or even run it as an IHostedService when using Microsoft.Extensions.Hosting.
+
 ### April 1st 2025
 The 'Enterprise' Update
 
@@ -32,13 +44,6 @@ Oh Baby this is a big one. I feel bad for anyone upgrading from 0.10.5.(which as
 * Like previous releases, more and better test coverage.
 * 20% Cooler than the previous release.
 * Yes, I am aware that this is an April 1st release. How could I not?
-
-### August 1st 2024
-Connect On Demand Update 
-
-The ISharedDatabase implementation now no longer attempts to connect inside its constructor. This can cause problems when a Dependency Injection Container tries to verify the registrations by creating instances of everything. Now, the connection will be made when it is needed.
-
-Additionally the message context objects for Queued and Subscribed messages expose a property containing the current dependency injection scope. This is an experimental feature, and may be removed in a future update. Its preferable that you use constructor injection wherever possible. Chances are if you think you need this, there's likely to be a change to your application code that can be made to avoid using it.
 
 ### What's Old
 You can also read the [Old News](WhatsOld.md) if you like.

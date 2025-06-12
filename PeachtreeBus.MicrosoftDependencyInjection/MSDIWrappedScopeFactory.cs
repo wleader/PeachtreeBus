@@ -13,18 +13,18 @@ public class MSDIWrappedScopeFactory(
         var nativeScope = serviceProvider.CreateAsyncScope();
         var result = nativeScope.ServiceProvider.GetService<IWrappedScope>();
 
-        if (result is MSDIWrappedScope siWrappedScoped)
+        if (result is MSDIWrappedScope msdiWrappedScoped)
         {
             // put the native scope inside the wrapped scope,
             // so that it is available later when code needs to create
             // something from the scope.
-            siWrappedScoped.Scope = nativeScope;
+            msdiWrappedScoped.Scope = nativeScope;
         }
         else
         {
-            throw new MSDIWrappedScopeFactoryException("Could not get a PeachtreeBus.IWrappedScope of type PeachtreeBus.SimpleInjector.SimpleInjectorScope from the container. Did you replace the registration for IWrappedScope?");
+            throw new MSDIWrappedScopeFactoryException("Could not get a PeachtreeBus.IWrappedScope of type PeachtreeBus.MicrosoftDependencyInjection.MSDIWrappedScope from the container. Did you replace the registration for IWrappedScope?");
         }
-        return siWrappedScoped;
+        return msdiWrappedScoped;
     }
 }
 
