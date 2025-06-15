@@ -11,7 +11,4 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
     </PropertyGroup>
-    <PropertyGroup Label="Normalize stack trace file locations.">
-        <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
-    </PropertyGroup>
 </Project>
