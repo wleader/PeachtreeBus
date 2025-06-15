@@ -7,8 +7,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
-        <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+        <ProjectReference Include="..\..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
+        <ProjectReference Include="..\..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
