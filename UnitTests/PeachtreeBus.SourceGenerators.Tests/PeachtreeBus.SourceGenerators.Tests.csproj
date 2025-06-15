@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PeachtreeBus.SourceGenerators\PeachtreeBus.SourceGenerators.csproj" />
+        <ProjectReference Include="..\..\PeachtreeBus.SourceGenerators\PeachtreeBus.SourceGenerators.csproj" />
     </ItemGroup>
 
 </Project>
