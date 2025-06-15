@@ -9,5 +9,6 @@
         <Product>PeachtreeBus</Product>
         <Nullable>enable</Nullable>
         <ImplicitUsings>disable</ImplicitUsings>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
     </PropertyGroup>
 </Project>

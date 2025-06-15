@@ -1,14 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-        <PackageReference Include="Moq" Version="4.20.72" />
-        <PackageReference Include="MSTest" Version="3.8.3" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Moq" />
+        <PackageReference Include="MSTest" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
-      <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>

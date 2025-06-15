@@ -5,17 +5,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.1.66" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.3" />
-
-        <PackageReference Include="SimpleInjector" Version="5.5.0" />
+        <PackageReference Include="Dapper" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+        <PackageReference Include="Microsoft.Extensions.Logging" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+        <PackageReference Include="SimpleInjector" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PeachtreeBus.Example\PeachtreeBus.Example.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.Example\PeachtreeBus.Example.csproj" />
     </ItemGroup>
 
 </Project>

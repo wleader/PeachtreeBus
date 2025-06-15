@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-      <PackageReference Include="SimpleInjector" Version="5.5.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="SimpleInjector" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
-    <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+    </ItemGroup>
 
 </Project>
