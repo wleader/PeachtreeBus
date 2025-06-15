@@ -5,21 +5,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Dapper" />
         <PackageReference Include="Microsoft.Extensions.Configuration" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
         <PackageReference Include="Microsoft.Extensions.Logging" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+        <PackageReference Include="SimpleInjector" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PeachtreeBus.Example\PeachtreeBus.Example.csproj" />
-        <ProjectReference Include="..\PeachtreeBus.SimpleInjector\PeachtreeBus.SimpleInjector.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Update="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+      <ProjectReference Include="..\..\PeachtreeBus.SimpleInjector\PeachtreeBus.SimpleInjector.csproj" />
+      <ProjectReference Include="..\PeachtreeBus.Example\PeachtreeBus.Example.csproj" />
     </ItemGroup>
 
 </Project>
