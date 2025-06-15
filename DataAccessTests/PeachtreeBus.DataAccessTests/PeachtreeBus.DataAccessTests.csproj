@@ -18,10 +18,10 @@
     <PackageReference Include="Microsoft.Data.SqlClient" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
-    <ProjectReference Include="..\PeachtreeBus.Database\PeachtreeBus.Database.sqlproj" />
-    <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
-    <ProjectReference Include="..\UnitTests\PeachtreeBus.Core.Tests\PeachtreeBus.Core.Tests.csproj" />
+    <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
+    <ProjectReference Include="..\..\PeachtreeBus.Database\PeachtreeBus.Database.sqlproj" />
+    <ProjectReference Include="..\..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+    <ProjectReference Include="..\..\UnitTests\PeachtreeBus.Core.Tests\PeachtreeBus.Core.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">

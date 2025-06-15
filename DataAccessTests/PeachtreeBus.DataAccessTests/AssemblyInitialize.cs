@@ -56,7 +56,7 @@ namespace PeachtreeBus.DataAccessTests
             // create schema and tables
 
             // find the newest dacpac (debug or release);
-            var searchpath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", "..", "..", "..", "PeachtreeBus.Database"));
+            var searchpath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", "..", "..", "..", "..", "PeachtreeBus.Database"));
             var newestDacPac = Directory.GetFiles(searchpath, "PeachtreeBus.Database.dacpac", SearchOption.AllDirectories)
                 .Select(filename => new Tuple<string, DateTime>(filename, File.GetLastWriteTime(filename)))
                 .OrderByDescending(t => t.Item2).First().Item1;
