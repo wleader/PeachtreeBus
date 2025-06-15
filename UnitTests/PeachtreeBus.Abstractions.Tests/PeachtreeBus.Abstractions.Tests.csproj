@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
+        <ProjectReference Include="..\..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

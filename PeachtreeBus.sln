@@ -51,8 +51,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.SimpleInjector
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Abstractions", "PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj", "{B58BB001-7941-4FD1-B241-9A4FBC4C2F69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Abstractions.Tests", "PeachtreeBus.Abstractions.Tests\PeachtreeBus.Abstractions.Tests.csproj", "{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.AppHost", "PeachtreeBus.Example.AppHost\PeachtreeBus.Example.AppHost.csproj", "{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MessageInterfaces", "PeachtreeBus.MessageInterfaces\PeachtreeBus.MessageInterfaces.csproj", "{D694D0E6-028A-4582-B7CE-B2E0F45BB646}"
@@ -74,6 +72,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DependencyInjection.Tests", "PeachtreeBus.DependencyInjection.Tests\PeachtreeBus.DependencyInjection.Tests.csproj", "{BA34F41D-E564-4FD5-973D-C5570346890F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MicrosoftDependencyInjection.Tests", "PeachtreeBus.MicrosoftDependencyInjection.Tests\PeachtreeBus.MicrosoftDependencyInjection.Tests.csproj", "{4B76E6DB-33C7-4010-B19C-9CE6EA5C002A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Abstractions.Tests", "UnitTests\PeachtreeBus.Abstractions.Tests\PeachtreeBus.Abstractions.Tests.csproj", "{46368BE2-4076-2AAF-41C2-2D81218B8B82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -158,11 +160,6 @@ Global
 		{B58BB001-7941-4FD1-B241-9A4FBC4C2F69}.Nuget|Any CPU.Build.0 = Release|Any CPU
 		{B58BB001-7941-4FD1-B241-9A4FBC4C2F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B58BB001-7941-4FD1-B241-9A4FBC4C2F69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
-		{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D92741EF-1F88-4F0A-94AB-D1838B2B2ECF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFEADBF6-CCDD-41D6-9593-70CC0E68310B}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
@@ -221,12 +218,19 @@ Global
 		{4B76E6DB-33C7-4010-B19C-9CE6EA5C002A}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
 		{4B76E6DB-33C7-4010-B19C-9CE6EA5C002A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B76E6DB-33C7-4010-B19C-9CE6EA5C002A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46368BE2-4076-2AAF-41C2-2D81218B8B82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46368BE2-4076-2AAF-41C2-2D81218B8B82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46368BE2-4076-2AAF-41C2-2D81218B8B82}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{46368BE2-4076-2AAF-41C2-2D81218B8B82}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{46368BE2-4076-2AAF-41C2-2D81218B8B82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46368BE2-4076-2AAF-41C2-2D81218B8B82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DE1CE708-C0BC-4849-B7C7-A6AEFC7096BA} = {FCEB713C-B3A8-40B7-8265-9DE8E4E2ADDE}
+		{46368BE2-4076-2AAF-41C2-2D81218B8B82} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {152625A8-2D37-455D-B3A6-DB03D605D21C}
