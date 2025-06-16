@@ -25,7 +25,7 @@ namespace PeachtreeBus.Data
         ISharedDatabase database,
         IBusConfiguration configuration,
         ILogger<DapperDataAccess> log,
-        IDapperMethods sqlExecutor)
+        IDapperMethods dapper)
         : IBusDataAccess
     {
         private readonly ISharedDatabase _database = database;
@@ -63,7 +63,7 @@ namespace PeachtreeBus.Data
             p.Add("@Headers", message.Headers);
             p.Add("@Body", message.Body);
 
-            return await LogIfError(sqlExecutor.QueryFirst<Identity>(statement, p));
+            return await LogIfError(dapper.QueryFirst<Identity>(statement, p));
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace PeachtreeBus.Data
 
             var query = string.Format(GetOnePendingMessageStatement, _configuration.Schema, queueName);
 
-            return await LogIfError(sqlExecutor.QueryFirstOrDefault<QueueData>(query));
+            return await LogIfError(dapper.QueryFirstOrDefault<QueueData>(query));
         }
 
         /// <inheritdoc/>
@@ -113,7 +113,7 @@ namespace PeachtreeBus.Data
 
             var query = string.Format(EstimateQueuedStatement, _configuration.Schema, queueName);
 
-            return await LogIfError(sqlExecutor.ExecuteScalar<long>(query));
+            return await LogIfError(dapper.ExecuteScalar<long>(query));
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace PeachtreeBus.Data
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace PeachtreeBus.Data
             p.Add("@Data", data.Data);
             p.Add("@MetaData", data.MetaData);
 
-            return await LogIfError(sqlExecutor.QueryFirst<Identity>(statement, p));
+            return await LogIfError(dapper.QueryFirst<Identity>(statement, p));
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace PeachtreeBus.Data
             p.Add("@Data", data.Data);
             p.Add("@MetaData", data.MetaData);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -296,7 +296,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -366,7 +366,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
-            return await LogIfError(sqlExecutor.QueryFirstOrDefault<SagaData>(query, p));
+            return await LogIfError(dapper.QueryFirstOrDefault<SagaData>(query, p));
         }
 
         /// <summary>
@@ -389,7 +389,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
 
-            return await LogIfError(sqlExecutor.QueryFirst<long>(statement, p));
+            return await LogIfError(dapper.QueryFirst<long>(statement, p));
         }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace PeachtreeBus.Data
             p.Add("@Topic", topic);
             p.Add("@ValidUntil", until);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
 
-            return await LogIfError(sqlExecutor.QueryFirstOrDefault<SubscribedData>(query, p));
+            return await LogIfError(dapper.QueryFirstOrDefault<SubscribedData>(query, p));
         }
 
         /// <inheritdoc/>
@@ -481,7 +481,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
 
-            return await LogIfError(sqlExecutor.ExecuteScalar<long>(query, p));
+            return await LogIfError(dapper.ExecuteScalar<long>(query, p));
         }
 
         public async Task<long> Publish(SubscribedData message, Topic topic)
@@ -511,7 +511,7 @@ namespace PeachtreeBus.Data
             p.Add("@Body", message.Body);
             p.Add("@Topic", topic);
 
-            return await LogIfError(sqlExecutor.QueryFirst<long>(statement, p));
+            return await LogIfError(dapper.QueryFirst<long>(statement, p));
         }
 
         /// <summary>
@@ -541,7 +541,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -572,7 +572,7 @@ namespace PeachtreeBus.Data
             p.Add("@Id", message.Id);
             p.Add("@Headers", message.Headers);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -604,7 +604,7 @@ namespace PeachtreeBus.Data
             p.Add("@Retries", message.Retries);
             p.Add("@Headers", message.Headers);
 
-            await LogIfError(sqlExecutor.Execute(statement, p));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         /// <summary>
@@ -633,7 +633,7 @@ namespace PeachtreeBus.Data
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
 
-            return await LogIfError(sqlExecutor.QueryFirst<long>(statement, p));
+            return await LogIfError(dapper.QueryFirst<long>(statement, p));
         }
 
         /// <summary>
@@ -660,7 +660,7 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return await LogIfError(sqlExecutor.QueryFirst<long>(statement, p));
+            return await LogIfError(dapper.QueryFirst<long>(statement, p));
         }
 
         /// <summary>
@@ -687,7 +687,7 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return await LogIfError(sqlExecutor.QueryFirst<long>(statement, p));
+            return await LogIfError(dapper.QueryFirst<long>(statement, p));
         }
 
         /// <summary>
@@ -714,7 +714,7 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return await LogIfError(sqlExecutor.QueryFirst<long>(statement, p));
+            return await LogIfError(dapper.QueryFirst<long>(statement, p));
         }
 
         /// <summary>
@@ -741,7 +741,7 @@ namespace PeachtreeBus.Data
             p.Add("@MaxCount", maxCount);
             p.Add("@OlderThan", olderthan);
 
-            return await LogIfError(sqlExecutor.QueryFirst<long>(statement, p));
+            return await LogIfError(dapper.QueryFirst<long>(statement, p));
         }
 
         private async Task<T> LogIfError<T>(Task<T> task,
