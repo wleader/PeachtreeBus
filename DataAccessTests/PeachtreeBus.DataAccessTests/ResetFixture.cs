@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 
@@ -14,6 +13,7 @@ namespace PeachtreeBus.DataAccessTests
         private Mock<ISharedDatabase> _sharedDb = default!;
         private Mock<IBusConfiguration> _configuration = default!;
         private Mock<ILogger<DapperDataAccess>> _logger = default!;
+        private readonly Mock<IDapperMethods> _sqlExecutor = new();
 
         [TestInitialize]
         public void Initialize()
@@ -21,12 +21,12 @@ namespace PeachtreeBus.DataAccessTests
             _sharedDb = new();
             _configuration = new();
             _logger = new();
+            _sqlExecutor.Reset();
             _dataAccess = new DapperDataAccess(
                 _sharedDb.Object,
                 _configuration.Object,
                 _logger.Object,
-                new FakeClock(),
-                TestDapperTypesHandler.Instance);
+                _sqlExecutor.Object);
         }
 
         [TestMethod]

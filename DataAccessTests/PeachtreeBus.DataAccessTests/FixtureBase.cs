@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
@@ -33,6 +34,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
     protected ISqlConnection SecondaryConnection = default!;
 
     protected SharedDatabase SharedDB = default!;
+    protected DapperMethods DapperMethods = default!;
 
     private readonly Mock<ISqlConnectionFactory> _connectionFactory = new();
 
@@ -69,6 +71,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
             return PrimaryConnection;
         });
         SharedDB = new SharedDatabase(_connectionFactory.Object);
+        DapperMethods = new(TestDapperTypesHandler.Instance, SharedDB);
 
         Configuration = new();
         Configuration.SetupGet(s => s.Schema).Returns(DefaultSchema);

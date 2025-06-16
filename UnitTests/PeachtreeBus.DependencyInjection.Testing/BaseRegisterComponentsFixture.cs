@@ -60,6 +60,7 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
         Assert.IsNotNull(scope.GetInstance<IShareObjectsBetweenScopes>());
         Assert.IsNotNull(scope.GetInstance<IDapperTypesHandler>());
         Assert.IsNotNull(scope.GetInstance<IBusDataAccess>());
+        Assert.IsNotNull(scope.GetInstance<IDapperMethods>());
         Assert.IsNotNull(scope.GetInstance<ISqlConnectionFactory>());
         Assert.IsNotNull(scope.GetInstance<IProvideDbConnectionString>());
         Assert.IsNotNull(scope.GetInstance<IRunStartupTasks>());

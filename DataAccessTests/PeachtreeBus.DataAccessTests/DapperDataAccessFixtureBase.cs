@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Core.Tests;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using System;
 using System.Threading.Tasks;
@@ -15,8 +14,7 @@ public abstract class DapperDataAccessFixtureBase : FixtureBase<DapperDataAccess
             SharedDB,
             Configuration.Object,
             MockLog.Object,
-            new FakeClock(),
-            TestDapperTypesHandler.Instance);
+            DapperMethods);
     }
 
     protected async Task Given_MessagesInQueue(int count)

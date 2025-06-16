@@ -33,8 +33,7 @@ namespace PeachtreeBus.DataAccessTests
                 SharedDB,
                 Configuration.Object,
                 new Mock<ILogger<DapperDataAccess>>().Object,
-                new FakeClock(),
-                TestDapperTypesHandler.Instance);
+                DapperMethods);
 
             return new ManagementDataAccess(
                 SharedDB,

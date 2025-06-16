@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.ClassNames;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
@@ -91,7 +90,6 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
             SharedDB,
             Configuration.Object,
             MockLog.Object,
-            new FakeClock(),
-            TestDapperTypesHandler.Instance);
+            DapperMethods);
     }
 }

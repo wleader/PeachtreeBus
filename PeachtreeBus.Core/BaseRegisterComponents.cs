@@ -43,6 +43,7 @@ public abstract class BaseRegisterComponents
         RegisterScoped<IShareObjectsBetweenScopes, ShareObjectsBetweenScopes>();
         RegisterSingleton<IDapperTypesHandler, DapperTypesHandler>();
         RegisterScoped<IBusDataAccess, DapperDataAccess>();
+        RegisterScoped<IDapperMethods, DapperMethods>();
         RegisterScoped<ISqlConnectionFactory, SqlConnectionFactory>();
         RegisterSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
         RegisterSingleton<IRunStartupTasks, RunStarupTasks>();
