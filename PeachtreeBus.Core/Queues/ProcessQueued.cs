@@ -27,7 +27,7 @@ public class ProcessQueuedTask(
     private readonly IBusDataAccess _dataAccess = dataAccess;
     private readonly IQueuePipelineInvoker _pipelineInvoker = pipelineInvoker;
 
-    private const string savepointName = "BeforeMessageHandler";
+    private const string SavepointName = "BeforeMessageHandler";
 
     public async Task<bool> RunOne()
     {
@@ -59,7 +59,7 @@ public class ProcessQueuedTask(
 
             // creat a save point. If anything goes wrong we can roll back to here,
             // increment the retry count and try again later.
-            _dataAccess.CreateSavepoint(savepointName);
+            _dataAccess.CreateSavepoint(SavepointName);
 
             await _pipelineInvoker.Invoke(context);
 
@@ -67,7 +67,7 @@ public class ProcessQueuedTask(
             {
                 // the saga is blocked. delay the message and try again later.
                 _log.SagaBlocked(context.CurrentHandler!, context.SagaKey);
-                _dataAccess.RollbackToSavepoint(savepointName);
+                _dataAccess.RollbackToSavepoint(SavepointName);
                 await _queueReader.DelayMessage(context, 250);
                 _meters.SagaBlocked();
                 return true;
@@ -81,7 +81,7 @@ public class ProcessQueuedTask(
             // there was an exception, Rollback to the save point to undo
             // any db changes done by the handlers.
             _log.HandlerException(context.CurrentHandler!, context.MessageId, context.MessageClass, ex);
-            _dataAccess.RollbackToSavepoint(savepointName);
+            _dataAccess.RollbackToSavepoint(SavepointName);
             // increment the retry count, (or maybe even fail the message)
             await _queueReader.Fail(context, ex);
 
