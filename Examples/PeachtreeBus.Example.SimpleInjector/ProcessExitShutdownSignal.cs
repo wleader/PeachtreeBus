@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace PeachtreeBus.Example.Services;
+namespace PeachtreeBus.Example.SimpleInjector;
 
 /// <summary>
 /// An Implementation of IProvideShutdownSignal that uses

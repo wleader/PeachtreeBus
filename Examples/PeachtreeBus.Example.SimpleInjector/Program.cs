@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PeachtreeBus.Example.Data;
-using PeachtreeBus.Example.Services;
 using PeachtreeBus.SimpleInjector;
 using PeachtreeBus.Telemetry;
 using SimpleInjector;
