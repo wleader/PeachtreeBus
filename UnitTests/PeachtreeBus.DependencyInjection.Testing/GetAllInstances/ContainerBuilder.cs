@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PeachtreeBus.DependencyInjection.Tests.GetAllInstances;
+namespace PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
 
 public abstract class ContainerBuilder<TContainer>
 {

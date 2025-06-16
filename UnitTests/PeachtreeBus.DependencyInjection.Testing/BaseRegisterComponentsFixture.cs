@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace PeachtreeBus.DependencyInjection.Tests;
+namespace PeachtreeBus.DependencyInjection.Testing;
 
 public abstract class BaseRegisterComponentsFixture<TContainer>
 {

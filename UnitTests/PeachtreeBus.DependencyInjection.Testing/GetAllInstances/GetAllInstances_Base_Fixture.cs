@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PeachtreeBus.DependencyInjection.Tests.GetAllInstances;
+namespace PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
 
 public abstract class GetAllInstances_Base_Fixture<TInterface, TContainer>(
     ContainerBuilder<TContainer> builder)

@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DependencyInjection.Tests;
+namespace PeachtreeBus.DependencyInjection.Testing;
 
 public class QueueMessage : IQueueMessage;
 

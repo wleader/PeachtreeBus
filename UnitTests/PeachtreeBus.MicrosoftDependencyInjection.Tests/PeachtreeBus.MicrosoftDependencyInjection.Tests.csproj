@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <IsPackable>false</IsPackable>
@@ -14,7 +14,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\PeachtreeBus.MicrosoftDependencyInjection\PeachtreeBus.MicrosoftDependencyInjection.csproj" />
-        <ProjectReference Include="..\PeachtreeBus.DependencyInjection.Tests\PeachtreeBus.DependencyInjection.Tests.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.DependencyInjection.Testing\PeachtreeBus.DependencyInjection.Testing.csproj" />
     </ItemGroup>
 
     <ItemGroup>

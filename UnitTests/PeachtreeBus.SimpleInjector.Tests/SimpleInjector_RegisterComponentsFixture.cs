@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PeachtreeBus.DependencyInjection.Tests;
+using PeachtreeBus.DependencyInjection.Testing;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;

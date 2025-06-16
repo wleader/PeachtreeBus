@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PeachtreeBus.DependencyInjection.Tests.GetAllInstances;
+using PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
 using System;
 using System.Collections.Generic;
 

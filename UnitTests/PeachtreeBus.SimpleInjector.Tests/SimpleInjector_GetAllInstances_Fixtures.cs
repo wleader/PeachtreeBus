@@ -1,4 +1,4 @@
-﻿using PeachtreeBus.DependencyInjection.Tests.GetAllInstances;
+﻿using PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;

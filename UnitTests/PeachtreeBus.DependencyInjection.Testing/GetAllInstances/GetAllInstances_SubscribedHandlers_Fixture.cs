@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DependencyInjection.Tests.GetAllInstances;
+namespace PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
 
 public class FindableSubscribedMessage : ISubscribedMessage;
 
