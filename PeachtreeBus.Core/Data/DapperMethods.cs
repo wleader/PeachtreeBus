@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using PeachtreeBus.DatabaseSharing;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace PeachtreeBus.Data;
 
 public interface IDapperMethods
 {
+    Task<IEnumerable<T>> Query<T>(string statement, DynamicParameters? parameters = null);
     Task<T> QueryFirst<T>(string statement, DynamicParameters parameters);
     Task<T?> QueryFirstOrDefault<T>(string statement, DynamicParameters? parameters = null);
     Task<T?> ExecuteScalar<T>(string statement, DynamicParameters? parameters = null);
@@ -20,6 +22,12 @@ public class DapperMethods(
     : IDapperMethods
 {
     public bool DapperConfigured { get; } = configureDapper.Configure();
+
+
+    public Task<IEnumerable<T>> Query<T>(string statement, DynamicParameters? parameters = null)
+    {
+        return database.Connection.QueryAsync<T>(statement, parameters, database.Transaction);
+    }
 
     public Task<T> QueryFirst<T>(string statement, DynamicParameters parameters)
     {

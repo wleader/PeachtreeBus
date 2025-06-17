@@ -1,11 +1,12 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
-using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Telemetry;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,15 +15,11 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Management
 {
     public class ManagementDataAccess(
-        ISharedDatabase database,
         IBusConfiguration configuration,
         ILogger<ManagementDataAccess> log,
-        IDapperTypesHandler configureDapper)
+        IDapperMethods dapper)
         : IManagementDataAccess
     {
-        public bool DapperConfigured { get; } = configureDapper.Configure();
-
-        private readonly ISharedDatabase _database = database;
         private readonly IBusConfiguration _configuration = configuration;
         private readonly ILogger<ManagementDataAccess> _log = log;
 
@@ -51,38 +48,43 @@ namespace PeachtreeBus.Management
             p.Add("@Skip", skip);
             p.Add("@Take", take);
 
-            return (await LogIfError(
-                _database.Connection.QueryAsync<T>(statement, p, _database.Transaction))).ToList();
+            return (await LogIfError(dapper.Query<T>(statement, p))).ToList();
         }
 
-        public Task<List<QueueData>> GetFailedQueueMessages(QueueName queueName, int skip, int take)
+        public async Task<List<QueueData>> GetFailedQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueData>(QueueFields, queueName, Failed, skip, take);
+            using var _ = StartActivity();
+            return await GetMessages<QueueData>(QueueFields, queueName, Failed, skip, take);
         }
 
-        public Task<List<QueueData>> GetCompletedQueueMessages(QueueName queueName, int skip, int take)
+        public async Task<List<QueueData>> GetCompletedQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueData>(QueueFields, queueName, Completed, skip, take);
+            using var _ = StartActivity();
+            return await GetMessages<QueueData>(QueueFields, queueName, Completed, skip, take);
         }
 
-        public Task<List<QueueData>> GetPendingQueueMessages(QueueName queueName, int skip, int take)
+        public async Task<List<QueueData>> GetPendingQueueMessages(QueueName queueName, int skip, int take)
         {
-            return GetMessages<QueueData>(QueueFields, queueName, Pending, skip, take);
+            using var _ = StartActivity();
+            return await GetMessages<QueueData>(QueueFields, queueName, Pending, skip, take);
         }
 
-        public Task<List<SubscribedData>> GetFailedSubscribedMessages(int skip, int take)
+        public async Task<List<SubscribedData>> GetFailedSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedData>(SubscribedFields, Subscribed, Failed, skip, take);
+            using var _ = StartActivity();
+            return await GetMessages<SubscribedData>(SubscribedFields, Subscribed, Failed, skip, take);
         }
 
-        public Task<List<SubscribedData>> GetCompletedSubscribedMessages(int skip, int take)
+        public async Task<List<SubscribedData>> GetCompletedSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedData>(SubscribedFields, Subscribed, Completed, skip, take);
+            using var _ = StartActivity();
+            return await GetMessages<SubscribedData>(SubscribedFields, Subscribed, Completed, skip, take);
         }
 
-        public Task<List<SubscribedData>> GetPendingSubscribedMessages(int skip, int take)
+        public async Task<List<SubscribedData>> GetPendingSubscribedMessages(int skip, int take)
         {
-            return GetMessages<SubscribedData>(SubscribedFields, Subscribed, Pending, skip, take);
+            using var _ = StartActivity();
+            return await GetMessages<SubscribedData>(SubscribedFields, Subscribed, Pending, skip, take);
         }
 
         public async Task CancelPendingQueueMessage(QueueName queueName, Identity id)
@@ -97,13 +99,14 @@ namespace PeachtreeBus.Management
                         WHERE [Id] = @Id) D
                 """;
 
+            using var _ = StartActivity();
+
             string statement = string.Format(CancelPendingQueuedStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
 
-            await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         public async Task CancelPendingSubscribedMessage(Identity id)
@@ -118,13 +121,14 @@ namespace PeachtreeBus.Management
                         WHERE [Id] = @Id) D
                 """;
 
+            using var _ = StartActivity();
+
             string statement = string.Format(CancelPendingSubscribedStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
 
-            await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         public async Task RetryFailedQueueMessage(QueueName queueName, Identity id)
@@ -139,13 +143,14 @@ namespace PeachtreeBus.Management
                         WHERE [Id] = @Id) D
                 """;
 
+            using var _ = StartActivity();
+
             string statement = string.Format(RetryFailedQueuedStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
 
-            await LogIfError(
-            _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         public async Task RetryFailedSubscribedMessage(Identity id)
@@ -160,13 +165,14 @@ namespace PeachtreeBus.Management
                         WHERE [Id] = @Id) D
                 """;
 
+            using var _ = StartActivity();
+
             string statement = string.Format(RetryFailedSubscribedStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
 
-            await LogIfError(
-                _database.Connection.ExecuteAsync(statement, p, _database.Transaction));
+            await LogIfError(dapper.Execute(statement, p));
         }
 
         [ExcludeFromCodeCoverage]
@@ -181,6 +187,13 @@ namespace PeachtreeBus.Management
                 _log.DataAccessError(caller, ex);
                 throw;
             }
+        }
+
+        private static Activity? StartActivity([CallerMemberName] string caller = "Unnamed")
+        {
+            return ActivitySources.DataAccess.StartActivity(
+                "peachtreebus.managementdataaccess " + caller,
+                ActivityKind.Internal);
         }
     }
 }

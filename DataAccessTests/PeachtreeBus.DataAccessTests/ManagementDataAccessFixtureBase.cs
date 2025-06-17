@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Core.Tests;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.Management;
 using PeachtreeBus.Queues;
@@ -36,10 +35,9 @@ namespace PeachtreeBus.DataAccessTests
                 DapperMethods);
 
             return new ManagementDataAccess(
-                SharedDB,
                 Configuration.Object,
                 MockLog.Object,
-                TestDapperTypesHandler.Instance);
+                DapperMethods);
         }
 
         protected async Task<SubscribedData> CreatePendingSubscribed()
