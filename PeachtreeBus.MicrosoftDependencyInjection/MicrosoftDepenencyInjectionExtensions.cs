@@ -16,8 +16,9 @@ public static partial class MicrosoftDepenencyInjectionExtensions
 
     public static IServiceCollection AddPeachtreeBus(this IServiceCollection builder, IBusConfiguration busConfiguration, List<Assembly>? assemblies = null)
     {
-        var registerComponents = new MSDIRegisterComponents(builder);
-        registerComponents.Register(busConfiguration, assemblies);
+        var provider = new MSDIRegistrationProvider(builder);
+        var components = new RegisterComponents(provider);
+        components.Register(busConfiguration, assemblies);
         return builder;
     }
 }

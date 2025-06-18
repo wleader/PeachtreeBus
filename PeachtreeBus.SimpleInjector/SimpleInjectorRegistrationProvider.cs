@@ -8,17 +8,17 @@ using System.Linq;
 
 namespace PeachtreeBus.SimpleInjector;
 
-public class SimpleInjectorRegisterComponents(
+public class SimpleInjectorRegistrationProvider(
     Container container,
-    ILoggerFactory loggerFactory) : BaseRegisterComponents
+    ILoggerFactory loggerFactory) : IRegistrationProvider
 {
-    protected override void RegisterLogging()
+    public void RegisterLogging()
     {
         container.RegisterInstance(loggerFactory);
         container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
     }
 
-    protected override void RegisterSpecialized()
+    public void RegisterSpecialized()
     {
         container.Register(typeof(IWrappedScopeFactory), () => new SimpleInjectorScopeFactory(container), Lifestyle.Singleton);
         container.Register(typeof(IWrappedScope), typeof(SimpleInjectorScope), Lifestyle.Scoped);
@@ -32,22 +32,22 @@ public class SimpleInjectorRegisterComponents(
         container.RegisterDecorator(typeof(IClassNameService), typeof(CachedClassNameService));
     }
 
-    protected override void RegisterInstance<T>(T instance) =>
-        container.RegisterInstance<T>(instance);
+    public void RegisterInstance<T>(T instance) where T : class =>
+        container.RegisterInstance(instance);
 
-    protected override void RegisterSingleton<TInterface, TImplementation>() =>
+    public void RegisterSingleton<TInterface, TImplementation>() =>
         container.Register(typeof(TInterface), typeof(TImplementation), Lifestyle.Singleton);
 
-    protected override void RegisterScoped<TInterface, TImplementation>() =>
+    public void RegisterScoped<TInterface, TImplementation>() =>
         container.Register(typeof(TInterface), typeof(TImplementation), Lifestyle.Scoped);
 
-    protected override void RegisterScoped(Type interfaceType, IEnumerable<Type> implementations)
+    public void RegisterScoped(Type interfaceType, List<Type> implementations)
     {
         container.Collection.Register(interfaceType, implementations, Lifestyle.Scoped);
         RegisterIfNeeded(implementations);
     }
 
-    private void RegisterIfNeeded(IEnumerable<Type> implementations)
+    private void RegisterIfNeeded(List<Type> implementations)
     {
         var current = container.GetCurrentRegistrations().Select(ip => ip.ImplementationType);
         var needsRegistration = implementations.Except(current);

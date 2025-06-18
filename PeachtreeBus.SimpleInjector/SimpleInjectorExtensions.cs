@@ -15,8 +15,9 @@ namespace PeachtreeBus.SimpleInjector
         /// </summary>
         public static Container UsePeachtreeBus(this Container container, IBusConfiguration busConfiguration, ILoggerFactory loggerFactory, List<Assembly>? assemblies = null)
         {
-            var registerComponents = new SimpleInjectorRegisterComponents(container, loggerFactory);
-            registerComponents.Register(busConfiguration, assemblies);
+            var provider = new SimpleInjectorRegistrationProvider(container, loggerFactory);
+            var components = new RegisterComponents(provider);
+            components.Register(busConfiguration, assemblies);
             return container;
         }
 
