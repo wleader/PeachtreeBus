@@ -148,7 +148,7 @@ public class BaseRegisterComponentsFixture
         VerifyScopedRegistered<IFindSubscribedHandlers, FindSubscribedHandlers>();
     }
 
-    private IBusConfiguration CreateBusConfiguration(bool useDefault)
+    private static BusConfiguration CreateBusConfiguration(bool useDefault)
     {
         return new BusConfiguration()
         {
