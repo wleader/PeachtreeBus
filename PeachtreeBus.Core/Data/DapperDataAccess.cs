@@ -223,7 +223,7 @@ namespace PeachtreeBus.Data
         {
             const string InsertSagaStatement =
                 """
-                INSERT INTO[{0}].[{1}_SagaData] WITH (ROWLOCK)
+                INSERT INTO [{0}].[{1}_SagaData] WITH (ROWLOCK)
                 ([SagaId], [Key], [Data], [MetaData])
                 OUTPUT INSERTED.[Id]
                 VALUES
@@ -585,7 +585,7 @@ namespace PeachtreeBus.Data
         {
             const string UpdateMessageStatement =
                 """
-                UPDATE[{0}].[Subscribed_Pending] WITH (ROWLOCK)
+                UPDATE [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                 SET [NotBefore] = @NotBefore,
                     [Retries] = @Retries,
                     [Headers] = @Headers

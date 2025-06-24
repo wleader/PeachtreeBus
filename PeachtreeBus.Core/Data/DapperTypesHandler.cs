@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.Logging;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
@@ -30,7 +29,8 @@ public class DapperTypesHandler(
     {
         lock (_lock)
         {
-            if (_typeHandlersAdded) return true;
+            if (_typeHandlersAdded)
+                return true;
             SqlMapper.AddTypeHandler(new SerializedDataHandler());
             SqlMapper.AddTypeHandler(new UtcDateTimeHandler());
             SqlMapper.AddTypeHandler(new SagaKeyHandler());
@@ -48,7 +48,7 @@ public class DapperTypesHandler(
 
 public abstract class PeachtreeBusTypeHandler<T> : SqlMapper.TypeHandler<T>;
 
-internal class SerializedDataHandler : PeachtreeBusTypeHandler<SerializedData>
+public class SerializedDataHandler : PeachtreeBusTypeHandler<SerializedData>
 {
     public override void SetValue(IDbDataParameter parameter, SerializedData value)
     {
@@ -62,7 +62,7 @@ internal class SerializedDataHandler : PeachtreeBusTypeHandler<SerializedData>
 /// <summary>
 /// /// Ensures that DateTimes are always persisted and read as UTC.
 /// </summary>
-internal class UtcDateTimeHandler : PeachtreeBusTypeHandler<UtcDateTime>
+public class UtcDateTimeHandler : PeachtreeBusTypeHandler<UtcDateTime>
 {
     public override void SetValue(IDbDataParameter parameter, UtcDateTime value)
     {
@@ -74,7 +74,7 @@ internal class UtcDateTimeHandler : PeachtreeBusTypeHandler<UtcDateTime>
         new(DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc));
 }
 
-internal class SagaKeyHandler : PeachtreeBusTypeHandler<SagaKey>
+public class SagaKeyHandler : PeachtreeBusTypeHandler<SagaKey>
 {
     public override SagaKey Parse(object value) => new((string)value);
 
@@ -85,7 +85,7 @@ internal class SagaKeyHandler : PeachtreeBusTypeHandler<SagaKey>
     }
 }
 
-internal class IdentityHandler : PeachtreeBusTypeHandler<Identity>
+public class IdentityHandler : PeachtreeBusTypeHandler<Identity>
 {
     public override Identity Parse(object value)
     {
@@ -100,7 +100,7 @@ internal class IdentityHandler : PeachtreeBusTypeHandler<Identity>
     }
 }
 
-internal class UniqueIdentityHandler: PeachtreeBusTypeHandler<UniqueIdentity>
+public class UniqueIdentityHandler : PeachtreeBusTypeHandler<UniqueIdentity>
 {
     public override UniqueIdentity Parse(object value)
     {
@@ -115,9 +115,13 @@ internal class UniqueIdentityHandler: PeachtreeBusTypeHandler<UniqueIdentity>
     }
 }
 
-internal class SubscriberIdHandler: PeachtreeBusTypeHandler<SubscriberId>
+public class SubscriberIdHandler : PeachtreeBusTypeHandler<SubscriberId>
 {
-    public override SubscriberId Parse(object value) => new((Guid)value);
+    public override SubscriberId Parse(object value)
+    {
+        var guid = (Guid)value;
+        return guid == Guid.Empty ? SubscriberId.Invalid : new(guid);
+    }
 
     public override void SetValue(IDbDataParameter parameter, SubscriberId value)
     {
@@ -126,7 +130,7 @@ internal class SubscriberIdHandler: PeachtreeBusTypeHandler<SubscriberId>
     }
 }
 
-internal class TopicHandler: PeachtreeBusTypeHandler<Topic>
+public class TopicHandler : PeachtreeBusTypeHandler<Topic>
 {
     [ExcludeFromCodeCoverage] // At the moment, we don't ever read categories from the DB so this is never used.
     public override Topic Parse(object value) => new((string)value);

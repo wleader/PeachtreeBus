@@ -12,7 +12,7 @@ public class IdentityFixture
     [DataRow(long.MinValue)]
     public void Given_Long_When_New_Then_Throws(long value)
     {
-        Assert.ThrowsException<IdentityException>(() => _ = new Identity(value));
+        Assert.ThrowsExactly<IdentityException>(() => _ = new Identity(value));
     }
 
     [TestMethod]

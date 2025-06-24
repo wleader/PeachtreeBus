@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Core.Tests;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
+using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
 using System;
 using System.Collections.Generic;
@@ -71,7 +71,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
             return PrimaryConnection;
         });
         SharedDB = new SharedDatabase(_connectionFactory.Object);
-        DapperMethods = new(TestDapperTypesHandler.Instance, SharedDB);
+        DapperMethods = new(new DapperTypesHandler(new DefaultSerializer()), SharedDB);
 
         Configuration = new();
         Configuration.SetupGet(s => s.Schema).Returns(DefaultSchema);

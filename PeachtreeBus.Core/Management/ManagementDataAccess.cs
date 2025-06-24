@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -35,11 +34,11 @@ namespace PeachtreeBus.Management
         {
             const string template =
                 """
-                    SELECT {3} FROM [{0}].[{1}_{2}]
-                    WITH (READPAST)
-                    ORDER BY [Enqueued] DESC
-                    OFFSET @Skip ROWS
-                    FETCH NEXT @Take ROWS ONLY
+                SELECT {3} FROM [{0}].[{1}_{2}]
+                WITH (READPAST)
+                ORDER BY [Enqueued] DESC
+                OFFSET @Skip ROWS
+                FETCH NEXT @Take ROWS ONLY
                 """;
 
             string statement = string.Format(template, _configuration.Schema, queueName, table, fields);
@@ -48,7 +47,7 @@ namespace PeachtreeBus.Management
             p.Add("@Skip", skip);
             p.Add("@Take", take);
 
-            return (await LogIfError(dapper.Query<T>(statement, p))).ToList();
+            return [.. (await LogIfError(dapper.Query<T>(statement, p)))];
         }
 
         public async Task<List<QueueData>> GetFailedQueueMessages(QueueName queueName, int skip, int take)

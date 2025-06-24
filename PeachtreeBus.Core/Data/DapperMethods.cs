@@ -9,7 +9,7 @@ namespace PeachtreeBus.Data;
 public interface IDapperMethods
 {
     Task<IEnumerable<T>> Query<T>(string statement, DynamicParameters? parameters = null);
-    Task<T> QueryFirst<T>(string statement, DynamicParameters parameters);
+    Task<T> QueryFirst<T>(string statement, DynamicParameters? parameters = null);
     Task<T?> QueryFirstOrDefault<T>(string statement, DynamicParameters? parameters = null);
     Task<T?> ExecuteScalar<T>(string statement, DynamicParameters? parameters = null);
     Task<int> Execute(string statement, DynamicParameters? parameters = null);
@@ -29,7 +29,7 @@ public class DapperMethods(
         return database.Connection.QueryAsync<T>(statement, parameters, database.Transaction);
     }
 
-    public Task<T> QueryFirst<T>(string statement, DynamicParameters parameters)
+    public Task<T> QueryFirst<T>(string statement, DynamicParameters? parameters = null)
     {
         return database.Connection.QueryFirstAsync<T>(statement, parameters, database.Transaction);
     }
