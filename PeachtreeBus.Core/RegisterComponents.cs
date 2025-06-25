@@ -31,12 +31,12 @@ public class RegisterComponents(IRegistrationProvider provider)
         provider.RegisterInstance(busConfiguration);
         provider.RegisterLogging();
         provider.RegisterSpecialized();
-        RegisterRequired(busConfiguration);
+        RegisterRequired();
         FindAndRegister(assemblies);
         RegisterConditional(busConfiguration);
     }
 
-    private void RegisterRequired(IBusConfiguration busConfiguration)
+    private void RegisterRequired()
     {
         provider.RegisterSingleton<ITaskCounter, TaskCounter>();
         provider.RegisterScoped<ITaskManager, TaskManager>();
