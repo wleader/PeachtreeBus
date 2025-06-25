@@ -167,11 +167,10 @@ public class RegisterComponents(IRegistrationProvider provider)
 
     private static List<Type> Find(Type interfaceType, List<Assembly> assemblies)
     {
-        return assemblies
+        return [.. assemblies
             .Distinct()
             .Where(a => !a.IsDynamic)
             .SelectMany(a => a.GetTypes())
-            .Where(t => t.IsAssignableTo(interfaceType) && t.IsClass && !t.IsAbstract)
-            .ToList();
+            .Where(t => t.IsAssignableTo(interfaceType) && t.IsClass && !t.IsAbstract)];
     }
 }
