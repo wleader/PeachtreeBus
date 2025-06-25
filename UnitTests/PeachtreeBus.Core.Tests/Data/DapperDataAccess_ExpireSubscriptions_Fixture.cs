@@ -16,7 +16,6 @@ public class DapperDataAccess_ExpireSubscriptions_Fixture : DapperDataAccess_Fix
     [TestMethod]
     public async Task Given_SubscribeParams_When_Subscribe_Then_ParametersAreSet()
     {
-        var message = TestData.CreateSubscribedData();
         await _dataAccess.ExpireSubscriptions(10);
         AssertParameterSet("@MaxCount", 10);
     }
