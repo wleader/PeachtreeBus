@@ -9,7 +9,15 @@ namespace PeachtreeBus;
 public interface IContext
 {
     IWrappedScope? Scope { get; }
+
+    /// <summary>
+    /// The current message being handled, or sent.
+    /// </summary>
     object Message { get; }
+
+    /// <summary>
+    /// The Type Name of the message.
+    /// </summary>
     ClassName MessageClass { get; }
 }
 
@@ -23,6 +31,9 @@ public interface IIncomingContext : IContext
     /// </summary>
     UtcDateTime EnqueuedTime { get; }
 
+    /// <summary>
+    /// A time to wait until before processing the message.
+    /// </summary>
     UtcDateTime NotBefore { get; }
 
     /// <summary>
@@ -35,13 +46,36 @@ public interface IIncomingContext : IContext
     /// </summary>
     int MessagePriority { get; }
 
+    /// <summary>
+    /// Any additional headers for the message that are povided by
+    /// the user of the messaging library.
+    /// </summary>
     IReadOnlyUserHeaders UserHeaders { get; }
 }
 
 public interface IOutgoingContext : IContext
 {
+    /// <summary>
+    /// A time to wait until before processing the message.
+    /// </summary>
     UtcDateTime NotBefore { get; set; }
+
+    /// <summary>
+    /// A priority for the message.
+    /// Higher values are processed sooner.
+    /// </summary>
     int MessagePriority { get; set; }
+
+    /// <summary>
+    /// Indicates that the outgoing message is the start of a new conversation.
+    /// When False, the outgoing message is linked to any incoming message
+    /// in any activity traces.
+    /// </summary>
     bool StartNewConversation { get; set; }
+
+    /// <summary>
+    /// Provides a means for the user to attach any additional headers
+    /// to the outgoing message.
+    /// </summary>
     UserHeaders UserHeaders { get; }
 }
