@@ -53,6 +53,9 @@ public interface IIncomingContext : IContext
     IReadOnlyUserHeaders UserHeaders { get; }
 }
 
+/// <summary>
+/// Context information for outgoing messages.
+/// </summary>
 public interface IOutgoingContext : IContext
 {
     /// <summary>
