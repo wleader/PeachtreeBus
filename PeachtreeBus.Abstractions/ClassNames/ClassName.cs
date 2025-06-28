@@ -5,6 +5,9 @@ using System.Text.Json.Serialization;
 
 namespace PeachtreeBus.ClassNames;
 
+/// <summary>
+/// Contains a string representation of a System.Type
+/// </summary>
 [JsonConverter(typeof(ClassNameJsonConverter))]
 public readonly record struct ClassName
 {
@@ -14,7 +17,7 @@ public readonly record struct ClassName
         ?? throw new NotInitializedException(typeof(ClassName));
 
     public ClassName(string value) : this(value, false) { }
-    
+
     private ClassName(string? value, bool skipNullCheck = false)
     {
         if (!skipNullCheck)
@@ -27,7 +30,7 @@ public readonly record struct ClassName
     public static readonly ClassName Uninitialized = new(null, true);
     public static readonly ClassName Default = new("System.Object, System.Private.CoreLib");
 
-    public class ClassNameJsonConverter() 
+    public class ClassNameJsonConverter()
         : PeachtreeBusJsonConverter<ClassName, string>(
             s => new(s, true), s => s.Value);
 }
