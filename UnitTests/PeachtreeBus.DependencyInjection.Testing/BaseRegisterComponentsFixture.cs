@@ -31,7 +31,7 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
 
     protected List<Assembly> TestAssemblies = [Assembly.GetExecutingAssembly()];
 
-    public abstract IWrappedScope BuildScope();
+    public abstract IServiceProviderAccessor BuildAccessor();
 
     public abstract void Then_GetServiceFails<TService>();
 
@@ -42,111 +42,106 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
     [TestMethod]
     public void When_GetIWrappedScope_Then_ResultIsSelf()
     {
-        using var scope = BuildScope();
-        var actual = scope.GetInstance<IWrappedScope>();
-        Assert.AreSame(scope, actual);
+        using var accessor = BuildAccessor();
+        var actual = accessor.GetService<IServiceProviderAccessor>();
+        Assert.AreSame(accessor, actual);
     }
 
     [TestMethod]
     public void When_GetInstances_Then_ResultIsNotNull()
     {
-        using var scope = BuildScope();
-        Assert.IsNotNull(scope.GetInstance<IBusConfiguration>());
-        Assert.IsNotNull(scope.GetInstance<ITaskCounter>());
-        Assert.IsNotNull(scope.GetInstance<ITaskManager>());
-        Assert.IsNotNull(scope.GetInstance<ISystemClock>());
-        Assert.IsNotNull(scope.GetInstance<IMeters>());
-        Assert.IsNotNull(scope.GetInstance<IAlwaysRunTracker>());
-        Assert.IsNotNull(scope.GetInstance<IShareObjectsBetweenScopes>());
-        Assert.IsNotNull(scope.GetInstance<IDapperTypesHandler>());
-        Assert.IsNotNull(scope.GetInstance<IBusDataAccess>());
-        Assert.IsNotNull(scope.GetInstance<IDapperMethods>());
-        Assert.IsNotNull(scope.GetInstance<ISqlConnectionFactory>());
-        Assert.IsNotNull(scope.GetInstance<IProvideDbConnectionString>());
-        Assert.IsNotNull(scope.GetInstance<IRunStartupTasks>());
-        Assert.IsNotNull(scope.GetInstance<IStarters>());
-        Assert.IsNotNull(scope.GetInstance<IUpdateSubscriptionsTracker>());
-        Assert.IsNotNull(scope.GetInstance<IUpdateSubscriptionsTask>());
-        Assert.IsNotNull(scope.GetInstance<IUpdateSubscriptionsStarter>());
-        Assert.IsNotNull(scope.GetInstance<IUpdateSubscriptionsRunner>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscriptionsTracker>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscriptionsTask>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscriptionsStarter>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscriptionsRunner>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedPendingTracker>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedPendingTask>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedPendingStarter>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedPendingRunner>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedCompletedTracker>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedCompletedTask>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedCompletedStarter>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedCompletedRunner>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedFailedTracker>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedFailedTask>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedFailedStarter>());
-        Assert.IsNotNull(scope.GetInstance<ICleanSubscribedFailedRunner>());
-        Assert.IsNotNull(scope.GetInstance<ICleanQueuedCompletedTracker>());
-        Assert.IsNotNull(scope.GetInstance<ICleanQueuedCompletedTask>());
-        Assert.IsNotNull(scope.GetInstance<ICleanQueuedCompletedStarter>());
-        Assert.IsNotNull(scope.GetInstance<ICleanQueuedCompletedRunner>());
-        Assert.IsNotNull(scope.GetInstance<ICleanQueuedFailedTracker>());
-        Assert.IsNotNull(scope.GetInstance<ICleanQueuedFailedTask>());
-        Assert.IsNotNull(scope.GetInstance<ICleanQueuedFailedStarter>());
-        Assert.IsNotNull(scope.GetInstance<ICleanQueuedFailedRunner>());
-        Assert.IsNotNull(scope.GetInstance<IProcessSubscribedTask>());
-        Assert.IsNotNull(scope.GetInstance<IProcessSubscribedStarter>());
-        Assert.IsNotNull(scope.GetInstance<IProcessSubscribedRunner>());
-        Assert.IsNotNull(scope.GetInstance<IProcessQueuedTask>());
-        Assert.IsNotNull(scope.GetInstance<IProcessQueuedStarter>());
-        Assert.IsNotNull(scope.GetInstance<IProcessQueuedRunner>());
-        Assert.IsNotNull(scope.GetInstance<IQueueWriter>());
-        Assert.IsNotNull(scope.GetInstance<ISubscribedPublisher>());
-        Assert.IsNotNull(scope.GetInstance<IQueueFailures>());
-        Assert.IsNotNull(scope.GetInstance<ISubscribedFailures>());
-        Assert.IsNotNull(scope.GetInstance<IPublishPipelineInvoker>());
-        Assert.IsNotNull(scope.GetInstance<IPublishPipelineFactory>());
-        Assert.IsNotNull(scope.GetInstance<IPublishPipeline>());
-        Assert.IsNotNull(scope.GetInstance<IFindPublishPipelineSteps>());
-        Assert.IsNotNull(scope.GetInstance<IPublishPipelineFinalStep>());
-        Assert.IsNotNull(scope.GetInstance<ISendPipelineInvoker>());
-        Assert.IsNotNull(scope.GetInstance<ISendPipelineFactory>());
-        Assert.IsNotNull(scope.GetInstance<ISendPipeline>());
-        Assert.IsNotNull(scope.GetInstance<IFindSendPipelineSteps>());
-        Assert.IsNotNull(scope.GetInstance<ISendPipelineFinalStep>());
-        Assert.IsNotNull(scope.GetInstance<ISagaMessageMapManager>());
-        Assert.IsNotNull(scope.GetInstance<IFindQueueHandlers>());
-        Assert.IsNotNull(scope.GetInstance<IFindQueuePipelineSteps>());
-        Assert.IsNotNull(scope.GetInstance<IQueueReader>());
-        Assert.IsNotNull(scope.GetInstance<IQueuePipelineInvoker>());
-        Assert.IsNotNull(scope.GetInstance<IQueuePipelineFactory>());
-        Assert.IsNotNull(scope.GetInstance<IQueuePipeline>());
-        Assert.IsNotNull(scope.GetInstance<IQueuePipelineFinalStep>());
-        Assert.IsNotNull(scope.GetInstance<ISubscribedReader>());
-        Assert.IsNotNull(scope.GetInstance<ISubscribedPipelineInvoker>());
-        Assert.IsNotNull(scope.GetInstance<ISubscribedPipelineFactory>());
-        Assert.IsNotNull(scope.GetInstance<ISubscribedPipeline>());
-        Assert.IsNotNull(scope.GetInstance<ISubscribedPipelineFinalStep>());
-        Assert.IsNotNull(scope.GetInstance<IFindSubscribedPipelineSteps>());
-        Assert.IsNotNull(scope.GetInstance<IFindSubscribedHandlers>());
-        Assert.IsNotNull(scope.GetInstance<ISerializer>());
-        Assert.IsNotNull(scope.GetInstance<IHandleFailedQueueMessages>());
-        Assert.IsNotNull(scope.GetInstance<IQueueRetryStrategy>());
-        Assert.IsNotNull(scope.GetInstance<IHandleFailedSubscribedMessages>());
-        Assert.IsNotNull(scope.GetInstance<ISubscribedRetryStrategy>());
-        Assert.IsNotNull(scope.GetInstance<IClassNameService>());
+        using var accessor = BuildAccessor();
+        Assert.IsNotNull(accessor.GetService<IBusConfiguration>());
+        Assert.IsNotNull(accessor.GetService<ITaskCounter>());
+        Assert.IsNotNull(accessor.GetService<ITaskManager>());
+        Assert.IsNotNull(accessor.GetService<ISystemClock>());
+        Assert.IsNotNull(accessor.GetService<IMeters>());
+        Assert.IsNotNull(accessor.GetService<IAlwaysRunTracker>());
+        Assert.IsNotNull(accessor.GetService<IShareObjectsBetweenScopes>());
+        Assert.IsNotNull(accessor.GetService<IDapperTypesHandler>());
+        Assert.IsNotNull(accessor.GetService<IBusDataAccess>());
+        Assert.IsNotNull(accessor.GetService<IDapperMethods>());
+        Assert.IsNotNull(accessor.GetService<ISqlConnectionFactory>());
+        Assert.IsNotNull(accessor.GetService<IProvideDbConnectionString>());
+        Assert.IsNotNull(accessor.GetService<IRunStartupTasks>());
+        Assert.IsNotNull(accessor.GetService<IStarters>());
+        Assert.IsNotNull(accessor.GetService<IUpdateSubscriptionsTracker>());
+        Assert.IsNotNull(accessor.GetService<IUpdateSubscriptionsTask>());
+        Assert.IsNotNull(accessor.GetService<IUpdateSubscriptionsStarter>());
+        Assert.IsNotNull(accessor.GetService<IUpdateSubscriptionsRunner>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscriptionsTracker>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscriptionsTask>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscriptionsStarter>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscriptionsRunner>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedPendingTracker>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedPendingTask>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedPendingStarter>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedPendingRunner>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedCompletedTracker>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedCompletedTask>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedCompletedStarter>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedCompletedRunner>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedFailedTracker>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedFailedTask>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedFailedStarter>());
+        Assert.IsNotNull(accessor.GetService<ICleanSubscribedFailedRunner>());
+        Assert.IsNotNull(accessor.GetService<ICleanQueuedCompletedTracker>());
+        Assert.IsNotNull(accessor.GetService<ICleanQueuedCompletedTask>());
+        Assert.IsNotNull(accessor.GetService<ICleanQueuedCompletedStarter>());
+        Assert.IsNotNull(accessor.GetService<ICleanQueuedCompletedRunner>());
+        Assert.IsNotNull(accessor.GetService<ICleanQueuedFailedTracker>());
+        Assert.IsNotNull(accessor.GetService<ICleanQueuedFailedTask>());
+        Assert.IsNotNull(accessor.GetService<ICleanQueuedFailedStarter>());
+        Assert.IsNotNull(accessor.GetService<ICleanQueuedFailedRunner>());
+        Assert.IsNotNull(accessor.GetService<IProcessSubscribedTask>());
+        Assert.IsNotNull(accessor.GetService<IProcessSubscribedStarter>());
+        Assert.IsNotNull(accessor.GetService<IProcessSubscribedRunner>());
+        Assert.IsNotNull(accessor.GetService<IProcessQueuedTask>());
+        Assert.IsNotNull(accessor.GetService<IProcessQueuedStarter>());
+        Assert.IsNotNull(accessor.GetService<IProcessQueuedRunner>());
+        Assert.IsNotNull(accessor.GetService<IQueueWriter>());
+        Assert.IsNotNull(accessor.GetService<ISubscribedPublisher>());
+        Assert.IsNotNull(accessor.GetService<IQueueFailures>());
+        Assert.IsNotNull(accessor.GetService<ISubscribedFailures>());
+        Assert.IsNotNull(accessor.GetService<IPublishPipelineInvoker>());
+        Assert.IsNotNull(accessor.GetService<IPublishPipelineFactory>());
+        Assert.IsNotNull(accessor.GetService<IPublishPipeline>());
+        Assert.IsNotNull(accessor.GetService<IPublishPipelineFinalStep>());
+        Assert.IsNotNull(accessor.GetService<ISendPipelineInvoker>());
+        Assert.IsNotNull(accessor.GetService<ISendPipelineFactory>());
+        Assert.IsNotNull(accessor.GetService<ISendPipeline>());
+        Assert.IsNotNull(accessor.GetService<ISendPipelineFinalStep>());
+        Assert.IsNotNull(accessor.GetService<ISagaMessageMapManager>());
+        Assert.IsNotNull(accessor.GetService<IQueueReader>());
+        Assert.IsNotNull(accessor.GetService<IQueuePipelineInvoker>());
+        Assert.IsNotNull(accessor.GetService<IQueuePipelineFactory>());
+        Assert.IsNotNull(accessor.GetService<IQueuePipeline>());
+        Assert.IsNotNull(accessor.GetService<IQueuePipelineFinalStep>());
+        Assert.IsNotNull(accessor.GetService<ISubscribedReader>());
+        Assert.IsNotNull(accessor.GetService<ISubscribedPipelineInvoker>());
+        Assert.IsNotNull(accessor.GetService<ISubscribedPipelineFactory>());
+        Assert.IsNotNull(accessor.GetService<ISubscribedPipeline>());
+        Assert.IsNotNull(accessor.GetService<ISubscribedPipelineFinalStep>());
+        Assert.IsNotNull(accessor.GetService<ISerializer>());
+        Assert.IsNotNull(accessor.GetService<IHandleFailedQueueMessages>());
+        Assert.IsNotNull(accessor.GetService<IQueueRetryStrategy>());
+        Assert.IsNotNull(accessor.GetService<IHandleFailedSubscribedMessages>());
+        Assert.IsNotNull(accessor.GetService<ISubscribedRetryStrategy>());
+        Assert.IsNotNull(accessor.GetService<IClassNameService>());
     }
 
     private void Then_ServiceIs<TInterface, TExpected>() where TInterface : class
     {
-        using var scope = BuildScope();
-        var actual = scope.GetInstance<TInterface>();
+        using var accessor = BuildAccessor();
+        var actual = accessor.GetService<TInterface>();
+        Assert.IsNotNull(actual);
         Assert.AreEqual(typeof(TExpected), actual.GetType());
     }
 
     private void Then_ServiceIs<TInterface>(object expected) where TInterface : class
     {
-        using var scope = BuildScope();
-        var actual = scope.GetInstance<TInterface>();
+        using var accessor = BuildAccessor();
+        var actual = accessor.GetService<TInterface>();
         Assert.AreSame(expected, actual);
     }
 
@@ -341,11 +336,11 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
     public void Given_FindableTypes_When_GetAllInstances_Then_ContainsFindableType()
     {
         CollectionAssert.Contains(TestAssemblies, Assembly.GetExecutingAssembly());
-        using var scope = BuildScope();
+        using var accessor = BuildAccessor();
 
         void Then_TypeIsReturned<TInterface, TImplmentation>() where TInterface : class
         {
-            var actual = scope.GetAllInstances<TInterface>();
+            var actual = accessor.GetServices<TInterface>();
             Assert.IsNotNull(actual);
             Assert.IsNotNull(actual.FirstOrDefault(x => x.GetType() == typeof(TImplmentation)));
         }
@@ -363,11 +358,11 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
     public void Given_NoFindableTypes_When_GetAllInstances_Then_NoTypes()
     {
         TestAssemblies = [];
-        using var scope = BuildScope();
+        using var accessor = BuildAccessor();
 
         void Then_NoTypesReturned<TInterface>() where TInterface : class
         {
-            var actual = scope.GetAllInstances<TInterface>();
+            var actual = accessor.GetServices<TInterface>();
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.Any());
         }
@@ -379,15 +374,15 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
         Then_NoTypesReturned<IPublishPipelineStep>();
     }
 
-    protected abstract void Then_GetHandlersFails<THandler>(IWrappedScope scope) where THandler : class;
+    protected abstract void Then_GetHandlersReturnsEmpty<THandler>(IServiceProviderAccessor accessor) where THandler : class;
 
     [TestMethod]
     public void Given_NoFindableTypes_When_GetHandlers_Then_NoTypes()
     {
         TestAssemblies = [];
-        using var scope = BuildScope();
+        using var accessor = BuildAccessor();
 
-        Then_GetHandlersFails<IHandleSubscribedMessage<SubscribedMessage>>(scope);
-        Then_GetHandlersFails<IHandleQueueMessage<QueueMessage>>(scope);
+        Then_GetHandlersReturnsEmpty<IHandleSubscribedMessage<SubscribedMessage>>(accessor);
+        Then_GetHandlersReturnsEmpty<IHandleQueueMessage<QueueMessage>>(accessor);
     }
 }

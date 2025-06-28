@@ -51,7 +51,7 @@ public class CleanSubscribedPendingRunner(
 public interface ICleanSubscribedPendingStarter : IStarter;
 
 public class CleanSubscribedPendingStarter(
-    IWrappedScopeFactory scopeFactory,
+    IScopeFactory scopeFactory,
     ICleanSubscribedPendingTracker tracker,
     ITaskCounter counter)
     : Starter<ICleanSubscribedPendingRunner>(scopeFactory, tracker, counter)

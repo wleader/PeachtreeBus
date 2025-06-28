@@ -1,4 +1,6 @@
-﻿namespace PeachtreeBus.Tasks;
+﻿using System.Collections.Generic;
+
+namespace PeachtreeBus.Tasks;
 
 public interface IRunStartupTasks
 {
@@ -7,7 +9,7 @@ public interface IRunStartupTasks
 
 public class RunStarupTasks(
     IBusConfiguration busConfiguration,
-    IWrappedScopeFactory scopeFactory)
+    IScopeFactory scopeFactory)
     : IRunStartupTasks
 {
     public void RunStartupTasks()
@@ -15,8 +17,8 @@ public class RunStarupTasks(
         if (!busConfiguration.UseStartupTasks)
             return;
 
-        using var scope = scopeFactory.Create();
-        var startupTasks = scope.GetAllInstances<IRunOnStartup>();
+        using var accessor = scopeFactory.Create();
+        var startupTasks = accessor.GetRequiredService<IEnumerable<IRunOnStartup>>();
         foreach (var startupTask in startupTasks)
         {
             startupTask.Run().GetAwaiter().GetResult();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PeachtreeBus.DependencyInjection.Testing;
-using System;
+using PeachtreeBus.Exceptions;
 using System.Linq;
 
 namespace PeachtreeBus.MicrosoftDependencyInjection.Tests;
@@ -9,7 +9,7 @@ namespace PeachtreeBus.MicrosoftDependencyInjection.Tests;
 [TestClass]
 public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<IServiceCollection>
 {
-    public override IWrappedScope BuildScope()
+    public override IServiceProviderAccessor BuildAccessor()
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddPeachtreeBus(BusConfiguration, TestAssemblies);
@@ -19,14 +19,14 @@ public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<ISer
 
         var provider = serviceCollection.BuildServiceProvider();
 
-        var factory = provider.GetRequiredService<IWrappedScopeFactory>();
+        var factory = provider.GetRequiredService<IScopeFactory>();
         return factory.Create();
     }
 
     public override void Then_GetServiceFails<TService>()
     {
-        using var scope = BuildScope();
-        Assert.ThrowsExactly<InvalidOperationException>(() => scope.GetService<TService>());
+        using var accessor = BuildAccessor();
+        Assert.ThrowsExactly<ServiceProviderAccessorException>(() => accessor.GetRequiredService<TService>());
     }
 
     public override void AddInstance<TInterface>(IServiceCollection container, TInterface instance)
@@ -34,9 +34,9 @@ public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<ISer
         container.AddSingleton(typeof(TInterface), instance!);
     }
 
-    protected override void Then_GetHandlersFails<THandler>(IWrappedScope scope) where THandler : class
+    protected override void Then_GetHandlersReturnsEmpty<THandler>(IServiceProviderAccessor accessor) where THandler : class
     {
-        var actual = scope.GetAllInstances<THandler>();
+        var actual = accessor.GetServices<THandler>();
         Assert.IsNotNull(actual);
         Assert.IsFalse(actual.Any());
     }

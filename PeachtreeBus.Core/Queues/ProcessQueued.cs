@@ -108,7 +108,7 @@ public class ProcessQueuedRunner(
 public interface IProcessQueuedStarter : IStarter;
 
 public class ProcessQueuedStarter(
-    IWrappedScopeFactory scopeFactory,
+    IScopeFactory scopeFactory,
     IAlwaysRunTracker tracker,
     IBusDataAccess dataAccess,
     IBusConfiguration busConfiguration,

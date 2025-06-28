@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.DependencyInjection.Testing;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;
-using ActivationException = SimpleInjector.ActivationException;
+using System.Linq;
 
 namespace PeachtreeBus.SimpleInjector.Tests;
 
@@ -27,10 +26,10 @@ public class SimpleInjector_RegisterComponentsFixture : BaseRegisterComponentsFi
         AddToContainer?.Invoke(_container);
     }
 
-    public override IWrappedScope BuildScope()
+    public override IServiceProviderAccessor BuildAccessor()
     {
         BuildContainer();
-        var factory = _container.GetRequiredService<IWrappedScopeFactory>();
+        var factory = _container.GetRequiredService<IScopeFactory>();
         return factory.Create();
     }
 
@@ -45,8 +44,10 @@ public class SimpleInjector_RegisterComponentsFixture : BaseRegisterComponentsFi
         container.RegisterSingleton(typeof(TInterface), () => instance!);
     }
 
-    protected override void Then_GetHandlersFails<THandler>(IWrappedScope scope) where THandler : class
+    protected override void Then_GetHandlersReturnsEmpty<THandler>(IServiceProviderAccessor accessor) where THandler : class
     {
-        Assert.ThrowsExactly<ActivationException>(() => scope.GetAllInstances<THandler>());
+        var actual = accessor.GetServices<THandler>();
+        Assert.IsNotNull(actual);
+        Assert.IsFalse(actual.Any());
     }
 }

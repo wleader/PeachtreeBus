@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Tasks;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,9 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
     where TTracker : class, ITracker
 {
     protected TStarter _starter = default!;
-    protected Mock<IWrappedScopeFactory> _scopeFactory = new();
+    protected Mock<IScopeFactory> _scopeFactory = new();
     protected Mock<TTracker> _tracker = new();
-    protected Mock<IWrappedScope> _scope = new();
+    protected FakeServiceProviderAccessor _accessor = new();
     protected Mock<TRunner> _runner = new();
     protected Mock<ITaskCounter> _taskCounter = new();
 
@@ -31,7 +32,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
     {
         _scopeFactory.Reset();
         _tracker.Reset();
-        _scope.Reset();
+        _accessor.Reset();
         _runner.Reset();
         _taskCounter.Reset();
 
@@ -41,13 +42,13 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _gotRunnerInstance = false;
 
         _scopeFactory.Setup(x => x.Create())
-            .Returns(() => _scope.Object);
+            .Returns(() => _accessor);
 
-        _scope.Setup(x => x.GetInstance<TRunner>())
+        _accessor.ServiceProviderMock.Setup(x => x.GetService(typeof(TRunner)))
             .Callback(() => _gotRunnerInstance = true)
             .Returns(() => _runner.Object);
 
-        _scope.Setup(x => x.Dispose())
+        _accessor.Mock.Setup(x => x.Dispose())
             .Callback(() => Assert.IsTrue(_gotRunnerInstance));
 
         _runner.Setup(r => r.RunRepeatedly(It.IsAny<CancellationToken>()))
@@ -112,8 +113,8 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _tracker.Verify(t => t.Start(), Times.Exactly(runnerCount));
         _tracker.Verify(t => t.WorkDone(), Times.Exactly(runnerCount));
         _scopeFactory.Verify(f => f.Create(), Times.Exactly(runnerCount));
-        _scope.Verify(s => s.GetInstance<TRunner>(), Times.Exactly(runnerCount));
-        _scope.Verify(s => s.Dispose(), Times.Exactly(runnerCount));
+        _accessor.ServiceProviderMock.Verify(s => s.GetService(typeof(TRunner)), Times.Exactly(runnerCount));
+        _accessor.Mock.Verify(s => s.Dispose(), Times.Exactly(runnerCount));
         _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Exactly(runnerCount));
         _taskCounter.Verify(c => c.Increment(), Times.Exactly(runnerCount));
         _taskCounter.Verify(c => c.Decrement(), Times.Exactly(runnerCount));

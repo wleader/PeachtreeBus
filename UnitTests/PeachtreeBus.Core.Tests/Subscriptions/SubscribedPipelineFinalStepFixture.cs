@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.ClassNames;
-using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
 using System.Collections.Generic;
@@ -17,16 +17,16 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         public class TestMessage : ISubscribedMessage { }
 
         private SubscribedPipelineFinalStep _testSubject = default!;
-        private Mock<IFindSubscribedHandlers> _findSubscribed = default!;
+        private readonly FakeServiceProviderAccessor _accessor = new();
         private readonly ClassNameService _classNameService = new();
 
         [TestInitialize]
         public void Initialize()
         {
-            _findSubscribed = new();
+            _accessor.Reset();
 
             _testSubject = new(
-                _findSubscribed.Object,
+                _accessor,
                 _classNameService);
         }
 
@@ -48,7 +48,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
 
             List<IHandleSubscribedMessage<TestMessage>> handlers = [handler1.Object, handler2.Object];
 
-            _findSubscribed.Setup(f => f.FindHandlers<TestMessage>()).Returns(handlers);
+            _accessor.SetupService<IEnumerable<IHandleSubscribedMessage<TestMessage>>>(() => handlers);
 
             var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
@@ -65,8 +65,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         [TestMethod]
         public async Task Given_MessageHasNoHandlers_When_Invoke_Then_Throws()
         {
-            _findSubscribed.Setup(f => f.FindHandlers<TestMessage>())
-                .Returns([]);
+            _accessor.SetupService<IEnumerable<IHandleSubscribedMessage<TestMessage>>>(() => []);
 
             var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
@@ -98,12 +97,11 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         [TestMethod]
         public async Task Given_FindHandlersReturnsNull_When_Invoke_Then_Throws()
         {
-            _findSubscribed.Setup(f => f.FindHandlers<TestMessage>())
-                .Returns((IEnumerable<IHandleSubscribedMessage<TestMessage>>)null!);
+            _accessor.SetupService<IEnumerable<IHandleSubscribedMessage<TestMessage>>>(() => null!);
 
             var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
-            await Assert.ThrowsExactlyAsync<IncorrectImplementationException>(() =>
+            await Assert.ThrowsExactlyAsync<SubscribedMessageNoHandlerException>(() =>
                 _testSubject.Invoke(context, null));
         }
     }

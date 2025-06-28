@@ -1,5 +1,6 @@
 ﻿using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
+using System;
 
 namespace PeachtreeBus;
 
@@ -8,7 +9,10 @@ namespace PeachtreeBus;
 /// </summary>
 public interface IContext
 {
-    IWrappedScope? Scope { get; }
+    /// <summary>
+    /// A reference to the IServiceProvider for the scope of the current message.
+    /// </summary>
+    IServiceProvider? ServiceProvider { get; }
 
     /// <summary>
     /// The current message being handled, or sent.

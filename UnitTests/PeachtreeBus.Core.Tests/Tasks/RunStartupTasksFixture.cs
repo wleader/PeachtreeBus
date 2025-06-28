@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Tasks;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Tasks;
@@ -22,9 +24,9 @@ public class RunStartupTasksFixture
     public class FakeStartupTask2 : FakeStartupTask;
 
     private RunStarupTasks _runStartupTasks = default!;
-    private readonly Mock<IWrappedScopeFactory> _scopeFactory = new();
+    private readonly Mock<IScopeFactory> _scopeFactory = new();
     private readonly Mock<IBusConfiguration> _busConfiguration = new();
-    private readonly Mock<IWrappedScope> _scope = new();
+    private readonly FakeServiceProviderAccessor _accessor = new();
 
     private readonly FakeStartupTask1 _task1 = new();
     private readonly FakeStartupTask2 _task2 = new();
@@ -34,15 +36,14 @@ public class RunStartupTasksFixture
     {
         _busConfiguration.Reset();
         _scopeFactory.Reset();
-        _scope.Reset();
+        _accessor.Reset();
 
         _busConfiguration.SetupGet(c => c.UseStartupTasks).Returns(true);
 
         _scopeFactory.Setup(s => s.Create())
-            .Returns(_scope.Object);
+            .Returns(_accessor);
 
-        _scope.Setup(s => s.GetAllInstances<IRunOnStartup>())
-            .Returns(() => [_task1, _task2]);
+        _accessor.SetupService<IEnumerable<IRunOnStartup>>(() => [_task1, _task2]);
 
         _task1.RunCount = 0;
         _task2.RunCount = 0;
@@ -59,8 +60,8 @@ public class RunStartupTasksFixture
 
         Assert.AreEqual(1, _task1.RunCount);
         Assert.AreEqual(1, _task1.RunCount);
-        _scope.Verify(s => s.GetAllInstances<IRunOnStartup>(), Times.Once);
-        _scope.Verify(s => s.Dispose(), Times.Once);
+        _accessor.ServiceProviderMock.Verify(s => s.GetService(typeof(IEnumerable<IRunOnStartup>)), Times.Once);
+        _accessor.Mock.Verify(s => s.Dispose(), Times.Once);
     }
 
     [TestMethod]
@@ -78,8 +79,7 @@ public class RunStartupTasksFixture
     [TestMethod]
     public void Given_NoStartupTasks_When_RunStartupTasks_Then_TasksAreNotRun()
     {
-        _scope.Setup(s => s.GetAllInstances<IRunOnStartup>())
-            .Returns(() => []);
+        _accessor.SetupService<IEnumerable<IRunOnStartup>>(() => []);
 
         _runStartupTasks.RunStartupTasks();
 

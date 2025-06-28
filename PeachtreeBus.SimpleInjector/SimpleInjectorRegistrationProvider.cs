@@ -20,8 +20,8 @@ public class SimpleInjectorRegistrationProvider(
 
     public void RegisterSpecialized()
     {
-        container.Register(typeof(IWrappedScopeFactory), () => new SimpleInjectorScopeFactory(container), Lifestyle.Singleton);
-        container.Register(typeof(IWrappedScope), typeof(SimpleInjectorScope), Lifestyle.Scoped);
+        container.Register(typeof(IScopeFactory), () => new SimpleInjectorScopeFactory(container), Lifestyle.Singleton);
+        container.Register(typeof(IServiceProviderAccessor), typeof(SimpleInjectorServiceProviderAccessor), Lifestyle.Scoped);
 
         var sharedDbProducer = Lifestyle.Scoped.CreateProducer<ISharedDatabase>(typeof(SharedDatabase), container);
         container.Register(typeof(ISharedDatabase),

@@ -98,7 +98,7 @@ public class ProcessSubscribedRunner(
 public interface IProcessSubscribedStarter : IStarter;
 
 public class ProcessSubscribedStarter(
-    IWrappedScopeFactory scopeFactory,
+    IScopeFactory scopeFactory,
     IAlwaysRunTracker tracker,
     IBusDataAccess dataAccess,
     IBusConfiguration busConfiguration,

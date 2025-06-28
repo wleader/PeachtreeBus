@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
+namespace PeachtreeBus.DependencyInjection.Testing.GetEnumerableOf;
 
 public class FindableSubscribedMessage : ISubscribedMessage;
 
@@ -20,8 +20,8 @@ public class FindableSubscribedMessageHandler2 : IHandleSubscribedMessage<Findab
     public Task Handle(ISubscribedContext context, FindableSubscribedMessage message) => throw new NotImplementedException();
 }
 
-public abstract class GetAllInstances_SubscribedHandlers_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
-     : GetAllInstances_Base_Fixture<IHandleSubscribedMessage<FindableSubscribedMessage>, TContainer>(containerBuilder)
+public abstract class GetEnumerableOfIHandleSubscribedMessage_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
+     : GetEnumerableOfService_FixtureBase<IHandleSubscribedMessage<FindableSubscribedMessage>, TContainer>(containerBuilder)
 {
     protected override IEnumerable<Type> GetTypesToRegister() =>
     [

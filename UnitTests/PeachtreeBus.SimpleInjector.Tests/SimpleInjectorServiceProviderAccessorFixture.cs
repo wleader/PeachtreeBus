@@ -1,4 +1,5 @@
 ﻿using Moq;
+using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using SimpleInjector;
@@ -10,12 +11,12 @@ using System.Linq;
 namespace PeachtreeBus.SimpleInjector.Tests;
 
 [TestClass]
-public class SimpleInjectorScopeFixture
+public class SimpleInjectorServiceProviderAccessorFixture
 {
     private Container _container = default!;
     private Scope _scope = default!;
 
-    private SimpleInjectorScope _subject = default!;
+    private SimpleInjectorServiceProviderAccessor _subject = default!;
     private readonly Mock<IQueuePipelineStep> _queueInstance = new();
     private readonly List<Type> _subscribedTypes = [typeof(TestSubscribedPipelineStep)];
 
@@ -31,39 +32,26 @@ public class SimpleInjectorScopeFixture
 
         _scope = AsyncScopedLifestyle.BeginScope(_container);
 
-        _subject = new()
-        {
-            Scope = _scope
-        };
+        _subject = new();
     }
 
     [TestMethod]
     public void Given_ScopeNull_When_GetAllInstances_Then_Throws()
     {
-        _subject.Scope = null;
-        Assert.ThrowsExactly<InvalidOperationException>(() => _subject.GetAllInstances<IQueuePipelineStep>());
+        Assert.ThrowsExactly<ServiceProviderAccessorException>(() => _subject.GetService<IQueuePipelineStep>());
     }
 
     [TestMethod]
     public void Given_ScopeNull_When_GetInstanceGeneric_Then_Throws()
     {
-        _subject.Scope = null;
-        Assert.ThrowsExactly<InvalidOperationException>(() => _subject.GetInstance<IQueuePipelineStep>());
-    }
-
-
-    [TestMethod]
-    public void Given_ScopeNull_When_GetInstance_Then_Throws()
-    {
-        _subject.Scope = null;
-        Assert.ThrowsExactly<InvalidOperationException>(() => _subject.GetInstance(typeof(IQueuePipelineStep)));
+        Assert.ThrowsExactly<ServiceProviderAccessorException>(() => _subject.GetService<IQueuePipelineStep>());
     }
 
     [TestMethod]
-    public void Given_Scope_When_GetAllInstances_Then_Result()
+    public void Given_Scope_When_GetServices_Then_Result()
     {
-        Assert.IsNotNull(_subject.Scope);
-        var actual = _subject.GetAllInstances<ISubscribedPipelineStep>();
+        _subject.Initialize(_scope, _scope);
+        var actual = _subject.GetServices<ISubscribedPipelineStep>();
         Assert.IsNotNull(actual);
         var instances = actual.ToList();
         Assert.AreEqual(1, instances.Count);
@@ -74,24 +62,8 @@ public class SimpleInjectorScopeFixture
     [TestMethod]
     public void Given_Scope_When_GetInstanceGeneric_Then_Result()
     {
-        Assert.IsNotNull(_subject.Scope);
-        var actual = _subject.GetInstance<IQueuePipelineStep>();
-        Assert.IsNotNull(actual);
-    }
-
-    [TestMethod]
-    public void Given_Scope_When_GetInstance_Then_Result()
-    {
-        Assert.IsNotNull(_subject.Scope);
-        var actual = _subject.GetInstance(typeof(IQueuePipelineStep));
-        Assert.IsNotNull(actual);
-    }
-
-    [TestMethod]
-    public void Given_Scope_When_GetService_Then_Result()
-    {
-        Assert.IsNotNull(_subject.Scope);
-        var actual = _subject.GetService(typeof(IQueuePipelineStep));
+        _subject.Initialize(_scope, _scope);
+        var actual = _subject.GetService<IQueuePipelineStep>();
         Assert.IsNotNull(actual);
     }
 }

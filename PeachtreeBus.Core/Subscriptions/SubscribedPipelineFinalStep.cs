@@ -10,12 +10,11 @@ namespace PeachtreeBus.Subscriptions
     public interface ISubscribedPipelineFinalStep : IPipelineFinalStep<ISubscribedContext> { }
 
     public class SubscribedPipelineFinalStep(
-        IFindSubscribedHandlers findHandlers,
+        IServiceProviderAccessor accessor,
         IClassNameService classNameService)
         : PipelineFinalStep<ISubscribedContext>
         , ISubscribedPipelineFinalStep
     {
-        private readonly IFindSubscribedHandlers _findHandlers = findHandlers;
         private readonly IClassNameService _classNameService = classNameService;
 
         public override async Task Invoke(ISubscribedContext subscribedcontext, Func<ISubscribedContext, Task>? next)
@@ -32,19 +31,10 @@ namespace PeachtreeBus.Subscriptions
             // MakeGenericMethod will throw a nasty hard to debug exception.
             TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(messageType);
 
-            // Get the message handlers for this message type from the Dependency Injection container.
-            // the list will contain both regular handlers and sagas.
-            // if a message has mulitple handlers, we'll get multiple handlers.
-            var method = typeof(IFindSubscribedHandlers).GetMethod("FindHandlers");
-            method = UnreachableException.ThrowIfNull(method,
-                message: " IFindSubscribedHandlers must have a FindHandlers method.");
-
-            var genericMethod = method.MakeGenericMethod(messageType);
-            var handlers = genericMethod.Invoke(_findHandlers, null);
-
-            if (handlers is not IEnumerable<object> castHandlers)
-                throw new IncorrectImplementationException("The FindHandlers method should not return null.",
-                    _findHandlers.GetType(), typeof(IFindSubscribedHandlers));
+            var specifiedHandlerType = typeof(IHandleSubscribedMessage<>).MakeGenericType(messageType);
+            var specifiedEnumerableType = typeof(IEnumerable<>).MakeGenericType(specifiedHandlerType);
+            var handlers = accessor.ServiceProvider.GetService(specifiedEnumerableType);
+            var castHandlers = handlers as IEnumerable<object> ?? [];
 
             int handlerCount = 0;
             // invoke each of the handlers.

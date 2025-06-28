@@ -15,14 +15,14 @@ namespace PeachtreeBus.Subscriptions
     /// Builds a pipeline for handling a Subscribed message
     /// </summary>
     public class SubscribedPipelineFactory(
-        IWrappedScope scope)
-        : PipelineFactory<SubscribedContext, ISubscribedContext, ISubscribedPipeline, IFindSubscribedPipelineSteps, ISubscribedPipelineFinalStep>(scope)
+        IServiceProviderAccessor scope)
+        : PipelineFactory<SubscribedContext, ISubscribedContext, ISubscribedPipeline, ISubscribedPipelineStep, ISubscribedPipelineFinalStep>(scope)
         , ISubscribedPipelineFactory;
 
     public interface ISubscribedPipelineInvoker : IPipelineInvoker<SubscribedContext>;
 
     public class SubscribedPipelineInvoker(
-        IWrappedScopeFactory scopeFactory,
+        IScopeFactory scopeFactory,
         ISharedDatabase sharedDatabase)
         : IncomingPipelineInvoker<SubscribedContext, ISubscribedContext, ISubscribedPipeline, ISubscribedPipelineFactory>(scopeFactory, sharedDatabase)
         , ISubscribedPipelineInvoker;

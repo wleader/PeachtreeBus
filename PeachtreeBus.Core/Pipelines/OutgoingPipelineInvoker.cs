@@ -6,15 +6,13 @@ namespace PeachtreeBus.Pipelines;
 public interface IOutgoingPipelineInvoker<TContext> : IPipelineInvoker<TContext>;
 
 public abstract class OutgoingPipelineInvoker<TInternalContext, TContext, TPipeline, TFactory>(
-    IWrappedScope scope)
+    IServiceProviderAccessor serviceProviderAccessor)
     : IOutgoingPipelineInvoker<TInternalContext>
     where TInternalContext : Context, TContext
     where TContext : IContext
     where TPipeline : IPipeline<TContext>
     where TFactory : class, IPipelineFactory<TInternalContext, TContext, TPipeline>
 {
-    private readonly IWrappedScope _scope = scope;
-
     public async Task Invoke(TInternalContext context)
     {
         // the outgoing pipeline is much simpler, since sending happens from an
@@ -23,11 +21,11 @@ public abstract class OutgoingPipelineInvoker<TInternalContext, TContext, TPipel
 
         ArgumentNullException.ThrowIfNull(context, nameof(context));
 
-        context.Scope = _scope;
+        context.ServiceProvider = serviceProviderAccessor.ServiceProvider;
 
         // when we create the pipeline factory, it will re-use the shared DB connection,
         // and any objects it uses to build the pipeline will also re-use it.
-        var pipelineFactory = _scope.GetInstance<TFactory>();
+        var pipelineFactory = serviceProviderAccessor.GetRequiredService<TFactory>();
         var pipeline = pipelineFactory.Build(context);
 
         // invoke the pipeline.

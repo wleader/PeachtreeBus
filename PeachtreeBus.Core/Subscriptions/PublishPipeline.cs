@@ -15,15 +15,15 @@ public class PublishPipeline : Pipeline<IPublishContext>, IPublishPipeline;
 public interface IPublishPipelineFactory : IPipelineFactory<PublishContext, IPublishContext, IPublishPipeline>;
 
 public class PublishPipelineFactory(
-    IWrappedScope scope)
-    : PipelineFactory<PublishContext, IPublishContext, IPublishPipeline, IFindPublishPipelineSteps, IPublishPipelineFinalStep>(scope)
+    IServiceProviderAccessor accessor)
+    : PipelineFactory<PublishContext, IPublishContext, IPublishPipeline, IPublishPipelineStep, IPublishPipelineFinalStep>(accessor)
     , IPublishPipelineFactory;
 
 public interface IPublishPipelineInvoker : IPipelineInvoker<PublishContext>;
 
 public class PublishPipelineInvoker(
-    IWrappedScope scope)
-    : OutgoingPipelineInvoker<PublishContext, IPublishContext, IPublishPipeline, IPublishPipelineFactory>(scope)
+    IServiceProviderAccessor accessor)
+    : OutgoingPipelineInvoker<PublishContext, IPublishContext, IPublishPipeline, IPublishPipelineFactory>(accessor)
     , IPublishPipelineInvoker;
 
 

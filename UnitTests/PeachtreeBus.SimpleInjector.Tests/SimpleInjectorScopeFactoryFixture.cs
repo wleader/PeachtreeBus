@@ -21,16 +21,16 @@ public class SimpleInjectorScopeFactoryFixture
     [TestMethod]
     public void Given_RegisteredIWrappedScopeIsNotSimpleInjectorWrappedScope_When_Create_Then_Throws()
     {
-        var wrapped = new Mock<IWrappedScope>();
-        _container.RegisterInstance(wrapped.Object);
+        var accessor = new Mock<IServiceProviderAccessor>();
+        _container.RegisterInstance(accessor.Object);
         Assert.ThrowsExactly<SimpleInjectorScopeFactoryException>(() => _ = _factory.Create());
     }
 
     [TestMethod]
     public void Given_RegisteredIWrappedScopeIsSimpleInjectorWrappedScope_When_Create_Then_Result()
     {
-        _container.Register(typeof(IWrappedScope), typeof(SimpleInjectorScope), Lifestyle.Scoped);
+        _container.Register(typeof(IServiceProviderAccessor), typeof(SimpleInjectorServiceProviderAccessor), Lifestyle.Scoped);
         var actual = _factory.Create();
-        Assert.AreEqual(typeof(SimpleInjectorScope), actual.GetType());
+        Assert.AreEqual(typeof(SimpleInjectorServiceProviderAccessor), actual.GetType());
     }
 }

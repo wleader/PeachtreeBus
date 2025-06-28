@@ -1,4 +1,5 @@
 ﻿using Moq;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,8 +10,8 @@ namespace PeachtreeBus.MicrosoftDependencyInjection.Tests;
 public class PeachtreeBusHostedService_Fixture
 {
     private PeachtreeBusHostedService _service = default!;
-    private readonly Mock<IWrappedScopeFactory> _scopeFactory = new();
-    private readonly Mock<IWrappedScope> _scope = new();
+    private readonly Mock<IScopeFactory> _scopeFactory = new();
+    private readonly FakeServiceProviderAccessor _accessor = new();
     private readonly Mock<IRunStartupTasks> _runStartupTasks = new();
     private readonly Mock<ITaskManager> _taskManager = new();
     private bool _StartupHasRun = false;
@@ -20,7 +21,7 @@ public class PeachtreeBusHostedService_Fixture
     public void Initialize()
     {
         _scopeFactory.Reset();
-        _scope.Reset();
+        _accessor.Reset();
         _runStartupTasks.Reset();
         _taskManager.Reset();
         _taskCompletionSource = new();
@@ -28,14 +29,13 @@ public class PeachtreeBusHostedService_Fixture
         _runStartupTasks.Setup(r => r.RunStartupTasks())
             .Callback(() => { _StartupHasRun = true; });
 
-        _scope.Setup(s => s.GetService(typeof(IRunStartupTasks))!)
-            .Returns(() => _runStartupTasks.Object);
+        _accessor.SetupService(() => _runStartupTasks.Object);
 
-        _scope.Setup(s => s.GetService(typeof(ITaskManager))!)
+        _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(ITaskManager))!)
             .Callback(() => Assert.IsTrue(_StartupHasRun))
             .Returns(() => _taskManager.Object);
 
-        _scopeFactory.Setup(s => s.Create()).Returns(() => _scope.Object);
+        _scopeFactory.Setup(s => s.Create()).Returns(() => _accessor);
 
         _taskManager.Setup(t => t.Run(It.IsAny<CancellationToken>()))
             .Callback((CancellationToken ct) => ct.Register(_taskCompletionSource.SetResult))
@@ -77,7 +77,7 @@ public class PeachtreeBusHostedService_Fixture
         var cts = new CancellationTokenSource();
         _scopeFactory.Setup(f => f.Create())
             .Callback(cts.Cancel)
-            .Returns(_scope.Object);
+            .Returns(_accessor);
 
         _taskManager.Setup(t => t.Run(It.IsAny<CancellationToken>()))
             .Callback((CancellationToken ct) =>

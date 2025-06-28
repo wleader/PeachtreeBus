@@ -51,7 +51,7 @@ public class CleanSubscriptionsRunner(
 public interface ICleanSubscriptionsStarter : IStarter;
 
 public class CleanSubscriptionsStarter(
-    IWrappedScopeFactory scopeFactory,
+    IScopeFactory scopeFactory,
     ICleanSubscriptionsTracker tracker,
     ITaskCounter counter)
     : Starter<ICleanSubscriptionsRunner>(scopeFactory, tracker, counter)

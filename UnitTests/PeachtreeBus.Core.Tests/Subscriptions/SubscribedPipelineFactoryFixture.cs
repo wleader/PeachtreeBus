@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Core.Tests.Pipeline;
 using PeachtreeBus.Subscriptions;
 
@@ -11,14 +10,14 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
             SubscribedContext,
             ISubscribedContext,
             ISubscribedPipeline,
-            IFindSubscribedPipelineSteps,
+            ISubscribedPipelineStep,
             ISubscribedPipelineFinalStep>
     {
         [TestInitialize]
         public override void Initialize()
         {
             base.Initialize();
-            _factory = new SubscribedPipelineFactory(_scope.Object);
+            _factory = new SubscribedPipelineFactory(_accessor);
         }
 
         protected override SubscribedContext CreateContext()

@@ -16,14 +16,14 @@ public interface IQueuePipelineFactory : IPipelineFactory<QueueContext, IQueueCo
 /// Builds a pipeline for handling a Queued message.
 /// </summary>
 public class QueuePipelineFactory(
-    IWrappedScope scope)
-    : PipelineFactory<QueueContext, IQueueContext, IQueuePipeline, IFindQueuePipelineSteps, IQueuePipelineFinalStep>(scope)
+    IServiceProviderAccessor accessor)
+    : PipelineFactory<QueueContext, IQueueContext, IQueuePipeline, IQueuePipelineStep, IQueuePipelineFinalStep>(accessor)
     , IQueuePipelineFactory;
 
 public interface IQueuePipelineInvoker : IPipelineInvoker<QueueContext>;
 
 public class QueuePipelineInvoker(
-    IWrappedScopeFactory scopeFactory,
+    IScopeFactory scopeFactory,
     ISharedDatabase sharedDatabase)
     : IncomingPipelineInvoker<QueueContext, IQueueContext, IQueuePipeline, IQueuePipelineFactory>(scopeFactory, sharedDatabase)
     , IQueuePipelineInvoker;

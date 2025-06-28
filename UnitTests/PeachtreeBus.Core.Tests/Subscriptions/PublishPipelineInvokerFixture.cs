@@ -10,5 +10,5 @@ public class PublishPipelineInvokerFixture : OutgoingPipelineInvokerFixtureBase<
 {
     protected override PublishContext CreateContext() => TestData.CreatePublishContext();
 
-    protected override PublishPipelineInvoker CreateInvoker() => new(_scope.Object);
+    protected override PublishPipelineInvoker CreateInvoker() => new(_accessor);
 }

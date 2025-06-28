@@ -21,15 +21,15 @@ public class SendPipeline : Pipeline<ISendContext>, ISendPipeline;
 public interface ISendPipelineFactory : IPipelineFactory<SendContext, ISendContext, ISendPipeline>;
 
 public class SendPipelineFactory(
-    IWrappedScope scope)
-    : PipelineFactory<SendContext, ISendContext, ISendPipeline, IFindSendPipelineSteps, ISendPipelineFinalStep>(scope)
+    IServiceProviderAccessor accessor)
+    : PipelineFactory<SendContext, ISendContext, ISendPipeline, ISendPipelineStep, ISendPipelineFinalStep>(accessor)
     , ISendPipelineFactory;
 
 public interface ISendPipelineInvoker : IPipelineInvoker<SendContext>;
 
 public class SendPipelineInvoker(
-    IWrappedScope scope)
-    : OutgoingPipelineInvoker<SendContext, ISendContext, ISendPipeline, ISendPipelineFactory>(scope)
+    IServiceProviderAccessor accessor)
+    : OutgoingPipelineInvoker<SendContext, ISendContext, ISendPipeline, ISendPipelineFactory>(accessor)
     , ISendPipelineInvoker;
 
 public interface ISendPipelineFinalStep : IPipelineFinalStep<ISendContext>;

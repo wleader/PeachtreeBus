@@ -11,11 +11,8 @@ public abstract class Context : IContext
     /// <inheritdoc/>
     public required object Message { get; set; } = default!;
 
-    /// <summary>
-    /// Exposes the Dependency Injection Scope for the message being handled.
-    /// Experimmental. This may be removed in a future update.
-    /// </summary>
-    public IWrappedScope? Scope { get; set; }
+    /// <inheritdoc/>
+    public IServiceProvider? ServiceProvider { get; set; }
 
     /// <inheritdoc/>
     public abstract ClassName MessageClass { get; }

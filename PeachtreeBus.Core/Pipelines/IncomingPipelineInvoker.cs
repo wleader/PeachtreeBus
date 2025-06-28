@@ -7,7 +7,7 @@ namespace PeachtreeBus.Pipelines;
 public interface IIncomingPipelineInvoker<TContext> : IPipelineInvoker<TContext>;
 
 public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipeline, TFactory>(
-    IWrappedScopeFactory scopeFactory,
+    IScopeFactory scopeFactory,
     ISharedDatabase sharedDatabase)
     : IIncomingPipelineInvoker<TInternalContext>
     where TInternalContext : Context, TContext
@@ -15,12 +15,9 @@ public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipel
     where TPipeline : IPipeline<TContext>
     where TFactory : IPipelineFactory<TInternalContext, TContext, TPipeline>
 {
-    private readonly IWrappedScopeFactory _scopeFactory = scopeFactory;
-    private readonly ISharedDatabase _sharedDatabase = sharedDatabase;
-
     public async Task Invoke(TInternalContext context)
     {
-        // the pipeline, and all its steps,
+        // Invoke the pipeline, and all its steps,
         // and all the handlers/sagas,
         // and all the object that they use need to be created fresh for each message.
         // to make this happen, we will start a DI scope, then create those objects.
@@ -30,12 +27,13 @@ public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipel
         // needs to re-use the same DB Transaction.
 
         // to accomplish this, we need to create the scope,
-        // then create a shared database provider,
-        // put the existing shared database connection in the provider,
+        // then create an object to hold the shared database,
+        // put the existing shared database connection into the sharing object,
         // then create the rest of the objects that will be needed.
 
         // doing it in this order means all the other objects are new,
-        // except for the shared database.
+        // except for the shared database. So any components that need a data
+        // connection will use the existing one.
 
         // the last piece of the puzzle is that the DI container will try to 
         // dipose IDisposable things in the scope. We don't want it to dispose the
@@ -44,23 +42,22 @@ public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipel
 
         ArgumentNullException.ThrowIfNull(context, nameof(context));
 
-        // prevent the scope disposing from disposing our shared DB object.
-        _sharedDatabase.DenyDispose = true;
+        // prevent the scope for the message from disposing our DB object.
+        sharedDatabase.DenyDispose = true;
 
         // create a scope.
-        var scope = _scopeFactory.Create();
+        var accessor = scopeFactory.Create();
         try
         {
-            context.Scope = scope;
+            context.ServiceProvider = accessor.ServiceProvider;
 
             // pass the database connection to the scope.
-            var sharedDbProvider = scope.GetInstance<IShareObjectsBetweenScopes>();
-            System.Diagnostics.Debug.Assert(sharedDbProvider.SharedDatabase is null);
-            sharedDbProvider.SharedDatabase = _sharedDatabase;
+            var shareObjects = accessor.GetRequiredService<IShareObjectsBetweenScopes>();
+            shareObjects.SharedDatabase = sharedDatabase;
 
             // when we create the pipeline factory, it will re-use the shared DB connection,
             // and any objects it uses to build the pipeline will also re-use it.
-            var pipelineFactory = (TFactory)scope.GetInstance(typeof(TFactory));
+            var pipelineFactory = accessor.GetRequiredService<TFactory>();
             var pipeline = pipelineFactory.Build(context);
 
             // invoke the pipeline.
@@ -69,9 +66,9 @@ public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipel
         finally
         {
             // always clean up the scope.
-            scope.Dispose();
+            accessor.Dispose();
             // always re-enable disposing of the shared database
-            _sharedDatabase.DenyDispose = false;
+            sharedDatabase.DenyDispose = false;
         }
     }
 }

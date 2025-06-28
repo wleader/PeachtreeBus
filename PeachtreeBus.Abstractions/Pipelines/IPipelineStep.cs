@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Pipelines;
@@ -12,9 +11,4 @@ public interface IPipelineStep<TContext>
 {
     Task Invoke(TContext context, Func<TContext, Task> next);
     public int Priority { get; }
-}
-
-public interface IFindPipelineSteps<TContext>
-{
-    IEnumerable<IPipelineStep<TContext>> FindSteps();
 }

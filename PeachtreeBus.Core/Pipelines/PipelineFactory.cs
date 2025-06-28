@@ -8,35 +8,29 @@ namespace PeachtreeBus.Pipelines
         TPipeline Build(TInternalContext context);
     }
 
-    public abstract class PipelineFactory<TInternalContext, TContext, TPipeline, TFindPipelineSteps, TFinalStep>(
-        IWrappedScope scope)
+    public abstract class PipelineFactory<TInternalContext, TContext, TPipeline, TPipelineStep, TFinalStep>(
+        IServiceProviderAccessor serviceProviderAccessor)
         : IPipelineFactory<TInternalContext, TContext, TPipeline>
         where TInternalContext : Context
         where TPipeline : IPipeline<TContext>
-        where TFindPipelineSteps : IFindPipelineSteps<TContext>
+        where TPipelineStep : IPipelineStep<TContext>
         where TFinalStep : IPipelineFinalStep<TContext>
     {
-        private readonly IWrappedScope _scope = scope;
-
         public TPipeline Build(TInternalContext context)
         {
             // create a pipeline.
-            var result = (TPipeline)_scope.GetInstance(typeof(TPipeline));
-
-            // get the steps that should be in the pipeline.
-            var findSteps = (TFindPipelineSteps)_scope.GetInstance(typeof(TFindPipelineSteps));
-            // order the pipeline steps by priority.
-            var steps = findSteps.FindSteps().OrderBy(s => s.Priority);
+            var result = serviceProviderAccessor.GetRequiredService<TPipeline>();
+            var steps = serviceProviderAccessor.GetServices<TPipelineStep>();
 
             // add the steps to the pipeline.
-            foreach (var step in steps)
+            foreach (var step in steps.OrderBy(s => s.Priority))
             {
                 result.Add(step);
             }
 
             // the very last step in the chain is to pass the message to the
-            // handlers.
-            var handlersStep = (TFinalStep)_scope.GetInstance(typeof(TFinalStep));
+            // user handlers.
+            var handlersStep = serviceProviderAccessor.GetRequiredService<TFinalStep>();
             result.Add(handlersStep);
 
             // Pipeline is ready.

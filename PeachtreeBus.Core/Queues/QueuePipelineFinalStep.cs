@@ -21,7 +21,7 @@ namespace PeachtreeBus.Queues
     /// Intended to be the final link in the pipline chain.
     /// </summary>
     public class QueuePipelineFinalStep(
-        IFindQueueHandlers findHandlers,
+        IServiceProviderAccessor accessor,
         ILogger<QueuePipelineFinalStep> log,
         ISagaMessageMapManager sagaMessageMapManager,
         IQueueReader queueReader,
@@ -29,7 +29,6 @@ namespace PeachtreeBus.Queues
         : PipelineFinalStep<IQueueContext>
         , IQueuePipelineFinalStep
     {
-        private readonly IFindQueueHandlers _findHandlers = findHandlers;
         private readonly ILogger<QueuePipelineFinalStep> _log = log;
         private readonly ISagaMessageMapManager _sagaMessageMapManager = sagaMessageMapManager;
         private readonly IQueueReader _queueReader = queueReader;
@@ -49,16 +48,10 @@ namespace PeachtreeBus.Queues
             // that won't make sense to someone debugging.
             TypeIsNotIQueueMessageException.ThrowIfMissingInterface(messageType);
 
-            // Get the message handlers for this message type from the Dependency Injection container.
-            // the list will contain both regular handlers and sagas.
-            // if a message has mulitple handlers, we'll get multiple handlers.
-            var method = typeof(IFindQueueHandlers).GetMethod(nameof(IFindQueueHandlers.FindHandlers));
-            var genericMethod = method!.MakeGenericMethod(messageType);
-            var handlers = genericMethod.Invoke(_findHandlers, null);
-
-            if (handlers is not IEnumerable<object> castHandlers)
-                throw new IncorrectImplementationException("The FindHandlers method should not return null.",
-                    _findHandlers.GetType(), typeof(IFindQueueHandlers));
+            var specifiedHandlerType = typeof(IHandleQueueMessage<>).MakeGenericType(messageType);
+            var specifiedEnumerableType = typeof(IEnumerable<>).MakeGenericType(specifiedHandlerType);
+            var handlers = accessor.ServiceProvider.GetService(specifiedEnumerableType);
+            var castHandlers = handlers as IEnumerable<object> ?? [];
 
             int handlerCount = 0;
             // invoke each of the handlers.

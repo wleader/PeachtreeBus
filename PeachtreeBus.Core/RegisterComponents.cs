@@ -1,6 +1,5 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
@@ -92,16 +91,12 @@ public class RegisterComponents(IRegistrationProvider provider)
         provider.RegisterScoped<IPublishPipelineInvoker, PublishPipelineInvoker>();
         provider.RegisterScoped<IPublishPipelineFactory, PublishPipelineFactory>();
         provider.RegisterScoped<IPublishPipeline, PublishPipeline>();
-        provider.RegisterScoped<IFindPublishPipelineSteps, FindPublishPipelineSteps>();
         provider.RegisterScoped<IPublishPipelineFinalStep, PublishPipelineFinalStep>();
         provider.RegisterScoped<ISendPipelineInvoker, SendPipelineInvoker>();
         provider.RegisterScoped<ISendPipelineFactory, SendPipelineFactory>();
         provider.RegisterScoped<ISendPipeline, SendPipeline>();
-        provider.RegisterScoped<IFindSendPipelineSteps, FindSendPipelineSteps>();
         provider.RegisterScoped<ISendPipelineFinalStep, SendPipelineFinalStep>();
         provider.RegisterSingleton<ISagaMessageMapManager, SagaMessageMapManager>();
-        provider.RegisterScoped<IFindQueueHandlers, FindQueueHandlers>();
-        provider.RegisterScoped<IFindQueuePipelineSteps, FindQueuedPipelineSteps>();
         provider.RegisterScoped<IQueueReader, QueueReader>();
         provider.RegisterScoped<IQueuePipelineInvoker, QueuePipelineInvoker>();
         provider.RegisterScoped<IQueuePipelineFactory, QueuePipelineFactory>();
@@ -112,8 +107,6 @@ public class RegisterComponents(IRegistrationProvider provider)
         provider.RegisterScoped<ISubscribedPipelineFactory, SubscribedPipelineFactory>();
         provider.RegisterScoped<ISubscribedPipeline, SubscribedPipeline>();
         provider.RegisterScoped<ISubscribedPipelineFinalStep, SubscribedPipelineFinalStep>();
-        provider.RegisterScoped<IFindSubscribedPipelineSteps, FindSubscribedPipelineSteps>();
-        provider.RegisterScoped<IFindSubscribedHandlers, FindSubscribedHandlers>();
     }
 
     private void RegisterConditional(IBusConfiguration busConfiguration)

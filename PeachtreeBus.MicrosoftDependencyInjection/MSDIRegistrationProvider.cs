@@ -10,8 +10,8 @@ public class MSDIRegistrationProvider(IServiceCollection services) : IRegistrati
 {
     public void RegisterSpecialized()
     {
-        RegisterSingleton<IWrappedScopeFactory, MSDIWrappedScopeFactory>();
-        RegisterScoped<IWrappedScope, MSDIWrappedScope>();
+        RegisterSingleton<IScopeFactory, MSDIScopeFactory>();
+        RegisterScoped<IServiceProviderAccessor, MSDIServiceProviderAccessor>();
 
         services.AddScoped(sp => sp.GetRequiredService<IShareObjectsBetweenScopes>().SharedDatabase ??=
             new SharedDatabase(sp.GetRequiredService<ISqlConnectionFactory>()));

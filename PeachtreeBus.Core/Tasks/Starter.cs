@@ -11,13 +11,13 @@ public interface IStarter
 }
 
 public abstract class Starter<TRunner>(
-    IWrappedScopeFactory scopeFactory,
+    IScopeFactory scopeFactory,
     ITracker tracker,
     ITaskCounter taskCounter)
     : IStarter
     where TRunner : class, IRunner
 {
-    private readonly IWrappedScopeFactory _scopeFactory = scopeFactory;
+    private readonly IScopeFactory _scopeFactory = scopeFactory;
     private readonly ITracker _tracker = tracker;
     private readonly ITaskCounter _taskCounter = taskCounter;
 
@@ -40,21 +40,21 @@ public abstract class Starter<TRunner>(
 
     private Task AddRunner(Action<Task> continueWith, CancellationToken cancellationToken)
     {
-        var scope = _scopeFactory.Create();
-        var runner = scope.GetInstance<TRunner>();
+        var accessor = _scopeFactory.Create();
+        var runner = accessor.GetRequiredService<TRunner>();
         _taskCounter.Increment();
         _tracker.Start();
         return Task.Run(() => runner.RunRepeatedly(cancellationToken)
-            .ContinueWith((_) => WhenRunnerCompletes(scope), CancellationToken.None)
+            .ContinueWith((_) => WhenRunnerCompletes(accessor), CancellationToken.None)
             .ContinueWith(continueWith, CancellationToken.None),
             CancellationToken.None);
     }
 
-    private void WhenRunnerCompletes(IWrappedScope scope)
+    private void WhenRunnerCompletes(IServiceProviderAccessor accessor)
     {
         _taskCounter.Decrement();
         _tracker.WorkDone();
-        scope.Dispose();
+        accessor.Dispose();
     }
 
     protected virtual Task<int> EstimateDemand() => Task.FromResult(1);

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
+namespace PeachtreeBus.DependencyInjection.Testing.GetEnumerableOf;
 
 [ExcludeFromCodeCoverage(Justification = "Non-Shipping Test Code")]
 public class QueuePipelineStep1 : IQueuePipelineStep
@@ -28,8 +28,8 @@ public class QueuePipelineStep2 : IQueuePipelineStep
     }
 }
 
-public class GetAllInstances_QueuePipelineSteps_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
-    : GetAllInstances_Base_Fixture<IQueuePipelineStep, TContainer>(containerBuilder)
+public class GetEnumerableOfIQueuePipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
+    : GetEnumerableOfService_FixtureBase<IQueuePipelineStep, TContainer>(containerBuilder)
 {
     protected override IEnumerable<Type> GetTypesToRegister() =>
     [

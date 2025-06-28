@@ -55,7 +55,7 @@ public class CleanQueuedCompletedRunner(
 public interface ICleanQueuedCompletedStarter : IStarter;
 
 public class CleanQueuedCompletedStarter(
-    IWrappedScopeFactory scopeFactory,
+    IScopeFactory scopeFactory,
     ICleanQueuedCompletedTracker tracker,
     ITaskCounter counter)
     : Starter<ICleanQueuedCompletedRunner>(scopeFactory, tracker, counter)

@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.ClassNames;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Core.Tests.Sagas;
 using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
@@ -17,7 +18,7 @@ namespace PeachtreeBus.Core.Tests.Queues;
 [TestClass]
 public class QueuePipelineFinalStepFixture
 {
-    private readonly Mock<IFindQueueHandlers> _findHandlers = new();
+    private readonly FakeServiceProviderAccessor _accessor = new();
     private readonly Mock<ILogger<QueuePipelineFinalStep>> _log = new();
     private readonly Mock<ISagaMessageMapManager> _sagaMessageMapManager = new();
     private readonly Mock<IQueueReader> _queueReader = new();
@@ -44,7 +45,7 @@ public class QueuePipelineFinalStepFixture
     {
         _testSaga = new();
 
-        _findHandlers.Reset();
+        _accessor.Reset();
         _log.Reset();
         _sagaMessageMapManager.Reset();
         _queueReader.Reset();
@@ -58,8 +59,7 @@ public class QueuePipelineFinalStepFixture
                 c.SagaKey = _sagaData?.Key ?? new("SagaKey");
             });
 
-        _findHandlers.Setup(x => x.FindHandlers<TestSagaMessage1>())
-            .Returns(() => _handlers);
+        _accessor.SetupService<IEnumerable<IHandleQueueMessage<TestSagaMessage1>>>(() => _handlers);
 
         Context = TestData.CreateQueueContext(
             userMessageFunc: () => new TestSagaMessage1(),
@@ -67,7 +67,7 @@ public class QueuePipelineFinalStepFixture
                 headers: TestData.CreateHeaders(new TestSagaMessage1())));
 
         _testSubject = new(
-            _findHandlers.Object,
+            _accessor,
             _log.Object,
             _sagaMessageMapManager.Object,
             _queueReader.Object,
@@ -250,7 +250,7 @@ public class QueuePipelineFinalStepFixture
     {
         _handlers = null!;
 
-        await Assert.ThrowsExactlyAsync<IncorrectImplementationException>(() =>
+        await Assert.ThrowsExactlyAsync<QueueMessageNoHandlerException>(() =>
             _testSubject.Invoke(Context, null));
     }
 }

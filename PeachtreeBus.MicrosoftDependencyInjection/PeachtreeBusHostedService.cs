@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using PeachtreeBus.Tasks;
 using System;
 using System.Runtime.CompilerServices;
@@ -9,12 +8,12 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.MicrosoftDependencyInjection;
 
 public class PeachtreeBusHostedService(
-    IWrappedScopeFactory scopeFactory)
+    IScopeFactory scopeFactory)
     : IHostedService, IDisposable
 {
     private CancellationTokenSource _cts = default!;
     private ConfiguredTaskAwaitable _managerTask = default!;
-    private IWrappedScope? _scope = default;
+    private IServiceProviderAccessor? _accessor = default;
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
@@ -27,12 +26,12 @@ public class PeachtreeBusHostedService(
         _cts = new();
         cancellationToken.Register(() => _cts.Cancel());
 
-        _scope = scopeFactory.Create();
+        _accessor = scopeFactory.Create();
 
-        var startupRunner = _scope.GetRequiredService<IRunStartupTasks>();
+        var startupRunner = _accessor.GetRequiredService<IRunStartupTasks>();
         startupRunner.RunStartupTasks();
 
-        var manager = _scope.GetRequiredService<ITaskManager>();
+        var manager = _accessor.GetRequiredService<ITaskManager>();
         _managerTask = manager.Run(_cts.Token).ConfigureAwait(false);
 
         return Task.CompletedTask;
@@ -41,7 +40,7 @@ public class PeachtreeBusHostedService(
     public void Dispose()
     {
         _cts.Dispose();
-        _scope?.Dispose();
+        _accessor?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

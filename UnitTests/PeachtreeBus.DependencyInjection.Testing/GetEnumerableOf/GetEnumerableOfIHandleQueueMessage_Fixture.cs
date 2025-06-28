@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
+namespace PeachtreeBus.DependencyInjection.Testing.GetEnumerableOf;
 
 public class FindableQueuedMessage : IQueueMessage;
 
@@ -20,8 +20,8 @@ public class FindableQueueMessageHandler2 : IHandleQueueMessage<FindableQueuedMe
     public Task Handle(IQueueContext context, FindableQueuedMessage message) => throw new NotImplementedException();
 }
 
-public abstract class GetAllInstances_QueueHandlers_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
-    : GetAllInstances_Base_Fixture<IHandleQueueMessage<FindableQueuedMessage>, TContainer>(containerBuilder)
+public abstract class GetEnumerableOfIHandleQueueMessage_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
+    : GetEnumerableOfService_FixtureBase<IHandleQueueMessage<FindableQueuedMessage>, TContainer>(containerBuilder)
 {
     protected override IEnumerable<Type> GetTypesToRegister() =>
     [

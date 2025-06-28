@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Core.Tests.Pipeline;
 using PeachtreeBus.Queues;
 
@@ -11,14 +10,14 @@ namespace PeachtreeBus.Core.Tests.Queues
             QueueContext,
             IQueueContext,
             IQueuePipeline,
-            IFindQueuePipelineSteps,
+            IQueuePipelineStep,
             IQueuePipelineFinalStep>
     {
         [TestInitialize]
         public override void Initialize()
         {
             base.Initialize();
-            _factory = new QueuePipelineFactory(_scope.Object);
+            _factory = new QueuePipelineFactory(_accessor);
         }
 
         protected override QueueContext CreateContext()

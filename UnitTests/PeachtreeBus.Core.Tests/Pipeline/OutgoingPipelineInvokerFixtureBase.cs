@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using System;
@@ -16,7 +17,7 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
     where TFactory : class, IPipelineFactory<TInternalContext, TContext, TPipeline>
 {
     protected TInvoker _invoker = default!;
-    protected Mock<IWrappedScope> _scope = new();
+    protected readonly FakeServiceProviderAccessor _accessor = new();
     protected TInternalContext _context = default!;
     protected Mock<TFactory> _factory = new();
     protected Mock<TPipeline> _pipeline = new();
@@ -24,11 +25,11 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
     [TestInitialize]
     public void Initialize()
     {
-        _scope.Reset();
+        _accessor.Reset();
         _factory.Reset();
         _pipeline.Reset();
 
-        _scope.Setup(s => s.GetInstance<TFactory>())
+        _accessor.ServiceProviderMock.Setup(x => x.GetService(typeof(TFactory)))
             .Returns(() => _factory.Object);
         _factory.Setup(f => f.Build(It.IsAny<TInternalContext>()))
             .Returns(() => _pipeline.Object);
@@ -51,11 +52,10 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
     public async Task When_Invoke_Then_PipelineIsBuiltAndInvoked()
     {
         await _invoker.Invoke(_context);
-        _scope.Verify(s => s.GetInstance<TFactory>(), Times.Once);
+        _accessor.ServiceProviderMock.Verify(s => s.GetService(typeof(TFactory)), Times.Once);
         _factory.Verify(f => f.Build(_context), Times.Once);
         _pipeline.Verify(p => p.Invoke(_context), Times.Once);
     }
-
 
     [TestMethod]
     public async Task When_Invoke_Then_ContextIsSetupFirst()
@@ -64,7 +64,7 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
             .Callback((TInternalContext c) =>
             {
                 Assert.AreSame(c, _context);
-                Assert.AreSame(_scope.Object, c.Scope);
+                Assert.AreSame(_accessor.ServiceProvider, c.ServiceProvider);
             })
             .Returns(() => _pipeline.Object);
 
@@ -72,7 +72,7 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
             .Callback((TContext c) =>
             {
                 Assert.AreSame(c, _context);
-                Assert.AreSame(_scope.Object, c.Scope);
+                Assert.AreSame(_accessor.ServiceProvider, c.ServiceProvider);
             });
 
         await _invoker.Invoke(_context);

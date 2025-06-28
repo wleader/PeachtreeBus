@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Subscriptions;
 using System;
@@ -11,10 +11,10 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
     [TestClass]
     public class SubscribedPipelineInvokerFixture
     {
-        private Mock<IWrappedScopeFactory> _scopeFactory = default!;
+        private Mock<IScopeFactory> _scopeFactory = default!;
         private Mock<ISharedDatabase> _sharedDatabase = default!;
-        private Mock<IWrappedScope> _scope = default!;
-        private Mock<IShareObjectsBetweenScopes> _provider = default!;
+        private FakeServiceProviderAccessor _accessor = default!;
+        private Mock<IShareObjectsBetweenScopes> _shareObjects = default!;
         private Mock<ISubscribedPipelineFactory> _pipelineFactory = default!;
         private Mock<ISubscribedPipeline> _pipeline = default!;
         private SubscribedPipelineInvoker _invoker = default!;
@@ -23,20 +23,19 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         [TestInitialize]
         public void Init()
         {
-            _scope = new();
+            _accessor = new();
 
             _scopeFactory = new();
-            _scopeFactory.Setup(f => f.Create()).Returns(_scope.Object);
+            _scopeFactory.Setup(f => f.Create()).Returns(_accessor);
 
             _sharedDatabase = new();
 
-            _provider = new();
-            _provider.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null!);
-
-            _scope.Setup(s => s.GetInstance<IShareObjectsBetweenScopes>()).Returns(_provider.Object);
+            _shareObjects = new();
+            _shareObjects.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null!);
+            _accessor.SetupService(() => _shareObjects.Object);
 
             _pipelineFactory = new();
-            _scope.Setup(s => s.GetInstance(typeof(ISubscribedPipelineFactory))).Returns(_pipelineFactory.Object);
+            _accessor.SetupService(() => _pipelineFactory.Object);
 
             _pipeline = new();
             _pipelineFactory.Setup(f => f.Build(It.IsAny<SubscribedContext>())).Returns(_pipeline.Object);
@@ -60,7 +59,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         public async Task When_Invoked_Then_ContextScopeIsSet()
         {
             await _invoker.Invoke(_context);
-            Assert.AreSame(_scope.Object, _context.Scope);
+            Assert.AreSame(_accessor.ServiceProvider, _context.ServiceProvider);
         }
 
         [TestMethod]
@@ -72,7 +71,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
 
             // veryify that when the scope is disposed, the 
             // shared database object will not dispose.
-            _scope.Setup(s => s.Dispose()).Callback(() =>
+            _accessor.Mock.Setup(s => s.Dispose()).Callback(() =>
             {
                 _sharedDatabase.VerifySet(db => db.DenyDispose = true, Times.Once);
                 _sharedDatabase.VerifySet(db => db.DenyDispose = false, Times.Never);
@@ -84,7 +83,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
             _scopeFactory.Verify(f => f.Create(), Times.Once);
 
             // verify that the scope was disposed.
-            _scope.Verify(s => s.Dispose(), Times.Once);
+            _accessor.Mock.Verify(s => s.Dispose(), Times.Once);
 
             // verify that after there dispose, then deny dispose is set back to false.
             _sharedDatabase.VerifySet(db => db.DenyDispose = false, Times.Once);
@@ -98,7 +97,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
             }
             catch (Exception)
             {
-                _scope.Verify(s => s.Dispose(), Times.Once);
+                _accessor.Mock.Verify(s => s.Dispose(), Times.Once);
                 throw;
             }
         }
@@ -107,35 +106,35 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         public async Task Given_NothingThrows_When_Invoke_ScopeIsDisposed()
         {
             await VerifyScopeDisposedOnException();
-            _scope.Verify(s => s.Dispose(), Times.Once);
+            _accessor.Mock.Verify(s => s.Dispose(), Times.Once);
         }
 
         [TestMethod]
         public async Task Given_GetSharedDatabaseProviderWillThrow_When_Invoke_ScopeIsDisposed()
         {
-            _scope.Setup(s => s.GetInstance<IShareObjectsBetweenScopes>()).Throws<TestException>();
-            await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
+            _accessor.SetupThrow<IShareObjectsBetweenScopes, TestException>();
+            await Assert.ThrowsExactlyAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]
         public async Task Given_GetPipelineFactoryWillThrow_When_Invoke_ScopeIsDisposed()
         {
-            _scope.Setup(s => s.GetInstance(typeof(ISubscribedPipelineFactory))).Throws<TestException>();
-            await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
+            _accessor.SetupThrow<ISubscribedPipelineFactory, TestException>();
+            await Assert.ThrowsExactlyAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]
         public async Task Given_FactoryBuildWillThrow_When_Invoke_ScopeIsDisposed()
         {
             _pipelineFactory.Setup(f => f.Build(It.IsAny<SubscribedContext>())).Throws<TestException>();
-            await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
+            await Assert.ThrowsExactlyAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]
         public async Task Given_PipelineInvokeWillThrow_When_Invoke_ScopeIsDisposed()
         {
             _pipeline.Setup(p => p.Invoke(It.IsAny<SubscribedContext>())).Throws<TestException>();
-            await Assert.ThrowsExceptionAsync<TestException>(VerifyScopeDisposedOnException);
+            await Assert.ThrowsExactlyAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]
@@ -147,10 +146,10 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
 
             bool providerSet = false;
 
-            _provider.SetupSet(p => p.SharedDatabase = It.IsAny<ISharedDatabase>())
+            _shareObjects.SetupSet(p => p.SharedDatabase = It.IsAny<ISharedDatabase>())
                 .Callback<ISharedDatabase>((db) => providerSet = true);
 
-            _scope.Setup(s => s.GetInstance(typeof(ISubscribedPipelineFactory)))
+            _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(ISubscribedPipelineFactory)))
                 .Callback(() => Assert.IsTrue(providerSet))
                 .Returns(_pipelineFactory.Object);
 

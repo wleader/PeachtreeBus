@@ -10,14 +10,14 @@ namespace PeachtreeBus.Core.Tests.Queues
             SendContext,
             ISendContext,
             ISendPipeline,
-            IFindSendPipelineSteps,
+            ISendPipelineStep,
             ISendPipelineFinalStep>
     {
         [TestInitialize]
         public override void Initialize()
         {
             base.Initialize();
-            _factory = new SendPipelineFactory(_scope.Object);
+            _factory = new SendPipelineFactory(_accessor);
         }
 
         protected override SendContext CreateContext()

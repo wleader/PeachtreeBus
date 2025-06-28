@@ -64,37 +64,43 @@ internal class Program
 
     private static void SendMessage()
     {
-        // we must have a scope because the queue writer and shared database
+        // There must be a scope because the queue writer and shared database
         // are scoped objects.
-        // if you are using a different dependency injection system,
-        // you may have to provide your own IWrappedScopeFactory,
+        // If you are using a different dependency injection system,
+        // you may have to provide your own IScopeFactory,
         // and register manually.
-        var scopeFactory = _container.GetInstance<IWrappedScopeFactory>();
-        using var scope = scopeFactory.Create();
+        var scopeFactory = _container.GetInstance<IScopeFactory>();
 
-        // setup our connection to the database and begin a transaction.
-        var configuration = scope.GetInstance<IConfiguration>();
+        // The scope factory gives us an IServiceProviderAccessor.
+        // The accessor has a reference to the IServiceProvider for the scope.
+        // The IServiceProvider can be used to get scoped objects.
+        using var accessor = scopeFactory.Create();
+
+        // Setup our connection to the database and begin a transaction.
+        var configuration = accessor.GetRequiredService<IConfiguration>();
         var connectionString = configuration.GetConnectionString("PeachtreeBus");
         using var connection = new SqlConnection(connectionString);
         connection.Open();
         using var transaction = connection.BeginTransaction();
 
-        // get the Shared Database Object
-        // the container will return the same object that the queue writer will use.
-        var sharedDb = scope.GetInstance<ISharedDatabase>();
-        // replace the connection.
+        // Get the Shared Database Object
+        // The container will return the same object that the QueueWriter will use.
+        var sharedDb = accessor.GetRequiredService<ISharedDatabase>();
+        // Replace the connection.
         sharedDb.SetExternallyManagedConnection(connection, transaction);
 
-        // create and send our message.
+        // Create the message.
         var message = new PeachtreeBus.Example.Messages.SampleSagaStart()
         {
             AppId = Guid.NewGuid(),
         };
         var queueName = new QueueName("SampleQueue");
 
-        var queueWriter = scope.GetInstance<IQueueWriter>();
+        // Get the QueueWriter and send the message.
+        var queueWriter = accessor.GetRequiredService<IQueueWriter>();
         queueWriter.WriteMessage(queueName, message).GetAwaiter().GetResult();
 
+        // Commit the transaction.
         transaction.Commit();
     }
 }

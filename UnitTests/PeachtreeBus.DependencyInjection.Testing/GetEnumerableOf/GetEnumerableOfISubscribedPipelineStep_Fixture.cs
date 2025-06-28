@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DependencyInjection.Testing.GetAllInstances;
+namespace PeachtreeBus.DependencyInjection.Testing.GetEnumerableOf;
 
 [ExcludeFromCodeCoverage(Justification = "Non-Shipping Test Code")]
 public class SubscribedPipelineStep1 : ISubscribedPipelineStep
@@ -29,8 +29,8 @@ public class SubscribedPipelineStep2 : ISubscribedPipelineStep
 }
 
 [TestClass]
-public class GetAllInstances_SubscribedPipelineSteps_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
-    : GetAllInstances_Base_Fixture<ISubscribedPipelineStep, TContainer>(containerBuilder)
+public class GetEnumerableOfISubscribedPipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
+    : GetEnumerableOfService_FixtureBase<ISubscribedPipelineStep, TContainer>(containerBuilder)
 {
     protected override IEnumerable<Type> GetTypesToRegister() =>
     [

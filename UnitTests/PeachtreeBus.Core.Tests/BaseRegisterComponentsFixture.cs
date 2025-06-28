@@ -2,7 +2,6 @@
 using Moq;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.ScannableAssembly;
@@ -124,16 +123,12 @@ public class BaseRegisterComponentsFixture
         VerifyScopedRegistered<IPublishPipelineInvoker, PublishPipelineInvoker>();
         VerifyScopedRegistered<IPublishPipelineFactory, PublishPipelineFactory>();
         VerifyScopedRegistered<IPublishPipeline, PublishPipeline>();
-        VerifyScopedRegistered<IFindPublishPipelineSteps, FindPublishPipelineSteps>();
         VerifyScopedRegistered<IPublishPipelineFinalStep, PublishPipelineFinalStep>();
         VerifyScopedRegistered<ISendPipelineInvoker, SendPipelineInvoker>();
         VerifyScopedRegistered<ISendPipelineFactory, SendPipelineFactory>();
         VerifyScopedRegistered<ISendPipeline, SendPipeline>();
-        VerifyScopedRegistered<IFindSendPipelineSteps, FindSendPipelineSteps>();
         VerifyScopedRegistered<ISendPipelineFinalStep, SendPipelineFinalStep>();
         VerifySingletonRegistered<ISagaMessageMapManager, SagaMessageMapManager>();
-        VerifyScopedRegistered<IFindQueueHandlers, FindQueueHandlers>();
-        VerifyScopedRegistered<IFindQueuePipelineSteps, FindQueuedPipelineSteps>();
         VerifyScopedRegistered<IQueueReader, QueueReader>();
         VerifyScopedRegistered<IQueuePipelineInvoker, QueuePipelineInvoker>();
         VerifyScopedRegistered<IQueuePipelineFactory, QueuePipelineFactory>();
@@ -144,8 +139,6 @@ public class BaseRegisterComponentsFixture
         VerifyScopedRegistered<ISubscribedPipelineFactory, SubscribedPipelineFactory>();
         VerifyScopedRegistered<ISubscribedPipeline, SubscribedPipeline>();
         VerifyScopedRegistered<ISubscribedPipelineFinalStep, SubscribedPipelineFinalStep>();
-        VerifyScopedRegistered<IFindSubscribedPipelineSteps, FindSubscribedPipelineSteps>();
-        VerifyScopedRegistered<IFindSubscribedHandlers, FindSubscribedHandlers>();
     }
 
     private static BusConfiguration CreateBusConfiguration(bool useDefault)
