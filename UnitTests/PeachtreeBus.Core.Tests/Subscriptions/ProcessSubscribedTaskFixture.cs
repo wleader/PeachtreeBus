@@ -5,6 +5,7 @@ using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
+using PeachtreeBus.Testing;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Subscriptions;

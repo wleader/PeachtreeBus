@@ -83,6 +83,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DependencyInje
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.ScannableAssembly", "UnitTests\PeachtreeBus.ScannableAssembly\PeachtreeBus.ScannableAssembly.csproj", "{4CB7BCC8-0BF2-43A3-A0D5-062588B9DE03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Testing", "PeachtreeBus.Testing\PeachtreeBus.Testing.csproj", "{89680CFB-EEE9-4E1B-8398-CDCFD980790C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Testing.Tests", "UnitTests\PeachtreeBus.Testing.Tests\PeachtreeBus.Testing.Tests.csproj", "{56B9038D-7E48-4544-9333-77CD5ADDB9E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -234,6 +238,18 @@ Global
 		{4CB7BCC8-0BF2-43A3-A0D5-062588B9DE03}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
 		{4CB7BCC8-0BF2-43A3-A0D5-062588B9DE03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CB7BCC8-0BF2-43A3-A0D5-062588B9DE03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89680CFB-EEE9-4E1B-8398-CDCFD980790C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89680CFB-EEE9-4E1B-8398-CDCFD980790C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89680CFB-EEE9-4E1B-8398-CDCFD980790C}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{89680CFB-EEE9-4E1B-8398-CDCFD980790C}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{89680CFB-EEE9-4E1B-8398-CDCFD980790C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89680CFB-EEE9-4E1B-8398-CDCFD980790C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56B9038D-7E48-4544-9333-77CD5ADDB9E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56B9038D-7E48-4544-9333-77CD5ADDB9E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56B9038D-7E48-4544-9333-77CD5ADDB9E7}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{56B9038D-7E48-4544-9333-77CD5ADDB9E7}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{56B9038D-7E48-4544-9333-77CD5ADDB9E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56B9038D-7E48-4544-9333-77CD5ADDB9E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -256,6 +272,7 @@ Global
 		{9E355254-9228-E324-3033-F44FFF524E71} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
 		{12CDD5A0-78AC-A189-B55B-DD5DCFF7E538} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{4CB7BCC8-0BF2-43A3-A0D5-062588B9DE03} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{56B9038D-7E48-4544-9333-77CD5ADDB9E7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {152625A8-2D37-455D-B3A6-DB03D605D21C}

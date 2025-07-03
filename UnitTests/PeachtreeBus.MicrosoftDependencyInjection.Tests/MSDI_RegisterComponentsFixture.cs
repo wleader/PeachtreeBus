@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PeachtreeBus.DependencyInjection.Testing;
-using PeachtreeBus.Exceptions;
+using System;
 using System.Linq;
 
 namespace PeachtreeBus.MicrosoftDependencyInjection.Tests;
@@ -26,7 +26,7 @@ public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<ISer
     public override void Then_GetServiceFails<TService>()
     {
         using var accessor = BuildAccessor();
-        Assert.ThrowsExactly<ServiceProviderAccessorException>(() => accessor.GetRequiredService<TService>());
+        Assert.ThrowsExactly<InvalidOperationException>(() => accessor.GetRequiredService<TService>());
     }
 
     public override void AddInstance<TInterface>(IServiceCollection container, TInterface instance)

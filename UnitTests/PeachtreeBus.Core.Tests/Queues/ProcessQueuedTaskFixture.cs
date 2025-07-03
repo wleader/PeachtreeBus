@@ -6,6 +6,7 @@ using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Telemetry;
+using PeachtreeBus.Testing;
 using System;
 using System.Threading.Tasks;
 

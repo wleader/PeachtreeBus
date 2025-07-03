@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
+using PeachtreeBus.Testing;
 using System;
 using System.Data;
-using System.Runtime.CompilerServices;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
@@ -9,7 +9,7 @@ public class SqlConnectionFake : ISqlConnection
 {
     public SqlConnectionFake()
     {
-        Connection = (SqlConnection)RuntimeHelpers.GetUninitializedObject(typeof(SqlConnection));
+        Connection = SqlServerTesting.CreateConnection();
     }
 
     public bool Disposed { get; set; } = false;

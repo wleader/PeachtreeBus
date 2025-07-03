@@ -63,6 +63,6 @@ public static class ServiceProviderAccessorExtensions
 
     public static T GetRequiredService<T>(this IServiceProvider serviceProvider) =>
         serviceProvider.GetService<T>()
-             ?? throw new ServiceProviderAccessorException(
-                $"The IServiceProvider did not provide an instance of {typeof(T)}");
+             ?? throw new InvalidOperationException(
+                $"No service for type '{typeof(T)}' has been registered.");
 }

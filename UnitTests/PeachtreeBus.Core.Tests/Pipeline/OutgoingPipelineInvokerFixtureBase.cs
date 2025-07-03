@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Pipelines;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Testing;
 using System;
 using System.Threading.Tasks;
 
@@ -17,7 +17,7 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
     where TFactory : class, IPipelineFactory<TInternalContext, TContext, TPipeline>
 {
     protected TInvoker _invoker = default!;
-    protected readonly FakeServiceProviderAccessor _accessor = new();
+    protected readonly FakeServiceProviderAccessor _accessor = new(new());
     protected TInternalContext _context = default!;
     protected Mock<TFactory> _factory = new();
     protected Mock<TPipeline> _pipeline = new();
@@ -29,8 +29,7 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
         _factory.Reset();
         _pipeline.Reset();
 
-        _accessor.ServiceProviderMock.Setup(x => x.GetService(typeof(TFactory)))
-            .Returns(() => _factory.Object);
+        _accessor.Add(_factory.Object);
         _factory.Setup(f => f.Build(It.IsAny<TInternalContext>()))
             .Returns(() => _pipeline.Object);
 
@@ -52,7 +51,7 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
     public async Task When_Invoke_Then_PipelineIsBuiltAndInvoked()
     {
         await _invoker.Invoke(_context);
-        _accessor.ServiceProviderMock.Verify(s => s.GetService(typeof(TFactory)), Times.Once);
+        _accessor.VerifyGetService<TFactory>(1);
         _factory.Verify(f => f.Build(_context), Times.Once);
         _pipeline.Verify(p => p.Invoke(_context), Times.Once);
     }

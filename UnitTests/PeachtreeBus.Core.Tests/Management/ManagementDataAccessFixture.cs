@@ -6,7 +6,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Management;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
-using System;
+using PeachtreeBus.Testing;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -23,8 +23,6 @@ public class ManagementAccessFixture
     private readonly SchemaName _schemaName = new("PBus");
     private readonly List<QueueData> _queryQueueDataResult = [];
     private readonly List<SubscribedData> _querySubscribedDataResult = [];
-
-    public class TestException : Exception;
 
     [TestInitialize]
     public void Initialize()

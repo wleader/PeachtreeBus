@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.ClassNames;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Core.Tests.Sagas;
 using PeachtreeBus.Core.Tests.Telemetry;
 using PeachtreeBus.Data;
@@ -10,7 +9,9 @@ using PeachtreeBus.Exceptions;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Telemetry;
+using PeachtreeBus.Testing;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Queues;
@@ -18,7 +19,7 @@ namespace PeachtreeBus.Core.Tests.Queues;
 [TestClass]
 public class QueuePipelineFinalStepFixture
 {
-    private readonly FakeServiceProviderAccessor _accessor = new();
+    private readonly FakeServiceProviderAccessor _accessor = new(new());
     private readonly Mock<ILogger<QueuePipelineFinalStep>> _log = new();
     private readonly Mock<ISagaMessageMapManager> _sagaMessageMapManager = new();
     private readonly Mock<IQueueReader> _queueReader = new();
@@ -36,7 +37,7 @@ public class QueuePipelineFinalStepFixture
         MetaData = TestData.CreateSagaMetaData(),
     };
 
-    private List<IHandleQueueMessage<TestSagaMessage1>> _handlers = [];
+    private IEnumerable<IHandleQueueMessage<TestSagaMessage1>> _handlers = [];
 
     private QueueContext Context = default!;
 
@@ -46,6 +47,7 @@ public class QueuePipelineFinalStepFixture
         _testSaga = new();
 
         _accessor.Reset();
+
         _log.Reset();
         _sagaMessageMapManager.Reset();
         _queueReader.Reset();
@@ -59,7 +61,7 @@ public class QueuePipelineFinalStepFixture
                 c.SagaKey = _sagaData?.Key ?? new("SagaKey");
             });
 
-        _accessor.SetupService<IEnumerable<IHandleQueueMessage<TestSagaMessage1>>>(() => _handlers);
+        _accessor.Add(() => _handlers);
 
         Context = TestData.CreateQueueContext(
             userMessageFunc: () => new TestSagaMessage1(),
@@ -67,7 +69,7 @@ public class QueuePipelineFinalStepFixture
                 headers: TestData.CreateHeaders(new TestSagaMessage1())));
 
         _testSubject = new(
-            _accessor,
+            _accessor.Object,
             _log.Object,
             _sagaMessageMapManager.Object,
             _queueReader.Object,
@@ -76,8 +78,6 @@ public class QueuePipelineFinalStepFixture
         Assert.AreEqual(typeof(TestSagaMessage1), Context.Message.GetType(),
             "This test suite expects the default user message type to be TestSagaMessage1");
     }
-
-
 
     [TestMethod]
     public async Task Given_Handler_When_Invoke_Then_Activity()
@@ -150,7 +150,7 @@ public class QueuePipelineFinalStepFixture
 
         await _testSubject.Invoke(Context, null);
 
-        Assert.AreEqual(_handlers.Count, listener.Stopped.Count);
+        Assert.AreEqual(_handlers.Count(), listener.Stopped.Count);
     }
 
     /// <summary>

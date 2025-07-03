@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+    <ProjectReference Include="..\..\PeachtreeBus.Testing\PeachtreeBus.Testing.csproj" />
     <ProjectReference Include="..\PeachtreeBus.Abstractions.Tests\PeachtreeBus.Abstractions.Tests.csproj" />
     <ProjectReference Include="..\PeachtreeBus.ScannableAssembly\PeachtreeBus.ScannableAssembly.csproj" />
   </ItemGroup>

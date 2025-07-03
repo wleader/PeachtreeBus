@@ -17,7 +17,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         public override void Initialize()
         {
             base.Initialize();
-            _factory = new SubscribedPipelineFactory(_accessor);
+            _factory = new SubscribedPipelineFactory(_accessor.Object);
         }
 
         protected override SubscribedContext CreateContext()

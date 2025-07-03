@@ -1,6 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Runtime.CompilerServices;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Testing;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
@@ -20,16 +19,11 @@ public class SharedDatabaseExternalConnectionFixture : SharedDatabaseFixtureBase
         base.Cleanup();
     }
 
-    private static T GetUninitialzed<T>()
-    {
-        return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
-    }
-
     [TestMethod]
     public void Given_ExternalConnection_When_Reconnect_Then_Throws()
     {
-        var connection = GetUninitialzed<SqlConnection>();
-        var transaction = GetUninitialzed<SqlTransaction>();
+        var connection = SqlServerTesting.CreateConnection();
+        var transaction = SqlServerTesting.CreateTransaction();
         _db.SetExternallyManagedConnection(connection, transaction);
         Assert.ThrowsExactly<ExternallyManagedSqlConnectionException>(_db.Reconnect);
     }
@@ -37,8 +31,8 @@ public class SharedDatabaseExternalConnectionFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void When_SetExternalConnection_Then_ObjectsAreSetup()
     {
-        var connection = GetUninitialzed<SqlConnection>();
-        var transaction = GetUninitialzed<SqlTransaction>();
+        var connection = SqlServerTesting.CreateConnection();
+        var transaction = SqlServerTesting.CreateTransaction();
         _db.SetExternallyManagedConnection(connection, transaction);
         Assert.AreSame(connection, _db.Connection);
         Assert.AreSame(transaction, _db.Transaction);
@@ -55,8 +49,8 @@ public class SharedDatabaseExternalConnectionFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void Given_ExternalConnection_When_SetExternalAgain_OrginalsAreDisposed()
     {
-        var connection1 = GetUninitialzed<SqlConnection>();
-        var transaction1 = GetUninitialzed<SqlTransaction>();
+        var connection1 = SqlServerTesting.CreateConnection();
+        var transaction1 = SqlServerTesting.CreateTransaction();
         _db.SetExternallyManagedConnection(connection1, transaction1);
 
         var originalConnection = GetInternalConnection();
@@ -64,8 +58,8 @@ public class SharedDatabaseExternalConnectionFixture : SharedDatabaseFixtureBase
         var originalTransaction = GetInternalTransaction();
         Assert.IsNotNull(originalTransaction);
 
-        var connection2 = GetUninitialzed<SqlConnection>();
-        var transaction2 = GetUninitialzed<SqlTransaction>();
+        var connection2 = SqlServerTesting.CreateConnection();
+        var transaction2 = SqlServerTesting.CreateTransaction();
         _db.SetExternallyManagedConnection(connection2, transaction2);
 
         Assert.IsTrue(originalConnection.Disposed);

@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Testing;
 using System;
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ namespace PeachtreeBus.Core.Tests.Queues
     {
         private Mock<IScopeFactory> _scopeFactory = default!;
         private Mock<ISharedDatabase> _sharedDatabase = default!;
-        private FakeServiceProviderAccessor _accessor = default!;
+        private readonly FakeServiceProviderAccessor _accessor = new(new());
         private Mock<IShareObjectsBetweenScopes> _shareObjects = default!;
         private Mock<IQueuePipelineFactory> _pipelineFactory = default!;
         private Mock<IQueuePipeline> _pipeline = default!;
@@ -23,21 +23,19 @@ namespace PeachtreeBus.Core.Tests.Queues
         [TestInitialize]
         public void Init()
         {
-            _accessor = new();
+            _accessor.Reset();
 
             _scopeFactory = new();
-            _scopeFactory.Setup(f => f.Create()).Returns(_accessor);
+            _scopeFactory.Setup(f => f.Create()).Returns(_accessor.Object);
 
             _sharedDatabase = new();
 
             _shareObjects = new();
             _shareObjects.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null!);
-
-            _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(IShareObjectsBetweenScopes))).Returns(_shareObjects.Object);
+            _accessor.AddMock(_shareObjects);
 
             _pipelineFactory = new();
-            _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(IQueuePipelineFactory))).Returns(_pipelineFactory.Object);
-
+            _accessor.AddMock(_pipelineFactory);
             _pipeline = new();
             _pipelineFactory.Setup(f => f.Build(It.IsAny<QueueContext>())).Returns(_pipeline.Object);
 
@@ -113,14 +111,14 @@ namespace PeachtreeBus.Core.Tests.Queues
         [TestMethod]
         public async Task Given_GetSharedDatabaseProviderWillThrow_When_Invoke_ScopeIsDisposed()
         {
-            _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(IShareObjectsBetweenScopes))).Throws<TestException>();
+            _accessor.SetupThrow<IShareObjectsBetweenScopes, TestException>();
             await Assert.ThrowsExactlyAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
         [TestMethod]
         public async Task Given_GetPipelineFactoryWillThrow_When_Invoke_ScopeIsDisposed()
         {
-            _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(IQueuePipelineFactory))).Throws<TestException>();
+            _accessor.SetupThrow<IQueuePipelineFactory, TestException>();
             await Assert.ThrowsExactlyAsync<TestException>(VerifyScopeDisposedOnException);
         }
 
@@ -150,9 +148,7 @@ namespace PeachtreeBus.Core.Tests.Queues
             _shareObjects.SetupSet(p => p.SharedDatabase = It.IsAny<ISharedDatabase>())
                 .Callback<ISharedDatabase>((db) => providerSet = true);
 
-            _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(IQueuePipelineFactory)))
-                .Callback(() => Assert.IsTrue(providerSet))
-                .Returns(_pipelineFactory.Object);
+            _accessor.Add(_pipelineFactory.Object, () => Assert.IsTrue(providerSet));
 
             _pipelineFactory.Setup(f => f.Build(It.IsAny<QueueContext>()))
                 .Callback(() => Assert.IsTrue(providerSet))

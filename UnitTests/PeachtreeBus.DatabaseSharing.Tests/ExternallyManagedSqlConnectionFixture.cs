@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Testing;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
@@ -15,13 +15,13 @@ public class ExternallyManagedSqlConnectionFixture
     [TestInitialize]
     public void Intialize()
     {
-        _nativeConnection = GetUninitialzed<SqlConnection>();
-        _nativeConnection.Disposed += _nativeConnection_Disposed;
+        _nativeConnection = SqlServerTesting.CreateConnection();
+        _nativeConnection.Disposed += NativeConnection_Disposed;
         _connection = new ExternallyManagedSqlConnection(_nativeConnection);
     }
 
     [ExcludeFromCodeCoverage(Justification = "If this runs, it is a test failure.")]
-    private void _nativeConnection_Disposed(object? sender, System.EventArgs e)
+    private void NativeConnection_Disposed(object? sender, System.EventArgs e)
     {
         _nativeConncetionDisposed = true;
     }
@@ -30,19 +30,12 @@ public class ExternallyManagedSqlConnectionFixture
     public void Cleanup()
     {
         if (_nativeConnection is not null)
-            _nativeConnection.Disposed -= _nativeConnection_Disposed;
-    }
-
-
-    private static T GetUninitialzed<T>()
-    {
-        return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
+            _nativeConnection.Disposed -= NativeConnection_Disposed;
     }
 
     [TestMethod]
     public void When_Dispose_Then_TheExternalConnectionIsNotDisposed()
     {
-
         _connection.Dispose();
         Assert.IsTrue(_connection.Disposed);
         Assert.IsFalse(_nativeConncetionDisposed, "The connection must not be disposed.");

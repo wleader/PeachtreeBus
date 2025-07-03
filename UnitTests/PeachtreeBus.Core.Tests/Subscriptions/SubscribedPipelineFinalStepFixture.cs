@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.ClassNames;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Exceptions;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Testing;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,16 +17,20 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         public class TestMessage : ISubscribedMessage { }
 
         private SubscribedPipelineFinalStep _testSubject = default!;
-        private readonly FakeServiceProviderAccessor _accessor = new();
+        private readonly FakeServiceProviderAccessor _accessor = new(new());
         private readonly ClassNameService _classNameService = new();
+
+        private IEnumerable<IHandleSubscribedMessage<TestMessage>> _handlers = [];
 
         [TestInitialize]
         public void Initialize()
         {
             _accessor.Reset();
 
+            _accessor.Add(() => _handlers);
+
             _testSubject = new(
-                _accessor,
+                _accessor.Object,
                 _classNameService);
         }
 
@@ -46,9 +50,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
             var handler1 = new Mock<IHandleSubscribedMessage<TestMessage>>();
             var handler2 = new Mock<IHandleSubscribedMessage<TestMessage>>();
 
-            List<IHandleSubscribedMessage<TestMessage>> handlers = [handler1.Object, handler2.Object];
-
-            _accessor.SetupService<IEnumerable<IHandleSubscribedMessage<TestMessage>>>(() => handlers);
+            _handlers = [handler1.Object, handler2.Object];
 
             var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
@@ -65,7 +67,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         [TestMethod]
         public async Task Given_MessageHasNoHandlers_When_Invoke_Then_Throws()
         {
-            _accessor.SetupService<IEnumerable<IHandleSubscribedMessage<TestMessage>>>(() => []);
+            _handlers = [];
 
             var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 
@@ -97,7 +99,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         [TestMethod]
         public async Task Given_FindHandlersReturnsNull_When_Invoke_Then_Throws()
         {
-            _accessor.SetupService<IEnumerable<IHandleSubscribedMessage<TestMessage>>>(() => null!);
+            _handlers = null!;
 
             var context = TestData.CreateSubscribedContext(userMessage: new TestMessage());
 

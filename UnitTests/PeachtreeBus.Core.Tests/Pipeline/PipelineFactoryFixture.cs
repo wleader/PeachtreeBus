@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Pipelines;
+using PeachtreeBus.Testing;
 using System.Collections.Generic;
 
 namespace PeachtreeBus.Core.Tests.Pipeline;
@@ -17,26 +17,24 @@ public abstract class PipelineFactoryFixture
 {
     protected PipelineFactory<TInternalContext, TContext, TPipeline, TPipelineStep, TFinalStep> _factory = default!;
     protected Mock<TPipeline> _pipeline = default!;
-    protected FakeServiceProviderAccessor _accessor = default!;
+    protected readonly FakeServiceProviderAccessor _accessor = new(new());
     protected Mock<TFinalStep> _finalStep = default!;
 
     protected TInternalContext _context = default!;
 
+    protected IEnumerable<TPipelineStep> _steps = null!;
+
     public virtual void Initialize()
     {
         _pipeline = new();
-        _accessor = new();
+        _accessor.Reset();
         _finalStep = new();
 
-        _accessor.ServiceProviderMock.Setup(x => x.GetService(typeof(TPipeline))).Returns(() => _pipeline.Object);
-        _accessor.ServiceProviderMock.Setup(x => x.GetService(typeof(TFinalStep))).Returns(() => _finalStep.Object);
+        _accessor.Add(_pipeline.Object);
+        _accessor.Add(_finalStep.Object);
+        _accessor.Add(() => _steps);
 
         _context = CreateContext();
-    }
-
-    protected void Given_PipelineSteps(IEnumerable<TPipelineStep> steps)
-    {
-        _accessor.SetupService(() => steps);
     }
 
     protected abstract TInternalContext CreateContext();
@@ -44,7 +42,7 @@ public abstract class PipelineFactoryFixture
     [TestMethod]
     public void Given_NoPipelineSteps_When_Build_Then_OnlyFinalStepIsAdded()
     {
-        Given_PipelineSteps([]);
+        _steps = [];
 
         var result = _factory.Build(_context);
 
@@ -65,8 +63,7 @@ public abstract class PipelineFactoryFixture
         step2.SetupGet(s => s.Priority).Returns(2);
         step3.SetupGet(s => s.Priority).Returns(1);
 
-        List<TPipelineStep> steps = [step1.Object, step2.Object, step3.Object];
-        _accessor.SetupService<IEnumerable<TPipelineStep>>(() => steps);
+        _steps = [step1.Object, step2.Object, step3.Object];
 
         var result = _factory.Build(null!);
 

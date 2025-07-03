@@ -8,7 +8,7 @@ namespace PeachtreeBus.Core.Tests.Queues;
 public class SendPipelineInvokerFixture : OutgoingPipelineInvokerFixtureBase<
     SendPipelineInvoker, SendContext, ISendContext, ISendPipeline, ISendPipelineFactory, QueueData>
 {
-    protected override SendPipelineInvoker CreateInvoker() => new(_accessor);
+    protected override SendPipelineInvoker CreateInvoker() => new(_accessor.Object);
 
     protected override SendContext CreateContext() => TestData.CreateSendContext();
 }

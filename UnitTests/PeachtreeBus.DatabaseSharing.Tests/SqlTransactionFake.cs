@@ -1,9 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Testing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
@@ -11,7 +11,7 @@ public class SqlTransactionFake : ISqlTransaction
 {
     public SqlTransactionFake()
     {
-        Transaction = (SqlTransaction)RuntimeHelpers.GetUninitializedObject(typeof(SqlTransaction));
+        Transaction = SqlServerTesting.CreateTransaction();
     }
 
     public bool Disposed { get; private set; } = false;

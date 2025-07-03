@@ -17,7 +17,7 @@ namespace PeachtreeBus.Core.Tests.Queues
         public override void Initialize()
         {
             base.Initialize();
-            _factory = new QueuePipelineFactory(_accessor);
+            _factory = new QueuePipelineFactory(_accessor.Object);
         }
 
         protected override QueueContext CreateContext()

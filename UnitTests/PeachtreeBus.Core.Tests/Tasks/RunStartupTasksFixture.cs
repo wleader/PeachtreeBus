@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Tasks;
+using PeachtreeBus.Testing;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -26,24 +26,28 @@ public class RunStartupTasksFixture
     private RunStarupTasks _runStartupTasks = default!;
     private readonly Mock<IScopeFactory> _scopeFactory = new();
     private readonly Mock<IBusConfiguration> _busConfiguration = new();
-    private readonly FakeServiceProviderAccessor _accessor = new();
+    private readonly FakeServiceProviderAccessor _accessor = new(new());
 
     private readonly FakeStartupTask1 _task1 = new();
     private readonly FakeStartupTask2 _task2 = new();
+
+    private IEnumerable<IRunOnStartup> _tasks = default!;
 
     [TestInitialize]
     public void Initialize()
     {
         _busConfiguration.Reset();
         _scopeFactory.Reset();
+
         _accessor.Reset();
 
         _busConfiguration.SetupGet(c => c.UseStartupTasks).Returns(true);
 
         _scopeFactory.Setup(s => s.Create())
-            .Returns(_accessor);
+            .Returns(_accessor.Object);
 
-        _accessor.SetupService<IEnumerable<IRunOnStartup>>(() => [_task1, _task2]);
+        _tasks = [_task1, _task2];
+        _accessor.Add(() => _tasks);
 
         _task1.RunCount = 0;
         _task2.RunCount = 0;
@@ -60,7 +64,7 @@ public class RunStartupTasksFixture
 
         Assert.AreEqual(1, _task1.RunCount);
         Assert.AreEqual(1, _task1.RunCount);
-        _accessor.ServiceProviderMock.Verify(s => s.GetService(typeof(IEnumerable<IRunOnStartup>)), Times.Once);
+        _accessor.VerifyGetService<IEnumerable<IRunOnStartup>>(1);
         _accessor.Mock.Verify(s => s.Dispose(), Times.Once);
     }
 
@@ -79,7 +83,7 @@ public class RunStartupTasksFixture
     [TestMethod]
     public void Given_NoStartupTasks_When_RunStartupTasks_Then_TasksAreNotRun()
     {
-        _accessor.SetupService<IEnumerable<IRunOnStartup>>(() => []);
+        _tasks = [];
 
         _runStartupTasks.RunStartupTasks();
 

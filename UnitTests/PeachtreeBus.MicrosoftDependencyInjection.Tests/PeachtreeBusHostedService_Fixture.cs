@@ -1,6 +1,6 @@
 ﻿using Moq;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Tasks;
+using PeachtreeBus.Testing;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,7 +11,7 @@ public class PeachtreeBusHostedService_Fixture
 {
     private PeachtreeBusHostedService _service = default!;
     private readonly Mock<IScopeFactory> _scopeFactory = new();
-    private readonly FakeServiceProviderAccessor _accessor = new();
+    private readonly FakeServiceProviderAccessor _accessor = new(new());
     private readonly Mock<IRunStartupTasks> _runStartupTasks = new();
     private readonly Mock<ITaskManager> _taskManager = new();
     private bool _StartupHasRun = false;
@@ -29,13 +29,11 @@ public class PeachtreeBusHostedService_Fixture
         _runStartupTasks.Setup(r => r.RunStartupTasks())
             .Callback(() => { _StartupHasRun = true; });
 
-        _accessor.SetupService(() => _runStartupTasks.Object);
+        _accessor.AddMock(_runStartupTasks);
 
-        _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(ITaskManager))!)
-            .Callback(() => Assert.IsTrue(_StartupHasRun))
-            .Returns(() => _taskManager.Object);
+        _accessor.Add(_taskManager.Object, () => Assert.IsTrue(_StartupHasRun));
 
-        _scopeFactory.Setup(s => s.Create()).Returns(() => _accessor);
+        _scopeFactory.Setup(s => s.Create()).Returns(() => _accessor.Object);
 
         _taskManager.Setup(t => t.Run(It.IsAny<CancellationToken>()))
             .Callback((CancellationToken ct) => ct.Register(_taskCompletionSource.SetResult))
@@ -77,7 +75,7 @@ public class PeachtreeBusHostedService_Fixture
         var cts = new CancellationTokenSource();
         _scopeFactory.Setup(f => f.Create())
             .Callback(cts.Cancel)
-            .Returns(_accessor);
+            .Returns(_accessor.Object);
 
         _taskManager.Setup(t => t.Run(It.IsAny<CancellationToken>()))
             .Callback((CancellationToken ct) =>

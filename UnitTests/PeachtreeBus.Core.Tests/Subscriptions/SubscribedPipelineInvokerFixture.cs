@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Testing;
 using System;
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
     {
         private Mock<IScopeFactory> _scopeFactory = default!;
         private Mock<ISharedDatabase> _sharedDatabase = default!;
-        private FakeServiceProviderAccessor _accessor = default!;
+        private readonly FakeServiceProviderAccessor _accessor = new(new());
         private Mock<IShareObjectsBetweenScopes> _shareObjects = default!;
         private Mock<ISubscribedPipelineFactory> _pipelineFactory = default!;
         private Mock<ISubscribedPipeline> _pipeline = default!;
@@ -23,19 +23,19 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         [TestInitialize]
         public void Init()
         {
-            _accessor = new();
+            _accessor.Reset();
 
             _scopeFactory = new();
-            _scopeFactory.Setup(f => f.Create()).Returns(_accessor);
+            _scopeFactory.Setup(f => f.Create()).Returns(_accessor.Object);
 
             _sharedDatabase = new();
 
             _shareObjects = new();
             _shareObjects.SetupGet(p => p.SharedDatabase).Returns((ISharedDatabase)null!);
-            _accessor.SetupService(() => _shareObjects.Object);
+            _accessor.AddMock(_shareObjects);
 
             _pipelineFactory = new();
-            _accessor.SetupService(() => _pipelineFactory.Object);
+            _accessor.AddMock(_pipelineFactory);
 
             _pipeline = new();
             _pipelineFactory.Setup(f => f.Build(It.IsAny<SubscribedContext>())).Returns(_pipeline.Object);
@@ -149,9 +149,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
             _shareObjects.SetupSet(p => p.SharedDatabase = It.IsAny<ISharedDatabase>())
                 .Callback<ISharedDatabase>((db) => providerSet = true);
 
-            _accessor.ServiceProviderMock.Setup(s => s.GetService(typeof(ISubscribedPipelineFactory)))
-                .Callback(() => Assert.IsTrue(providerSet))
-                .Returns(_pipelineFactory.Object);
+            _accessor.Add(_pipelineFactory.Object, () => Assert.IsTrue(providerSet));
 
             _pipelineFactory.Setup(f => f.Build(It.IsAny<SubscribedContext>()))
                 .Callback(() => Assert.IsTrue(providerSet))

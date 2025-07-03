@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Tasks;
+using PeachtreeBus.Testing;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -17,7 +17,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
     protected TStarter _starter = default!;
     protected Mock<IScopeFactory> _scopeFactory = new();
     protected Mock<TTracker> _tracker = new();
-    protected FakeServiceProviderAccessor _accessor = new();
+    protected FakeServiceProviderAccessor _accessor = new(new());
     protected Mock<TRunner> _runner = new();
     protected Mock<ITaskCounter> _taskCounter = new();
 
@@ -42,11 +42,9 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _gotRunnerInstance = false;
 
         _scopeFactory.Setup(x => x.Create())
-            .Returns(() => _accessor);
+            .Returns(() => _accessor.Object);
 
-        _accessor.ServiceProviderMock.Setup(x => x.GetService(typeof(TRunner)))
-            .Callback(() => _gotRunnerInstance = true)
-            .Returns(() => _runner.Object);
+        _accessor.Add(() => _runner.Object, () => _gotRunnerInstance = true);
 
         _accessor.Mock.Setup(x => x.Dispose())
             .Callback(() => Assert.IsTrue(_gotRunnerInstance));
@@ -113,7 +111,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _tracker.Verify(t => t.Start(), Times.Exactly(runnerCount));
         _tracker.Verify(t => t.WorkDone(), Times.Exactly(runnerCount));
         _scopeFactory.Verify(f => f.Create(), Times.Exactly(runnerCount));
-        _accessor.ServiceProviderMock.Verify(s => s.GetService(typeof(TRunner)), Times.Exactly(runnerCount));
+        _accessor.VerifyGetService<TRunner>(runnerCount);
         _accessor.Mock.Verify(s => s.Dispose(), Times.Exactly(runnerCount));
         _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Exactly(runnerCount));
         _taskCounter.Verify(c => c.Increment(), Times.Exactly(runnerCount));

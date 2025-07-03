@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Data.SqlClient" />
+      <PackageReference Include="Moq" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
+    </ItemGroup>
+</Project>

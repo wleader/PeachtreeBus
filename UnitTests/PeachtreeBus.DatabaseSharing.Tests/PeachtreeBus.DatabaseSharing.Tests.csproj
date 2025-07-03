@@ -18,6 +18,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
+        <ProjectReference Include="..\..\PeachtreeBus.Testing\PeachtreeBus.Testing.csproj" />
     </ItemGroup>
 
 </Project>

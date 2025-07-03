@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Runtime.CompilerServices;
+using PeachtreeBus.Testing;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
@@ -13,14 +13,8 @@ public class ExternallyManagedSqlTransactionFixture
     [TestInitialize]
     public void Intialize()
     {
-        _nativeTransaction = GetUninitialzed<SqlTransaction>();
-
+        _nativeTransaction = SqlServerTesting.CreateTransaction();
         _transaction = new(_nativeTransaction);
-    }
-
-    private static T GetUninitialzed<T>()
-    {
-        return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
     }
 
     [TestMethod]
