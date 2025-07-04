@@ -6,8 +6,6 @@ namespace PeachtreeBus.DataAccessTests;
 
 public abstract class TestConfig
 {
-    public static string DbConnectionString { get; set; } = default!;
-
     public static readonly SchemaName DefaultSchema = new("PeachtreeBus");
     private const string QueueName = "QueueName";
     protected static readonly QueueName DefaultQueue = new(QueueName);

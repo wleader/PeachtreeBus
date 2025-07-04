@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
+using PeachtreeBus.DataAccessTests.Infrastructure;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
@@ -58,16 +59,16 @@ public abstract class FixtureBase<TAccess> : TestConfig
     public virtual void TestInitialize()
     {
         // Create connections.
-        PrimaryConnection = new SqlConnectionProxy(DbConnectionString);
+        PrimaryConnection = new SqlConnectionProxy(AppSettings.TestDatabase);
 
-        SecondaryConnection = new SqlConnectionProxy(DbConnectionString);
+        SecondaryConnection = new SqlConnectionProxy(AppSettings.TestDatabase);
         SecondaryConnection.Open();
 
         // create the data access object.
         _connectionFactory.Setup(f => f.GetConnection()).Returns(() =>
         {
             if (PrimaryConnection.Disposed)
-                PrimaryConnection = new SqlConnectionProxy(DbConnectionString);
+                PrimaryConnection = new SqlConnectionProxy(AppSettings.TestDatabase);
             return PrimaryConnection;
         });
         SharedDB = new SharedDatabase(_connectionFactory.Object);

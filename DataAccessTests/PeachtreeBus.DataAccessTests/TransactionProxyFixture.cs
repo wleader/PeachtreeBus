@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
+using PeachtreeBus.DataAccessTests.Infrastructure;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using System;
@@ -77,7 +78,7 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
     [TestMethod]
     public void Verify_DisposeTransaction()
     {
-        using var connection = new SqlConnectionProxy(TestConfig.DbConnectionString);
+        using var connection = new SqlConnectionProxy(AppSettings.TestDatabase);
         connection.Open();
         var transaction = connection.BeginTransaction();
         transaction.Dispose();
