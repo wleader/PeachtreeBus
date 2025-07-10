@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Errors;
+using PeachtreeBus.Tasks;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Core.Tests.Errors;
+namespace PeachtreeBus.Core.Tests.Tasks;
 
 [TestClass]
 public class DelayFactoryFixture

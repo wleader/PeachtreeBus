@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.Errors;
+namespace PeachtreeBus.Tasks;
 
 public interface IDelayFactory
 {
@@ -15,5 +15,4 @@ public class DelayFactory : IDelayFactory
         delay == TimeSpan.Zero
             ? Task.CompletedTask
             : Task.Delay(delay, cancellationToken);
-
 }
