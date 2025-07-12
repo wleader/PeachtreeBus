@@ -127,3 +127,19 @@ public class ProcessQueuedStarter(
             : (int)await _dataAccess.EstimateQueuePending(c.QueueName);
     }
 }
+
+public interface IProcessQueuedEstimator : IEstimator;
+
+public class ProcessQueuedEstimator(
+    IBusDataAccess dataAccess,
+    IBusConfiguration busConfiguration)
+    : IProcessQueuedEstimator
+{
+    public async Task<int> EstimateDemand()
+    {
+        var c = busConfiguration.QueueConfiguration;
+        return c is null
+            ? 0
+            : (int)await dataAccess.EstimateQueuePending(c.QueueName);
+    }
+}

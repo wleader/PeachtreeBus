@@ -117,3 +117,18 @@ public class ProcessSubscribedStarter(
             : (int)await _dataAccess.EstimateSubscribedPending(c.SubscriberId);
     }
 }
+public interface IProcessSubscribedEstimator : IEstimator;
+
+public class ProcessSubscribedEstimator(
+    IBusDataAccess dataAccess,
+    IBusConfiguration busConfiguration)
+    : IProcessSubscribedEstimator
+{
+    public async Task<int> EstimateDemand()
+    {
+        var c = busConfiguration.SubscriptionConfiguration;
+        return c is null
+            ? 0
+            : (int)await dataAccess.EstimateSubscribedPending(c.SubscriberId);
+    }
+}

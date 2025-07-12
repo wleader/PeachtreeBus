@@ -107,6 +107,9 @@ public class RegisterComponents(IRegistrationProvider provider)
         provider.RegisterScoped<ISubscribedPipelineFactory, SubscribedPipelineFactory>();
         provider.RegisterScoped<ISubscribedPipeline, SubscribedPipeline>();
         provider.RegisterScoped<ISubscribedPipelineFinalStep, SubscribedPipelineFinalStep>();
+        provider.RegisterSingleton<IAlwaysOneEstimator, AlwaysOneEstimator>();
+        provider.RegisterScoped<IProcessQueuedEstimator, ProcessQueuedEstimator>();
+        provider.RegisterScoped<IProcessSubscribedEstimator, ProcessSubscribedEstimator>();
     }
 
     private void RegisterConditional(IBusConfiguration busConfiguration)

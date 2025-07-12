@@ -128,6 +128,9 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
         Assert.IsNotNull(accessor.GetService<IHandleFailedSubscribedMessages>());
         Assert.IsNotNull(accessor.GetService<ISubscribedRetryStrategy>());
         Assert.IsNotNull(accessor.GetService<IClassNameService>());
+        Assert.IsNotNull(accessor.GetServices<IAlwaysOneEstimator>());
+        Assert.IsNotNull(accessor.GetServices<IProcessQueuedEstimator>());
+        Assert.IsNotNull(accessor.GetServices<IProcessSubscribedEstimator>());
     }
 
     private void Then_ServiceIs<TInterface, TExpected>() where TInterface : class
