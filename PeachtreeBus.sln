@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		Directory.Packages.props = Directory.Packages.props
 		Licence.txt = Licence.txt
 		LogMessages.xsd = LogMessages.xsd
+		nuget.config = nuget.config
 		PeachtreeBus.Abstractions.nuspec = PeachtreeBus.Abstractions.nuspec
 		PeachtreeBus.Core.nuspec = PeachtreeBus.Core.nuspec
 		PeachtreeBus.EntityFrameworkCore.nuspec = PeachtreeBus.EntityFrameworkCore.nuspec
