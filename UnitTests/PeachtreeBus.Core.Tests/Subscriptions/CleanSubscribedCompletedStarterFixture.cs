@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Core.Tests.Tasks;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Subscriptions;
 
@@ -8,11 +9,16 @@ namespace PeachtreeBus.Core.Tests.Subscriptions;
 public class CleanSubscribedCompletedStarterFixture : StarterFixtureBase<
     CleanSubscribedCompletedStarter,
     ICleanSubscribedCompletedRunner,
-    ICleanSubscribedCompletedTracker>
+    ICleanSubscribedCompletedTracker,
+    IAlwaysOneEstimator>
 {
     public override CleanSubscribedCompletedStarter CreateStarter()
     {
-        return new(_scopeFactory.Object, _tracker.Object, _taskCounter.Object);
+        return new(
+            _scopeFactory.Object,
+            _tracker.Object,
+            _taskCounter.Object,
+            _estimator.Object);
     }
 }
 

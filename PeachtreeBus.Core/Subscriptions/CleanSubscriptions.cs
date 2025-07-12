@@ -53,6 +53,7 @@ public interface ICleanSubscriptionsStarter : IStarter;
 public class CleanSubscriptionsStarter(
     IScopeFactory scopeFactory,
     ICleanSubscriptionsTracker tracker,
-    ITaskCounter counter)
-    : Starter<ICleanSubscriptionsRunner>(scopeFactory, tracker, counter)
+    ITaskCounter counter,
+    IAlwaysOneEstimator estimator)
+    : Starter<ICleanSubscriptionsRunner>(scopeFactory, tracker, counter, estimator)
     , ICleanSubscriptionsStarter;

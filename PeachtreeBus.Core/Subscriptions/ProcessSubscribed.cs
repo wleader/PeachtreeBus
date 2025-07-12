@@ -100,23 +100,10 @@ public interface IProcessSubscribedStarter : IStarter;
 public class ProcessSubscribedStarter(
     IScopeFactory scopeFactory,
     IAlwaysRunTracker tracker,
-    IBusDataAccess dataAccess,
-    IBusConfiguration busConfiguration,
-    ITaskCounter counter)
-    : Starter<IProcessSubscribedRunner>(scopeFactory, tracker, counter)
-    , IProcessSubscribedStarter
-{
-    private readonly IBusConfiguration _busConfiguration = busConfiguration;
-    private readonly IBusDataAccess _dataAccess = dataAccess;
-
-    protected override async Task<int> EstimateDemand()
-    {
-        var c = _busConfiguration.SubscriptionConfiguration;
-        return c is null
-            ? 0
-            : (int)await _dataAccess.EstimateSubscribedPending(c.SubscriberId);
-    }
-}
+    ITaskCounter counter,
+    IProcessSubscribedEstimator estimator)
+    : Starter<IProcessSubscribedRunner>(scopeFactory, tracker, counter, estimator)
+    , IProcessSubscribedStarter;
 public interface IProcessSubscribedEstimator : IEstimator;
 
 public class ProcessSubscribedEstimator(

@@ -53,6 +53,7 @@ public interface ICleanSubscribedPendingStarter : IStarter;
 public class CleanSubscribedPendingStarter(
     IScopeFactory scopeFactory,
     ICleanSubscribedPendingTracker tracker,
-    ITaskCounter counter)
-    : Starter<ICleanSubscribedPendingRunner>(scopeFactory, tracker, counter)
+    ITaskCounter counter,
+    IAlwaysOneEstimator estimator)
+    : Starter<ICleanSubscribedPendingRunner>(scopeFactory, tracker, counter, estimator)
     , ICleanSubscribedPendingStarter;

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Core.Tests.Tasks;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Queues;
 
@@ -8,10 +9,15 @@ namespace PeachtreeBus.Core.Tests.Queues;
 public class CleanQueuedCompletedStarterFixture : StarterFixtureBase<
     CleanQueuedCompletedStarter,
     ICleanQueuedCompletedRunner,
-    ICleanQueuedCompletedTracker>
+    ICleanQueuedCompletedTracker,
+    IAlwaysOneEstimator>
 {
     public override CleanQueuedCompletedStarter CreateStarter()
     {
-        return new(_scopeFactory.Object, _tracker.Object, _taskCounter.Object);
+        return new(
+            _scopeFactory.Object,
+            _tracker.Object,
+            _taskCounter.Object,
+            _estimator.Object);
     }
 }

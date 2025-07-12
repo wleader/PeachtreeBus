@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Tasks;
 
-public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
+public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator>
     where TStarter : Starter<TRunner>
     where TRunner : class, IRunner
     where TTracker : class, ITracker
+    where TEstimator : class, IEstimator
 {
     protected TStarter _starter = default!;
     protected Mock<IScopeFactory> _scopeFactory = new();
@@ -20,6 +21,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
     protected FakeServiceProviderAccessor _accessor = new(new());
     protected Mock<TRunner> _runner = new();
     protected Mock<ITaskCounter> _taskCounter = new();
+    protected Mock<TEstimator> _estimator = new();
 
     protected List<Task> _runnerTasks = default!;
     protected List<Task> _continuedTasks = default!;
@@ -35,6 +37,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _accessor.Reset();
         _runner.Reset();
         _taskCounter.Reset();
+        _estimator.Reset();
 
         _runnerTasks = [];
         _continuedTasks = [];
@@ -67,22 +70,19 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
         _continuedTasks.Add(task);
     }
 
-    public virtual int SetupEstimate(int estimate)
-    {
-        return Math.Min(estimate, 1);
-    }
 
     [TestMethod]
-    [DataRow(0, 0)]
-    [DataRow(1, 1)]
-    [DataRow(2, 2)]
-    public async Task Given_ShouldStart_And_Available_When_Start_Then_Result(int available, int expectedResult)
+    [DataRow(0, 0, 0)]
+    [DataRow(1, 1, 1)]
+    [DataRow(1, 0, 0)]
+    [DataRow(2, 2, 2)]
+    [DataRow(2, 1, 1)]
+    [DataRow(2, 0, 0)]
+    public async Task Given_ShouldStart_And_Available_When_Start_Then_Result(int available, int estimate, int expectedResult)
     {
-        expectedResult = SetupEstimate(expectedResult);
-
         _tracker.SetupGet(t => t.ShouldStart).Returns(true);
 
-        await When_Run(available);
+        await When_Run(available, estimate);
 
         Then_RunnersAreStarted(expectedResult);
     }
@@ -94,13 +94,21 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker>
     public async Task Given_ShouldNotStart_And_Available_When_Start_Then_Result(int available)
     {
         _tracker.SetupGet(t => t.ShouldStart).Returns(false);
-        await When_Run(available);
+        await When_Run(available, 1);
         Then_RunnersAreStarted(0);
     }
 
-    protected async Task When_Run(int available)
+    [TestMethod]
+    public async Task Given_ZeroAvailability_When_Start_Then_EstimateNotInvoked()
+    {
+        await When_Run(0, 1);
+        _estimator.Verify(x => x.EstimateDemand(), Times.Never);
+    }
+
+    protected async Task When_Run(int available, int estimate)
     {
         _taskCounter.Setup(x => x.Available()).Returns(available);
+        _estimator.Setup(x => x.EstimateDemand()).ReturnsAsync(estimate);
         _actualTasks = await _starter.Start(ContinueWith, _cts.Token);
         await Task.Delay(10); // give time for continuations
         Task.WaitAll([.. _runnerTasks]);

@@ -110,23 +110,10 @@ public interface IProcessQueuedStarter : IStarter;
 public class ProcessQueuedStarter(
     IScopeFactory scopeFactory,
     IAlwaysRunTracker tracker,
-    IBusDataAccess dataAccess,
-    IBusConfiguration busConfiguration,
-    ITaskCounter counter)
-    : Starter<IProcessQueuedRunner>(scopeFactory, tracker, counter)
-    , IProcessQueuedStarter
-{
-    private readonly IBusDataAccess _dataAccess = dataAccess;
-    private readonly IBusConfiguration _busConfiguration = busConfiguration;
-
-    protected override async Task<int> EstimateDemand()
-    {
-        var c = _busConfiguration.QueueConfiguration;
-        return c is null
-            ? 0
-            : (int)await _dataAccess.EstimateQueuePending(c.QueueName);
-    }
-}
+    ITaskCounter counter,
+    IProcessQueuedEstimator estimator)
+    : Starter<IProcessQueuedRunner>(scopeFactory, tracker, counter, estimator)
+    , IProcessQueuedStarter;
 
 public interface IProcessQueuedEstimator : IEstimator;
 

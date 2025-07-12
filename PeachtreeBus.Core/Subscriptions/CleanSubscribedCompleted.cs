@@ -11,7 +11,7 @@ public interface ICleanSubscribedCompletedTracker : ITracker;
 public class CleanSubscribedCompletedTracker(
     ISystemClock clock,
     IBusConfiguration config)
-    : IntervalRunTracker(clock)//, config.SubscriptionConfiguration?.CleanInterval)
+    : IntervalRunTracker(clock)
     , ICleanSubscribedCompletedTracker
 {
     private readonly IBusConfiguration _config = config;
@@ -56,6 +56,7 @@ public interface ICleanSubscribedCompletedStarter : IStarter;
 public class CleanSubscribedCompletedStarter(
     IScopeFactory scopeFactory,
     ICleanSubscribedCompletedTracker tracker,
-    ITaskCounter counter)
-    : Starter<ICleanSubscribedCompletedRunner>(scopeFactory, tracker, counter)
+    ITaskCounter counter,
+    IAlwaysOneEstimator estimator)
+    : Starter<ICleanSubscribedCompletedRunner>(scopeFactory, tracker, counter, estimator)
     , ICleanSubscribedCompletedStarter;

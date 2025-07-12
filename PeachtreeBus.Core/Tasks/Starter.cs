@@ -13,18 +13,20 @@ public interface IStarter
 public abstract class Starter<TRunner>(
     IScopeFactory scopeFactory,
     ITracker tracker,
-    ITaskCounter taskCounter)
+    ITaskCounter taskCounter,
+    IEstimator estimator)
     : IStarter
     where TRunner : class, IRunner
 {
-    private readonly IScopeFactory _scopeFactory = scopeFactory;
-    private readonly ITracker _tracker = tracker;
-    private readonly ITaskCounter _taskCounter = taskCounter;
-
     public async Task<List<Task>> Start(Action<Task> continueWith, CancellationToken cancellationToken)
     {
-        if (!_tracker.ShouldStart) return [];
-        var estimate = Math.Min(_taskCounter.Available(), await EstimateDemand());
+        if (!tracker.ShouldStart) return [];
+
+        var available = taskCounter.Available();
+        // don't even bother estimating if there is no availability for more tasks.
+        if (available < 1) return [];
+
+        var estimate = Math.Min(available, await estimator.EstimateDemand());
         return AddRunners(estimate, continueWith, cancellationToken);
     }
 
@@ -40,10 +42,10 @@ public abstract class Starter<TRunner>(
 
     private Task AddRunner(Action<Task> continueWith, CancellationToken cancellationToken)
     {
-        var accessor = _scopeFactory.Create();
+        var accessor = scopeFactory.Create();
         var runner = accessor.GetRequiredService<TRunner>();
-        _taskCounter.Increment();
-        _tracker.Start();
+        taskCounter.Increment();
+        tracker.Start();
         return Task.Run(() => runner.RunRepeatedly(cancellationToken)
             .ContinueWith((_) => WhenRunnerCompletes(accessor), CancellationToken.None)
             .ContinueWith(continueWith, CancellationToken.None),
@@ -52,10 +54,8 @@ public abstract class Starter<TRunner>(
 
     private void WhenRunnerCompletes(IServiceProviderAccessor accessor)
     {
-        _taskCounter.Decrement();
-        _tracker.WorkDone();
+        taskCounter.Decrement();
+        tracker.WorkDone();
         accessor.Dispose();
     }
-
-    protected virtual Task<int> EstimateDemand() => Task.FromResult(1);
 }
