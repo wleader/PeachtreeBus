@@ -10,7 +10,8 @@ public class ProcessSubscribedStarterFixture : StarterFixtureBase<
     ProcessSubscribedStarter,
     IProcessSubscribedRunner,
     IAlwaysRunTracker,
-    IProcessSubscribedEstimator>
+    IProcessSubscribedEstimator,
+    IMessagingTaskCounter>
 {
     public override ProcessSubscribedStarter CreateStarter()
     {

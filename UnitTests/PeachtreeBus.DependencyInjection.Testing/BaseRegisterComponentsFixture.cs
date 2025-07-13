@@ -52,7 +52,8 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
     {
         using var accessor = BuildAccessor();
         Assert.IsNotNull(accessor.GetService<IBusConfiguration>());
-        Assert.IsNotNull(accessor.GetService<ITaskCounter>());
+        Assert.IsNotNull(accessor.GetService<IMessagingTaskCounter>());
+        Assert.IsNotNull(accessor.GetService<IScheduledTaskCounter>());
         Assert.IsNotNull(accessor.GetService<ITaskManager>());
         Assert.IsNotNull(accessor.GetService<IDelayFactory>());
         Assert.IsNotNull(accessor.GetService<ISystemClock>());

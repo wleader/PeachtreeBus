@@ -9,18 +9,19 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Tasks;
 
-public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator>
+public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator, TCounter>
     where TStarter : Starter<TRunner>
     where TRunner : class, IRunner
     where TTracker : class, ITracker
     where TEstimator : class, IEstimator
+    where TCounter : class, ITaskCounter
 {
     protected TStarter _starter = default!;
     protected Mock<IScopeFactory> _scopeFactory = new();
     protected Mock<TTracker> _tracker = new();
     protected FakeServiceProviderAccessor _accessor = new(new());
     protected Mock<TRunner> _runner = new();
-    protected Mock<ITaskCounter> _taskCounter = new();
+    protected Mock<TCounter> _taskCounter = new();
     protected Mock<TEstimator> _estimator = new();
 
     protected List<Task> _runnerTasks = default!;

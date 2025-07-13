@@ -56,7 +56,7 @@ public interface ICleanSubscribedCompletedStarter : IStarter;
 public class CleanSubscribedCompletedStarter(
     IScopeFactory scopeFactory,
     ICleanSubscribedCompletedTracker tracker,
-    ITaskCounter counter,
+    IScheduledTaskCounter counter,
     IAlwaysOneEstimator estimator)
     : Starter<ICleanSubscribedCompletedRunner>(scopeFactory, tracker, counter, estimator)
     , ICleanSubscribedCompletedStarter;

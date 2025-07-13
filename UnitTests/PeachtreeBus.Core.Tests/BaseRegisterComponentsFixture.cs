@@ -39,7 +39,8 @@ public class BaseRegisterComponentsFixture
     }
 
     private void VerifySingletonRegistered<T1, T2>(Times? times = null) =>
-    _registrationProvider.Verify(p => p.RegisterSingleton<T1, T2>(), times ?? Times.Once());
+        _registrationProvider.Verify(p => p.RegisterSingleton<T1, T2>(), times ?? Times.Once());
+
     private void VerifyScopedRegistered<T1, T2>(Times? times = null) =>
         _registrationProvider.Verify(p => p.RegisterScoped<T1, T2>(), times ?? Times.Once());
 
@@ -69,7 +70,8 @@ public class BaseRegisterComponentsFixture
     {
         _registerComponents.Register(_basicConfiguration, []);
 
-        VerifySingletonRegistered<ITaskCounter, TaskCounter>();
+        VerifySingletonRegistered<IMessagingTaskCounter, MessagingTaskCounter>();
+        VerifySingletonRegistered<IScheduledTaskCounter, ScheduledTaskCounter>();
         VerifyScopedRegistered<ITaskManager, TaskManager>();
         VerifySingletonRegistered<ISystemClock, SystemClock>();
         VerifySingletonRegistered<IMeters, Meters>();

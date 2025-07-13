@@ -10,7 +10,8 @@ public class CleanSubscribedFailedStarterFixture : StarterFixtureBase<
     CleanSubscribedFailedStarter,
     ICleanSubscribedFailedRunner,
     ICleanSubscribedFailedTracker,
-    IAlwaysOneEstimator>
+    IAlwaysOneEstimator,
+    IScheduledTaskCounter>
 {
     public override CleanSubscribedFailedStarter CreateStarter()
     {

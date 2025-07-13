@@ -3,7 +3,10 @@ using Moq;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Tasks;
+using PeachtreeBus.Testing;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,79 +17,144 @@ public class StartersFixture
 {
     private Starters _starters = default!;
     private CancellationTokenSource _cts = default!;
-    private readonly Mock<IUpdateSubscriptionsStarter> _updateSubscriptions = new();
-    private readonly Mock<ICleanSubscriptionsStarter> _cleanSubscriptions = new();
-    private readonly Mock<ICleanSubscribedPendingStarter> _cleanSubscribedPending = new();
-    private readonly Mock<ICleanSubscribedCompletedStarter> _cleanSubscribedCompleted = new();
-    private readonly Mock<ICleanSubscribedFailedStarter> _cleanSubscribedFailed = new();
-    private readonly Mock<ICleanQueuedCompletedStarter> _cleanQueuedCompleted = new();
-    private readonly Mock<ICleanQueuedFailedStarter> _cleanQueuedFailed = new();
-    private readonly Mock<IProcessSubscribedStarter> _processSubscribed = new();
-    private readonly Mock<IProcessQueuedStarter> _processQueued = new();
 
-    private bool _subscriptionsUpdated = false;
+    private readonly Dictionary<Type, object> _mocks = [];
+    private readonly Dictionary<Type, List<Task>> _startResults = [];
+    private readonly List<Type> _invocationOrder = [];
+
+    private static readonly List<Type> _expectedInvocationOrder =
+    [
+        // always update subscriptions. If this is not done often enough,
+        // the subscription could expire, and a message for a topic may not be delivered.
+        typeof(IUpdateSubscriptionsStarter),
+
+        // cleanup before processing. This way
+        // the cleanup tasks should never get out of hand.
+        typeof(ICleanSubscriptionsStarter),
+        typeof(ICleanSubscribedPendingStarter),
+        typeof(ICleanSubscribedCompletedStarter),
+        typeof(ICleanSubscribedFailedStarter),
+        typeof(ICleanQueuedCompletedStarter),
+        typeof(ICleanQueuedFailedStarter),
+
+        // process subscribed messages first because this subscriber is the only process
+        // that can process its messages.
+        typeof(IProcessSubscribedStarter),
+
+        // processes queued is lowest priority as this task is shared among each copy of the endpoint.
+        typeof(IProcessQueuedStarter),
+];
 
     [TestInitialize]
     public void Initialize()
     {
+        _startResults.Clear();
+        _invocationOrder.Clear();
+        _mocks.Clear();
+
         _cts = new();
 
-        _updateSubscriptions.Setup(s => s.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
-            .Callback((Action<Task> continuteWith, CancellationToken token) =>
-            {
-                Assert.IsFalse(_subscriptionsUpdated);
-                Assert.AreEqual(_cts.Token, token);
-                Assert.AreEqual(ContinueWith, continuteWith);
-                _subscriptionsUpdated = true;
-            })
-            .ReturnsAsync([]);
-
-        SetupBeforeAfter(_updateSubscriptions, _cleanSubscriptions);
-        SetupBeforeAfter(_cleanSubscriptions, _cleanSubscribedPending);
-        SetupBeforeAfter(_cleanSubscribedPending, _cleanSubscribedCompleted);
-        SetupBeforeAfter(_cleanSubscribedCompleted, _cleanSubscribedFailed);
-        SetupBeforeAfter(_cleanSubscribedFailed, _cleanQueuedCompleted);
-        SetupBeforeAfter(_cleanQueuedCompleted, _cleanQueuedFailed);
-        SetupBeforeAfter(_cleanQueuedFailed, _processSubscribed);
-        SetupBeforeAfter(_processSubscribed, _processQueued);
-
         _starters = new(
-            _updateSubscriptions.Object,
-            _cleanSubscriptions.Object,
-            _cleanSubscribedPending.Object,
-            _cleanSubscribedCompleted.Object,
-            _cleanSubscribedFailed.Object,
-            _cleanQueuedCompleted.Object,
-            _cleanQueuedFailed.Object,
-            _processSubscribed.Object,
-            _processQueued.Object);
+            SetupMock<IUpdateSubscriptionsStarter>().Object,
+            SetupMock<ICleanSubscriptionsStarter>().Object,
+            SetupMock<ICleanSubscribedPendingStarter>().Object,
+            SetupMock<ICleanSubscribedCompletedStarter>().Object,
+            SetupMock<ICleanSubscribedFailedStarter>().Object,
+            SetupMock<ICleanQueuedCompletedStarter>().Object,
+            SetupMock<ICleanQueuedFailedStarter>().Object,
+            SetupMock<IProcessSubscribedStarter>().Object,
+            SetupMock<IProcessQueuedStarter>().Object);
     }
 
-    private void SetupBeforeAfter<TBefore, TAfter>(Mock<TAfter> before, Mock<TBefore> after)
-        where TBefore : class, IStarter
-        where TAfter : class, IStarter
+    private void AssertStartParameters<T>(Action<Task> continueWith, CancellationToken token)
     {
-        after.Setup(s => s.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
-            .Callback((Action<Task> continuteWith, CancellationToken token) =>
-            {
-                Assert.IsTrue(_subscriptionsUpdated);
-                Assert.AreEqual(_cts.Token, token);
-                Assert.AreEqual(ContinueWith, continuteWith);
+        Assert.AreEqual(_cts.Token, token, $"The cancellation token was not passed to the {typeof(T)}.");
+        Assert.AreEqual(ContinueWith, continueWith, $"The continuation was not passed to the {typeof(T)}.");
+        _invocationOrder.Add(typeof(T));
+    }
 
-                continuteWith(Task.CompletedTask); // This just causes the contine to be covered.
+    private List<Task> GetResult<T>()
+    {
+        return _startResults.TryGetValue(typeof(T), out var result) ? result : [];
+    }
 
-                Assert.AreEqual(1, before.Invocations.Count,
-                    $"{after.GetType()} should come after {before.GetType()}");
-            })
-            .ReturnsAsync([]);
+    private Mock<T> SetupMock<T>() where T : class, IStarter
+    {
+        var result = new Mock<T>();
+        result.Setup(t => t.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
+            .Callback(AssertStartParameters<T>)
+            .ReturnsAsync(GetResult<T>);
+        _mocks.Add(typeof(T), result);
+        return result;
     }
 
     private void ContinueWith(Task task) { }
 
-    [TestMethod]
-    public async Task Given_Starters_WhenRun_Then_InvokeOrderIsCorrect()
+    public static IEnumerable<object[]> GetStarterTypes =>
+        _expectedInvocationOrder.Select(x => new object[] { x });
+
+    private async Task RunMethodOnMock(Type type, string methodName)
     {
-        // the setup Before Afters will ensure that they are in the correct order.
-        await _starters.RunStarters(ContinueWith, _cts.Token);
+        var o = _mocks.TryGetValue(type, out var match) ? match : null;
+        Assert.IsNotNull(o);
+        var method = this.GetType().GetMethod(methodName,
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        Assert.IsNotNull(method);
+        var genericMethod = method.MakeGenericMethod(type);
+        var t = genericMethod.Invoke(this, [o]) as Task;
+        Assert.IsNotNull(t);
+        await t;
     }
+
+    [TestMethod]
+    public async Task Given_Starters_When_RunStarters_Then_InvokeOrderIsCorrect()
+    {
+        await _starters.RunStarters(ContinueWith, _cts.Token);
+        CollectionAssert.AreEqual(_expectedInvocationOrder, _invocationOrder);
+    }
+
+    [TestMethod]
+    [DynamicData("GetStarterTypes")]
+    public async Task Given_StarterWillThrow_When_RunStarters_Then_Throws(Type type)
+    {
+        await RunMethodOnMock(type, nameof(Given_MockWillThrow_When_RunStarters_Then_Throws));
+    }
+
+    private async Task Given_MockWillThrow_When_RunStarters_Then_Throws<T>(Mock<T> mock)
+        where T : class, IStarter
+    {
+        var ex = new TestException();
+        mock.Setup(m => m.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
+            .Throws(ex);
+        var thrown = await Assert.ThrowsExactlyAsync<TestException>(() =>
+            _starters.RunStarters(ContinueWith, _cts.Token));
+        Assert.AreSame(ex, thrown);
+    }
+
+    [TestMethod]
+    [DynamicData("GetStarterTypes")]
+    public async Task Given_StarterReturnsTasks_When_RunStarters_Then_ResultContainsTasks(Type type)
+    {
+        await RunMethodOnMock(type, nameof(Given_MockReturns_When_RunStarters_Then_ResultContainsTasks));
+    }
+
+    private async Task Given_MockReturns_When_RunStarters_Then_ResultContainsTasks<T>(Mock<T> mock)
+    where T : class, IStarter
+    {
+        var t1 = Task.Delay(1);
+        var t2 = Task.Delay(2);
+
+        mock.Setup(m => m.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([t1, t2]);
+        var actual = await _starters.RunStarters(ContinueWith, _cts.Token);
+
+        CollectionAssert.Contains(actual, t1);
+        CollectionAssert.Contains(actual, t2);
+
+        // not needed for the test
+        // just good practice to await any task that is started.
+        await t1;
+        await t2;
+    }
+
 }

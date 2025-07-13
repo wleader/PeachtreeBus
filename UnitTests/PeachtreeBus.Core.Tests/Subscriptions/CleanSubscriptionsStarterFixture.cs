@@ -10,7 +10,8 @@ public class CleanSubscriptionsStarterFixture : StarterFixtureBase<
     CleanSubscriptionsStarter,
     ICleanSubscriptionsRunner,
     ICleanSubscriptionsTracker,
-    IAlwaysOneEstimator>
+    IAlwaysOneEstimator,
+    IScheduledTaskCounter>
 {
     public override CleanSubscriptionsStarter CreateStarter()
     {

@@ -100,7 +100,7 @@ public interface IProcessSubscribedStarter : IStarter;
 public class ProcessSubscribedStarter(
     IScopeFactory scopeFactory,
     IAlwaysRunTracker tracker,
-    ITaskCounter counter,
+    IMessagingTaskCounter counter,
     IProcessSubscribedEstimator estimator)
     : Starter<IProcessSubscribedRunner>(scopeFactory, tracker, counter, estimator)
     , IProcessSubscribedStarter;

@@ -10,7 +10,8 @@ public class UpdateSubscriptionsStarterFixture : StarterFixtureBase<
     UpdateSubscriptionsStarter,
     IUpdateSubscriptionsRunner,
     IUpdateSubscriptionsTracker,
-    IAlwaysOneEstimator>
+    IAlwaysOneEstimator,
+    IScheduledTaskCounter>
 {
     public override UpdateSubscriptionsStarter CreateStarter()
     {

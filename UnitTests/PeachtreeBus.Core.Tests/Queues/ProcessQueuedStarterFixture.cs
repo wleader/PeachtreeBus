@@ -10,7 +10,8 @@ public class ProcessQueuedStarterFixture : StarterFixtureBase<
     ProcessQueuedStarter,
     IProcessQueuedRunner,
     IAlwaysRunTracker,
-    IProcessQueuedEstimator>
+    IProcessQueuedEstimator,
+    IMessagingTaskCounter>
 {
     public override ProcessQueuedStarter CreateStarter()
     {

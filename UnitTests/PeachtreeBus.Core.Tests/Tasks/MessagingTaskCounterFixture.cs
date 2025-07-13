@@ -5,9 +5,9 @@ using PeachtreeBus.Tasks;
 namespace PeachtreeBus.Core.Tests.Tasks;
 
 [TestClass]
-public class TaskCounterFixture
+public class MessagingTaskCounterFixture
 {
-    protected TaskCounter _counter = default!;
+    protected MessagingTaskCounter _counter = default!;
     protected Mock<IBusConfiguration> _busConfiguration = new();
     protected int _messageConcurrency = 0;
 

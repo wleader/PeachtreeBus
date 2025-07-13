@@ -37,7 +37,8 @@ public class RegisterComponents(IRegistrationProvider provider)
 
     private void RegisterRequired()
     {
-        provider.RegisterSingleton<ITaskCounter, TaskCounter>();
+        provider.RegisterSingleton<IMessagingTaskCounter, MessagingTaskCounter>();
+        provider.RegisterSingleton<IScheduledTaskCounter, ScheduledTaskCounter>();
         provider.RegisterScoped<ITaskManager, TaskManager>();
         provider.RegisterSingleton<IDelayFactory, DelayFactory>();
         provider.RegisterSingleton<ISystemClock, SystemClock>();

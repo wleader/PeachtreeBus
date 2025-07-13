@@ -10,7 +10,8 @@ public class CleanSubscribedPendingStarterFixture : StarterFixtureBase<
     CleanSubscribedPendingStarter,
     ICleanSubscribedPendingRunner,
     ICleanSubscribedPendingTracker,
-    IAlwaysOneEstimator>
+    IAlwaysOneEstimator,
+    IScheduledTaskCounter>
 {
     public override CleanSubscribedPendingStarter CreateStarter()
     {
