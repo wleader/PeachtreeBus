@@ -142,6 +142,11 @@
                 The task threw an exception.
             </Event>
         </Class>
+        <Class name="Starters" classId="2">
+            <Event name="StarterException" level="Error" exception="true" eventId="1">
+                There was an exception running the starter {StarterType:Type}.
+            </Event>
+        </Class>
     </Namespace>
     <Namespace name="PeachtreeBus.Management" namespaceId="7">
         <Class name="ManagementDataAccess" classId="1">

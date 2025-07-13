@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
@@ -16,6 +17,7 @@ namespace PeachtreeBus.Core.Tests.Tasks;
 public class StartersFixture
 {
     private Starters _starters = default!;
+    private Mock<ILogger<Starters>> _log = new();
     private CancellationTokenSource _cts = default!;
 
     private readonly Dictionary<Type, object> _mocks = [];
@@ -51,10 +53,12 @@ public class StartersFixture
         _startResults.Clear();
         _invocationOrder.Clear();
         _mocks.Clear();
+        _log.Reset();
 
         _cts = new();
 
         _starters = new(
+            _log.Object,
             SetupMock<IUpdateSubscriptionsStarter>().Object,
             SetupMock<ICleanSubscriptionsStarter>().Object,
             SetupMock<ICleanSubscribedPendingStarter>().Object,
@@ -80,6 +84,7 @@ public class StartersFixture
 
     private Mock<T> SetupMock<T>() where T : class, IStarter
     {
+        _startResults[typeof(T)] = [Task.Delay(1)];
         var result = new Mock<T>();
         result.Setup(t => t.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
             .Callback(AssertStartParameters<T>)
@@ -115,20 +120,21 @@ public class StartersFixture
 
     [TestMethod]
     [DynamicData("GetStarterTypes")]
-    public async Task Given_StarterWillThrow_When_RunStarters_Then_Throws(Type type)
+    public async Task Given_StarterWillThrow_When_RunStarters_Then_OtherStartersRun(Type type)
     {
-        await RunMethodOnMock(type, nameof(Given_MockWillThrow_When_RunStarters_Then_Throws));
+        await RunMethodOnMock(type, nameof(Given_MockWillThrow_When_RunStarters_Then_OtherStartersRun));
     }
 
-    private async Task Given_MockWillThrow_When_RunStarters_Then_Throws<T>(Mock<T> mock)
-        where T : class, IStarter
+    private async Task Given_MockWillThrow_When_RunStarters_Then_OtherStartersRun<T>(Mock<T> mock)
+    where T : class, IStarter
     {
         var ex = new TestException();
         mock.Setup(m => m.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
             .Throws(ex);
-        var thrown = await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _starters.RunStarters(ContinueWith, _cts.Token));
-        Assert.AreSame(ex, thrown);
+        var actual = await _starters.RunStarters(ContinueWith, _cts.Token);
+
+        var expectedCount = GetStarterTypes.Count() - 1;
+        Assert.AreEqual(expectedCount, actual.Count);
     }
 
     [TestMethod]
