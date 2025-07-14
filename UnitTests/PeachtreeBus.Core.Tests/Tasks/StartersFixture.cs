@@ -17,11 +17,11 @@ namespace PeachtreeBus.Core.Tests.Tasks;
 public class StartersFixture
 {
     private Starters _starters = default!;
-    private Mock<ILogger<Starters>> _log = new();
+    private readonly Mock<ILogger<Starters>> _log = new();
     private CancellationTokenSource _cts = default!;
 
     private readonly Dictionary<Type, object> _mocks = [];
-    private readonly Dictionary<Type, List<Task>> _startResults = [];
+    private readonly Dictionary<Type,int> _startResults = [];
     private readonly List<Type> _invocationOrder = [];
 
     private static readonly List<Type> _expectedInvocationOrder =
@@ -70,30 +70,27 @@ public class StartersFixture
             SetupMock<IProcessQueuedStarter>().Object);
     }
 
-    private void AssertStartParameters<T>(Action<Task> continueWith, CancellationToken token)
+    private void AssertStartParameters<T>(CancellationToken token)
     {
         Assert.AreEqual(_cts.Token, token, $"The cancellation token was not passed to the {typeof(T)}.");
-        Assert.AreEqual(ContinueWith, continueWith, $"The continuation was not passed to the {typeof(T)}.");
         _invocationOrder.Add(typeof(T));
     }
 
-    private List<Task> GetResult<T>()
+    private int GetResult<T>()
     {
-        return _startResults.TryGetValue(typeof(T), out var result) ? result : [];
+        return _startResults.TryGetValue(typeof(T), out var result) ? result : 0;
     }
 
     private Mock<T> SetupMock<T>() where T : class, IStarter
     {
-        _startResults[typeof(T)] = [Task.Delay(1)];
+        _startResults[typeof(T)] = 1;
         var result = new Mock<T>();
-        result.Setup(t => t.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
+        result.Setup(t => t.Start(It.IsAny<CancellationToken>()))
             .Callback(AssertStartParameters<T>)
             .ReturnsAsync(GetResult<T>);
         _mocks.Add(typeof(T), result);
         return result;
     }
-
-    private void ContinueWith(Task task) { }
 
     public static IEnumerable<object[]> GetStarterTypes =>
         _expectedInvocationOrder.Select(x => new object[] { x });
@@ -114,7 +111,7 @@ public class StartersFixture
     [TestMethod]
     public async Task Given_Starters_When_RunStarters_Then_InvokeOrderIsCorrect()
     {
-        await _starters.RunStarters(ContinueWith, _cts.Token);
+        await _starters.RunStarters(_cts.Token);
         CollectionAssert.AreEqual(_expectedInvocationOrder, _invocationOrder);
     }
 
@@ -129,12 +126,12 @@ public class StartersFixture
     where T : class, IStarter
     {
         var ex = new TestException();
-        mock.Setup(m => m.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
+        mock.Setup(m => m.Start(It.IsAny<CancellationToken>()))
             .Throws(ex);
-        var actual = await _starters.RunStarters(ContinueWith, _cts.Token);
+        var actual = await _starters.RunStarters(_cts.Token);
 
         var expectedCount = GetStarterTypes.Count() - 1;
-        Assert.AreEqual(expectedCount, actual.Count);
+        Assert.AreEqual(expectedCount, actual);
     }
 
     [TestMethod]
@@ -147,20 +144,14 @@ public class StartersFixture
     private async Task Given_MockReturns_When_RunStarters_Then_ResultContainsTasks<T>(Mock<T> mock)
     where T : class, IStarter
     {
-        var t1 = Task.Delay(1);
-        var t2 = Task.Delay(2);
+        mock.Setup(m => m.Start(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2);
+        var actual = await _starters.RunStarters(_cts.Token);
 
-        mock.Setup(m => m.Start(It.IsAny<Action<Task>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([t1, t2]);
-        var actual = await _starters.RunStarters(ContinueWith, _cts.Token);
-
-        CollectionAssert.Contains(actual, t1);
-        CollectionAssert.Contains(actual, t2);
-
-        // not needed for the test
-        // just good practice to await any task that is started.
-        await t1;
-        await t2;
+        // the othere starters all returned one, except this one that is being
+        // tested returned 2, the the count will have an extra 1.
+        var expectedCount = GetStarterTypes.Count() + 1;
+        Assert.AreEqual(expectedCount, actual);
     }
 
 }

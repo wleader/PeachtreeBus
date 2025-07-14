@@ -18,6 +18,7 @@ public class UpdateSubscriptionsStarterFixture : StarterFixtureBase<
         return new(
             _log.Object,
             _scopeFactory.Object,
+            _tasks.Object,
             _tracker.Object,
             _taskCounter.Object,
             _estimator.Object,

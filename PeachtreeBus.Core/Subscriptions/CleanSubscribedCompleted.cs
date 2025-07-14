@@ -56,9 +56,10 @@ public interface ICleanSubscribedCompletedStarter : IStarter;
 public class CleanSubscribedCompletedStarter(
     ILogger<CleanSubscribedCompletedStarter> log,
     IScopeFactory scopeFactory,
+    ICurrentTasks tasks,
     ICleanSubscribedCompletedTracker tracker,
     IScheduledTaskCounter counter,
     IAlwaysOneEstimator estimator,
     IBusDataAccess dataAccess)
-    : Starter<ICleanSubscribedCompletedRunner>(log, scopeFactory, tracker, counter, estimator, dataAccess)
+    : Starter<ICleanSubscribedCompletedRunner>(log, scopeFactory, tasks, tracker, counter, estimator, dataAccess)
     , ICleanSubscribedCompletedStarter;

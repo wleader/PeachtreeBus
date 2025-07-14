@@ -53,9 +53,10 @@ public interface ICleanSubscriptionsStarter : IStarter;
 public class CleanSubscriptionsStarter(
     ILogger<CleanSubscriptionsStarter> log,
     IScopeFactory scopeFactory,
+    ICurrentTasks tasks,
     ICleanSubscriptionsTracker tracker,
     IScheduledTaskCounter counter,
     IAlwaysOneEstimator estimator,
     IBusDataAccess dataAccess)
-    : Starter<ICleanSubscriptionsRunner>(log, scopeFactory, tracker, counter, estimator, dataAccess)
+    : Starter<ICleanSubscriptionsRunner>(log, scopeFactory, tasks, tracker, counter, estimator, dataAccess)
     , ICleanSubscriptionsStarter;

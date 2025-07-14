@@ -110,11 +110,12 @@ public interface IProcessQueuedStarter : IStarter;
 public class ProcessQueuedStarter(
     ILogger<ProcessQueuedStarter> log,
     IScopeFactory scopeFactory,
+    ICurrentTasks tasks,
     IAlwaysRunTracker tracker,
     IMessagingTaskCounter counter,
     IProcessQueuedEstimator estimator,
     IBusDataAccess dataAccess)
-    : Starter<IProcessQueuedRunner>(log, scopeFactory, tracker, counter, estimator, dataAccess)
+    : Starter<IProcessQueuedRunner>(log, scopeFactory, tasks, tracker, counter, estimator, dataAccess)
     , IProcessQueuedStarter;
 
 public interface IProcessQueuedEstimator : IEstimator;

@@ -10,7 +10,7 @@ namespace PeachtreeBus.Tasks;
 
 public interface IStarters
 {
-    public Task<List<Task>> RunStarters(Action<Task> continueWith, CancellationToken token);
+    public Task<int> RunStarters(CancellationToken token);
 }
 
 public class Starters(
@@ -26,31 +26,31 @@ public class Starters(
     IProcessQueuedStarter processQueued)
     : IStarters
 {
-    public async Task<List<Task>> RunStarters(Action<Task> continueWith, CancellationToken token)
+    public async Task<int> RunStarters(CancellationToken token)
     {
-        var result = new List<Task>();
-        result.AddRange(await RunStarter(updateSubscriptions, continueWith, token));
-        result.AddRange(await RunStarter(cleanSubscriptions, continueWith, token));
-        result.AddRange(await RunStarter(cleanSubscribedPending, continueWith, token));
-        result.AddRange(await RunStarter(cleanSubscribedCompleted, continueWith, token));
-        result.AddRange(await RunStarter(cleanSubscribedFailed, continueWith, token));
-        result.AddRange(await RunStarter(cleanQueueCompleted, continueWith, token));
-        result.AddRange(await RunStarter(cleanQueueFailed, continueWith, token));
-        result.AddRange(await RunStarter(processSubscribed, continueWith, token));
-        result.AddRange(await RunStarter(processQueued, continueWith, token));
+        int result = 0;
+        result += await RunStarter(updateSubscriptions, token);
+        result += await RunStarter(cleanSubscriptions, token);
+        result += await RunStarter(cleanSubscribedPending, token);
+        result += await RunStarter(cleanSubscribedCompleted, token);
+        result += await RunStarter(cleanSubscribedFailed, token);
+        result += await RunStarter(cleanQueueCompleted, token);
+        result += await RunStarter(cleanQueueFailed, token);
+        result += await RunStarter(processSubscribed, token);
+        result += await RunStarter(processQueued, token);
         return result;
     }
 
-    private async Task<List<Task>> RunStarter(IStarter starter, Action<Task> continueWith, CancellationToken token)
+    private async Task<int> RunStarter(IStarter starter, CancellationToken token)
     {
         try
         {
-            return await starter.Start(continueWith, token);
+            return await starter.Start(token).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             log.StarterException(starter.GetType(), ex);
-            return [];
+            return 0;
         }
     }
 }

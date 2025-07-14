@@ -11,6 +11,7 @@ public interface ITaskManager
 }
 
 public class TaskManager(
+    ICurrentTasks tasks,
     IDelayFactory delayFactory,
     IStarters starters)
     : ITaskManager
@@ -25,8 +26,6 @@ public class TaskManager(
     // and when ther is no new tasks, it will sleep.
     // This allows new tasks to start as soon as there is capacity.
 
-    private readonly object _lock = new();
-    private readonly List<Task> _currentTasks = [];
     private static readonly TimeSpan idleDelay = TimeSpan.FromSeconds(1);
 
     public async Task Run(CancellationToken token)
@@ -34,37 +33,14 @@ public class TaskManager(
         while (!token.IsCancellationRequested)
         {
             // get any newly started tasks.
-            var newTasks = await starters.RunStarters(RemoveFromCurrentTasks, token).ConfigureAwait(false);
+            var startCount = await starters.RunStarters(token).ConfigureAwait(false);
 
-            if (_currentTasks.Count == 0 && newTasks.Count == 0)
-                newTasks.Add(delayFactory
-                    .Delay(idleDelay, CancellationToken.None)
-                    .ContinueWith(RemoveFromCurrentTasks, CancellationToken.None));
+            if (tasks.Count == 0 && startCount == 0)
+                tasks.Add(delayFactory
+                    .Delay(idleDelay, CancellationToken.None));
 
-            // keep track of all the incomplete tasks.
-            lock (_lock)
-            {
-                foreach (var t in newTasks)
-                {
-                    _currentTasks.Add(t);
-                }
-            }
-
-            await WaitForAnyCurrentTask(token).ConfigureAwait(false);
+            await tasks.WhenAny(token).ConfigureAwait(false);
         }
-        await Task.WhenAll(_currentTasks).ConfigureAwait(false);
-    }
-
-    private Task WaitForAnyCurrentTask(CancellationToken token)
-    {
-        if (token.IsCancellationRequested ||
-            _currentTasks.Count == 0)
-            return Task.CompletedTask;
-        return Task.WhenAny(_currentTasks);
-    }
-
-    private void RemoveFromCurrentTasks(Task task)
-    {
-        lock (_lock) { _currentTasks.Remove(task); }
+        await tasks.WhenAll().ConfigureAwait(false);
     }
 }

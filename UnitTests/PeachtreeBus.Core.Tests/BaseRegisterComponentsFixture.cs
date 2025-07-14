@@ -73,6 +73,7 @@ public class BaseRegisterComponentsFixture
         VerifySingletonRegistered<IMessagingTaskCounter, MessagingTaskCounter>();
         VerifySingletonRegistered<IScheduledTaskCounter, ScheduledTaskCounter>();
         VerifyScopedRegistered<ITaskManager, TaskManager>();
+        VerifySingletonRegistered<ICurrentTasks, CurrentTasks>();
         VerifySingletonRegistered<ISystemClock, SystemClock>();
         VerifySingletonRegistered<IMeters, Meters>();
         VerifySingletonRegistered<IAlwaysRunTracker, AlwaysRunTracker>();

@@ -56,9 +56,10 @@ public interface ICleanQueuedFailedStarter : IStarter;
 public class CleanQueuedFailedStarter(
     ILogger<CleanQueuedFailedStarter> log,
     IScopeFactory scopeFactory,
+    ICurrentTasks tasks,
     ICleanQueuedFailedTracker tracker,
     IScheduledTaskCounter counter,
     IAlwaysOneEstimator estimator,
     IBusDataAccess dataAccess)
-    : Starter<ICleanQueuedFailedRunner>(log, scopeFactory, tracker, counter, estimator, dataAccess)
+    : Starter<ICleanQueuedFailedRunner>(log, scopeFactory, tasks, tracker, counter, estimator, dataAccess)
     , ICleanQueuedFailedStarter;

@@ -9,12 +9,13 @@ namespace PeachtreeBus.Tasks;
 
 public interface IStarter
 {
-    Task<List<Task>> Start(Action<Task> continueWith, CancellationToken cancellationToken);
+    Task<int> Start( CancellationToken cancellationToken);
 }
 
 public abstract class Starter<TRunner>(
     ILogger<Starter<TRunner>> log,
     IScopeFactory scopeFactory,
+    ICurrentTasks currentTasks,
     ITracker tracker,
     ITaskCounter taskCounter,
     IEstimator estimator,
@@ -22,10 +23,14 @@ public abstract class Starter<TRunner>(
     : IStarter
     where TRunner : class, IRunner
 {
-    public async Task<List<Task>> Start(Action<Task> continueWith, CancellationToken cancellationToken)
+    public async Task<int> Start( CancellationToken cancellationToken)
     {
-        var count = await DetermineRunnerCount();
-        return AddRunners(count, continueWith, cancellationToken);
+        var count = await DetermineRunnerCount().ConfigureAwait(false);
+        for (int i = 0; i < count; i++)
+        {
+            AddRunner(cancellationToken);
+        }
+        return count;
     }
 
     private async Task<int> DetermineRunnerCount()
@@ -37,7 +42,7 @@ public abstract class Starter<TRunner>(
             var available = taskCounter.Available();
             // don't even bother estimating if there is no availability for more tasks.
             if (available < 1) return 0;
-            return Math.Min(available, await estimator.EstimateDemand());
+            return Math.Min(available, await estimator.EstimateDemand().ConfigureAwait(false));
         }
         catch
         (Exception ex)
@@ -47,26 +52,17 @@ public abstract class Starter<TRunner>(
         }
     }
 
-    private List<Task> AddRunners(int count, Action<Task> continueWith, CancellationToken cancellationToken)
-    {
-        List<Task> result = new(count);
-        for (int i = 0; i < count; i++)
-        {
-            result.Add(AddRunner(continueWith, cancellationToken));
-        }
-        return result;
-    }
-
-    private Task AddRunner(Action<Task> continueWith, CancellationToken cancellationToken)
+    private void AddRunner(CancellationToken cancellationToken)
     {
         var accessor = scopeFactory.Create();
         var runner = accessor.GetRequiredService<TRunner>();
         taskCounter.Increment();
         tracker.Start();
-        return Task.Run(() => runner.RunRepeatedly(cancellationToken)
-            .ContinueWith((_) => WhenRunnerCompletes(accessor), CancellationToken.None)
-            .ContinueWith(continueWith, CancellationToken.None),
-            CancellationToken.None);
+        currentTasks.Add(Task.Run(
+                () => runner.RunRepeatedly(cancellationToken)
+                            .ContinueWith((_) => WhenRunnerCompletes(accessor), CancellationToken.None)
+                            .ConfigureAwait(false),
+                CancellationToken.None));
     }
 
     private void WhenRunnerCompletes(IServiceProviderAccessor accessor)

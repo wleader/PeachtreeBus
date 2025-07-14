@@ -67,9 +67,10 @@ public interface IUpdateSubscriptionsStarter : IStarter;
 public class UpdateSubscriptionsStarter(
     ILogger<UpdateSubscriptionsStarter> log,
     IScopeFactory scopeFactory,
+    ICurrentTasks tasks, 
     IUpdateSubscriptionsTracker tracker,
     IScheduledTaskCounter counter,
     IAlwaysOneEstimator estimator,
     IBusDataAccess dataAccess)
-    : Starter<IUpdateSubscriptionsRunner>(log, scopeFactory, tracker, counter, estimator, dataAccess)
+    : Starter<IUpdateSubscriptionsRunner>(log, scopeFactory, tasks, tracker, counter, estimator, dataAccess)
     , IUpdateSubscriptionsStarter;
