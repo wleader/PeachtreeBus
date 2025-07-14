@@ -3,6 +3,17 @@ A Message Bus Library
 
 ## What's New
 
+### July 14th 2025
+The Dependency Injection Scopes Release
+
+Changes:
+* IWrappedScope and IWrappedScopeFactory have been replaces with IScopeFactory, IServiceProviderAccessor and IServiceProvider. This may cause upgrading users to have to make some code changes if they were using these interfaces.
+* Some project Restructuring. The SimpleInjector and MicrosoftDependencyInjection packages have been reworked to better share code and tests, though this should be mostly transparent to users.
+* Unit Test projects and Example Projects have been moved into sub folders.
+* Enhancements to The Task Management System (mostly making the code easier to unit test.)
+* Fixed https://github.com/wleader/PeachtreeBus/issues/32 - High CPU usage when idle.
+* Fixed https://github.com/wleader/PeachtreeBus/issues/33 - Missing error handling on Estimators (and code called by Task Starters.)
+
 ### June 11th 2025
 The Microsoft Dependency Injection Release
 
