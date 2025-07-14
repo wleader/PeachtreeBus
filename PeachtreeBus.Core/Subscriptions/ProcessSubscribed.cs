@@ -98,11 +98,13 @@ public class ProcessSubscribedRunner(
 public interface IProcessSubscribedStarter : IStarter;
 
 public class ProcessSubscribedStarter(
+    ILogger<ProcessSubscribedStarter> log,
     IScopeFactory scopeFactory,
     IAlwaysRunTracker tracker,
     IMessagingTaskCounter counter,
-    IProcessSubscribedEstimator estimator)
-    : Starter<IProcessSubscribedRunner>(scopeFactory, tracker, counter, estimator)
+    IProcessSubscribedEstimator estimator,
+    IBusDataAccess dataAccess)
+    : Starter<IProcessSubscribedRunner>(log, scopeFactory, tracker, counter, estimator, dataAccess)
     , IProcessSubscribedStarter;
 public interface IProcessSubscribedEstimator : IEstimator;
 

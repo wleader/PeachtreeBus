@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using PeachtreeBus.Data;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,23 +13,38 @@ public interface IStarter
 }
 
 public abstract class Starter<TRunner>(
+    ILogger<Starter<TRunner>> log,
     IScopeFactory scopeFactory,
     ITracker tracker,
     ITaskCounter taskCounter,
-    IEstimator estimator)
+    IEstimator estimator,
+    IBusDataAccess dataAccess)
     : IStarter
     where TRunner : class, IRunner
 {
     public async Task<List<Task>> Start(Action<Task> continueWith, CancellationToken cancellationToken)
     {
-        if (!tracker.ShouldStart) return [];
+        var count = await DetermineRunnerCount();
+        return AddRunners(count, continueWith, cancellationToken);
+    }
 
-        var available = taskCounter.Available();
-        // don't even bother estimating if there is no availability for more tasks.
-        if (available < 1) return [];
-
-        var estimate = Math.Min(available, await estimator.EstimateDemand());
-        return AddRunners(estimate, continueWith, cancellationToken);
+    private async Task<int> DetermineRunnerCount()
+    {
+        try
+        {
+            dataAccess.Reconnect();
+            if (!tracker.ShouldStart) return 0;
+            var available = taskCounter.Available();
+            // don't even bother estimating if there is no availability for more tasks.
+            if (available < 1) return 0;
+            return Math.Min(available, await estimator.EstimateDemand());
+        }
+        catch
+        (Exception ex)
+        {
+            log.StarterException(this.GetType(), ex);
+            return 0;
+        }
     }
 
     private List<Task> AddRunners(int count, Action<Task> continueWith, CancellationToken cancellationToken)

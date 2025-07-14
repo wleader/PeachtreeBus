@@ -16,9 +16,11 @@ public class CleanQueuedCompletedStarterFixture : StarterFixtureBase<
     public override CleanQueuedCompletedStarter CreateStarter()
     {
         return new(
+            _log.Object,
             _scopeFactory.Object,
             _tracker.Object,
             _taskCounter.Object,
-            _estimator.Object);
+            _estimator.Object,
+            _dataAccess.Object);
     }
 }

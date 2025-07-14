@@ -54,9 +54,11 @@ public class CleanSubscribedFailedRunner(
 public interface ICleanSubscribedFailedStarter : IStarter;
 
 public class CleanSubscribedFailedStarter(
+    ILogger<CleanSubscribedFailedStarter> log,
     IScopeFactory scopeFactory,
     ICleanSubscribedFailedTracker tracker,
     IScheduledTaskCounter counter,
-    IAlwaysOneEstimator estimator)
-    : Starter<ICleanSubscribedFailedRunner>(scopeFactory, tracker, counter, estimator)
+    IAlwaysOneEstimator estimator,
+    IBusDataAccess dataAccess)
+    : Starter<ICleanSubscribedFailedRunner>(log, scopeFactory, tracker, counter, estimator, dataAccess)
     , ICleanSubscribedFailedStarter;

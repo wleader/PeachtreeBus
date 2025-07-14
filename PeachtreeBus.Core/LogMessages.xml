@@ -80,8 +80,7 @@
     </Namespace>
     <Namespace name="PeachtreeBus.Subscriptions" namespaceId="4">
         <Class name="SubscribedPipelineFinalStep" classId="1">
-
-
+            <!-- these log messages moved. Retaining class element to reserve class Id. -->
         </Class>
         <Class name="SubscribedReader" classId="2">
             <Event name="MessageFailed" level="Warning" eventId="1">
@@ -144,7 +143,12 @@
         </Class>
         <Class name="Starters" classId="2">
             <Event name="StarterException" level="Error" exception="true" eventId="1">
-                There was an exception running the starter {StarterType:Type}.
+                The starter threw an exception. Starter: {StarterType:Type}.
+            </Event>
+        </Class>
+        <Class name="Starter" classId="3" genericArgs="TRunner" genericConstraint="where TRunner : class, IRunner">
+            <Event name="StarterException" level="Error" exception="true" eventId="1">
+                There was an exception while estimating how many runners to start. No runners will be started. Starter: {StarterType:Type}.
             </Event>
         </Class>
     </Namespace>

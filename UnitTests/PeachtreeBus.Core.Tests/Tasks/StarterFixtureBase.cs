@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Data;
 using PeachtreeBus.Tasks;
 using PeachtreeBus.Testing;
 using System;
@@ -17,12 +19,14 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     where TCounter : class, ITaskCounter
 {
     protected TStarter _starter = default!;
+    protected Mock<ILogger<TStarter>> _log = new();
     protected Mock<IScopeFactory> _scopeFactory = new();
     protected Mock<TTracker> _tracker = new();
     protected FakeServiceProviderAccessor _accessor = new(new());
     protected Mock<TRunner> _runner = new();
     protected Mock<TCounter> _taskCounter = new();
     protected Mock<TEstimator> _estimator = new();
+    protected Mock<IBusDataAccess> _dataAccess = new();
 
     protected List<Task> _runnerTasks = default!;
     protected List<Task> _continuedTasks = default!;
@@ -30,15 +34,21 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     protected CancellationTokenSource _cts = default!;
     private bool _gotRunnerInstance;
 
+    private int _available;
+    private int _estimate;
+    private bool _shouldStart;
+
     [TestInitialize]
     public virtual void Intialize()
     {
+        _log.Reset();
         _scopeFactory.Reset();
         _tracker.Reset();
         _accessor.Reset();
         _runner.Reset();
         _taskCounter.Reset();
         _estimator.Reset();
+        _dataAccess.Reset();
 
         _runnerTasks = [];
         _continuedTasks = [];
@@ -61,6 +71,16 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
                 return result;
             });
 
+        _taskCounter.Setup(x => x.Available())
+            .Returns(() => _available);
+
+        _estimator.Setup(x => x.EstimateDemand())
+            .ReturnsAsync(() => _estimate);
+
+        _shouldStart = true;
+        _tracker.SetupGet(x => x.ShouldStart)
+            .Returns(() => _shouldStart);
+
         _starter = CreateStarter();
     }
 
@@ -71,45 +91,114 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         _continuedTasks.Add(task);
     }
 
-
     [TestMethod]
-    [DataRow(0, 0, 0)]
-    [DataRow(1, 1, 1)]
-    [DataRow(1, 0, 0)]
-    [DataRow(2, 2, 2)]
-    [DataRow(2, 1, 1)]
-    [DataRow(2, 0, 0)]
-    public async Task Given_ShouldStart_And_Available_When_Start_Then_Result(int available, int estimate, int expectedResult)
+    [DataRow(true, 0, 0, 0)]
+    [DataRow(true, 1, 1, 1)]
+    [DataRow(true, 1, 0, 0)]
+    [DataRow(true, 2, 2, 2)]
+    [DataRow(true, 2, 1, 1)]
+    [DataRow(true, 2, 0, 0)]
+    [DataRow(false, 0, 0, 0)]
+    [DataRow(false, 1, 1, 0)]
+    [DataRow(false, 1, 0, 0)]
+    [DataRow(false, 2, 2, 0)]
+    [DataRow(false, 2, 1, 0)]
+    [DataRow(false, 2, 0, 0)]
+    public async Task Given_ShouldStart_And_Available_And_Estimate_When_Start_Then_ExpectedRunners(
+        bool shouldStart,
+        int available,
+        int estimate,
+        int expectedRunnerCount)
     {
-        _tracker.SetupGet(t => t.ShouldStart).Returns(true);
+        _available = available;
+        _estimate = estimate;
+        _shouldStart = shouldStart;
+        
+        await When_Start();
 
-        await When_Run(available, estimate);
-
-        Then_RunnersAreStarted(expectedResult);
-    }
-
-    [TestMethod]
-    [DataRow(0)]
-    [DataRow(1)]
-    [DataRow(2)]
-    public async Task Given_ShouldNotStart_And_Available_When_Start_Then_Result(int available)
-    {
-        _tracker.SetupGet(t => t.ShouldStart).Returns(false);
-        await When_Run(available, 1);
-        Then_RunnersAreStarted(0);
+        Then_RunnersAreStarted(expectedRunnerCount);
     }
 
     [TestMethod]
     public async Task Given_ZeroAvailability_When_Start_Then_EstimateNotInvoked()
     {
-        await When_Run(0, 1);
+        _available = 0;
+        _estimate = 1;
+        _shouldStart = true;
+        await When_Start();
         _estimator.Verify(x => x.EstimateDemand(), Times.Never);
     }
 
-    protected async Task When_Run(int available, int estimate)
+    [TestMethod]
+    public async Task Given_ShouldStart_And_Available_And_Estimate_When_Start_Then_DataAccessIsResetFirst()
     {
-        _taskCounter.Setup(x => x.Available()).Returns(available);
-        _estimator.Setup(x => x.EstimateDemand()).ReturnsAsync(estimate);
+        _available = 1;
+        _estimate = 1;
+        _shouldStart = true;
+        bool reconnected = false;
+        _dataAccess.Setup(x => x.Reconnect())
+            .Callback(() => reconnected = true);
+        _tracker.SetupGet(x => x.ShouldStart)
+            .Callback(() => Assert.IsTrue(reconnected))
+            .Returns(true);
+        _taskCounter.Setup(x => x.Available())
+            .Callback(() => Assert.IsTrue(reconnected))
+            .Returns(1);
+        _estimator.Setup(x => x.EstimateDemand())
+            .Callback(() => Assert.IsTrue(reconnected))
+            .ReturnsAsync(1);
+
+        await When_Start();
+
+        Assert.IsTrue(reconnected);
+    }
+
+    [TestMethod]
+    public async Task Given_DataAccessThrows_When_Start_Then_ResultIsEmpty()
+    {
+        _available = 1;
+        _estimate = 1;
+        _shouldStart = true; 
+        _dataAccess.Setup(x => x.Reconnect()).Throws<TestException>();
+        await When_Start();
+        Assert.AreEqual(0, _actualTasks.Count);
+    }
+
+    [TestMethod]
+    public async Task Given_TrackerThrows_When_Start_Then_ResultIsEmpty()
+    {
+        _available = 1;
+        _estimate = 1;
+        _shouldStart = true;
+        _tracker.SetupGet(x => x.ShouldStart).Throws<TestException>();
+        await When_Start();
+        Assert.AreEqual(0, _actualTasks.Count);
+    }
+
+    [TestMethod]
+    public async Task Given_CounterThrows_When_Start_Then_ResultIsEmpty()
+    {
+        _available = 1;
+        _estimate = 1;
+        _shouldStart = true;
+        _taskCounter.Setup(x => x.Available()).Throws<TestException>();
+        await When_Start();
+        Assert.AreEqual(0, _actualTasks.Count);
+    }
+
+    [TestMethod]
+    public async Task Given_EstimatorThrows_When_Start_Then_ResultIsEmpty()
+    {
+        _available = 1;
+        _estimate = 1;
+        _shouldStart = true;
+        _estimator.Setup(x => x.EstimateDemand()).Throws<TestException>();
+        await When_Start();
+        Assert.AreEqual(0, _actualTasks.Count);
+    }
+
+    protected async Task When_Start()
+    {
         _actualTasks = await _starter.Start(ContinueWith, _cts.Token);
         await Task.Delay(10); // give time for continuations
         Task.WaitAll([.. _runnerTasks]);

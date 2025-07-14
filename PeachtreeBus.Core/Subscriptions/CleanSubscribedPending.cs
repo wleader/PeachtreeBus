@@ -51,9 +51,11 @@ public class CleanSubscribedPendingRunner(
 public interface ICleanSubscribedPendingStarter : IStarter;
 
 public class CleanSubscribedPendingStarter(
+    ILogger<CleanSubscribedPendingStarter> log,
     IScopeFactory scopeFactory,
     ICleanSubscribedPendingTracker tracker,
     IScheduledTaskCounter counter,
-    IAlwaysOneEstimator estimator)
-    : Starter<ICleanSubscribedPendingRunner>(scopeFactory, tracker, counter, estimator)
+    IAlwaysOneEstimator estimator,
+    IBusDataAccess dataAccess)
+    : Starter<ICleanSubscribedPendingRunner>(log, scopeFactory, tracker, counter, estimator, dataAccess)
     , ICleanSubscribedPendingStarter;
