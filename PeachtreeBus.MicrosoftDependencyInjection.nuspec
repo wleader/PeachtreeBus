@@ -9,7 +9,7 @@
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>Microsoft DI Release</releaseNotes>
+        <releaseNotes>The Dependency Injection Scopes Release</releaseNotes>
         <description>
         PeachtreeBus.MicrosoftDependencyInjection is a package that contains extensions for integrating with Microsoft.Extensions.DependencyInjection.
         </description>
