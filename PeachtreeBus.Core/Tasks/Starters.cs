@@ -2,7 +2,6 @@
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,7 +9,7 @@ namespace PeachtreeBus.Tasks;
 
 public interface IStarters
 {
-    public Task<int> RunStarters(CancellationToken token);
+    public Task RunStarters(CancellationToken token);
 }
 
 public class Starters(
@@ -26,31 +25,28 @@ public class Starters(
     IProcessQueuedStarter processQueued)
     : IStarters
 {
-    public async Task<int> RunStarters(CancellationToken token)
+    public async Task RunStarters(CancellationToken token)
     {
-        int result = 0;
-        result += await RunStarter(updateSubscriptions, token);
-        result += await RunStarter(cleanSubscriptions, token);
-        result += await RunStarter(cleanSubscribedPending, token);
-        result += await RunStarter(cleanSubscribedCompleted, token);
-        result += await RunStarter(cleanSubscribedFailed, token);
-        result += await RunStarter(cleanQueueCompleted, token);
-        result += await RunStarter(cleanQueueFailed, token);
-        result += await RunStarter(processSubscribed, token);
-        result += await RunStarter(processQueued, token);
-        return result;
+        await TryRunStarter(updateSubscriptions, token);
+        await TryRunStarter(cleanSubscriptions, token);
+        await TryRunStarter(cleanSubscribedPending, token);
+        await TryRunStarter(cleanSubscribedCompleted, token);
+        await TryRunStarter(cleanSubscribedFailed, token);
+        await TryRunStarter(cleanQueueCompleted, token);
+        await TryRunStarter(cleanQueueFailed, token);
+        await TryRunStarter(processSubscribed, token);
+        await TryRunStarter(processQueued, token);
     }
 
-    private async Task<int> RunStarter(IStarter starter, CancellationToken token)
+    private async Task TryRunStarter(IStarter starter, CancellationToken token)
     {
         try
         {
-            return await starter.Start(token).ConfigureAwait(false);
+            await starter.Start(token).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             log.StarterException(starter.GetType(), ex);
-            return 0;
         }
     }
 }

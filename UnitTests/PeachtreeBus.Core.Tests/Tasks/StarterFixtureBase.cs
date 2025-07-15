@@ -30,7 +30,6 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     protected Mock<ICurrentTasks> _tasks = new();
 
     protected List<Task> _runnerTasks = default!;
-    protected int _actualStartCount;
     protected CancellationTokenSource _cts = default!;
     private bool _gotRunnerInstance;
 
@@ -108,7 +107,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         _available = available;
         _estimate = estimate;
         _shouldStart = shouldStart;
-        
+
         await When_Start();
 
         Then_RunnersAreStarted(expectedRunnerCount);
@@ -153,10 +152,10 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     {
         _available = 1;
         _estimate = 1;
-        _shouldStart = true; 
+        _shouldStart = true;
         _dataAccess.Setup(x => x.Reconnect()).Throws<TestException>();
         await When_Start();
-        Assert.AreEqual(0, _actualStartCount);
+        _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Never);
     }
 
     [TestMethod]
@@ -167,7 +166,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         _shouldStart = true;
         _tracker.SetupGet(x => x.ShouldStart).Throws<TestException>();
         await When_Start();
-        Assert.AreEqual(0, _actualStartCount);
+        _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Never);
     }
 
     [TestMethod]
@@ -178,7 +177,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         _shouldStart = true;
         _taskCounter.Setup(x => x.Available()).Throws<TestException>();
         await When_Start();
-        Assert.AreEqual(0, _actualStartCount);
+        _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Never);
     }
 
     [TestMethod]
@@ -189,12 +188,12 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         _shouldStart = true;
         _estimator.Setup(x => x.EstimateDemand()).Throws<TestException>();
         await When_Start();
-        Assert.AreEqual(0, _actualStartCount);
+        _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Never);
     }
 
     protected async Task When_Start()
     {
-        _actualStartCount = await _starter.Start(_cts.Token);
+        await _starter.Start(_cts.Token);
         await Task.Delay(10); // give time for continuations
         Task.WaitAll([.. _runnerTasks]);
     }
@@ -209,7 +208,6 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Exactly(runnerCount));
         _taskCounter.Verify(c => c.Increment(), Times.Exactly(runnerCount));
         _taskCounter.Verify(c => c.Decrement(), Times.Exactly(runnerCount));
-        Assert.AreEqual(runnerCount, _actualStartCount);
         _tasks.Verify(t => t.Add(It.IsAny<Task>()), Times.Exactly(runnerCount));
     }
 }

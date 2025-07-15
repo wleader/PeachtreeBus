@@ -21,7 +21,6 @@ public class StartersFixture
     private CancellationTokenSource _cts = default!;
 
     private readonly Dictionary<Type, object> _mocks = [];
-    private readonly Dictionary<Type,int> _startResults = [];
     private readonly List<Type> _invocationOrder = [];
 
     private static readonly List<Type> _expectedInvocationOrder =
@@ -50,7 +49,6 @@ public class StartersFixture
     [TestInitialize]
     public void Initialize()
     {
-        _startResults.Clear();
         _invocationOrder.Clear();
         _mocks.Clear();
         _log.Reset();
@@ -76,18 +74,11 @@ public class StartersFixture
         _invocationOrder.Add(typeof(T));
     }
 
-    private int GetResult<T>()
-    {
-        return _startResults.TryGetValue(typeof(T), out var result) ? result : 0;
-    }
-
     private Mock<T> SetupMock<T>() where T : class, IStarter
     {
-        _startResults[typeof(T)] = 1;
         var result = new Mock<T>();
         result.Setup(t => t.Start(It.IsAny<CancellationToken>()))
-            .Callback(AssertStartParameters<T>)
-            .ReturnsAsync(GetResult<T>);
+            .Callback(AssertStartParameters<T>);
         _mocks.Add(typeof(T), result);
         return result;
     }
@@ -127,31 +118,10 @@ public class StartersFixture
     {
         var ex = new TestException();
         mock.Setup(m => m.Start(It.IsAny<CancellationToken>()))
+            .Callback(() => _invocationOrder.Add(typeof(T)))
             .Throws(ex);
-        var actual = await _starters.RunStarters(_cts.Token);
+        await _starters.RunStarters(_cts.Token);
 
-        var expectedCount = GetStarterTypes.Count() - 1;
-        Assert.AreEqual(expectedCount, actual);
+        CollectionAssert.AreEqual(_expectedInvocationOrder, _invocationOrder);
     }
-
-    [TestMethod]
-    [DynamicData("GetStarterTypes")]
-    public async Task Given_StarterReturnsTasks_When_RunStarters_Then_ResultContainsTasks(Type type)
-    {
-        await RunMethodOnMock(type, nameof(Given_MockReturns_When_RunStarters_Then_ResultContainsTasks));
-    }
-
-    private async Task Given_MockReturns_When_RunStarters_Then_ResultContainsTasks<T>(Mock<T> mock)
-    where T : class, IStarter
-    {
-        mock.Setup(m => m.Start(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(2);
-        var actual = await _starters.RunStarters(_cts.Token);
-
-        // the othere starters all returned one, except this one that is being
-        // tested returned 2, the the count will have an extra 1.
-        var expectedCount = GetStarterTypes.Count() + 1;
-        Assert.AreEqual(expectedCount, actual);
-    }
-
 }

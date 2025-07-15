@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +8,7 @@ namespace PeachtreeBus.Tasks;
 
 public interface IStarter
 {
-    Task<int> Start( CancellationToken cancellationToken);
+    Task Start(CancellationToken cancellationToken);
 }
 
 public abstract class Starter<TRunner>(
@@ -23,14 +22,13 @@ public abstract class Starter<TRunner>(
     : IStarter
     where TRunner : class, IRunner
 {
-    public async Task<int> Start( CancellationToken cancellationToken)
+    public async Task Start(CancellationToken cancellationToken)
     {
         var count = await DetermineRunnerCount().ConfigureAwait(false);
         for (int i = 0; i < count; i++)
         {
             AddRunner(cancellationToken);
         }
-        return count;
     }
 
     private async Task<int> DetermineRunnerCount()

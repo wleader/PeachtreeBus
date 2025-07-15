@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,14 +31,13 @@ public class TaskManager(
     {
         while (!token.IsCancellationRequested)
         {
-            // get any newly started tasks.
-            var startCount = await starters.RunStarters(token).ConfigureAwait(false);
+            await tasks.WhenAny().ConfigureAwait(false);
 
-            if (tasks.Count == 0 && startCount == 0)
-                tasks.Add(delayFactory
-                    .Delay(idleDelay, CancellationToken.None));
+            // the starters will add themselves to tasks.
+            await starters.RunStarters(token).ConfigureAwait(false);
 
-            await tasks.WhenAny(token).ConfigureAwait(false);
+            if (tasks.Count == 0)
+                tasks.Add(delayFactory.Delay(idleDelay, CancellationToken.None));
         }
         await tasks.WhenAll().ConfigureAwait(false);
     }

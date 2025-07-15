@@ -1,10 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Tasks;
@@ -35,7 +30,7 @@ public class CurrentTasksFixture
     }
 
     [TestMethod]
-    public async Task Given_AddedTask_When_TaskCompeltes_Then_CountDoesNotChange()
+    public async Task Given_AddedTask_When_TaskCompletes_Then_CountDoesNotChange()
     {
         var source = new TaskCompletionSource();
         _tasks.Add(source.Task);
@@ -49,24 +44,22 @@ public class CurrentTasksFixture
     [TestMethod]
     public async Task Given_AddedTaskCompleted_When_WhenAny_Then_CompletedTask()
     {
-        var cts = new CancellationTokenSource();
         var source = new TaskCompletionSource();
         _tasks.Add(source.Task);
         source.SetResult();
         await Task.Delay(10);
 
-        var actual = _tasks.WhenAny(cts.Token);
+        var actual = _tasks.WhenAny();
         Assert.AreEqual(Task.CompletedTask, actual);
     }
 
     [TestMethod]
     public async Task Given_AddedTaskNotCompleted_When_WhenAny_Then_NotCompletedTask()
     {
-        var cts = new CancellationTokenSource();
         var source = new TaskCompletionSource();
         _tasks.Add(source.Task);
 
-        var actual = _tasks.WhenAny(cts.Token);
+        var actual = _tasks.WhenAny();
         Assert.AreNotEqual(Task.CompletedTask, actual);
         source.SetResult();
         await actual;
@@ -75,13 +68,12 @@ public class CurrentTasksFixture
     [TestMethod]
     public async Task Given_MultipleAddedTask_And_WhenAny_When_TaskCompletes_Then_WhenAnyCompletes()
     {
-        var cts = new CancellationTokenSource();
         var source = new TaskCompletionSource();
-        _tasks.Add(source.Task); 
+        _tasks.Add(source.Task);
         var source2 = new TaskCompletionSource();
         _tasks.Add(source2.Task);
 
-        var actual = _tasks.WhenAny(cts.Token);
+        var actual = _tasks.WhenAny();
         Assert.IsFalse(actual.IsCompleted);
         source.SetResult();
         await Task.Delay(10);
@@ -111,7 +103,6 @@ public class CurrentTasksFixture
     [TestMethod]
     public async Task Given_MultipleAddedTasks_And_TasksCompleted_When_WhenAny_Then_CountDecreases()
     {
-        var cts = new CancellationTokenSource();
         var source = new TaskCompletionSource();
         _tasks.Add(source.Task);
         var source2 = new TaskCompletionSource();
@@ -123,7 +114,7 @@ public class CurrentTasksFixture
 
         Assert.AreEqual(2, _tasks.Count);
 
-        var whenAny = _tasks.WhenAny(cts.Token);
+        var whenAny = _tasks.WhenAny();
 
         Assert.AreEqual(0, _tasks.Count);
         await whenAny;
@@ -150,13 +141,9 @@ public class CurrentTasksFixture
     }
 
     [TestMethod]
-    public async Task Given_TokenIsCancelled_When_WhenAny_Then_ResultIsCompeltedTask()
+    public async Task Given_NoTasks_When_WhenAll_Then_ResultIsCompletedTask()
     {
-        var cts = new CancellationTokenSource();
-        var token = cts.Token;
-        cts.Cancel();
-
-        var actual = _tasks.WhenAny(token);
+        var actual = _tasks.WhenAll();
         Assert.AreEqual(Task.CompletedTask, actual);
         await actual;
     }
