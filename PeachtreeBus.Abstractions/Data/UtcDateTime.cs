@@ -14,7 +14,12 @@ public readonly record struct UtcDateTime
     private static readonly DateTime _uninitialized = new DateTime(0, DateTimeKind.Utc);
 
     private readonly DateTime _value;
-    public DateTime Value => _value == DateTime.MinValue ? _uninitialized : _value;
+
+    // the only way _value.Kind can be Unspecified is if the value was not initialized.
+    // this can happen during deserialization. If we detect this instead of returning
+    // default of DateTime.MinValue (which is unspecified), we return our own 
+    // uninitialized value of DateTime.MinValue (0 ticks) but with a kind of UTC.
+    public DateTime Value => _value.Kind == DateTimeKind.Unspecified ? _uninitialized : _value;
 
     public UtcDateTime(DateTime value)
     {
