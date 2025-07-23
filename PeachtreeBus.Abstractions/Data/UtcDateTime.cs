@@ -11,14 +11,16 @@ namespace PeachtreeBus.Data;
 [JsonConverter(typeof(UtcDateTimeJsonConverter))]
 public readonly record struct UtcDateTime
 {
-    public DateTime Value { get; }
+    private static readonly DateTime _uninitialized = new DateTime(0, DateTimeKind.Utc);
+
+    private readonly DateTime _value;
+    public DateTime Value => _value == DateTime.MinValue ? _uninitialized : _value;
 
     public UtcDateTime(DateTime value)
     {
         if (value.Kind == DateTimeKind.Unspecified)
             throw new ArgumentException($"The Kind property of value cannot be unspecified.", nameof(value));
-
-        Value = value.ToUniversalTime();
+        _value = value.ToUniversalTime();
     }
 
     public override string ToString() => Value.ToString();
