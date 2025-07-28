@@ -20,8 +20,8 @@ GO
 ALTER TABLE [PeachtreeBus].[QueueName_Pending] ADD CONSTRAINT DF_QueueName_Pending_Retries DEFAULT ((0)) FOR [Retries]
 GO
 
-CREATE INDEX IX_SampleQueue_Pending_GetNext ON [PeachtreeBus].[QueueName_Pending] ([Priority]) INCLUDE ([NotBefore])
+CREATE INDEX IX_QueueName_Pending_GetNext ON [PeachtreeBus].[QueueName_Pending] ([Priority]) INCLUDE ([NotBefore])
 GO
 
-CREATE INDEX IX_SampleQueue_Pending_Enqueued ON [PeachtreeBus].[QueueName_Pending] ([Enqueued] DESC)
+CREATE INDEX IX_QueueName_Pending_Enqueued ON [PeachtreeBus].[QueueName_Pending] ([Enqueued] DESC)
 GO
