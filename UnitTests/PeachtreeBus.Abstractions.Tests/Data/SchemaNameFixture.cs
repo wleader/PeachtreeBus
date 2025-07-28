@@ -25,9 +25,11 @@ public class SchemaNameFixture
     }
 
     [TestMethod]
-    public void Given_Value_When_New_Then_Result()
+    [DataRow("SchemaName")]
+    [DataRow("Schema_Name")]
+    public void Given_AllowedValue_When_New_Then_Result(string value)
     {
-        Assert.AreEqual("SchemaName", Create("SchemaName").Value);
+        Assert.AreEqual(value, Create(value).Value);
     }
 
     [TestMethod]
