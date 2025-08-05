@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus.EntityFrameworkCore</id>
-        <version>0.12.1</version>
+        <version>0.12.2</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>0.12.1 Underscore Schema Names</releaseNotes>
+        <releaseNotes>0.12.2 The IBusContextAccessor and IMessageSssion release</releaseNotes>
         <description>
             PeachtreeBus.EntityFrameworkCore is a package that contains classes and extensions for integrating PeachtreeBus's DatabaseSharing with EntityFrameworkCore.
         </description>
@@ -17,9 +17,9 @@
         <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
         <dependencies>
             <group targetFramework="net8.0">
-            <dependency id="PeachtreeBus.Core" version="0.12.1" />
-            <dependency id="Microsoft.EntityFrameworkCore" version="9.0.3" />
-            <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="9.0.3" />
+            <dependency id="PeachtreeBus.Core" version="0.12.2" />
+            <dependency id="Microsoft.EntityFrameworkCore" version="9.0.5" />
+            <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="9.0.5" />
             </group>
         </dependencies>
         <readme>docs\README.md</readme>
