@@ -51,6 +51,8 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
     public void When_GetInstances_Then_ResultIsNotNull()
     {
         using var accessor = BuildAccessor();
+        Assert.IsNotNull(accessor.GetService<IMessagingSession>());
+        Assert.IsNotNull(accessor.GetService<IBusContextAccessor>());
         Assert.IsNotNull(accessor.GetService<IBusConfiguration>());
         Assert.IsNotNull(accessor.GetService<IMessagingTaskCounter>());
         Assert.IsNotNull(accessor.GetService<IScheduledTaskCounter>());
