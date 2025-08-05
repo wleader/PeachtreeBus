@@ -19,7 +19,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         private Mock<ISubscribedPipeline> _pipeline = default!;
         private SubscribedPipelineInvoker _invoker = default!;
         private SubscribedContext _context = default!;
-        private BusContextAccessor _contextAccessor = new();
+        private readonly BusContextAccessor _contextAccessor = new();
 
         [TestInitialize]
         public void Init()

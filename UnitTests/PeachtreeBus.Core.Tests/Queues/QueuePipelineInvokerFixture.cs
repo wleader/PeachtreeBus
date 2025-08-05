@@ -19,7 +19,7 @@ namespace PeachtreeBus.Core.Tests.Queues
         private Mock<IQueuePipeline> _pipeline = default!;
         private QueuePipelineInvoker _invoker = default!;
         private QueueContext _context = default!;
-        private BusContextAccessor _contextAccessor = new();
+        private readonly BusContextAccessor _contextAccessor = new();
 
 
         [TestInitialize]
