@@ -42,6 +42,8 @@ public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipel
 
         ArgumentNullException.ThrowIfNull(context, nameof(context));
 
+        BusContextAccessor.Set(context);
+
         // prevent the scope for the message from disposing our DB object.
         sharedDatabase.DenyDispose = true;
 

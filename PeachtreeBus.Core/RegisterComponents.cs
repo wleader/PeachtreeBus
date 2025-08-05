@@ -37,6 +37,7 @@ public class RegisterComponents(IRegistrationProvider provider)
 
     private void RegisterRequired()
     {
+        provider.RegisterSingleton<IBusContextAccessor, BusContextAccessor>();
         provider.RegisterSingleton<IMessagingTaskCounter, MessagingTaskCounter>();
         provider.RegisterSingleton<IScheduledTaskCounter, ScheduledTaskCounter>();
         provider.RegisterScoped<ITaskManager, TaskManager>();
