@@ -42,7 +42,7 @@ public class Starters(
     {
         try
         {
-            await starter.Start(token).ConfigureAwait(false);
+            await starter.Start(token);
         }
         catch (Exception ex)
         {

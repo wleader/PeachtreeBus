@@ -12,7 +12,7 @@ public class PeachtreeBusHostedService(
     : IHostedService, IDisposable
 {
     private CancellationTokenSource _cts = default!;
-    private ConfiguredTaskAwaitable _managerTask = default!;
+    private Task _managerTask = default!;
     private IServiceProviderAccessor? _accessor = default;
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class PeachtreeBusHostedService(
         startupRunner.RunStartupTasks();
 
         var manager = _accessor.GetRequiredService<ITaskManager>();
-        _managerTask = manager.Run(_cts.Token).ConfigureAwait(false);
+        _managerTask = manager.Run(_cts.Token);
 
         return Task.CompletedTask;
     }

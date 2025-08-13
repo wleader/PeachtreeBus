@@ -31,7 +31,6 @@ public readonly record struct UtcDateTime
     public override string ToString() => Value.ToString();
     public string ToString(string? format) => Value.ToString(format);
 
-
     public static implicit operator DateTime(UtcDateTime utcDateTime) => utcDateTime.Value;
     public static implicit operator UtcDateTime(DateTime dateTime) => new(dateTime);
 

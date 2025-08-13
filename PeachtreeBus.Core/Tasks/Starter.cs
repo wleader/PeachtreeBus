@@ -58,8 +58,7 @@ public abstract class Starter<TRunner>(
         tracker.Start();
         currentTasks.Add(Task.Run(
                 () => runner.RunRepeatedly(cancellationToken)
-                            .ContinueWith((_) => WhenRunnerCompletes(accessor), CancellationToken.None)
-                            .ConfigureAwait(false),
+                            .ContinueWith((_) => WhenRunnerCompletes(accessor), CancellationToken.None),
                 CancellationToken.None));
     }
 
