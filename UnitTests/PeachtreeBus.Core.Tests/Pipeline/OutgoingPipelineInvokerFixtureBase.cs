@@ -21,6 +21,7 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
     protected TInternalContext _context = default!;
     protected Mock<TFactory> _factory = new();
     protected Mock<TPipeline> _pipeline = new();
+    protected BusContextAccessor _contextAccessor = new();
 
     [TestInitialize]
     public void Initialize()
@@ -71,6 +72,7 @@ public abstract class OutgoingPipelineInvokerFixtureBase<TInvoker, TInternalCont
             .Callback((TContext c) =>
             {
                 Assert.AreSame(c, _context);
+                Assert.AreSame(c, _contextAccessor.OutgoingContext);
                 Assert.AreSame(_accessor.ServiceProvider, c.ServiceProvider);
             });
 

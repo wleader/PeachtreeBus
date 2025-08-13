@@ -19,6 +19,7 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         private Mock<ISubscribedPipeline> _pipeline = default!;
         private SubscribedPipelineInvoker _invoker = default!;
         private SubscribedContext _context = default!;
+        private readonly BusContextAccessor _contextAccessor = new();
 
         [TestInitialize]
         public void Init()
@@ -48,9 +49,17 @@ namespace PeachtreeBus.Core.Tests.Subscriptions
         [TestMethod]
         public async Task When_Invoked_Then_PipelineIsInvoked()
         {
-
             _pipeline.Setup(p => p.Invoke(It.IsAny<ISubscribedContext>()))
                 .Callback<ISubscribedContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
+
+            await _invoker.Invoke(_context);
+        }
+
+        [TestMethod]
+        public async Task When_Invoked_Then_ContextAccessorIsSet()
+        {
+            _pipeline.Setup(p => p.Invoke(It.IsAny<ISubscribedContext>()))
+                .Callback<ISubscribedContext>(c => Assert.IsTrue(ReferenceEquals(c, _contextAccessor.SubscribedContext)));
 
             await _invoker.Invoke(_context);
         }

@@ -21,6 +21,8 @@ public abstract class OutgoingPipelineInvoker<TInternalContext, TContext, TPipel
 
         ArgumentNullException.ThrowIfNull(context, nameof(context));
 
+        BusContextAccessor.Set(context);
+
         context.ServiceProvider = serviceProviderAccessor.ServiceProvider;
 
         // when we create the pipeline factory, it will re-use the shared DB connection,

@@ -19,6 +19,8 @@ namespace PeachtreeBus.Core.Tests.Queues
         private Mock<IQueuePipeline> _pipeline = default!;
         private QueuePipelineInvoker _invoker = default!;
         private QueueContext _context = default!;
+        private readonly BusContextAccessor _contextAccessor = new();
+
 
         [TestInitialize]
         public void Init()
@@ -47,9 +49,19 @@ namespace PeachtreeBus.Core.Tests.Queues
         [TestMethod]
         public async Task When_Invoked_Then_PipelineIsInvoked()
         {
-
             _pipeline.Setup(p => p.Invoke(It.IsAny<IQueueContext>()))
                 .Callback<IQueueContext>(c => Assert.IsTrue(ReferenceEquals(c, _context)));
+
+            await _invoker.Invoke(_context);
+        }
+
+        [TestMethod]
+        public async Task When_Invoked_Then_ContextAccessorIsSet()
+        {
+            BusContextAccessor.Set<IQueueContext>(null);
+
+            _pipeline.Setup(p => p.Invoke(It.IsAny<IQueueContext>()))
+                .Callback<IQueueContext>(c => Assert.IsTrue(ReferenceEquals(c, _contextAccessor.QueueContext)));
 
             await _invoker.Invoke(_context);
         }

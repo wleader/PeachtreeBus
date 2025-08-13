@@ -13,12 +13,12 @@ namespace PeachtreeBus.Core.Tests.Telemetry;
 public class MetersFixture
 {
     private Meters _meters = default!;
-    private List<Instrument> _assertedUnchangedInstruments = [];
+    private List<Instrument> _assertedInstruments = [];
 
     [TestInitialize]
     public void TestInitialize()
     {
-        _assertedUnchangedInstruments = [];
+        _assertedInstruments = [];
         _meters = new();
     }
 
@@ -40,7 +40,7 @@ public class MetersFixture
             BindingFlags.Static);
 
         // return true if the type inherits from Instrument.
-        static bool IsInstrument(Type type) => 
+        static bool IsInstrument(Type type) =>
             typeof(Instrument).IsAssignableFrom(type);
 
         var instrumentCount = fields
@@ -70,7 +70,7 @@ public class MetersFixture
             "peachtreebus.client.blockedsaga.messsages", "messages", typeof(long), ChangeVersionMessage);
 
         // if this fails, add or remove above as needed.
-        Assert.AreEqual(instrumentCount, _assertedUnchangedInstruments.Distinct().Count(),
+        Assert.AreEqual(instrumentCount, _assertedInstruments.Distinct().Count(),
             "An Instrument was added or removed, but the test was not updated.");
     }
 
@@ -80,9 +80,9 @@ public class MetersFixture
         string expectedUnit,
         Type expectedType,
         string? failMessage = null)
-        where T: struct
+        where T : struct
     {
-        _assertedUnchangedInstruments.Add(instrument);
+        _assertedInstruments.Add(instrument);
         Assert.AreEqual(expectedName, instrument.Name, failMessage);
         Assert.AreEqual(expectedUnit, instrument.Unit, failMessage);
         Assert.AreEqual(expectedType, typeof(T), failMessage);
@@ -120,7 +120,7 @@ public class MetersFixture
 
     [TestMethod]
     public void When_FailMessage_Then_FailedMessageIncrements()
-    { 
+    {
         AssertMeasurement(Meters.FailedMessageCount, _meters.FailMessage, 1);
     }
 
@@ -142,7 +142,7 @@ public class MetersFixture
     }
 
     [TestMethod]
-    [DataRow(-1, DisplayName =  "-1")]
+    [DataRow(-1, DisplayName = "-1")]
     [DataRow(long.MinValue, DisplayName = "long.MinValue")]
     public void Given_NegativeCount_When_SentMessage_Then_Throws(long value)
     {
