@@ -2,11 +2,10 @@
 
 CREATE TABLE [PeachtreeBus].[Subscriptions]
 (
-	[Id] BIGINT NOT NULL IDENTITY,
+	[Id] BIGINT CONSTRAINT PK_Subscriptions_Id PRIMARY KEY NOT NULL IDENTITY,
 	[SubscriberId] UNIQUEIDENTIFIER NOT NULL,
 	[Topic] NVARCHAR(128) NOT NULL,
 	[ValidUntil] DATETIME2 NOT NULL,
-	CONSTRAINT PK_Subscriptions_Id PRIMARY KEY ([Id]),
 	CONSTRAINT AK_SubscriberTopic UNIQUE([SubscriberId], [Topic])
 )
 GO

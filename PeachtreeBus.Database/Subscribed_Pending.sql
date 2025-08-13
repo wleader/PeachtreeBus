@@ -3,7 +3,7 @@
 
 CREATE TABLE [PeachtreeBus].[Subscribed_Pending]
 (
-    [Id] BIGINT NOT NULL IDENTITY,
+    [Id] BIGINT CONSTRAINT PK_Subscribed_Pending_Id PRIMARY KEY NOT NULL IDENTITY,
     [SubscriberId] UNIQUEIDENTIFIER NOT NULL,
     [Topic] NVARCHAR(128) NOT NULL,
     [ValidUntil] DATETIME2 NOT NULL,
@@ -13,14 +13,10 @@ CREATE TABLE [PeachtreeBus].[Subscribed_Pending]
     [Enqueued] DATETIME2 NOT NULL,
     [Completed] DATETIME2 NULL,
     [Failed] DATETIME2 NULL,
-    [Retries] TINYINT NOT NULL,
+    [Retries] TINYINT CONSTRAINT DF_Subscribed_Pending_Retries DEFAULT ((0)) NOT NULL,
     [Headers] NVARCHAR(MAX) NOT NULL,
-    [Body] NVARCHAR(MAX) NOT NULL,
-    CONSTRAINT PK_Subscribed_Pending_Id PRIMARY KEY([Id])
+    [Body] NVARCHAR(MAX) NOT NULL
 )
-GO
-
-ALTER TABLE [PeachtreeBus].[Subscribed_Pending] ADD CONSTRAINT DF_Subscribed_Pending_Retries DEFAULT ((0)) FOR [Retries]
 GO
 
 CREATE INDEX IX_Subscribed_Pending_NextMessage ON [PeachtreeBus].[Subscribed_Pending] ([SubscriberId], [Priority] DESC) INCLUDE ([NotBefore])

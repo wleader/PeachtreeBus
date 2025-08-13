@@ -3,21 +3,17 @@
 
 CREATE TABLE [PeachtreeBus].[QueueName_Pending]
 (
-    [Id] BIGINT NOT NULL IDENTITY,
+    [Id] BIGINT CONSTRAINT PK_QueueName_Pending_Id PRIMARY KEY NOT NULL IDENTITY,
     [MessageId] UNIQUEIDENTIFIER NOT NULL,
     [Priority] INT NOT NULL,
     [NotBefore] DATETIME2 NOT NULL,
     [Enqueued] DATETIME2 NOT NULL,
     [Completed] DATETIME2 NULL,
     [Failed] DATETIME2 NULL,
-    [Retries] TINYINT NOT NULL,
+    [Retries] TINYINT CONSTRAINT DF_QueueName_Pending_Retries DEFAULT ((0)) NOT NULL,
     [Headers] NVARCHAR(MAX) NOT NULL,
-    [Body] NVARCHAR(MAX) NOT NULL,
-    CONSTRAINT PK_QueueName_Pending_Id PRIMARY KEY ([Id])
+    [Body] NVARCHAR(MAX) NOT NULL
 )
-GO
-
-ALTER TABLE [PeachtreeBus].[QueueName_Pending] ADD CONSTRAINT DF_QueueName_Pending_Retries DEFAULT ((0)) FOR [Retries]
 GO
 
 CREATE INDEX IX_QueueName_Pending_GetNext ON [PeachtreeBus].[QueueName_Pending] ([Priority]) INCLUDE ([NotBefore])
