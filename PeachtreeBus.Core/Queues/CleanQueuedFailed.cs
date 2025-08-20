@@ -35,8 +35,8 @@ public class CleanQueuedFailedTask(
     public async Task<bool> RunOne()
     {
         var config = _config.QueueConfiguration;
-        if (config is null) return false;
-        var olderThan = _clock.UtcNow.Subtract(config.CleanCompleteAge);
+        if (config is null || config.CleanFailed == false) return false;
+        var olderThan = _clock.UtcNow.Subtract(config.CleanFailedAge);
         var rows = await _dataAccess.CleanQueueFailed(config.QueueName, olderThan, config.CleanMaxRows);
         return rows != 0;
     }

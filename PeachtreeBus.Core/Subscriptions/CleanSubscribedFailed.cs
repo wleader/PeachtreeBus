@@ -35,7 +35,7 @@ public class CleanSubscribedFailedTask(
     public async Task<bool> RunOne()
     {
         var config = _busConfiguration.SubscriptionConfiguration;
-        if (config is null) return false;
+        if (config is null || config.CleanFailed == false) return false;
         var olderThan = _clock.UtcNow.Subtract(config.CleanFailedAge);
         var rows = await _dataAccess.CleanSubscribedFailed(olderThan, config.CleanMaxRows);
         return rows > 0;

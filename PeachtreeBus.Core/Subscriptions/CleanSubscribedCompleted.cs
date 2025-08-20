@@ -35,7 +35,7 @@ public class CleanSubscribedCompletedTask(
     public async Task<bool> RunOne()
     {
         var config = _busConfiguration.SubscriptionConfiguration;
-        if (config is null) return false;
+        if (config is null || config.CleanCompleted == false) return false;
         var olderThan = _clock.UtcNow.Subtract(config.CleanCompleteAge);
         var rows = await _dataAccess.CleanSubscribedCompleted(olderThan, config.CleanMaxRows);
         return rows > 0;

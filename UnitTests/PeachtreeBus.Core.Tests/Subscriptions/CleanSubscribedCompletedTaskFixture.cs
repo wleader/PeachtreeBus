@@ -2,6 +2,7 @@
 using Moq;
 using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
+using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System.Threading.Tasks;
 
@@ -37,14 +38,27 @@ public class CleanSubscribedCompletedTaskFixture
     }
 
     [TestMethod]
+    public async Task Given_CleanCompletedFalse_When_Run_Then_ReturnsFalse_and_DataAccessNotInvoked()
+    {
+        var queueConfig = _busConfiguration.Given_SubscriptionConfiguration();
+        queueConfig.CleanCompleted = false;
+
+        Assert.IsFalse(await _task.RunOne());
+        _dataAccess.Verify(d => d.CleanSubscribedCompleted(
+            It.IsAny<UtcDateTime>(),
+            It.IsAny<int>()), Times.Never);
+        _dataAccess.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
     [DataRow(0, false)]
     [DataRow(1, true)]
     [DataRow(100, true)]
     [DataRow(1000, true)]
     public async Task Given_Configuration_And_RowsCleaned_When_Run_Then_Result(int rowsCleaned, bool expectedResult)
     {
-        _busConfiguration.Given_SubscriptionConfiguration();
-        var c = _busConfiguration.Object.SubscriptionConfiguration;
+        var c = _busConfiguration.Given_SubscriptionConfiguration();
+        Assert.AreNotEqual(c.CleanCompleteAge, c.CleanFailedAge);
 
         _dataAccess.Setup(d => d.CleanSubscribedCompleted(
             It.IsAny<UtcDateTime>(), It.IsAny<int>()))

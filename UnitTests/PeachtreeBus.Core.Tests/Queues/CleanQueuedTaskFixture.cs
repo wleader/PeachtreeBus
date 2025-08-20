@@ -37,14 +37,29 @@ public class CleanQueuedCompletedTaskFixture
     }
 
     [TestMethod]
+    public async Task Given_CleanCompletedFalse_When_Run_Then_ReturnsFalse_and_DataAccessNotInvoked()
+    {
+        var queueConfig = _busConfiguration.Given_QueueConfiguration();
+        queueConfig.CleanCompleted = false;
+
+        Assert.IsFalse(await _task.RunOne());
+        _dataAccess.Verify(d => d.CleanQueueCompleted(
+            It.IsAny<QueueName>(),
+            It.IsAny<UtcDateTime>(),
+            It.IsAny<int>()), Times.Never);
+        _dataAccess.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
     [DataRow(0, false)]
     [DataRow(1, true)]
     [DataRow(100, true)]
     [DataRow(1000, true)]
     public async Task Given_Configuration_And_RowsCleaned_When_Run_Then_Result(int rowsCleaned, bool expectedResult)
     {
-        _busConfiguration.Given_QueueConfiguration();
-        var c = _busConfiguration.Object.QueueConfiguration!;
+        var c = _busConfiguration.Given_QueueConfiguration();
+        // check that the ages are different to make sure the older than is calculated from the correct configuration.
+        Assert.AreNotEqual(c.CleanCompleteAge, c.CleanFailedAge);
 
         _dataAccess.Setup(d => d.CleanQueueCompleted(
             c.QueueName, It.IsAny<UtcDateTime>(), It.IsAny<int>()))

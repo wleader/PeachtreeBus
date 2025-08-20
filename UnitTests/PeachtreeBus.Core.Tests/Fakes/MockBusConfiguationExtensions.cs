@@ -12,7 +12,7 @@ public static class MockBusConfiguationExtensions
     public static QueueConfiguration Given_QueueConfiguration(this Mock<IBusConfiguration> config)
     {
         var result = TestData.CreateQueueConfiguration();
-        config.SetupGet(c => c.QueueConfiguration).Returns(result);
+        config.SetupGet(c => c.QueueConfiguration).Returns(() => result);
         return result;
     }
 
@@ -24,7 +24,7 @@ public static class MockBusConfiguationExtensions
     public static SubscriptionConfiguration Given_SubscriptionConfiguration(this Mock<IBusConfiguration> config)
     {
         var result = TestData.CreateSubscriptionConfiguration();
-        config.SetupGet(c => c.SubscriptionConfiguration).Returns(result);
+        config.SetupGet(c => c.SubscriptionConfiguration).Returns(() => result);
         return result;
     }
 
