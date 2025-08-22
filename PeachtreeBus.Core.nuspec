@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PeachtreeBus.Core</id>
-        <version>0.12.3</version>
+        <version>0.12.4</version>
         <authors>William Leader</authors>
         <owners>wleader</owners>
         <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
         <license type="expression">MIT</license>
         <icon>icon.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <releaseNotes>0.12.3 Fixes to Cleanup Scheduling</releaseNotes>
+        <releaseNotes>0.12.4 Circuit Breakers on Database Connections</releaseNotes>
         <description>
         PeachtreeBus is intended to be a light weight message bus system focused on integration with SQL server for its transport and persistence, while playing nicely with applications built using Inversion of Control and Dependency Injection.
         </description>
@@ -22,7 +22,7 @@
             <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="9.0.5" />
             <dependency id="Microsoft.Data.SqlClient" version="6.0.1" />
             <dependency id="System.Text.Json" version="9.0.5" />
-            <dependency id="PeachtreeBus.Abstractions" version="0.12.3" />
+            <dependency id="PeachtreeBus.Abstractions" version="0.12.4" />
             </group>
         </dependencies>
         <readme>docs\README.md</readme>

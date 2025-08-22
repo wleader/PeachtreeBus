@@ -2,9 +2,9 @@
     <PropertyGroup>
         <TargetFrameworks>net8.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
-        <Version>0.12.3</Version>
-        <FileVersion>0.12.3</FileVersion>
-        <AssemblyVersion>0.12.3.0</AssemblyVersion>
+        <Version>0.12.4</Version>
+        <FileVersion>0.12.4</FileVersion>
+        <AssemblyVersion>0.12.4.0</AssemblyVersion>
         <Copyright>2025 William Leader</Copyright>
         <Product>PeachtreeBus</Product>
         <Nullable>enable</Nullable>
