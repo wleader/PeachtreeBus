@@ -1,9 +1,11 @@
-﻿using Dapper;
+﻿using Castle.Components.DictionaryAdapter.Xml;
+using Dapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Errors;
 using System;
 
 namespace PeachtreeBus.Core.Tests.Data;
@@ -12,29 +14,32 @@ public abstract class DapperDataAccess_FixtureBase
 {
     protected DapperDataAccess _dataAccess = default!;
     private readonly Mock<IBusConfiguration> _busConfiguration = new();
-    private readonly Mock<IDapperTypesHandler> _dapperTypes = new();
     private readonly Mock<IDapperMethods> _dapperMethods = new();
     protected readonly Mock<ISharedDatabase> _sharedDb = new();
+    protected readonly FakeBreakerProvider _breakerProvider = new();
+
+    private BreakerKey _breakerKey;
 
     [TestInitialize]
     public void Initialize()
     {
-        _dapperTypes.Reset();
         _busConfiguration.Reset();
         _dapperMethods.Reset();
         _sharedDb.Reset();
 
-        _dapperTypes.Setup(t => t.Configure())
-            .Returns(true);
-
         _busConfiguration.SetupGet(c => c.Schema)
             .Returns(new SchemaName("PBus"));
+        _busConfiguration.SetupGet(c => c.ConnectionString)
+            .Returns("CONNECTIONSTRING");
+
+        _breakerKey = new(BreakerType.DatabaseConnection, "CONNECTIONSTRING");
 
         _dataAccess = new(
             _sharedDb.Object,
             _busConfiguration.Object,
             FakeLog.Create<DapperDataAccess>(),
-            _dapperMethods.Object);
+            _dapperMethods.Object,
+            _breakerProvider);
     }
 
     protected void AssertStatementContains(string expected)

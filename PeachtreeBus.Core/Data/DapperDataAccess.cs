@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
@@ -25,12 +26,16 @@ namespace PeachtreeBus.Data
         ISharedDatabase database,
         IBusConfiguration configuration,
         ILogger<DapperDataAccess> log,
-        IDapperMethods dapper)
+        IDapperMethods dapper,
+        ICircuitBreakerProvider breakerProvider)
         : IBusDataAccess
     {
         private readonly ISharedDatabase _database = database;
         private readonly ILogger<DapperDataAccess> _log = log;
         private readonly IBusConfiguration _configuration = configuration;
+
+        private ICircuitBreaker? _breaker;
+        private ICircuitBreaker Breaker => _breaker ??= breakerProvider.GetBreaker(breakerProvider.BusDataConnectionKey);
 
         /// <summary>
         /// Adds a queue message to the queue's pending table.
@@ -816,7 +821,7 @@ namespace PeachtreeBus.Data
         public void Reconnect()
         {
             using var _ = StartActivity();
-            _database.Reconnect();
+            Breaker.Guard(_database.Reconnect);
         }
     }
 }

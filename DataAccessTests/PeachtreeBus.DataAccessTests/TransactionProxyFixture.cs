@@ -91,6 +91,7 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
             SharedDB,
             Configuration.Object,
             MockLog.Object,
-            DapperMethods);
+            DapperMethods,
+            FakeBreakerProvider);
     }
 }

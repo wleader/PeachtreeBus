@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests.Infrastructure;
 using PeachtreeBus.DatabaseSharing;
@@ -51,7 +52,7 @@ public abstract class FixtureBase<TAccess> : TestConfig
     /// </summary>
     protected Mock<ILogger<TAccess>> MockLog = default!;
 
-
+    protected FakeBreakerProvider FakeBreakerProvider = new();
 
     /// <summary>
     /// Performs tasks that happen before each test.

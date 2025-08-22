@@ -122,13 +122,13 @@
     <Namespace name="PeachtreeBus.Errors" namespaceId="5">
         <Class name="CircuitBreaker" classId="3">
             <Event name="Cleared" level="Warning" exception="false" eventId="1">
-                The CircuitBreaker '{FriendlyName:string} is cleared.
+                The Circuit Breaker '{FriendlyName:string}' is cleared.
             </Event>
             <Event name="Armed" level="Warning" exception="false" eventId="2">
-                The CircuitBreaker '{FriendlyName:string} is armed.
+                The Circuit Breaker '{FriendlyName:string}' is armed.
             </Event>
             <Event name="Faulted" level="Warning" exception="false" eventId="3">
-                The CircuitBreaker '{FriendlyName:string} is faulted.
+                The Circuit Breaker '{FriendlyName:string}' is faulted.
             </Event>
         </Class>
     </Namespace>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Tasks;
 using System;
@@ -15,11 +16,12 @@ public class CircuitBreakerFixture
     private CircuitBreaker _breaker = default!;
     private readonly Mock<ILogger<CircuitBreaker>> _log = new();
     private readonly Mock<IDelayFactory> _delayFactory = new();
-    private readonly TaskCompletionSource _progressToFaulted = new();
+    private readonly FakeClock _clock = new();
 
     private readonly CircuitBreakerConfiguraton _config =
-        new("DefaultBreakerKey", "Default Breaker")
+        new()
         {
+            FriendlyName = "Default Breaker",
             ArmedDelay = TimeSpan.FromMilliseconds(10),
             FaultedDelay = TimeSpan.FromMilliseconds(50),
             // TimeToFaulted must be different from the other two or the tests will break.
@@ -36,12 +38,10 @@ public class CircuitBreakerFixture
     {
         _log.Reset();
         _delayFactory.Reset();
+        _clock.Reset();
 
         _delayFactory.Setup(d => d.Delay(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
-            .Returns((TimeSpan s, CancellationToken _) =>
-                s == _config.TimeToFaulted
-                    ? _progressToFaulted.Task
-                    : Task.CompletedTask);
+            .Returns((TimeSpan s, CancellationToken _) => Task.CompletedTask);
 
         // because the _delay factory above matches time to faulted, if its not
         // different from the other two, the tests are broken.
@@ -51,6 +51,7 @@ public class CircuitBreakerFixture
         _breaker = new(
             _delayFactory.Object,
             _log.Object,
+            _clock,
             _config);
     }
 
@@ -67,7 +68,7 @@ public class CircuitBreakerFixture
     public async Task Given_ArmBreaker_When_Guard_Then_DelayFactoryIsCalledCorrectly()
     {
         var tokenSource = new CancellationTokenSource();
-        await ArmBreaker();
+        await CauseFault();
         await _breaker.Guard(Cancellable, tokenSource.Token);
         _delayFactory.Verify(f => f.Delay(_config.ArmedDelay, tokenSource.Token), Times.Once);
     }
@@ -80,6 +81,25 @@ public class CircuitBreakerFixture
         _delayFactory.Invocations.Clear();
         await _breaker.Guard(Cancellable, tokenSource.Token);
         _delayFactory.Verify(f => f.Delay(TimeSpan.Zero, tokenSource.Token), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Given_ClearBreaker_When_GuardAction_Then_DelayFactoryIsCalledCorrectly()
+    {
+        await ClearBreaker();
+        _delayFactory.Invocations.Clear();
+        _breaker.Guard(() => { });
+        _delayFactory.Verify(f => f.Delay(TimeSpan.Zero, default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Given_ClearBreaker_And_ActionThrows_When_GuardAction_Then_Throws()
+    {
+        await ClearBreaker();
+        var ex = new Exception();
+        var action = new Action(() => throw ex);
+        var actual = Assert.ThrowsExactly<Exception>(() => _breaker.Guard(action));
+        Assert.AreSame(ex, actual);
     }
 
     [TestMethod]
@@ -173,14 +193,14 @@ public class CircuitBreakerFixture
     [TestMethod]
     public async Task Given_ArmBreaker_Then_BreakerIsArmed()
     {
-        await ArmBreaker();
+        await CauseFault();
         Then_BreakerIsArmed();
     }
 
     [TestMethod]
     public async Task Given_ArmBreaker_When_ClearBreaker_Then_BreakerIsCleared()
     {
-        await ArmBreaker();
+        await CauseFault();
         await ClearBreaker();
         Then_BreakerIsCleared();
     }
@@ -207,22 +227,29 @@ public class CircuitBreakerFixture
         // TimeToFaulted, it will go to a Faulted state.
         // if a success happens before then, the after TimeToFaulted,
         // it should not go into a the faulted state.
-        await ArmBreaker();
+        await CauseFault();
         await ClearBreaker();
-        _progressToFaulted.SetResult();
+        //_progressToFaulted.SetResult();
         Then_BreakerIsCleared();
     }
 
     [TestMethod]
     public async Task Given_MultipleFaults_Then_TimeToFaultIsFromFirstTime()
     {
-        await ArmBreaker();
-        _delayFactory.Verify(f => f.Delay(_config.TimeToFaulted, CancellationToken.None), Times.Once);
-        await ArmBreaker();
-        _delayFactory.Verify(f => f.Delay(_config.TimeToFaulted, CancellationToken.None), Times.Once);
+        var firstFailureTime = _clock.UtcNow;
+        await CauseFault();
         Then_BreakerIsArmed();
-        _progressToFaulted.SetResult();
-        await Task.Delay(10);
+        
+        _clock.Returns(firstFailureTime.Add(_config.TimeToFaulted).AddSeconds(-1));
+        await CauseFault();
+        Then_BreakerIsArmed();
+
+        _clock.Returns(firstFailureTime.Add(_config.TimeToFaulted));
+        await CauseFault();
+        Then_BreakerIsFaulted();
+
+        _clock.Returns(firstFailureTime.AddSeconds(1));
+        await CauseFault();
         Then_BreakerIsFaulted();
     }
 
@@ -231,14 +258,14 @@ public class CircuitBreakerFixture
         // when there is a failure, the breaker is armed.
         // when there is no success for the configured 
         // TimeToFaulted then the breaker becomes faulted.
-        await ArmBreaker();
-        _progressToFaulted.SetResult();
-        await Task.Delay(10); // give time for the continutewith to set the state.
+        await CauseFault();
+        _clock.Returns(_clock.UtcNow.Add(_config.TimeToFaulted));
+        await CauseFault();
     }
 
     private async Task ClearBreaker() => await _breaker.Guard(() => Task.CompletedTask);
 
-    private async Task ArmBreaker()
+    private async Task CauseFault()
     {
         await Assert.ThrowsExactlyAsync<TestException>(
             () => _breaker.Guard(() => throw new TestException()));

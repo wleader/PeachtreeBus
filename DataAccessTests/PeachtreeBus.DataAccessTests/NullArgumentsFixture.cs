@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using System;
@@ -17,6 +18,7 @@ public class NullArgumentsFixture
     private Mock<IBusConfiguration> schemaConfig = default!;
     private Mock<ILogger<DapperDataAccess>> log = default!;
     private readonly Mock<IDapperMethods> sqlExecutor = new();
+    private readonly FakeBreakerProvider breakerProvider = new();
 
     [TestInitialize]
     public void Initialize()
@@ -30,7 +32,8 @@ public class NullArgumentsFixture
             sharedDatabase.Object,
             schemaConfig.Object,
             log.Object,
-            sqlExecutor.Object);
+            sqlExecutor.Object,
+            breakerProvider);
     }
 
     [TestMethod]

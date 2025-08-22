@@ -14,7 +14,8 @@ public abstract class DapperDataAccessFixtureBase : FixtureBase<DapperDataAccess
             SharedDB,
             Configuration.Object,
             MockLog.Object,
-            DapperMethods);
+            DapperMethods,
+            FakeBreakerProvider);
     }
 
     protected async Task Given_MessagesInQueue(int count)

@@ -20,6 +20,7 @@ public interface ICircuitBreaker
     Task<T> Guard<T>(Func<CancellationToken, Task<T>> asyncFunction, CancellationToken cancellationToken);
     Task Guard(Func<Task> asyncAction);
     Task<T> Guard<T>(Func<Task<T>> asyncFunction);
+    void Guard(Action action);
     public CircuitBreakerState State { get; }
 }
 
@@ -40,10 +41,10 @@ public interface ICircuitBreaker
 public class CircuitBreaker(
     IDelayFactory delayFactory,
     ILogger<CircuitBreaker> log,
+    ISystemClock clock,
     CircuitBreakerConfiguraton configuraton) : ICircuitBreaker
 {
-    private readonly ILogger<CircuitBreaker> _log = log;
-    private readonly IDelayFactory _delayFactory = delayFactory;
+    private DateTime ArmedAt;
 
     public CircuitBreakerConfiguraton Configuration { get; } = configuraton;
 
@@ -69,9 +70,9 @@ public class CircuitBreaker(
         }
     }
 
-    public Task Guard(Func<Task> asyncAction) => Guard((c) => asyncAction(), default);
+    public Task Guard(Func<Task> asyncAction) => Guard(async (c) => await asyncAction(), default);
 
-    public Task<T> Guard<T>(Func<Task<T>> asyncFunction) => Guard((c) => asyncFunction(), default);
+    public Task<T> Guard<T>(Func<Task<T>> asyncFunction) => Guard(async (c) => await asyncFunction(), default);
 
     public async Task<T> Guard<T>(Func<CancellationToken, Task<T>> asyncFunction, CancellationToken cancellationToken)
     {
@@ -81,7 +82,15 @@ public class CircuitBreaker(
         return result!;
     }
 
-    private Task DelayAsNeeded(CancellationToken cancellationToken = default)
+    public void Guard(Action action)
+    {
+        var t = new Task(action);
+        var g = Guard((c) => t, default);
+        t.Start();
+        g.GetAwaiter().GetResult();
+    } 
+
+    private async Task DelayAsNeeded(CancellationToken cancellationToken = default)
     {
         var delay = _state switch
         {
@@ -89,33 +98,38 @@ public class CircuitBreaker(
             CircuitBreakerState.Faulted => Configuration.FaultedDelay,
             _ => TimeSpan.Zero,
         };
-        return _delayFactory.Delay(delay, cancellationToken);
+        await delayFactory.Delay(delay, cancellationToken);
     }
 
     private void Success()
     {
         if (_state == CircuitBreakerState.Clear) return;
         _state = CircuitBreakerState.Clear;
-        _log.Cleared(Configuration.FriendlyName);
+        log.Cleared(Configuration.FriendlyName);
     }
 
     private void Failure()
     {
-        if (_state != CircuitBreakerState.Clear) return;
-        _log.Armed(Configuration.FriendlyName);
-        _state = CircuitBreakerState.Armed;
+        // if its already in a faulted state there is nothing to do.
+        if (_state == CircuitBreakerState.Faulted)
+            return;
 
-        // wait for time to faulted.
-        // if its still in an armed state, escalate to faulted.
-        _ = _delayFactory
-            .Delay(Configuration.TimeToFaulted, CancellationToken.None)
-            .ContinueWith((_) =>
-            {
-                if (_state == CircuitBreakerState.Armed)
-                {
-                    _state = CircuitBreakerState.Faulted;
-                    _log.Faulted(Configuration.FriendlyName);
-                }
-            });
+        // if its clear, then arm it.
+        if (_state == CircuitBreakerState.Clear)
+        {
+            log.Armed(Configuration.FriendlyName);
+            _state = CircuitBreakerState.Armed;
+            ArmedAt = clock.UtcNow;
+            return;
+        }
+
+        // the state must be armed.
+        // if not enough time has passed, stay armed.
+        if (ArmedAt.Add(Configuration.TimeToFaulted) > clock.UtcNow)
+            return;
+
+        // it is armed, and its been armed long enough to progress to faulted.
+        _state = CircuitBreakerState.Faulted;
+        log.Faulted(Configuration.FriendlyName);
     }
 }

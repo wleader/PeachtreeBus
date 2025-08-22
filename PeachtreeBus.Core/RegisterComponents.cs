@@ -1,5 +1,6 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
@@ -115,6 +116,8 @@ public class RegisterComponents(IRegistrationProvider provider)
         provider.RegisterSingleton<IAlwaysOneEstimator, AlwaysOneEstimator>();
         provider.RegisterScoped<IProcessQueuedEstimator, ProcessQueuedEstimator>();
         provider.RegisterScoped<IProcessSubscribedEstimator, ProcessSubscribedEstimator>();
+        provider.RegisterSingleton<ICircuitBreakerProvider, CircuitBreakerProvider>();
+        provider.RegisterSingleton<ICircuitBreakerConfigurationProvider, CircuitBreakerConfigurationProvider>();
     }
 
     private void RegisterConditional(IBusConfiguration busConfiguration)
