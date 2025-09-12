@@ -26,7 +26,7 @@ public class ScheduledTaskCounter : IScheduledTaskCounter
 
     public int Available() => 1;
 
-    public void Decrement() { }
+    public int Decrement() => 0;
 
-    public void Increment() { }
+    public int Increment() => 0;
 }
