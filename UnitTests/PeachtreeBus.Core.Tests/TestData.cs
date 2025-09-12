@@ -160,7 +160,7 @@ public static class TestData
     {
         return new()
         {
-            QueueName = DefaultQueueName
+            QueueName = DefaultQueueName,
         };
     }
 

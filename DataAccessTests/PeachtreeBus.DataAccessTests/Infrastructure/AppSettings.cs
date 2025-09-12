@@ -47,5 +47,3 @@ public readonly record struct DBConnectionString
     public static implicit operator string(DBConnectionString value) => value.Value;
     public static implicit operator DBConnectionString(string? value) => new(value);
 }
-
-

@@ -42,8 +42,7 @@ public abstract class Starter<TRunner>(
             if (available < 1) return 0;
             return Math.Min(available, await estimator.EstimateDemand().ConfigureAwait(false));
         }
-        catch
-        (Exception ex)
+        catch (Exception ex)
         {
             log.StarterException(this.GetType(), ex);
             return 0;
@@ -57,9 +56,9 @@ public abstract class Starter<TRunner>(
         taskCounter.Increment();
         tracker.Start();
         currentTasks.Add(Task.Run(
-                () => runner.RunRepeatedly(cancellationToken)
-                            .ContinueWith((_) => WhenRunnerCompletes(accessor), CancellationToken.None),
-                CancellationToken.None));
+            () => runner.RunRepeatedly(cancellationToken)
+                        .ContinueWith((_) => WhenRunnerCompletes(accessor), CancellationToken.None),
+            CancellationToken.None));
     }
 
     private void WhenRunnerCompletes(IServiceProviderAccessor accessor)
