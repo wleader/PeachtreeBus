@@ -57,14 +57,14 @@ public class Program
 
 
         // optionally turn on and configure telemetry.
-        using var _ = new PeachtreeBus.Example.Telemetry.OpenTelemetryProviders("PeachtreeBus-Example",
+        using var _ = new PeachtreeBus.Example.Telemetry.OpenTelemetryProviders("PeachtreeBus-Example-MSDI",
             tracerSources: [ActivitySources.Messaging.Name],
             traceExportOptions: options =>
             {
                 //options.Endpoint = new("https://server.domain.com/v1/meters");
                 //options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
             },
-            meterSources: [ActivitySources.Messaging.Name],
+            meterSources: [Meters.Messaging.Name],
             meterExportOptions: options =>
             {
                 //options.Endpoint = new("https://server.domain.com/v1/meters");

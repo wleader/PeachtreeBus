@@ -30,7 +30,7 @@ public class MetersFixture
         Assert.AreEqual("PeachtreeBus.Messaging", Meters.Messaging.Name);
 
         // Version might change, if the counters inside the meter change.
-        Assert.AreEqual("0.11.0", Meters.Messaging.Version);
+        Assert.AreEqual("0.12.5", Meters.Messaging.Version);
 
         // get all the fields fields in the meter.
         var fields = typeof(Meters).GetFields(
@@ -51,7 +51,7 @@ public class MetersFixture
             "If the instruments change, then the Meter.Version must change.";
 
         // if an instrument is added or removed, the version should change.
-        Assert.AreEqual(7, instrumentCount, ChangeVersionMessage);
+        Assert.AreEqual(8, instrumentCount, ChangeVersionMessage);
 
         // if an instrument name, unit, or type changes, the version should change.
         AssertInstrumentUnchanged(Meters.CompletedMessageCount,
@@ -68,6 +68,8 @@ public class MetersFixture
             "peachtreebus.client.retry.messages", "messages", typeof(long), ChangeVersionMessage);
         AssertInstrumentUnchanged(Meters.BlockedSagaMessageCount,
             "peachtreebus.client.blockedsaga.messsages", "messages", typeof(long), ChangeVersionMessage);
+        AssertInstrumentUnchanged(Meters.ActiveTaskCount,
+            "peachtreebus.client.active.tasks", "tasks", typeof(int), ChangeVersionMessage);
 
         // if this fails, add or remove above as needed.
         Assert.AreEqual(instrumentCount, _assertedInstruments.Distinct().Count(),
@@ -89,66 +91,55 @@ public class MetersFixture
     }
 
     [TestMethod]
-    public void When_CompleteMessage_Then_CompletedCountIncrements()
-    {
+    public void When_CompleteMessage_Then_CompletedCountIncrements() =>
         AssertMeasurement(Meters.CompletedMessageCount, _meters.CompleteMessage, 1);
-    }
 
     [TestMethod]
-    public void When_StartMessage_Then_AttemptedCountIncrements()
-    {
+    public void When_StartMessage_Then_AttemptedCountIncrements() =>
         AssertMeasurement(Meters.AttemptedMessageCount, _meters.StartMessage, 1);
-    }
 
     [TestMethod]
-    public void When_StartMessage_Then_ActiveCountIncrements()
-    {
+    public void When_StartMessage_Then_ActiveCountIncrements() =>
         AssertMeasurement(Meters.ActiveMessageCount, _meters.StartMessage, 1);
-    }
 
     [TestMethod]
-    public void When_FinishMessage_Then_ActiveMessageCountDecrements()
-    {
+    public void When_FinishMessage_Then_ActiveMessageCountDecrements() =>
         AssertMeasurement(Meters.ActiveMessageCount, _meters.FinishMessage, -1);
-    }
 
     [TestMethod]
-    public void When_RetryMessage_Then_RetryCountIncrements()
-    {
+    public void When_RetryMessage_Then_RetryCountIncrements() => 
         AssertMeasurement(Meters.RetryMessageCount, _meters.RetryMessage, 1);
-    }
 
     [TestMethod]
-    public void When_FailMessage_Then_FailedMessageIncrements()
-    {
+    public void When_FailMessage_Then_FailedMessageIncrements() => 
         AssertMeasurement(Meters.FailedMessageCount, _meters.FailMessage, 1);
-    }
 
     [TestMethod]
-    public void When_SagaBlocked_Then_LockedSagaIncrements()
-    {
+    public void When_SagaBlocked_Then_LockedSagaIncrements() =>
         AssertMeasurement(Meters.BlockedSagaMessageCount, _meters.SagaBlocked, 1);
-    }
+
+    [TestMethod]
+    public void When_StartTask_Then_ActiveTaskCountIncrements() =>
+        AssertMeasurement(Meters.ActiveTaskCount, _meters.StartTask, 1);
+
+    [TestMethod]
+    public void When_EndTask_Then_ActiveTaskCountIncrements() =>
+        AssertMeasurement(Meters.ActiveTaskCount, _meters.EndTask, -1);
 
     [TestMethod]
     [DataRow(0, DisplayName = "0")]
     [DataRow(1, DisplayName = "1")]
     [DataRow(10, DisplayName = "10")]
     [DataRow(long.MaxValue, DisplayName = "long.MaxValue")]
-    public void Given_Count_When_SentMessage_Then_Measured(long value)
-    {
-        AssertMeasurement(Meters.SentMessageCount,
-            () => _meters.SentMessage(value), value);
-    }
+    public void Given_Count_When_SentMessage_Then_Measured(long value) =>
+        AssertMeasurement(Meters.SentMessageCount, () => _meters.SentMessage(value), value);
 
     [TestMethod]
     [DataRow(-1, DisplayName = "-1")]
     [DataRow(long.MinValue, DisplayName = "long.MinValue")]
-    public void Given_NegativeCount_When_SentMessage_Then_Throws(long value)
-    {
+    public void Given_NegativeCount_When_SentMessage_Then_Throws(long value) =>
         Assert.Throws<ArgumentOutOfRangeException>(
             () => _meters.SentMessage(value));
-    }
 
     [TestMethod]
     public void Given_LargeValues_When_SentMessage_Then_DoesNotThrow()

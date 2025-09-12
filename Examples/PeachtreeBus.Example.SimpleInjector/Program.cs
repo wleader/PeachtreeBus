@@ -65,14 +65,14 @@ namespace PeachtreeBus.Example.SimpleInjector
             _container.Verify();
 
             // optionally turn on and configure telemetry.
-            using var _ = new Telemetry.OpenTelemetryProviders("PeachtreeBus-Example",
+            using var _ = new Telemetry.OpenTelemetryProviders("PeachtreeBus-Example-SI",
                 tracerSources: [ActivitySources.Messaging.Name],
                 traceExportOptions: options =>
                 {
                     //options.Endpoint = new("https://server.domain.com/v1/meters");
                     //options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
                 },
-                meterSources: [ActivitySources.Messaging.Name],
+                meterSources: [Meters.Messaging.Name],
                 meterExportOptions: options =>
                 {
                     //options.Endpoint = new("https://server.domain.com/v1/meters");

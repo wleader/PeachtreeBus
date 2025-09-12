@@ -12,13 +12,16 @@ public interface IMeters
     void CompleteMessage();
     void FailMessage();
     void SentMessage(long count);
+    void StartTask();
+    void EndTask();
 }
 
 public class Meters : IMeters
 {
-    public static readonly Meter Messaging = new("PeachtreeBus.Messaging", "0.11.0");
+    public static readonly Meter Messaging = new("PeachtreeBus.Messaging", "0.12.5");
 
     public const string UnitMessages = "messages";
+    public const string UnitTasks = "tasks";
 
     public static readonly Counter<long> CompletedMessageCount =
         Messaging.CreateCounter<long>("messaging.client.consumed.messages",
@@ -55,6 +58,11 @@ public class Meters : IMeters
             UnitMessages,
             "A count of times when a message was re-queued because it's saga was locked.");
 
+    public static readonly UpDownCounter<int> ActiveTaskCount =
+        Messaging.CreateUpDownCounter<int>("peachtreebus.client.active.tasks",
+            UnitTasks,
+            "A count of all tasks that have started and have not completed.");
+
     public void CompleteMessage() => CompletedMessageCount.Add(1);
 
     public void FailMessage() => FailedMessageCount.Add(1);
@@ -76,4 +84,7 @@ public class Meters : IMeters
         ActiveMessageCount.Add(1);
         AttemptedMessageCount.Add(1);
     }
+
+    public void StartTask() => ActiveTaskCount.Add(1);
+    public void EndTask() => ActiveTaskCount.Add(-1);
 }

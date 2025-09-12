@@ -20,7 +20,7 @@ public class OpenTelemetryProviders(
     private readonly TracerProvider _traceProvider = BuildTracerProvider(
         serviceName, tracerSources, traceExportOptions);
 
-    private readonly MeterProvider _meterProvider = BuildMeterProvide(
+    private readonly MeterProvider _meterProvider = BuildMeterProvider(
         serviceName, meterSources, meterExportOptions);
 
     private static readonly string[] DefaultTracerSources =
@@ -35,12 +35,7 @@ public class OpenTelemetryProviders(
 
     private static readonly string[] DefaultMeterSources =
     [
-        ActivitySources.Messaging.Name,
-
-        // these don't have any meters yet
-        //ActivitySources.User.Name,
-        //ActivitySources.DataAccess.Name,
-        //ActivitySources.Internal.Name,
+        Meters.Messaging.Name,
     ];
 
     private static void DefaultExporterOptions(OtlpExporterOptions options) { }
@@ -58,7 +53,7 @@ public class OpenTelemetryProviders(
             .Build();
     }
 
-    private static MeterProvider BuildMeterProvide(
+    private static MeterProvider BuildMeterProvider(
         string serviceName,
         string[]? sources,
         Action<OtlpExporterOptions>? options)
