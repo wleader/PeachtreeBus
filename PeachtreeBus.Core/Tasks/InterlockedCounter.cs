@@ -8,7 +8,8 @@ public interface IInterlockedCounter
     int Decrement();
     int Value { get; }
 }
-public class InterlockedCounter
+
+public class InterlockedCounter : IInterlockedCounter
 {
     private int _value = 0;
     public int Increment() => Interlocked.Increment(ref _value);
