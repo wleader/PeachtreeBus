@@ -31,13 +31,8 @@ public class TaskManager(
     {
         while (!token.IsCancellationRequested)
         {
-            await tasks.WhenAny();
-
-            // the starters will add themselves to tasks.
             await starters.RunStarters(token);
-
-            if (tasks.Count == 0)
-                tasks.Add(delayFactory.Delay(idleDelay, CancellationToken.None));
+            await delayFactory.Delay(idleDelay, CancellationToken.None);
         }
         await tasks.WhenAll();
     }

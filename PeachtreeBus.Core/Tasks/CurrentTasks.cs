@@ -1,5 +1,7 @@
-﻿using System;
+﻿using PeachtreeBus.Telemetry;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,73 +12,37 @@ public interface ICurrentTasks
     int Count { get; }
 
     void Add(Task task);
-
-    Task WhenAny();
     Task WhenAll();
 }
 
-public class CurrentTasks : ICurrentTasks
+public class CurrentTasks(
+    IMeters meters)
+    : ICurrentTasks
 {
-    // when added, the task is added to the _started, and a continuation is added.
-    // The continuation adds to _completed. The reason why is that code that reads
-    // the count property likely wants to know how many tasks are running, but if
-    // the continuation removes it, a very short task could complete before the
-    // count property is read. If thats the case, the calling code might think
-    // nothing was started. 
-    // Instead, we only remove the completed from the started When the WhenAny
-    // or WhenAll is called. This means that outside of this class, the count
-    // won't going down without awaiting something, even if a task has already
-    // completed.
-
-    private readonly List<Task> _started = [];
-    private readonly List<Task> _completed = [];
+    private readonly List<Task> _tasks = [];
     private readonly SemaphoreSlim _semaphore = new(1);
 
-    public int Count => _started.Count;
+    public int Count =>_semaphore.Invoke(() =>  _tasks.Count);
 
-    private void WithSemaphore(Action action)
+    public void Add(Task task) => _semaphore.Invoke(() =>
     {
-        _semaphore.Wait();
-        try
+        meters.StartTask();
+        task.ContinueWith(TaskCompleted);
+        _tasks.Add(task);
+    });
+
+    private void TaskCompleted(Task task) => _semaphore.Invoke(() =>
+    {
+        System.Diagnostics.Debug.Assert(_tasks.Contains(task));
+        _tasks.Remove(task);
+        meters.EndTask();
+    });
+
+    public async Task WhenAll()
+    {
+        while(_tasks.Any())
         {
-            action();
+            await Task.Delay(1);
         }
-        finally
-        {
-            _semaphore.Release();
-        }
-    }
-
-    public void Add(Task task) => WithSemaphore(() =>
-    {
-        _started.Add(task);
-        task.ContinueWith(AddCompleted);
-    });
-
-    private void AddCompleted(Task task) => WithSemaphore(() =>
-    {
-        _completed.Add(task);
-    });
-
-    private void ReconcileCompleted() => WithSemaphore(() =>
-    {
-        _completed.ForEach(c => _started.Remove(c));
-        _completed.Clear();
-    });
-
-    public Task WhenAny()
-    {
-        ReconcileCompleted();
-        return _started.Count == 0
-            ? Task.CompletedTask
-            : Task.WhenAny(_started);
-    }
-
-    public Task WhenAll()
-    {
-        ReconcileCompleted();
-        return _started.Count == 0
-            ? Task.CompletedTask
-            : Task.WhenAll(_started);
     }
 }
