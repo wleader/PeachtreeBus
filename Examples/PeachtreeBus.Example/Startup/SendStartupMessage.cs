@@ -19,20 +19,18 @@ namespace PeachtreeBus.Example.Startup
 
         private static readonly QueueName _queueName = new("SampleQueue");
 
-        public async Task Run()
+        public Task Run() => SendSampleSagaStarts(10);
+
+        private async Task SendSampleSagaStarts(int count)
         {
             // Sends a few Saga Start messages to kick off the processing of messages in the example program.
-            for (var i = 0; i < 10; i++)
+            if (count < 1) return;
+            _database.BeginTransaction();
+            for(var i = 0; i < count; i++)
             {
-                // the queue writer uses the database connection,
-                // so we can wrap the sending in a transaction.
-                _database.BeginTransaction();
-                for (var j = 0; j < 10; j++)
-                {
-                    await _queueWriter.WriteMessage(_queueName, new SampleSagaStart { AppId = Guid.NewGuid() });
-                }
-                _database.CommitTransaction();
+                await _queueWriter.WriteMessage(_queueName, new SampleSagaStart { AppId = Guid.NewGuid() });
             }
+            _database.CommitTransaction();
         }
     }
 }
