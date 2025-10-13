@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PeachtreeBus.SourceGenerators;
 
-public class Components
+public static class GeneratorComponents
 {
     private static Container? _container;
 
