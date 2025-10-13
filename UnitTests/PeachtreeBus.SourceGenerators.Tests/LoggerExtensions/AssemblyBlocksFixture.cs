@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.SourceGenerators.LoggerExtensions;
 using System.Text;
 
@@ -7,8 +8,7 @@ namespace PeachtreeBus.SourceGenerators.Tests.LoggerExtensions;
 [TestClass]
 public class AssemblyBlocksFixture
 {
-
-    private AssemblyBlocks _blocks = default!;
+    private AssemblyBlocks _blocks = null!;
 
     [TestInitialize]
     public void Initialize()
@@ -28,7 +28,7 @@ public class AssemblyBlocksFixture
         _blocks.WriteHeader(sb);
         var actual = sb.ToString();
 
-        var expected = $"\r\nusing {expectedNamespace};\r\n";
+        var expected = string.Format("{0}using {1};{0}", Environment.NewLine, expectedNamespace);
 
         Assert.IsTrue(actual.Contains(expected));
     }
@@ -39,16 +39,17 @@ public class AssemblyBlocksFixture
         var sb = new StringBuilder();
         _blocks.WriteEnableNullable(sb);
         var actual = sb.ToString();
-        Assert.AreEqual("#nullable enable\r\n", actual);
+        var expected = $"#nullable enable{Environment.NewLine}";
+        Assert.AreEqual(expected, actual);
     }
 
     [TestMethod]
     public void When_WriteUserUsings_Then_Written()
     {
-        const string Expected = "using ns1;\r\nusing ns2;\r\nusing ns3;\r\n\r\n";
+        var expected = string.Format("using ns1;{0}using ns2;{0}using ns3;{0}{0}", Environment.NewLine);
         var sb = new StringBuilder();
         _blocks.WriteUserUsings(sb, ["ns1", "ns2", "ns3"]);
         var actual = sb.ToString();
-        Assert.AreEqual(Expected, actual);
+        Assert.AreEqual(expected, actual);
     }
 }
