@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.SourceGenerators.LoggerExtensions;
 using System.Text;
@@ -32,7 +33,8 @@ public class NamespaceBlocksFixture
         var sb = new StringBuilder();
         _writer.WriteAfterClasses(sb);
         var actual = sb.ToString();
-        Assert.AreEqual("    }\r\n}\r\n", actual);
+        var expected = string.Format("    }}{0}}}{0}", Environment.NewLine);
+        Assert.AreEqual(expected, actual);
     }
 
     [TestMethod]

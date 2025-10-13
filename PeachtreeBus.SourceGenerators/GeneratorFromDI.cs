@@ -10,7 +10,7 @@ namespace PeachtreeBus.SourceGenerators;
 public abstract class GeneratorFromDI<TGenerator> : IIncrementalGenerator
     where TGenerator : class, IIncrementalGenerator
 {
-    private readonly TGenerator _generator = Components.Container.GetInstance<TGenerator>();
+    private readonly TGenerator _generator = GeneratorComponents.Container.GetInstance<TGenerator>();
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

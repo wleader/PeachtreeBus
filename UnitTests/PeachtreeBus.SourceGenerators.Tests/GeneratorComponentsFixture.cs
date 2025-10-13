@@ -3,11 +3,11 @@
 namespace PeachtreeBus.SourceGenerators.Tests;
 
 [TestClass]
-public class ComponentsFixture
+public class GeneratorComponentsFixture
 {
     [TestMethod]
     public void When_VerifyContainer_Then_DoesNotThrow()
     {
-        Components.BuildContainer().Verify();
+        GeneratorComponents.BuildContainer().Verify();
     }
 }
