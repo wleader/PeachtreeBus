@@ -25,7 +25,7 @@ public class SharedDatabaseDbContext_Fixture
     private static string ReadConnectionString()
     {
         var configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.AddJsonFile("appSettings.json");
+        configurationBuilder.AddJsonFile("appsettings.json");
         var config = configurationBuilder.Build();
         return config.GetConnectionString("PeachtreeBus")
             ?? throw new InvalidOperationException("Could not read connection string from appsettings.json");
