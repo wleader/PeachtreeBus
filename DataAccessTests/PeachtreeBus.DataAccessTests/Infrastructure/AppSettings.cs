@@ -13,8 +13,9 @@ public static class AppSettings
 
     public static void Initialize()
     {
-        var configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.AddJsonFile("appsettings.json");
+        var configurationBuilder = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile("appsettings.user.json", true);
         ConfigurationRoot = configurationBuilder.Build();
 
         TestDatabase = ConfigurationRoot.GetConnectionString("TestDatabase");

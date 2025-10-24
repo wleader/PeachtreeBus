@@ -21,3 +21,4 @@ nuget.exe
 **/project.packagespec.json
 **/rider.*.info
 .idea/*
+**/appsettings.user.json
