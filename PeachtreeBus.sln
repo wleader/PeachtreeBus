@@ -22,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PeachtreeBus.Database", "PeachtreeBus.Database\PeachtreeBus.Database.sqlproj", "{F702DCFC-9C33-425E-AE7D-84F340A75EC8}"
+Project("{42EA0DBD-9CF1-443E-919E-BE9C484E4577}") = "PeachtreeBus.Database", "PeachtreeBus.Database\PeachtreeBus.Database.sqlproj", "{F702DCFC-9C33-425E-AE7D-84F340A75EC8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Core", "PeachtreeBus.Core\PeachtreeBus.Core.csproj", "{E325B56C-E129-4357-9EFC-3A432D73D041}"
 EndProject
@@ -71,7 +71,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{79
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example", "Examples\PeachtreeBus.Example\PeachtreeBus.Example.csproj", "{ADEAE403-20E8-F74E-D6A8-915BA9AD990A}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PeachtreeBus.Example.Database", "Examples\PeachtreeBus.Example.Database\PeachtreeBus.Example.Database.sqlproj", "{7F6A3911-A90A-4EA3-8B70-E0838191FACC}"
+Project("{42EA0DBD-9CF1-443E-919E-BE9C484E4577}") = "PeachtreeBus.Example.Database", "Examples\PeachtreeBus.Example.Database\PeachtreeBus.Example.Database.sqlproj", "{7F6A3911-A90A-4EA3-8B70-E0838191FACC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.ExampleSendOnly", "Examples\PeachtreeBus.ExampleSendOnly\PeachtreeBus.ExampleSendOnly.csproj", "{96A70879-CB04-0D5A-47B2-CB62AB13BA19}"
 EndProject
