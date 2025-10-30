@@ -7,6 +7,7 @@ using PeachtreeBus.DatabaseSharing;
 using System;
 using System.Data;
 using System.Linq;
+using PeachtreeBus.DatabaseTestingShared;
 
 namespace PeachtreeBus.EntityFrameworkCore.Tests;
 
@@ -16,26 +17,12 @@ public class SharedDatabaseDbContext_Fixture
     private SharedDatabase _sharedDatabase = default!;
     private Mock<ISqlConnectionFactory> _connectionFactory = default!;
 
-    private string? _connectionString;
-    private string ConnectionString
-    {
-        get => _connectionString ??= ReadConnectionString();
-    }
-
-    private static string ReadConnectionString()
-    {
-        var configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.AddJsonFile("appsettings.json");
-        var config = configurationBuilder.Build();
-        return config.GetConnectionString("PeachtreeBus")
-            ?? throw new InvalidOperationException("Could not read connection string from appsettings.json");
-    }
-
     [TestInitialize]
     public void TestInitialize()
     {
         _connectionFactory = new();
-        _connectionFactory.Setup(c => c.GetConnection()).Returns(() => new SqlConnectionProxy(ConnectionString));
+        _connectionFactory.Setup(c => c.GetConnection())
+            .Returns(() => new SqlConnectionProxy(TestSettings.TestDatabase));
 
         _sharedDatabase = new SharedDatabase(_connectionFactory.Object);
 
@@ -44,7 +31,7 @@ public class SharedDatabaseDbContext_Fixture
 
     private void CleanupData()
     {
-        using var connection = new SqlConnection(ConnectionString);
+        using var connection = new SqlConnection(TestSettings.TestDatabase);
         connection.Open();
         using var command = new SqlCommand(
             """

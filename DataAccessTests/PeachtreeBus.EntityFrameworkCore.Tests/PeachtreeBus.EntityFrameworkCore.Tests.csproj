@@ -21,11 +21,15 @@
     <ItemGroup>
         <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
         <ProjectReference Include="..\..\PeachtreeBus.EntityFrameworkCore\PeachtreeBus.EntityFrameworkCore.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.DatabaseTestingShared\PeachtreeBus.DatabaseTestingShared.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="appsettings.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings.user.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

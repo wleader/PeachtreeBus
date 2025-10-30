@@ -1,9 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using PeachtreeBus.Data;
-using PeachtreeBus.DataAccessTests.Infrastructure;
 using PeachtreeBus.DatabaseSharing;
 using System;
 using System.Data;
+using PeachtreeBus.DatabaseTestingShared;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -21,7 +21,7 @@ public class RowLock : IDisposable
 
     public RowLock(TableName tableName, int count = int.MaxValue, SchemaName? schema = null)
     {
-        _connection = new SqlConnectionProxy(AppSettings.TestDatabase);
+        _connection = new SqlConnectionProxy(TestSettings.TestDatabase);
         _connection.Open();
         _transaction = _connection.BeginTransaction();
 
