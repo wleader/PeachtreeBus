@@ -12,15 +12,15 @@ namespace PeachtreeBus.SimpleInjector.Tests
 {
     public abstract class SimpleInjectorExtensionFixtureBase
     {
-        protected Container _container = default!;
-        protected ILoggerFactory _loggerFactory = default!;
+        protected Container _container = null!;
+        protected ILoggerFactory _loggerFactory = null!;
         private readonly Mock<IProvideDbConnectionString> _provideDBConnectionString = new();
-        private Mock<IProvideShutdownSignal> _provideShutdownSignal = default!;
-        protected List<Assembly> _assemblies = default!;
+        private Mock<IProvideShutdownCancellationToken> _provideShutdownSignal = null!;
+        protected List<Assembly> _assemblies = null!;
         private CancellationTokenSource _cts = new();
 
         [TestInitialize]
-        public void Intialize()
+        public void Initialize()
         {
             _cts = new();
             _assemblies = [Assembly.GetExecutingAssembly()];
@@ -39,7 +39,7 @@ namespace PeachtreeBus.SimpleInjector.Tests
             _container.RegisterInstance(_provideDBConnectionString.Object);
 
             // users must provide their own shutdown signal.
-            // provide one that immediatly shuts down so the tests complete.
+            // provide one that immediately shuts down so the tests complete.
             _provideShutdownSignal = new();
             _provideShutdownSignal.Setup(p => p.GetCancellationToken())
                 .Returns(_cts.Token);
@@ -57,6 +57,7 @@ namespace PeachtreeBus.SimpleInjector.Tests
         {
             _container.UsePeachtreeBus(config, _loggerFactory, assemblies);
             customizeContainer?.Invoke(_container);
+            _container.RegisterInstance(_provideShutdownSignal.Object);
             _container.Verify();
             _container.RunPeachtreeBus();
         }
