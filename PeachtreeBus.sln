@@ -5,6 +5,7 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{FCEB713C-B3A8-40B7-8265-9DE8E4E2ADDE}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		BuildPackages.ps1 = BuildPackages.ps1
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
@@ -17,9 +18,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		PeachtreeBus.MessageInterfaces.nuspec = PeachtreeBus.MessageInterfaces.nuspec
 		PeachtreeBus.MicrosoftDependencyInjection.nuspec = PeachtreeBus.MicrosoftDependencyInjection.nuspec
 		PeachtreeBus.SimpleInjector.nuspec = PeachtreeBus.SimpleInjector.nuspec
+		PeachtreeBus.sln.DotSettings = PeachtreeBus.sln.DotSettings
 		README.md = README.md
 		WhatsOld.md = WhatsOld.md
-		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{42EA0DBD-9CF1-443E-919E-BE9C484E4577}") = "PeachtreeBus.Database", "PeachtreeBus.Database\PeachtreeBus.Database.sqlproj", "{F702DCFC-9C33-425E-AE7D-84F340A75EC8}"

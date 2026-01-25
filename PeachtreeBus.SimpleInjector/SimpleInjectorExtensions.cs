@@ -33,7 +33,7 @@ namespace PeachtreeBus.SimpleInjector
             runner.RunStartupTasks();
 
             var manager = scope.GetInstance<ITaskManager>();
-            var shutdown = scope.GetInstance<IProvideShutdownSignal>();
+            var shutdown = scope.GetInstance<IProvideShutdownCancellationToken>();
             // This blocks until it completes
             manager.Run(shutdown.GetCancellationToken()).GetAwaiter().GetResult();
         }

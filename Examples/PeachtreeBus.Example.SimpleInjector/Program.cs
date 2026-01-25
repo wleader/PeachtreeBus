@@ -51,11 +51,6 @@ namespace PeachtreeBus.Example.SimpleInjector
             // Register Startup tasks found in loaded assemblies.
             _container.UsePeachtreeBus(busConfiguration, loggerFactory);
 
-            // Register some services that are needed by PeachtreeBus
-            // These are things you may want to replace in your application.
-            // signal shutdown when the process is exiting.
-            _container.RegisterSingleton(typeof(IProvideShutdownSignal), typeof(ProcessExitShutdownSignal));
-
             // Register things needed by the handlers.
             // register the data access used by the sample application.
             _container.Register(typeof(IExampleDataAccess), typeof(ExampleDataAccess), Lifestyle.Scoped);

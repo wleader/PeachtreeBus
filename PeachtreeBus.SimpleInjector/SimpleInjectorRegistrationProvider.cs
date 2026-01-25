@@ -30,6 +30,10 @@ public class SimpleInjectorRegistrationProvider(
 
         container.Register(typeof(IClassNameService), typeof(ClassNameService), Lifestyle.Singleton);
         container.RegisterDecorator(typeof(IClassNameService), typeof(CachedClassNameService));
+
+        // this is something extra that we needed because we don't have the IHostedService
+        // to provide the cancellation token.
+        container.RegisterSingleton<IProvideShutdownCancellationToken, ProvideShutdownCancellationToken>();
     }
 
     public void RegisterInstance<T>(T instance) where T : class =>
