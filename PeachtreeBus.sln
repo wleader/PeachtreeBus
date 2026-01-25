@@ -93,6 +93,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseTestin
 EndProject
 Project("{42EA0DBD-9CF1-443E-919E-BE9C484E4577}") = "PeachtreeBus.EntityFrameworkCore.TestDatabase", "DataAccessTests\PeachtreeBus.EntityFrameworkCore.TestDatabase\PeachtreeBus.EntityFrameworkCore.TestDatabase.sqlproj", "{093A085A-E94E-46FC-B7F1-D2A8A953490E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{9A50BC44-19EE-4B07-9111-776BB42A7402}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.GenerateSql", "Tools\PeachtreeBus.GenerateSql\PeachtreeBus.GenerateSql.csproj", "{FE233E5C-675A-4231-B95D-6D9659DB556B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -268,6 +272,12 @@ Global
 		{093A085A-E94E-46FC-B7F1-D2A8A953490E}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{093A085A-E94E-46FC-B7F1-D2A8A953490E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{093A085A-E94E-46FC-B7F1-D2A8A953490E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE233E5C-675A-4231-B95D-6D9659DB556B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE233E5C-675A-4231-B95D-6D9659DB556B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE233E5C-675A-4231-B95D-6D9659DB556B}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE233E5C-675A-4231-B95D-6D9659DB556B}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{FE233E5C-675A-4231-B95D-6D9659DB556B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE233E5C-675A-4231-B95D-6D9659DB556B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -293,6 +303,7 @@ Global
 		{56B9038D-7E48-4544-9333-77CD5ADDB9E7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{36118494-DF31-48CB-994D-603954298839} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
 		{093A085A-E94E-46FC-B7F1-D2A8A953490E} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
+		{FE233E5C-675A-4231-B95D-6D9659DB556B} = {9A50BC44-19EE-4B07-9111-776BB42A7402}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {152625A8-2D37-455D-B3A6-DB03D605D21C}

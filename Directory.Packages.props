@@ -1,37 +1,39 @@
 <Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.4.2" />
-        <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
-        <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-        <PackageVersion Include="Dapper" Version="2.1.66" />
-        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
-        <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
-        <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.1" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.3.0" />
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-        <PackageVersion Include="Microsoft.SqlServer.DacFx" Version="162.5.57" />
-        <PackageVersion Include="Moq" Version="4.20.72" />
-        <PackageVersion Include="MSTest" Version="3.8.3" />
-        <PackageVersion Include="MSTest.TestAdapter" Version="3.8.3" />
-        <PackageVersion Include="MSTest.TestFramework" Version="3.8.3" />
-        <PackageVersion Include="OpenTelemetry" Version="1.11.2" />
-        <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.11.2" />
-        <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2" />
-        <PackageVersion Include="SimpleInjector" Version="5.5.0" />
-        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
-        <PackageVersion Include="System.Text.Json" Version="9.0.5" />
-    </ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.4.2" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="Dapper" Version="2.1.66" />
+    <PackageVersion Include="ManyConsole" Version="2.0.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageVersion Include="Microsoft.SqlServer.DacFx" Version="162.5.57" />
+    <PackageVersion Include="Moq" Version="4.20.72" />
+    <PackageVersion Include="MSTest" Version="3.8.3" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="3.8.3" />
+    <PackageVersion Include="MSTest.TestFramework" Version="3.8.3" />
+    <PackageVersion Include="OpenTelemetry" Version="1.11.2" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.11.2" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2" />
+    <PackageVersion Include="SimpleInjector" Version="5.5.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.5" />
+    <PackageVersion Include="TextCopy" Version="6.2.1" />
+  </ItemGroup>
 </Project>
