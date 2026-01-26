@@ -10,9 +10,11 @@ public class QueueNameFixture
     private QueueName CreateQueueName(string value) => new(value);
 
     [TestMethod]
-    public void Given_AllowedValue_When_New_Then_Result()
+    [DataRow("QueueName")]
+    [DataRow("Queue_Name")]
+    public void Given_AllowedValue_When_New_Then_Result(string name)
     {
-        Assert.AreEqual("QueueName", CreateQueueName("QueueName").Value);
+        Assert.AreEqual(name, CreateQueueName(name).Value);
     }
 
     [TestMethod]
