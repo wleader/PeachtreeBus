@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>PeachtreeBus.Abstractions</id>
+        <version>0.12.6</version>
+        <authors>William Leader</authors>
+        <owners>wleader</owners>
+        <projectUrl>https://github.com/wleader/PeachtreeBus</projectUrl>
+        <license type="expression">MIT</license>
+        <icon>icon.png</icon>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <releaseNotes>0.12.6 Generate Sql Tool and Underscores in QueueName</releaseNotes>
+        <description>
+        PeachtreeBus Abstractions for Applications.
+        </description>
+        <copyright>Copyright 2025 William Leader</copyright>
+        <tags>MessageBus ServiceBus Bus Queue SQL Transport</tags>
+        <dependencies>
+            <group targetFramework="net8.0">
+                <dependency id="PeachtreeBus.MessageInterfaces" version="0.12.6" />
+            </group>
+            <group targetFramework="net9.0">
+                <dependency id="PeachtreeBus.MessageInterfaces" version="0.12.6" />
+            </group>
+            <group targetFramework="net10.0">
+                <dependency id="PeachtreeBus.MessageInterfaces" version="0.12.6" />
+            </group>
+        </dependencies>
+        <readme>docs\README.md</readme>
+    </metadata>
+    <files>
+        <file src=".\..\icon.png" target="icon.png" />
+        <file src=".\..\Docs\README.md" target="docs\" />
+        <file src=".\bin\Release\net8.0\PeachtreeBus.Abstractions.dll" target="lib\net8.0\PeachtreeBus.Abstractions.dll" />
+        <file src=".\bin\Release\net8.0\PeachtreeBus.Abstractions.pdb" target="lib\net8.0\PeachtreeBus.Abstractions.pdb" />
+        <file src=".\bin\Release\net9.0\PeachtreeBus.Abstractions.dll" target="lib\net9.0\PeachtreeBus.Abstractions.dll" />
+        <file src=".\bin\Release\net9.0\PeachtreeBus.Abstractions.pdb" target="lib\net9.0\PeachtreeBus.Abstractions.pdb" />
+        <file src=".\bin\Release\net10.0\PeachtreeBus.Abstractions.dll" target="lib\net10.0\PeachtreeBus.Abstractions.dll" />
+        <file src=".\bin\Release\net10.0\PeachtreeBus.Abstractions.pdb" target="lib\net10.0\PeachtreeBus.Abstractions.pdb" />
+    </files>
+</package>

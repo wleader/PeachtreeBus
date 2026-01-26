@@ -35,8 +35,8 @@ function Get-DirectoryPackagesVersion
 
 function Update-Nuspec
 {
-    param([string]$version,[string]$filename)
-    $fullPath = Resolve-Path $filename
+    param([string]$version,[string]$name)
+    $fullPath = Resolve-Path ".\$name\$name.nuspec"
 
     $xml = New-Object -TypeName System.Xml.XmlDocument
     $xml.PreserveWhitespace = $true
@@ -78,6 +78,12 @@ function Update-DirectoryBuildProps
     $xml.Save($fullPath)
 }
 
+function Pack-Project
+{
+    param([string]$name)
+    dotnet pack .\$name\$name.csproj -p:NuspecFile=$name.nuspec -o .\Packages --configuration Release
+}
+
 Quiet-Remove-Folder .\PeachtreeBus.MessageInterfaces\bin\Debug
 Quiet-Remove-Folder .\PeachtreeBus.MessageInterfaces\bin\Release
 Quiet-Remove-Folder .\PeachtreeBus.Abstractions\bin\Debug
@@ -93,21 +99,20 @@ Quiet-Remove-Folder .\PeachtreeBus.EntityFrameworkCore\bin\Release
 
 Update-DirectoryBuildProps
 
-Update-Nuspec $version ".\PeachtreeBus.MessageInterfaces.nuspec"
-Update-Nuspec $version ".\PeachtreeBus.Abstractions.nuspec"
-Update-Nuspec $version ".\PeachtreeBus.Core.nuspec"
-Update-Nuspec $version ".\PeachtreeBus.SimpleInjector.nuspec"
-Update-Nuspec $version ".\PeachtreeBus.MicrosoftDependencyInjection.nuspec"
-Update-Nuspec $version ".\PeachtreeBus.EntityFrameworkCore.nuspec"
+Update-Nuspec $version "PeachtreeBus.MessageInterfaces"
+Update-Nuspec $version "PeachtreeBus.Abstractions"
+Update-Nuspec $version "PeachtreeBus.Core"
+Update-Nuspec $version "PeachtreeBus.SimpleInjector"
+Update-Nuspec $version "PeachtreeBus.MicrosoftDependencyInjection"
+Update-Nuspec $version "PeachtreeBus.EntityFrameworkCore"
 
-.\nuget.exe restore PeachtreeBus.sln
+dotnet restore PeachtreeBus.sln
 
-#this throws erros on the .sqlproj projects, but the other stuff does build. 
 dotnet build PeachtreeBus.sln -p Configuration=Nuget
 
-.\nuget.exe pack PeachtreeBus.MessageInterfaces.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
-.\nuget.exe pack PeachtreeBus.Abstractions.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
-.\nuget.exe pack PeachtreeBus.Core.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
-.\nuget.exe pack PeachtreeBus.SimpleInjector.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
-.\nuget.exe pack PeachtreeBus.EntityFrameworkCore.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
-.\nuget.exe pack PeachtreeBus.MicrosoftDependencyInjection.nuspec -OutputDirectory .\Packages -Properties Configuration=Release
+Pack-Project "PeachtreeBus.MessageInterfaces"
+Pack-Project "PeachtreeBus.Abstractions"
+Pack-Project "PeachtreeBus.Core"
+Pack-Project "PeachtreeBus.SimpleInjector"
+Pack-Project "PeachtreeBus.EntityFrameworkCore"
+Pack-Project "PeachtreeBus.MicrosoftDependencyInjection"
