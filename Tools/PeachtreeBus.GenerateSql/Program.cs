@@ -1,4 +1,5 @@
-﻿using ManyConsole;
+﻿using System;
+using ManyConsole;
 
 namespace PeachtreeBus.GenerateSql;
 
