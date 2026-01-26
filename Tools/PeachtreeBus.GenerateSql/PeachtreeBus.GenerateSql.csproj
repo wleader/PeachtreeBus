@@ -9,7 +9,6 @@
 
     <ItemGroup>
       <PackageReference Include="ManyConsole" />
-      <PackageReference Include="TextCopy" />
     </ItemGroup>
 
     <ItemGroup>
