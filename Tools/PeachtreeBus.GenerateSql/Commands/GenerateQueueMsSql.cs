@@ -23,7 +23,7 @@ public class GenerateQueueMsSql : BaseGenerateCommand
         
         // Pending table has an extra index that the others don't
         builder.AppendLine(
-            $"CREATE INDEX IX_{Schema}_{Queue}_Pending_GetNext ON [{Schema}].[{Queue}_Pending] ([Priority]) INCLUDE ([NotBefore])");
+            $"CREATE INDEX IX_{Schema}_{Queue.ToMsSqlConstraint()}_Pending_GetNext ON [{Schema}].[{Queue}_Pending] ([Priority]) INCLUDE ([NotBefore])");
         builder.AppendLine("GO");
         builder.AppendLine();
 
@@ -48,16 +48,16 @@ public class GenerateQueueMsSql : BaseGenerateCommand
             .IndentLine("[Retries] TINYINT NOT NULL,", 1)
             .IndentLine("[Headers] NVARCHAR(MAX) NOT NULL,", 1)
             .IndentLine("[Body] NVARCHAR(MAX) NOT NULL,", 1)
-            .IndentLine($"CONSTRAINT PK_{Schema}_{Queue}_{table}_Id PRIMARY KEY ([Id])", 1)
+            .IndentLine($"CONSTRAINT PK_{Schema}_{Queue.ToMsSqlConstraint()}_{table}_Id PRIMARY KEY ([Id])", 1)
             .AppendLine(")")
             .AppendLine("GO")
             .AppendLine()
             .AppendLine(
-                $"ALTER TABLE [{Schema}].[{Queue}_{table}] ADD CONSTRAINT DF_{Schema}_{Queue}_{table}_Retries DEFAULT ((0)) FOR [Retries]")
+                $"ALTER TABLE [{Schema}].[{Queue}_{table}] ADD CONSTRAINT DF_{Schema}_{Queue.ToMsSqlConstraint()}_{table}_Retries DEFAULT ((0)) FOR [Retries]")
             .AppendLine("GO")
             .AppendLine()
             .AppendLine(
-                $"CREATE INDEX IX_{Schema}_{Queue}_{table}_Enqueued ON [{Schema}].[{Queue}_{table}] ([Enqueued] DESC)")
+                $"CREATE INDEX IX_{Schema}_{Queue.ToMsSqlConstraint()}_{table}_Enqueued ON [{Schema}].[{Queue}_{table}] ([Enqueued] DESC)")
             .AppendLine("GO")
             .AppendLine();
     }
