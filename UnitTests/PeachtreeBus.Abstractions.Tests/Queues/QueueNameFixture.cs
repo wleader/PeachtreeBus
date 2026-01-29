@@ -12,6 +12,7 @@ public class QueueNameFixture
     [TestMethod]
     [DataRow("QueueName")]
     [DataRow("Queue_Name")]
+    [DataRow("Queue.Name")]
     public void Given_AllowedValue_When_New_Then_Result(string name)
     {
         Assert.AreEqual(name, CreateQueueName(name).Value);

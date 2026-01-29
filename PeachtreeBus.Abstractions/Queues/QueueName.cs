@@ -7,7 +7,7 @@ namespace PeachtreeBus.Queues;
 [JsonConverter(typeof(QueueNameJsonConverter))]
 public readonly record struct QueueName
 {
-    public const string AllowedCharacters = "abcdefghijklmnopqrstuvwxyz0123456789_";
+    public const string AllowedCharacters = "abcdefghijklmnopqrstuvwxyz0123456789_.";
 
     private readonly string _value;
 
