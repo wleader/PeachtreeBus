@@ -17,9 +17,9 @@ public class GenerateQueueMsSql : BaseGenerateCommand
     {
         var builder = new StringBuilder();
         
-        AppendTable(builder, "Completed");
-        AppendTable(builder, "Failed");
-        AppendTable(builder, "Pending");
+        AppendTable(builder, "Completed", false);
+        AppendTable(builder, "Failed",false);
+        AppendTable(builder, "Pending", true);
         
         // Pending table has an extra index that the others don't
         builder.AppendLine(
@@ -32,12 +32,13 @@ public class GenerateQueueMsSql : BaseGenerateCommand
         return 0;
     }
 
-    private void AppendTable(StringBuilder builder, string table)
+    private void AppendTable(StringBuilder builder, string table, bool identity)
     {
+        var identityStr = identity ? " IDENTITY" : "";
         builder
             .AppendLine($"CREATE TABLE [{Schema}].[{Queue}_{table}]")
             .AppendLine("(")
-            .IndentLine("[Id] BIGINT NOT NULL,", 1)
+            .Indent(1).Append("[Id] BIGINT NOT NULL").Append(identity).AppendLine(",")
             .IndentLine("[MessageId] UNIQUEIDENTIFIER NOT NULL,", 1)
             .IndentLine("[Priority] INT NOT NULL,", 1)
             .IndentLine("[NotBefore] DATETIME2 NOT NULL,", 1)
