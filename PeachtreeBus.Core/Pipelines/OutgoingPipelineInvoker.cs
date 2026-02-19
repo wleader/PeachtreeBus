@@ -15,11 +15,23 @@ public abstract class OutgoingPipelineInvoker<TInternalContext, TContext, TPipel
 {
     public async Task Invoke(TInternalContext context)
     {
-        // the outgoing pipeline is much simpler, since sending happens from an
-        // existing DI scope. So we just need to use that existing scope to build
-        // the pipeline and invoke it.
+        // For the outgoing pipeline:
+        // It may be that the code is sending from 
+        // an incoming message handler, in which case serviceProviderAccessor
+        // will already have an existing DI scope stored inside it from when the
+        // IncomingPipelineInvoker created a scope for handling the message.
+        //
+        // It could also be that there is a scope from some other framework.
+        // and that other framework maybe does know to use IServiceProviderAccessor's
+        // UseExisting() method to provide a scope to the PeachtreeBus library,
+        // in which case we are fine to use that.
+        //
+        // Or it could be that some other framework created this OutgoingPipelineInvoker,
+        // but did not call UseExisting to make it available to other scoped objects
+        // like this one. In that case, reading serviceProviderAccessor.ServiceProvider
+        // will throw an exception, and the user code will be forced to deal with it.
 
-        ArgumentNullException.ThrowIfNull(context, nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
 
         BusContextAccessor.Set(context);
 

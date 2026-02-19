@@ -13,9 +13,10 @@ public abstract class ServiceProviderAccessor<TScope> : IServiceProviderAccessor
             throw new ServiceProviderAccessorException(
                 """
                 The IServiceProvider has not been configured.
-                Use IScopeFactory to create an new scope and IServiceProvider, or call the UseExisting method to set your own IServiceProvider
+                Use IScopeFactory to create an IServiceProviderAccessor which will create a new Scope, or call the UseExisting method to provide your own scoped IServiceProvider.
                 """);
 
+    private bool _scopeSet;
     protected TScope? _scope;
     private IServiceProvider? _userSuppliedServiceProvider;
     protected IServiceProvider? _factorySuppliedServiceProvider;
@@ -26,6 +27,7 @@ public abstract class ServiceProviderAccessor<TScope> : IServiceProviderAccessor
 
     public void Initialize(TScope scope, IServiceProvider serviceProvider)
     {
+        _scopeSet = true;
         _scope = scope;
         _factorySuppliedServiceProvider = serviceProvider;
     }
@@ -39,7 +41,16 @@ public abstract class ServiceProviderAccessor<TScope> : IServiceProviderAccessor
     {
         _factorySuppliedServiceProvider = null;
         _userSuppliedServiceProvider = null;
-        _scope?.Dispose();
+
+        // if TScope is a struct, and Initialize hasn't been
+        // called, then TScope might not be null, but also it might
+        // be uninitialized, and therefore can't be disposed.
+        // only attempt to dispose if Initialize was called.
+        // This can be the case when using Microsoft.Extensions.DependencyInjection
+        // AsyncServiceScope. There may be others in the future.
+        if (_scopeSet)
+            _scope?.Dispose();
+        
         GC.SuppressFinalize(this);
     }
 }

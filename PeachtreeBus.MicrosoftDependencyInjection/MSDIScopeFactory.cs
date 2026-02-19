@@ -21,7 +21,7 @@ public class MSDIScopeFactory(
         var accessor = ServiceProviderServiceExtensions.GetService<IServiceProviderAccessor>(nativeScope.ServiceProvider);
         var msdiAccessor = (accessor as MSDIServiceProviderAccessor)
             ?? throw new MSDIScopeFactoryException(
-                "IServiceProviderAccessor is not an MSDIServiceProviderAccessor. Did you replace the registration with the IServiceCollection");
+                "IServiceProviderAccessor is not an MSDIServiceProviderAccessor. Did you replace the registration within the IServiceCollection?");
         msdiAccessor.Initialize(nativeScope, nativeScope.ServiceProvider);
         return msdiAccessor;
     }
