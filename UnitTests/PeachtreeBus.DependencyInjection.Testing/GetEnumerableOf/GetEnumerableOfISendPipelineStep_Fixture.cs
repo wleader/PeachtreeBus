@@ -28,7 +28,7 @@ public class SendPipelineStep2 : ISendPipelineStep
     }
 }
 
-public class GetEnumerableOfISendPipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
+public abstract class GetEnumerableOfISendPipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
     : GetEnumerableOfService_FixtureBase<ISendPipelineStep, TContainer>(containerBuilder)
 {
     protected override IEnumerable<Type> GetTypesToRegister() =>

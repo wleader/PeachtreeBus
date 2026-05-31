@@ -28,8 +28,7 @@ public class SubscribedPipelineStep2 : ISubscribedPipelineStep
     }
 }
 
-[TestClass]
-public class GetEnumerableOfISubscribedPipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
+public abstract class GetEnumerableOfISubscribedPipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
     : GetEnumerableOfService_FixtureBase<ISubscribedPipelineStep, TContainer>(containerBuilder)
 {
     protected override IEnumerable<Type> GetTypesToRegister() =>

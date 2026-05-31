@@ -10,14 +10,14 @@ public class UnreachableExceptionFixture
     public void Given_Null_When_ThrowIfNull_Throws()
     {
         object? parameter = null;
-        Assert.ThrowsException<UnreachableException>(() =>
+        Assert.ThrowsExactly<UnreachableException>(() =>
             UnreachableException.ThrowIfNull(parameter));
     }
 
     [TestMethod]
     public void Given_Object_When_ThrowIfNull_ReturnsObject()
     {
-        object? parameter = new();
+        object parameter = new();
         var actual = UnreachableException.ThrowIfNull(parameter);
         Assert.AreSame(parameter, actual);
     }

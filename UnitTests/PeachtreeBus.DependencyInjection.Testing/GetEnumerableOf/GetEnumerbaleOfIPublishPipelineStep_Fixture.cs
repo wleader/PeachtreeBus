@@ -28,7 +28,7 @@ public class PublishPipelineStep2 : IPublishPipelineStep
     }
 }
 
-public class GetEnumerbaleOfIPublishPipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
+public abstract class GetEnumerbaleOfIPublishPipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
     : GetEnumerableOfService_FixtureBase<IPublishPipelineStep, TContainer>(containerBuilder)
 {
     protected override IEnumerable<Type> GetTypesToRegister() =>

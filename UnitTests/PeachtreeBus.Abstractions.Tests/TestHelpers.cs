@@ -12,14 +12,14 @@ public static class TestHelpers
     public static void AssertFunctionThrowsForDbUnsafeValues<T>(Func<string, T> func)
     {
         // DB safe names can not be null.
-        Assert.ThrowsException<StringNotAllowedException>(() => func(null!));
+        Assert.ThrowsExactly<StringNotAllowedException>(() => func(null!));
 
         // DB safe names can not be empty strings 
-        Assert.ThrowsException<StringNotAllowedException>(() => func(string.Empty));
+        Assert.ThrowsExactly<StringNotAllowedException>(() => func(string.Empty));
 
         foreach (var c in DatabaseForbiddenChars)
         {
-            Assert.ThrowsException<StringNotAllowedException>(() => func(c.ToString()));
+            Assert.ThrowsExactly<StringNotAllowedException>(() => func(c.ToString()));
         }
     }
 }

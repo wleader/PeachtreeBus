@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Subscriptions;
 using System;
@@ -143,7 +142,7 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task Given_UninitializedSubscriberId_When_Subscribe_Then_Throws()
         {
-            await Assert.ThrowsExceptionAsync<SubscriberIdException>(() =>
+            await Assert.ThrowsExactlyAsync<SubscriberIdException>(() =>
                 dataAccess.Subscribe(TestData.UnintializedSubscriberId, TestData.DefaultTopic, DateTime.UtcNow.AddMinutes(30)));
         }
     }

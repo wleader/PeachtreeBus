@@ -12,7 +12,7 @@ public class TopicFixture
     [DataRow("")]
     public void Given_String_When_New_Then_Throws(string value)
     {
-        Assert.ThrowsException<TopicException>(() => _ = new Topic(value));
+        Assert.ThrowsExactly<TopicException>(() => _ = new Topic(value));
     }
 
     [TestMethod]
@@ -20,7 +20,7 @@ public class TopicFixture
     [DataRow(SagaKey.MaxLength + 1)]
     public void Given_StringOfLength_When_New_Then_Throws(int length)
     {
-        Assert.ThrowsException<TopicException>(() =>
+        Assert.ThrowsExactly<TopicException>(() =>
             _ = new Topic(new string('x', length)));
     }
 
@@ -44,14 +44,14 @@ public class TopicFixture
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        Assert.ThrowsException<TopicException>(() =>
+        Assert.ThrowsExactly<TopicException>(() =>
         _ = ((Topic)default).ToString());
     }
 
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        Assert.ThrowsException<TopicException>(() =>
+        Assert.ThrowsExactly<TopicException>(() =>
         _ = ((Topic)default).Value);
     }
 }

@@ -11,7 +11,7 @@ public class SagaKeyFixture
     [DataRow("")]
     public void Given_String_When_New_Then_Throws(string value)
     {
-        Assert.ThrowsException<SagaKeyException>(() => _ = new SagaKey(value));
+        Assert.ThrowsExactly<SagaKeyException>(() => _ = new SagaKey(value));
     }
 
     [TestMethod]
@@ -19,7 +19,7 @@ public class SagaKeyFixture
     [DataRow(SagaKey.MaxLength + 1)]
     public void Given_StringOfLength_When_New_Then_Throws(int length)
     {
-        Assert.ThrowsException<SagaKeyException>(() =>
+        Assert.ThrowsExactly<SagaKeyException>(() =>
             _ = new SagaKey(new string('x', length)));
     }
 
@@ -34,14 +34,14 @@ public class SagaKeyFixture
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        Assert.ThrowsException<SagaKeyException>(() =>
+        Assert.ThrowsExactly<SagaKeyException>(() =>
             _ = ((SagaKey)default).ToString());
     }
 
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        Assert.ThrowsException<SagaKeyException>(() =>
+        Assert.ThrowsExactly<SagaKeyException>(() =>
             _ = ((SagaKey)default).Value);
     }
 

@@ -47,29 +47,29 @@ public class MetersFixture
             .Select(f => f.FieldType)
             .Count(IsInstrument);
 
-        const string ChangeVersionMessage =
+        const string changeVersionMessage =
             "If the instruments change, then the Meter.Version must change.";
 
         // if an instrument is added or removed, the version should change.
-        Assert.AreEqual(8, instrumentCount, ChangeVersionMessage);
+        Assert.AreEqual(8, instrumentCount, changeVersionMessage);
 
         // if an instrument name, unit, or type changes, the version should change.
         AssertInstrumentUnchanged(Meters.CompletedMessageCount,
-            "messaging.client.consumed.messages", "messages", typeof(long), ChangeVersionMessage);
+            "messaging.client.consumed.messages", "messages", typeof(long), changeVersionMessage);
         AssertInstrumentUnchanged(Meters.ActiveMessageCount,
-            "peachtreebus.client.active.messages", "messages", typeof(int), ChangeVersionMessage);
+            "peachtreebus.client.active.messages", "messages", typeof(int), changeVersionMessage);
         AssertInstrumentUnchanged(Meters.AttemptedMessageCount,
-            "peachtreebus.client.attempted.messages", "messages", typeof(long), ChangeVersionMessage);
+            "peachtreebus.client.attempted.messages", "messages", typeof(long), changeVersionMessage);
         AssertInstrumentUnchanged(Meters.FailedMessageCount,
-            "peachtreebus.client.failed.messages", "messages", typeof(long), ChangeVersionMessage);
+            "peachtreebus.client.failed.messages", "messages", typeof(long), changeVersionMessage);
         AssertInstrumentUnchanged(Meters.SentMessageCount,
-            "messaging.client.sent.messages", "messages", typeof(long), ChangeVersionMessage);
+            "messaging.client.sent.messages", "messages", typeof(long), changeVersionMessage);
         AssertInstrumentUnchanged(Meters.RetryMessageCount,
-            "peachtreebus.client.retry.messages", "messages", typeof(long), ChangeVersionMessage);
+            "peachtreebus.client.retry.messages", "messages", typeof(long), changeVersionMessage);
         AssertInstrumentUnchanged(Meters.BlockedSagaMessageCount,
-            "peachtreebus.client.blockedsaga.messsages", "messages", typeof(long), ChangeVersionMessage);
+            "peachtreebus.client.blockedsaga.messsages", "messages", typeof(long), changeVersionMessage);
         AssertInstrumentUnchanged(Meters.ActiveTaskCount,
-            "peachtreebus.client.active.tasks", "tasks", typeof(int), ChangeVersionMessage);
+            "peachtreebus.client.active.tasks", "tasks", typeof(int), changeVersionMessage);
 
         // if this fails, add or remove above as needed.
         Assert.AreEqual(instrumentCount, _assertedInstruments.Distinct().Count(),
@@ -87,7 +87,8 @@ public class MetersFixture
         _assertedInstruments.Add(instrument);
         Assert.AreEqual(expectedName, instrument.Name, failMessage);
         Assert.AreEqual(expectedUnit, instrument.Unit, failMessage);
-        Assert.AreEqual(expectedType, typeof(T), failMessage);
+        var actual = typeof(T);
+        Assert.AreEqual(expectedType, actual, failMessage);
     }
 
     [TestMethod]

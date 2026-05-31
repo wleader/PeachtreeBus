@@ -1,22 +1,23 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using Moq.Language.Flow;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
 [TestClass]
 public class SharedDatabaseExceptionHandlingFixture
 {
-    private SharedDatabase _db = default!;
-    private Mock<ISqlConnectionFactory> _connectionFactory = default!;
-    private Mock<ISqlConnection> _connection = default!;
-    private Mock<ISqlTransaction> _transaction = default!;
+    private SharedDatabase _db = null!;
+    private Mock<ISqlConnectionFactory> _connectionFactory = null!;
+    private Mock<ISqlConnection> _connection = null!;
+    private Mock<ISqlTransaction> _transaction = null!;
 
-    private Exception? TransactionStartedHandlerException = null;
-    private Exception? TransactionConsumedHandlerException = null;
+    private Exception? _transactionStartedHandlerException;
+    private Exception? _transactionConsumedHandlerException;
 
     [TestInitialize]
-    public void Intialize()
+    public void Initialize()
     {
         _transaction = new();
 
@@ -42,14 +43,14 @@ public class SharedDatabaseExceptionHandlingFixture
 
     private void TransactionConsumedEventHandler(object? sender, EventArgs e)
     {
-        if (TransactionConsumedHandlerException is not null)
-            throw TransactionConsumedHandlerException;
+        if (_transactionConsumedHandlerException is not null)
+            throw _transactionConsumedHandlerException;
     }
 
     private void TransactionStartedEventHandler(object? sender, EventArgs e)
     {
-        if (TransactionStartedHandlerException is not null)
-            throw TransactionStartedHandlerException;
+        if (_transactionStartedHandlerException is not null)
+            throw _transactionStartedHandlerException;
     }
 
     [TestMethod]
@@ -68,99 +69,130 @@ public class SharedDatabaseExceptionHandlingFixture
     [TestMethod]
     public void Given_ConnectionFactoryThrows_When_BeginTransaction_Then_Throws()
     {
-        _connectionFactory.Setup(f => f.GetConnection()).Throws<Exception>();
-        Assert.ThrowsException<Exception>(_db.BeginTransaction);
+        var ex = new Exception("Test Exception");
+        _connectionFactory.Setup(f => f.GetConnection()).Throws(ex);
+        var thrown = Assert.Throws<Exception>(_db.BeginTransaction);
+        Assert.AreSame(ex, thrown);
     }
 
     [TestMethod]
     public void Given_ConnectionBeginTransactionThrows_When_BeginTransaction_Then_Throws()
     {
-        _connection.Setup(c => c.BeginTransaction()).Throws<Exception>();
-        Assert.ThrowsException<Exception>(_db.BeginTransaction);
+        Given_Setup_When_Action_Then_Throws(
+            _connection.Setup(c => c.BeginTransaction()),
+            _db.BeginTransaction);
     }
 
     [TestMethod]
     public void Given_TransactionStartedHandlerThrows_When_BeginTransaction_Then_Throws()
     {
-        TransactionStartedHandlerException = new();
-        Assert.ThrowsException<Exception>(_db.BeginTransaction);
+        _transactionStartedHandlerException = new();
+        var thrown = Assert.Throws<Exception>(_db.BeginTransaction);
+        Assert.AreSame(_transactionStartedHandlerException, thrown);
     }
 
     [TestMethod]
     public void Given_TransactionCommitThrows_When_CommitTransaction_Then_Throws()
     {
-        _transaction.Setup(t => t.Commit()).Throws<Exception>();
         _db.BeginTransaction();
-        Assert.ThrowsException<Exception>(_db.CommitTransaction);
+        Given_Setup_When_Action_Then_Throws(
+            _transaction.Setup(t => t.Commit()),
+            _db.CommitTransaction);
     }
 
     [TestMethod]
     public void Given_TransactionConsumedHandlerThrows_When_CommitTransaction_Then_Throws()
     {
         _db.BeginTransaction();
-        TransactionConsumedHandlerException = new();
-        Assert.ThrowsException<Exception>(_db.CommitTransaction);
+        Given_TransactionConsumed_When_Action_Then_Throws(_db.CommitTransaction);
     }
 
     [TestMethod]
     public void Given_TransactionSaveThrows_When_CreateSavepoint_Then_Throws()
     {
-        _transaction.Setup(t => t.Save(It.IsAny<string>())).Throws<Exception>();
         _db.BeginTransaction();
-        Assert.ThrowsException<Exception>(() => _db.CreateSavepoint("Savepoint1"));
+        Given_Setup_When_Action_Then_Throws(
+            _transaction.Setup(t => t.Save(It.IsAny<string>())),
+            () => _db.CreateSavepoint("Savepoint1"));
     }
 
     [TestMethod]
     public void Given_TransactionRollbackToSavepointThrows_When_RollbackToSavepoint_Then_Throws()
     {
-        _transaction.Setup(t => t.Rollback(It.IsAny<string>())).Throws<Exception>();
         _db.BeginTransaction();
-        Assert.ThrowsException<Exception>(() => _db.RollbackToSavepoint("Savepoint1"));
+        Given_Setup_When_Action_Then_Throws(
+            _transaction.Setup(t => t.Rollback(It.IsAny<string>())),
+            () => _db.RollbackToSavepoint("Savepoint1"));
     }
 
     [TestMethod]
     public void Given_TransactionRollbackThrows_When_RollbackTransaction_Then_Throws()
     {
-        _transaction.Setup(t => t.Rollback()).Throws<Exception>();
         _db.BeginTransaction();
-        Assert.ThrowsException<Exception>(_db.RollbackTransaction);
+        Given_Setup_When_Action_Then_Throws(
+            _transaction.Setup(t => t.Rollback()),
+            _db.RollbackTransaction);
     }
 
     [TestMethod]
     public void Given_TransactionConsumedHandlerThrows_When_RollbackTransaction_Then_Throws()
     {
-        TransactionConsumedHandlerException = new();
         _db.BeginTransaction();
-        Assert.ThrowsException<Exception>(_db.RollbackTransaction);
+        Given_TransactionConsumed_When_Action_Then_Throws(_db.RollbackTransaction);
     }
 
     [TestMethod]
     public void Given_TransactionConsumedHandlerThrows_When_Reconnect_Then_Throws()
     {
         _db.BeginTransaction();
-        TransactionConsumedHandlerException = new();
-        Assert.ThrowsException<Exception>(_db.Reconnect);
+        Given_TransactionConsumed_When_Action_Then_Throws(_db.Reconnect);
     }
 
     [TestMethod]
     public void Given_ConnectionFactoryThrows_When_Reconnect_Then_Throws()
     {
-        _connectionFactory.Setup(f => f.GetConnection()).Throws<Exception>();
-        Assert.ThrowsException<Exception>(_db.Reconnect);
+        Given_Setup_When_Action_Then_Throws(
+            _connectionFactory.Setup(f => f.GetConnection()),
+            _db.Reconnect);
     }
 
     [TestMethod]
     public void Given_ConnectionOpenThrows_When_Reconnect_Then_Throws()
     {
-        _connection.Setup(c => c.Open()).Throws<Exception>();
-        Assert.ThrowsException<Exception>(_db.Reconnect);
+        Given_Setup_When_Action_Then_Throws(
+            _connection.Setup(c => c.Open()),
+            _db.Reconnect);
     }
 
     [TestMethod]
     public void Given_TransactionConsumedHandlerThrows_When_Dispose_Then_Throws()
     {
         _db.BeginTransaction();
-        TransactionConsumedHandlerException = new();
-        Assert.ThrowsException<Exception>(_db.Dispose);
+        Given_TransactionConsumed_When_Action_Then_Throws(_db.Dispose);
+    }
+
+    private static void Given_Setup_When_Action_Then_Throws<T>(ISetup<T> setup, Action action)
+        where T : class
+    {
+        var ex = new Exception("Test Exception");
+        setup.Throws(ex);
+        var thrown = Assert.Throws<Exception>(action);
+        Assert.AreSame(ex, thrown);
+    }
+    
+    private static void Given_Setup_When_Action_Then_Throws<T, TResult>(ISetup<T, TResult> setup, Action action)
+        where T : class
+    {
+        var ex = new Exception("Test Exception");
+        setup.Throws(ex);
+        var thrown = Assert.Throws<Exception>(action);
+        Assert.AreSame(ex, thrown);
+    }
+    
+    private void Given_TransactionConsumed_When_Action_Then_Throws(Action action)
+    {
+        _transactionConsumedHandlerException = new();
+        var thrown = Assert.Throws<Exception>(action);
+        Assert.AreSame(_transactionConsumedHandlerException, thrown);
     }
 }

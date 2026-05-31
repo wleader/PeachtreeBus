@@ -19,14 +19,14 @@ public class SubscriberIdFixture
     [TestMethod]
     public void Given_GuidEmpty_When_New_Then_Throws()
     {
-        Assert.ThrowsException<SubscriberIdException>(() =>
+        Assert.ThrowsExactly<SubscriberIdException>(() =>
             new SubscriberId(Guid.Empty));
     }
 
     [TestMethod]
     public void Given_Invalid_When_RequireValid_Then_Throws()
     {
-        Assert.ThrowsException<SubscriberIdException>(
+        Assert.ThrowsExactly<SubscriberIdException>(
             () => SubscriberId.Invalid.RequreValid());
     }
 

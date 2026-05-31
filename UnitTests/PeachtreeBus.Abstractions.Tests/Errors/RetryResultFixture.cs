@@ -19,7 +19,7 @@ public class RetryResultFixture
     [TestMethod]
     public void Given_DelayIsNegative_When_New_Then_Throws()
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(
             () => new RetryResult(true, new TimeSpan(-1)));
     }
 }

@@ -24,7 +24,7 @@ public class SagaNameFixture
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
+        var thrown = Assert.ThrowsExactly<NotInitializedException>(() =>
             _ = ((SagaName)default).ToString());
         Assert.AreEqual(typeof(SagaName), thrown.Type);
     }
@@ -32,7 +32,7 @@ public class SagaNameFixture
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
+        var thrown = Assert.ThrowsExactly<NotInitializedException>(() =>
             _ = ((SagaName)default).Value);
         Assert.AreEqual(typeof(SagaName), thrown.Type);
     }

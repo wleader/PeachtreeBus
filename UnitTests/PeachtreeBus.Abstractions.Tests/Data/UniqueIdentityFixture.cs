@@ -11,7 +11,7 @@ public class UniqueIdentityFixture
     [TestMethod]
     public void Given_GuidEmpty_When_New_Then_Throws()
     {
-        Assert.ThrowsException<UniqueIdentityException>(() =>
+        Assert.ThrowsExactly<UniqueIdentityException>(() =>
             _ = new UniqueIdentity(Guid.Empty));
     }
 
@@ -51,7 +51,7 @@ public class UniqueIdentityFixture
     [TestMethod]
     public void Given_Invalid_When_RequireValid_Then_Throws()
     {
-        Assert.ThrowsException<UniqueIdentityException>(
+        Assert.ThrowsExactly<UniqueIdentityException>(
             () => UniqueIdentity.Empty.RequireValid());
     }
 

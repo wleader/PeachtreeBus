@@ -17,7 +17,7 @@ namespace PeachtreeBus.Abstractions.Tests.Exceptions
         public void Given_Null_When_ThrowIfNull_Then_Throws()
         {
             object? parameter = null;
-            var actual = Assert.ThrowsException<IncorrectImplementationException>(() =>
+            var actual = Assert.ThrowsExactly<IncorrectImplementationException>(() =>
                 IncorrectImplementationException.ThrowIfNull(parameter, ClassType, InterfaceType));
 
             Assert.IsNotNull(actual);
@@ -29,7 +29,7 @@ namespace PeachtreeBus.Abstractions.Tests.Exceptions
         [TestMethod]
         public void Given_Object_When_ThrowIfNull_Then_Result()
         {
-            object? parameter = new();
+            object parameter = new();
             var actual = IncorrectImplementationException.ThrowIfNull(parameter, ClassType, InterfaceType);
             Assert.AreSame(parameter, actual);
         }

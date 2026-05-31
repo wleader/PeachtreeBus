@@ -21,7 +21,7 @@ public class TypeIsNotIQueueMessageExceptionFixture
     [TestMethod]
     public void Given_ClassWithoutInterface_When_ThrowIf_Then_Throws()
     {
-        Assert.ThrowsException<TypeIsNotIQueueMessageException>(() =>
+        Assert.ThrowsExactly<TypeIsNotIQueueMessageException>(() =>
             TypeIsNotIQueueMessageException.ThrowIfMissingInterface(typeof(object)));
     }
 
@@ -48,7 +48,7 @@ public class TypeIsNotISubscribedMessageExceptionFixture
     [TestMethod]
     public void Given_ClassWithoutInterface_When_ThrowIf_Then_Throws()
     {
-        Assert.ThrowsException<TypeIsNotISubscribedMessageException>(() =>
+        Assert.ThrowsExactly<TypeIsNotISubscribedMessageException>(() =>
             TypeIsNotISubscribedMessageException.ThrowIfMissingInterface(typeof(object)));
     }
 

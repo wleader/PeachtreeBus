@@ -27,16 +27,15 @@ public class QueueNameFixture
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
+        var thrown = Assert.ThrowsExactly<NotInitializedException>(() =>
             _ = ((QueueName)default).ToString());
         Assert.AreEqual(typeof(QueueName), thrown.Type);
     }
 
-
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
+        var thrown = Assert.ThrowsExactly<NotInitializedException>(() =>
             _ = ((QueueName)default).Value);
         Assert.AreEqual(typeof(QueueName), thrown.Type);
     }

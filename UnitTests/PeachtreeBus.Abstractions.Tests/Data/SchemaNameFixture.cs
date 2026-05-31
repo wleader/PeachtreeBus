@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Data;
 using PeachtreeBus.Exceptions;
 
@@ -19,7 +18,7 @@ public class SchemaNameFixture
     [TestMethod]
     public void Given_Uninitialized_When_ToString_Then_Throws()
     {
-        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
+        var thrown = Assert.ThrowsExactly<NotInitializedException>(() =>
             _ = ((SchemaName)default).ToString());
         Assert.AreEqual(typeof(SchemaName), thrown.Type);
     }
@@ -35,7 +34,7 @@ public class SchemaNameFixture
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        var thrown = Assert.ThrowsException<NotInitializedException>(() =>
+        var thrown = Assert.ThrowsExactly<NotInitializedException>(() =>
             _ = ((SchemaName)default).Value);
         Assert.AreEqual(typeof(SchemaName), thrown.Type);
     }

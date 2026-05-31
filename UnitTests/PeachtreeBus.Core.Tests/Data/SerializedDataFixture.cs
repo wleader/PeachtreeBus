@@ -16,7 +16,7 @@ public class SerializedDataFixture
     [TestMethod]
     public void Given_Unintialized_When_ToString_Then_Exception()
     {
-        Assert.ThrowsException<SerializedDataException>(() =>
+        Assert.ThrowsExactly<SerializedDataException>(() =>
             _ = ((SerializedData)default).ToString());
     }
 
@@ -25,14 +25,14 @@ public class SerializedDataFixture
     [DataRow("")]
     public void Given_BadData_When_New_Then_Throws(string poison)
     {
-        Assert.ThrowsException<SerializedDataException>(() =>
+        Assert.ThrowsExactly<SerializedDataException>(() =>
         _ = new SerializedData(poison));
     }
 
     [TestMethod]
     public void Given_Uninitialized_When_GetValue_Then_Throws()
     {
-        Assert.ThrowsException<SerializedDataException>(() =>
+        Assert.ThrowsExactly<SerializedDataException>(() =>
             _ = ((SerializedData)default).Value);
     }
 }

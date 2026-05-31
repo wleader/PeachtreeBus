@@ -7,10 +7,10 @@ namespace PeachtreeBus.Abstractions.Tests.Errors;
 public class FailureCountFixture
 {
     [TestMethod]
-    public void Given_Uninitialzed_Then_ValueThrows()
+    public void Given_Uninitialized_Then_ValueThrows()
     {
         FailureCount count = default;
-        Assert.ThrowsException<FailureCountException>(
+        Assert.ThrowsExactly<FailureCountException>(
             () => _ = count.Value);
     }
 
@@ -18,7 +18,7 @@ public class FailureCountFixture
     public void Given_Uninitialized_Then_ToStringThrows()
     {
         FailureCount count = default;
-        Assert.ThrowsException<FailureCountException>(
+        Assert.ThrowsExactly<FailureCountException>(
             () => _ = count.ToString());
     }
 
@@ -40,12 +40,12 @@ public class FailureCountFixture
     [DataRow(int.MinValue)]
     public void Given_Invalid_When_ThrowIfInvalid_Throws(int value)
     {
-        Assert.ThrowsException<FailureCountException>(
+        Assert.Throws<FailureCountException>(
             () => _ = new FailureCount(value));
     }
 
     [TestMethod]
-    public void Given_Byte_When_Assing_Then_ImplicitConverion()
+    public void Given_Byte_When_Assign_Then_ImplicitConversion()
     {
         byte value = 5;
         FailureCount count = value;
@@ -82,7 +82,7 @@ public class FailureCountExceptionFixture
     [DataRow(int.MinValue)]
     public void Given_Invalid_When_ThrowIfInvalid_Throws(int value)
     {
-        Assert.ThrowsException<FailureCountException>(
+        Assert.ThrowsExactly<FailureCountException>(
             () => FailureCountException.ThrowIfInvalid(value));
     }
 }

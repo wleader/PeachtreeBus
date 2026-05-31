@@ -28,7 +28,7 @@ public class QueuePipelineStep2 : IQueuePipelineStep
     }
 }
 
-public class GetEnumerableOfIQueuePipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
+public abstract class GetEnumerableOfIQueuePipelineStep_Fixture<TContainer>(ContainerBuilder<TContainer> containerBuilder)
     : GetEnumerableOfService_FixtureBase<IQueuePipelineStep, TContainer>(containerBuilder)
 {
     protected override IEnumerable<Type> GetTypesToRegister() =>
