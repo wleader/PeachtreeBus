@@ -3,6 +3,27 @@
     <PropertyGroup>
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
+    
+    <PropertyGroup>
+        <!-- 
+            Suppressed Warnings:
+            MSB3243:
+                No way to resolve conflict between 
+                "System.Threading.Tasks.Extensions, Version=10.X.X.X, ..." and
+                "System.Threading.Tasks.Extensions, Version=4.X.X.X, ...". Choosing 
+                "System.Threading.Tasks.Extensions, Version=10.X.X, ..." arbitrarily.
+                
+                PeachtreeBus.SourceGenerators must target netstandard2.0. When targeting 
+                netstandard2.0 assemblies must reference the  4.x version, so that the genrator
+                can run as part of the build.
+                PeachtreeBus.SourceGenerators.Tests must target .net10. The test framework
+                must refernce modern .net. Modern .net has its own version of
+                System.Threading.Tasks.Extensions. The tests will run just fine with this
+                newer version. Since this is a test assembly its reasonably safe to suppress this
+                warning. There is a risk that another version conflict may be suppressed.
+        -->
+        <NoWarn>$(NoWarn);MSB3243</NoWarn>
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
