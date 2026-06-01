@@ -12,7 +12,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.FailMessage (Subscribed)
     /// </summary>
     [TestClass]
-    public class SubscriptionMessageFailedFixture : DapperDataAccessFixtureBase
+    public class SubscriptionMessageFailedFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

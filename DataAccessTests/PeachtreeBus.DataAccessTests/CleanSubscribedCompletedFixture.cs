@@ -9,7 +9,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAcess.CleanSubscribedCompleted
     /// </summary>
     [TestClass]
-    public class CleanSubscribedCompletedFixture : DapperDataAccessFixtureBase
+    public class CleanSubscribedCompletedFixture : MsSqlBusDataAccessFixtureBase
     {
         private long lastId = 1000;
 

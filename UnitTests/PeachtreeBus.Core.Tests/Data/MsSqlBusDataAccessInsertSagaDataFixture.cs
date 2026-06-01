@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_InsertSagaData_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessInsertSagaDataFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task Given_SagaDataIsNull_When_InsertSagaData_Then_Throw()

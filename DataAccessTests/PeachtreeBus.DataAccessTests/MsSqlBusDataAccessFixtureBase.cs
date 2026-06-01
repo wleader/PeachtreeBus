@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests;
 
-public abstract class DapperDataAccessFixtureBase : FixtureBase<DapperDataAccess>
+public abstract class MsSqlBusDataAccessFixtureBase : FixtureBase<MsSqlBusDataAccess>
 {
-    protected override DapperDataAccess CreateDataAccess()
+    protected override MsSqlBusDataAccess CreateDataAccess()
     {
-        return new DapperDataAccess(
+        return new MsSqlBusDataAccess(
             SharedDB,
             Configuration.Object,
             MockLog.Object,

@@ -11,7 +11,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.GetPendingQueued
     /// </summary>
     [TestClass]
-    public class QueueMessageGetPendingFixture : DapperDataAccessFixtureBase
+    public class QueueMessageGetPendingFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

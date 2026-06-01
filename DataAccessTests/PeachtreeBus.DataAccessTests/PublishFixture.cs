@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.DataAccessTests;
 
 [TestClass]
-public class PublishFixture : DapperDataAccessFixtureBase
+public class PublishFixture : MsSqlBusDataAccessFixtureBase
 {
     private readonly SubscriberId Subscriber1 = SubscriberId.New();
     private readonly SubscriberId Subscriber2 = SubscriberId.New();

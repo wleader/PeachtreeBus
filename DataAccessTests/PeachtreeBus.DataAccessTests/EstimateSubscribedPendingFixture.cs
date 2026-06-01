@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.DataAccessTests;
 
 [TestClass]
-public class EstimateSubscribedPendingFixture : DapperDataAccessFixtureBase
+public class EstimateSubscribedPendingFixture : MsSqlBusDataAccessFixtureBase
 {
     private readonly SubscriberId SubscriberId = SubscriberId.New();
 

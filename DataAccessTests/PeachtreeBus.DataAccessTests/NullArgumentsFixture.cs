@@ -13,10 +13,10 @@ namespace PeachtreeBus.DataAccessTests;
 [TestClass]
 public class NullArgumentsFixture
 {
-    private DapperDataAccess dataAccess = default!;
+    private MsSqlBusDataAccess dataAccess = default!;
     private Mock<ISharedDatabase> sharedDatabase = default!;
     private Mock<IBusConfiguration> schemaConfig = default!;
-    private Mock<ILogger<DapperDataAccess>> log = default!;
+    private Mock<ILogger<MsSqlBusDataAccess>> log = default!;
     private readonly Mock<IDapperMethods> sqlExecutor = new();
     private readonly FakeBreakerProvider breakerProvider = new();
 

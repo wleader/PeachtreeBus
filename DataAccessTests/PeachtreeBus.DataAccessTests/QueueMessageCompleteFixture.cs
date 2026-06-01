@@ -12,7 +12,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.CompleteMessage
     /// </summary>
     [TestClass]
-    public class QueueMessageCompleteFixture : DapperDataAccessFixtureBase
+    public class QueueMessageCompleteFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

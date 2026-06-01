@@ -10,9 +10,9 @@ using System;
 
 namespace PeachtreeBus.Core.Tests.Data;
 
-public abstract class DapperDataAccess_FixtureBase
+public abstract class MsSqlBusDataAccessFixtureBase
 {
-    protected DapperDataAccess _dataAccess = default!;
+    protected MsSqlBusDataAccess _dataAccess = default!;
     private readonly Mock<IBusConfiguration> _busConfiguration = new();
     private readonly Mock<IDapperMethods> _dapperMethods = new();
     protected readonly Mock<ISharedDatabase> _sharedDb = new();
@@ -37,7 +37,7 @@ public abstract class DapperDataAccess_FixtureBase
         _dataAccess = new(
             _sharedDb.Object,
             _busConfiguration.Object,
-            FakeLog.Create<DapperDataAccess>(),
+            FakeLog.Create<MsSqlBusDataAccess>(),
             _dapperMethods.Object,
             _breakerProvider);
     }

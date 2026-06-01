@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_UpdateSubscribedMessage_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessUpdateSubscribedMessageFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task Given_SubscribedData_When_UpdateMessage_Then_TableNameIsSet()

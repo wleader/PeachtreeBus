@@ -10,7 +10,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.ExpireSubscriptions
     /// </summary>
     [TestClass]
-    public class ExpireSubscriptionsFixture : DapperDataAccessFixtureBase
+    public class ExpireSubscriptionsFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

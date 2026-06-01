@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_CleanSubscribedCompleted_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessCleanSubscribedCompletedFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task Given_Parameters_When_CleanSubscribedCompleted_Then_TableNameIsSet()

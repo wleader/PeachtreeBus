@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_GetSagaData_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessGetSagaDataFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task Given_Parameters_When_GetSagaData_Then_TableNameIsSet()

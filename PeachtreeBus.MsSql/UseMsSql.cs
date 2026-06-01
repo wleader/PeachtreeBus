@@ -6,6 +6,6 @@ public class UseMsSql : IRegisterBusDataAccess
 {
     public void Register(IRegistrationProvider provider)
     {
-        provider.RegisterScoped<IBusDataAccess, DapperDataAccess>();
+        provider.RegisterScoped<IBusDataAccess, MsSqlBusDataAccess>();
     }
 }

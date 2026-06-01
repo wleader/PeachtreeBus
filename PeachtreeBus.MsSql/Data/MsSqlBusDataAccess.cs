@@ -21,16 +21,16 @@ namespace PeachtreeBus.Data;
 /// </remarks>
 /// <param name="database">A Shared Database connection.</param>
 /// <param name="configuration">Configures which DB Schema to find all the tables in.</param>
-public class DapperDataAccess(
+public class MsSqlBusDataAccess(
     ISharedDatabase database,
     IBusConfiguration configuration,
-    ILogger<DapperDataAccess> log,
+    ILogger<MsSqlBusDataAccess> log,
     IDapperMethods dapper,
     ICircuitBreakerProvider breakerProvider)
     : IBusDataAccess
 {
     private readonly ISharedDatabase _database = database;
-    private readonly ILogger<DapperDataAccess> _log = log;
+    private readonly ILogger<MsSqlBusDataAccess> _log = log;
     private readonly IBusConfiguration _configuration = configuration;
 
     private ICircuitBreaker? _breaker;

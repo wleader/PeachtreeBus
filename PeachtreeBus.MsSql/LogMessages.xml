@@ -5,7 +5,7 @@
         <Using>PeachtreeBus.ClassNames</Using>
     </Usings>
     <Namespace name="PeachtreeBus.Data" namespaceId="2">
-        <Class name="DapperDataAccess" classId="1">
+        <Class name="MsSqlBusDataAccess" classId="1">
             <Event name="DataAccessError" level="Error" exception="true" eventId="1">
                 There was an exception interacting with the database. Method: {Method:string}.
             </Event>

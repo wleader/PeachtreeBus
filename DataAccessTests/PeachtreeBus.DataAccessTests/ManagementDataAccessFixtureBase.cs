@@ -12,7 +12,7 @@ namespace PeachtreeBus.DataAccessTests
 {
     public abstract class ManagementDataAccessFixtureBase : FixtureBase<ManagementDataAccess>
     {
-        protected DapperDataAccess BusAccess = default!;
+        protected MsSqlBusDataAccess BusAccess = default!;
 
         [TestInitialize]
         public override void TestInitialize()
@@ -31,7 +31,7 @@ namespace PeachtreeBus.DataAccessTests
             BusAccess = new(
                 SharedDB,
                 Configuration.Object,
-                new Mock<ILogger<DapperDataAccess>>().Object,
+                new Mock<ILogger<MsSqlBusDataAccess>>().Object,
                 DapperMethods,
                 FakeBreakerProvider);
 

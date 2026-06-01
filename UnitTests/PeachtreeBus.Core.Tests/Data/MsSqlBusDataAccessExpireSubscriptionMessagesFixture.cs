@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_ExpireSubscriptionMessages_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessExpireSubscriptionMessagesFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task Given_MaxCount_When_ExpireSubscriptionMessages_Then_TableNameIsSet()

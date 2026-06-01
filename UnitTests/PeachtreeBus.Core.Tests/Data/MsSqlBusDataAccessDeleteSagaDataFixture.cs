@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_DeleteSagaData_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessDeleteSagaDataFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task Given_SagaData_When_DeleteSagaData_Then_TableNameIsSet()

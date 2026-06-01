@@ -10,10 +10,10 @@ namespace PeachtreeBus.DataAccessTests
     [TestClass]
     public class ResetFixture
     {
-        private DapperDataAccess _dataAccess = default!;
+        private MsSqlBusDataAccess _dataAccess = default!;
         private Mock<ISharedDatabase> _sharedDb = default!;
         private Mock<IBusConfiguration> _configuration = default!;
-        private Mock<ILogger<DapperDataAccess>> _logger = default!;
+        private Mock<ILogger<MsSqlBusDataAccess>> _logger = default!;
         private readonly Mock<IDapperMethods> _sqlExecutor = new();
         private readonly FakeBreakerProvider _breakerProvider = new();
 
@@ -25,7 +25,7 @@ namespace PeachtreeBus.DataAccessTests
             _logger = new();
             _sqlExecutor.Reset();
 
-            _dataAccess = new DapperDataAccess(
+            _dataAccess = new MsSqlBusDataAccess(
                 _sharedDb.Object,
                 _configuration.Object,
                 _logger.Object,

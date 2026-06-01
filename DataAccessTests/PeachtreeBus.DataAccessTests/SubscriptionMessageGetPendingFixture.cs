@@ -11,7 +11,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.GetPendingSubscribed
     /// </summary>
     [TestClass]
-    public class SubscriptionMessageGetPendingFixture : DapperDataAccessFixtureBase
+    public class SubscriptionMessageGetPendingFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

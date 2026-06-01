@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_Publish_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessPublishFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task Given_SubscribedDataNull_When_AddMessage_Then_Throws()

@@ -7,7 +7,7 @@ namespace PeachtreeBus.DataAccessTests
     /// Proves the behavior of DapperDataAccess.GetSagaData
     /// </summary>
     [TestClass]
-    public class SagaGetFixture : DapperDataAccessFixtureBase
+    public class SagaGetFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
         public override void TestInitialize()

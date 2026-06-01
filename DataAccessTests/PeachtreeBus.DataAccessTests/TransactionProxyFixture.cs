@@ -11,7 +11,7 @@ using PeachtreeBus.DatabaseTestingShared;
 namespace PeachtreeBus.DataAccessTests;
 
 [TestClass]
-public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
+public class TransactionProxyFixture : FixtureBase<MsSqlBusDataAccess>
 {
     [TestInitialize]
     public override void TestInitialize()
@@ -85,9 +85,9 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
         Assert.IsTrue(transaction.Disposed);
     }
 
-    protected override DapperDataAccess CreateDataAccess()
+    protected override MsSqlBusDataAccess CreateDataAccess()
     {
-        return new DapperDataAccess(
+        return new MsSqlBusDataAccess(
             SharedDB,
             Configuration.Object,
             MockLog.Object,

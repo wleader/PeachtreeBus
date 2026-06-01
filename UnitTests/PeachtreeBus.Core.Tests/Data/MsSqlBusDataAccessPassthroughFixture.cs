@@ -4,7 +4,7 @@ using Moq;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_Passthrough_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessPassthroughFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public void Given_SharedDbWillThrow_When_BeginTransaction_Then_Throws()

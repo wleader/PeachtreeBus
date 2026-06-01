@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Data;
 
 [TestClass]
-public class DapperDataAccess_GetPendingQueued_Fixture : DapperDataAccess_FixtureBase
+public class MsSqlBusDataAccessGetPendingQueuedFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task Given_QueueName_When_GetPendingQueued_Then_TableNameIsSet()

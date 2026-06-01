@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.DataAccessTests;
 
 [TestClass]
-public class EstimateQueuePendingFixture : DapperDataAccessFixtureBase
+public class EstimateQueuePendingFixture : MsSqlBusDataAccessFixtureBase
 {
     [TestInitialize]
     public override void TestInitialize()
