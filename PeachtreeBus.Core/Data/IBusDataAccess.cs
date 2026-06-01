@@ -48,7 +48,7 @@ namespace PeachtreeBus.Data
         /// Gets one message, locking it for update.
         /// Skips locked messages.
         /// </summary>
-        /// <param name="queueId">Which message queue to get the message from.</param>
+        /// <param name="queueName">Which message queue to get the message from.</param>
         /// <returns></returns>
         Task<QueueData?> GetPendingQueued(QueueName queueName);
 
@@ -63,18 +63,21 @@ namespace PeachtreeBus.Data
         /// Inserts a new message into the database.
         /// </summary>
         /// <param name="message">The message to insert.</param>
+        /// <param name="queueName"></param>
         Task<Identity> AddMessage(QueueData message, QueueName queueName);
 
         /// <summary>
         /// Inserts the Message into the completed table, and removes it from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>
+        /// <param name="queueName"></param>
         Task CompleteMessage(QueueData message, QueueName queueName);
 
         /// <summary>
         /// Inserts the message into the error table, and removes if from the queue table.
         /// </summary>
         /// <param name="message">The message to move.</param>
+        /// <param name="queueName"></param>
         Task FailMessage(QueueData message, QueueName queueName);
 
         /// <summary>
@@ -82,24 +85,27 @@ namespace PeachtreeBus.Data
         /// Only updates message properties that are allowed to change.
         /// </summary>
         /// <param name="message"></param>
+        /// <param name="queueName"></param>
         Task UpdateMessage(QueueData message, QueueName queueName);
 
         /// <summary>
         /// Inserts Saga Data into the database.
         /// </summary>
         /// <param name="data">The saga data to insert.</param>
+        /// <param name="sagaName"></param>
         Task<Identity> InsertSagaData(SagaData data, SagaName sagaName);
 
         /// <summary>
         /// Updates the saga data in the database.
         /// </summary>
         /// <param name="data">The Data to update. Only updates properties that are allowed to change.</param>
+        /// <param name="sagaName"></param>
         Task UpdateSagaData(SagaData data, SagaName sagaName);
 
         /// <summary>
         /// Reads saga data from the database.
         /// </summary>
-        /// <param name="className">The saga's class name.</param>
+        /// <param name="sagaName">The saga's name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
         /// <returns>Matching saga data.</returns>
         Task<SagaData?> GetSagaData(SagaName sagaName, SagaKey key);
@@ -107,7 +113,7 @@ namespace PeachtreeBus.Data
         /// <summary>
         /// Deletes data for completed sagas.
         /// </summary>
-        /// <param name="className">The saga's class name.</param>
+        /// <param name="sagaName">The saga's name.</param>
         /// <param name="key">The saga's key (used to differentiate multiple instances of the same saga.)</param>
         Task DeleteSagaData(SagaName sagaName, SagaKey key);
 
@@ -120,17 +126,17 @@ namespace PeachtreeBus.Data
         /// <summary>
         /// Adds or updates subscriptions.
         /// </summary>
-        /// <param name="SubscriberId">Which subscriber is subscribing.</param>
-        /// <param name="Topic">What topic of messages the subscriber wants.</param>
+        /// <param name="subscriberId">Which subscriber is subscribing.</param>
+        /// <param name="topic">What topic of messages the subscriber wants.</param>
         /// <param name="until">After what time is the subscription no longer valid.</param>
         /// <returns></returns>
-        Task Subscribe(SubscriberId SubscriberId, Topic Topic, UtcDateTime until);
+        Task Subscribe(SubscriberId subscriberId, Topic topic, UtcDateTime until);
 
         /// <summary>
         /// Gets one message, locking it for update.
         /// Skips locked messages.
         /// </summary>
-        /// <param name="queueId">Which message queue to get the message from.</param>
+        /// <param name="subscriberId">Which subscriber to get a message for.</param>
         /// <returns></returns>
         Task<SubscribedData?> GetPendingSubscribed(SubscriberId subscriberId);
 
@@ -169,7 +175,7 @@ namespace PeachtreeBus.Data
         Task UpdateMessage(SubscribedData message);
 
         /// <summary>
-        /// Moves Subscription Messages from Pending to Error that are not longer valid
+        /// Moves Subscription Messages that are no longer valid from Pending to Error
         /// </summary>
         /// <param name="maxCount">The maximum number of rows to Expire</param>
         /// <returns></returns>
