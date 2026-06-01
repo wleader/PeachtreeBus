@@ -58,7 +58,7 @@ internal class Program
         };
 
         // registers PeachtreeBus components with the container.
-        builder.Services.AddPeachtreeBus(busConfiguration);
+        builder.Services.AddPeachtreeBus(busConfiguration, new UseMsSql());
         
         using var host = builder.Build();
 

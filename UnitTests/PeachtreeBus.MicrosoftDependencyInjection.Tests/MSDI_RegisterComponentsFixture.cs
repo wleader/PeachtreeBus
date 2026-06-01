@@ -14,9 +14,9 @@ public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<ISer
     protected override IServiceProviderAccessor BuildAccessor()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddPeachtreeBus(BusConfiguration, TestAssemblies);
+        serviceCollection.AddPeachtreeBus(BusConfiguration, new UseMsSql(), TestAssemblies);
         serviceCollection.AddLogging(b => b.AddSimpleConsole());
-        
+
         // This will probably change.
         // Assumption, there will be some extension method in 
         // the data access assemblies for adding an IBusDataAccess
@@ -43,7 +43,8 @@ public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<ISer
         container.AddSingleton(typeof(TInterface), instance!);
     }
 
-    protected override void Then_GetHandlersReturnsEmpty<THandler>(IServiceProviderAccessor accessor) where THandler : class
+    protected override void Then_GetHandlersReturnsEmpty<THandler>(IServiceProviderAccessor accessor)
+        where THandler : class
     {
         var actual = accessor.GetServices<THandler>();
         Assert.IsNotNull(actual);

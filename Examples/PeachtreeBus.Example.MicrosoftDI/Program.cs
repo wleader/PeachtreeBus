@@ -9,6 +9,7 @@ using PeachtreeBus.Telemetry;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using PeachtreeBus;
 
 [assembly: ExcludeFromCodeCoverage(Justification = "This is example code.")]
 
@@ -20,6 +21,7 @@ public class Program
     {
         var configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.AddJsonFile("appsettings.json");
+        configurationBuilder.AddJsonFile("appsettings.overrides.json", true);
         var configuration = configurationBuilder.Build();
 
         // read our connection string from the appsettings configuration.
@@ -45,7 +47,7 @@ public class Program
         var busConfiguration = CreateBusConfiguration.Create(connectionString);
 
         // registers PeachtreeBus components with the container.
-        builder.Services.AddPeachtreeBus(busConfiguration);
+        builder.Services.AddPeachtreeBus(busConfiguration, new UseMsSql());
 
         // add application specific services
         builder.Services.AddScoped(typeof(IExampleDataAccess), typeof(ExampleDataAccess));

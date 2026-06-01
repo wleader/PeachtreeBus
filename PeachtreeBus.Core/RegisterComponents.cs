@@ -24,6 +24,11 @@ public interface IRegistrationProvider
     void RegisterSpecialized();
 }
 
+public interface IRegisterBusDataAccess
+{
+    void Register(IRegistrationProvider provider);
+}
+
 public class RegisterComponents(IRegistrationProvider provider)
 {
     public void Register(IBusConfiguration busConfiguration, List<Assembly>? assemblies = null)

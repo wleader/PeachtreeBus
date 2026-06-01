@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace PeachtreeBus.MicrosoftDependencyInjection;
 
-public static partial class MicrosoftDepenencyInjectionExtensions
+public static class MicrosoftDependencyInjectionExtensions
 {
     public static HostApplicationBuilder HostPeachtreeBus(this HostApplicationBuilder builder)
     {
@@ -14,11 +14,16 @@ public static partial class MicrosoftDepenencyInjectionExtensions
         return builder;
     }
 
-    public static IServiceCollection AddPeachtreeBus(this IServiceCollection builder, IBusConfiguration busConfiguration, List<Assembly>? assemblies = null)
+    public static IServiceCollection AddPeachtreeBus(
+        this IServiceCollection builder,
+        IBusConfiguration busConfiguration,
+        IRegisterBusDataAccess registerDataAccess,
+        List<Assembly>? assemblies = null)
     {
         var provider = new MSDIRegistrationProvider(builder);
         var components = new RegisterComponents(provider);
         components.Register(busConfiguration, assemblies);
+        registerDataAccess.Register(provider);
         return builder;
     }
 }
