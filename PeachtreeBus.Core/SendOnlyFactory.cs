@@ -3,6 +3,7 @@ using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PeachtreeBus;
 

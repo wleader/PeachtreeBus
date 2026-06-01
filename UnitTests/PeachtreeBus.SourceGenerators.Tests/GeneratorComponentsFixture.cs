@@ -7,7 +7,6 @@ public class GeneratorComponentsFixture
 {
     [TestMethod]
     public void When_VerifyContainer_Then_DoesNotThrow()
-    {
-        GeneratorComponents.BuildContainer().Verify();
+    { _ = GeneratorComponents.BuildServiceProvider();
     }
 }

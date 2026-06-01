@@ -10,7 +10,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" GeneratePathProperty="true" PrivateAssets="all" />
-        <PackageReference Include="SimpleInjector" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" GeneratePathProperty="true" PrivateAssets="all" VersionOverride="4.6.3" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,7 +26,23 @@
 
     <Target Name="GetDependencyTargetPaths">
         <ItemGroup>
-            <TargetPathWithTargetPlatformMoniker Include="$(PKGSimpleInjector)\lib\netstandard2.0\SimpleInjector.dll" IncludeRuntimeDependency="false" />
+<!--            <None -->
+<!--                Include="$(PkgMicrosoft_Extensions_DependencyInjection_Abstractions)\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll"-->
+<!--                Pack="true" -->
+<!--                PackagePath="analyzers/dotnet/cs"-->
+<!--                Visible="false" />-->
+            <TargetPathWithTargetPlatformMoniker 
+                Include="$(PkgMicrosoft_Extensions_DependencyInjection_Abstractions)\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll"
+                IncludeRuntimeDependency="false" />
+            <TargetPathWithTargetPlatformMoniker
+                Include="$(PKGMicrosoft_Extensions_DependencyInjection)\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.dll"
+                IncludeRuntimeDependency="false" />
+            <TargetPathWithTargetPlatformMoniker
+                Include="$(PKGMicrosoft_Bcl_AsyncInterfaces)\lib\netstandard2.0\Microsoft.Bcl.AsyncInterfaces.dll"
+                IncludeRuntimeDependency="false" />
+            <TargetPathWithTargetPlatformMoniker
+                Include="$(PKGSystem_Threading_Tasks_Extensions)\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll"
+                IncludeRuntimeDependency="false" />
         </ItemGroup>
     </Target>
 

@@ -1,13 +1,12 @@
 ﻿using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace PeachtreeBus.SourceGenerators.LoggerExtensions;
 
 
 [Generator]
-public class LoggerExtensionsGenerator : GeneratorFromDI<ILoggerExtensionsFromXml>;
+public class LoggerExtensionsGenerator : GeneratorFromDependencyInjection<ILoggerExtensionsFromXml>;
 
 public interface ILoggerExtensionsFromXml : IIncrementalGenerator;
 

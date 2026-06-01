@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PeachtreeBus.SourceGenerators;
 
@@ -7,10 +8,10 @@ namespace PeachtreeBus.SourceGenerators;
 /// An incremental generator that initializes its self from the DI Container.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public abstract class GeneratorFromDI<TGenerator> : IIncrementalGenerator
+public abstract class GeneratorFromDependencyInjection<TGenerator> : IIncrementalGenerator
     where TGenerator : class, IIncrementalGenerator
 {
-    private readonly TGenerator _generator = GeneratorComponents.Container.GetInstance<TGenerator>();
+    private readonly TGenerator _generator = GeneratorComponents.ServiceProvider.GetRequiredService<TGenerator>();
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

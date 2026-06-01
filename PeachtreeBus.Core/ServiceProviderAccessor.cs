@@ -1,6 +1,7 @@
 ﻿using PeachtreeBus.Exceptions;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PeachtreeBus;
 
@@ -66,14 +67,15 @@ public static class ServiceProviderAccessorExtensions
     public static T? GetService<T>(this IServiceProviderAccessor accessor) =>
         accessor.ServiceProvider.GetService<T>();
 
-    public static T GetRequiredService<T>(this IServiceProviderAccessor accessor) =>
+    public static T GetRequiredService<T>(this IServiceProviderAccessor accessor)
+    where T : class =>
         accessor.ServiceProvider.GetRequiredService<T>();
 
     public static T? GetService<T>(this IServiceProvider serviceProvider) =>
         (T?)serviceProvider.GetService(typeof(T));
 
-    public static T GetRequiredService<T>(this IServiceProvider serviceProvider) =>
-        serviceProvider.GetService<T>()
-             ?? throw new InvalidOperationException(
-                $"No service for type '{typeof(T)}' has been registered.");
+    // public static T GetRequiredService<T>(this IServiceProvider serviceProvider) =>
+    //     serviceProvider.GetService<T>()
+    //          ?? throw new InvalidOperationException(
+    //             $"No service for type '{typeof(T)}' has been registered.");
 }

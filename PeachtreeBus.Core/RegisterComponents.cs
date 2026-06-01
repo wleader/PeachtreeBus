@@ -50,7 +50,6 @@ public class RegisterComponents(IRegistrationProvider provider)
         provider.RegisterSingleton<IAlwaysRunTracker, AlwaysRunTracker>();
         provider.RegisterScoped<IShareObjectsBetweenScopes, ShareObjectsBetweenScopes>();
         provider.RegisterSingleton<IDapperTypesHandler, DapperTypesHandler>();
-        provider.RegisterScoped<IBusDataAccess, DapperDataAccess>();
         provider.RegisterScoped<IDapperMethods, DapperMethods>();
         provider.RegisterScoped<ISqlConnectionFactory, SqlConnectionFactory>();
         provider.RegisterSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <RootNamespace>PeachtreeBus</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj"/>
+        <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj"/>
+        <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj"/>
+        <ProjectReference Include="..\PeachtreeBus.SourceGenerators\PeachtreeBus.SourceGenerators.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+    <ItemGroup>
+        <!-- if this is not here, the source generator won't see it.-->
+        <AdditionalFiles Include="LogMessages.xml"/>
+    </ItemGroup>
+</Project>

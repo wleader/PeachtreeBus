@@ -18,7 +18,7 @@ namespace PeachtreeBus.DependencyInjection.Testing;
 
 public abstract class BaseRegisterComponentsFixture<TContainer>
 {
-    protected IBusConfiguration BusConfiguration = default!;
+    protected IBusConfiguration BusConfiguration = null!;
 
     [TestInitialize]
     public void Initialize()
@@ -32,13 +32,13 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
 
     protected List<Assembly> TestAssemblies = [Assembly.GetExecutingAssembly()];
 
-    public abstract IServiceProviderAccessor BuildAccessor();
+    protected abstract IServiceProviderAccessor BuildAccessor();
 
-    public abstract void Then_GetServiceFails<TService>();
+    protected abstract void Then_GetServiceFails<TService>() where TService : class;
 
-    public abstract void AddInstance<TInterface>(TContainer container, TInterface instance);
+    protected abstract void AddInstance<TInterface>(TContainer container, TInterface instance);
 
-    protected Action<TContainer>? AddToContainer { get; set; }
+    protected Action<TContainer>? AddToContainer { get; private set; }
 
     [TestMethod]
     public void When_GetIWrappedScope_Then_ResultIsSelf()
@@ -248,7 +248,7 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
     }
 
     [TestMethod]
-    public void Given_SubscribedUseDefaulFailedHandlerTrue_When_Verify_Then_DefaultHandlerIsUsed()
+    public void Given_SubscribedUseDefaultFailedHandlerTrue_When_Verify_Then_DefaultHandlerIsUsed()
     {
         Given_SubscribedUseDefaultFailedHandler(true);
         Then_ServiceIs<IHandleFailedSubscribedMessages, DefaultFailedSubscribedMessageHandler>();
@@ -353,20 +353,20 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
         CollectionAssert.Contains(TestAssemblies, Assembly.GetExecutingAssembly());
         using var accessor = BuildAccessor();
 
-        void Then_TypeIsReturned<TInterface, TImplmentation>() where TInterface : class
+        void ThenTypeIsReturned<TInterface, TImplementation>() where TInterface : class
         {
             var actual = accessor.GetServices<TInterface>();
             Assert.IsNotNull(actual);
-            Assert.IsNotNull(actual.FirstOrDefault(x => x.GetType() == typeof(TImplmentation)));
+            Assert.IsNotNull(actual.FirstOrDefault(x => x.GetType() == typeof(TImplementation)));
         }
 
-        Then_TypeIsReturned<IRunOnStartup, RunOnStartup>();
-        Then_TypeIsReturned<ISubscribedPipelineStep, SubscribedPipelineStep>();
-        Then_TypeIsReturned<IQueuePipelineStep, QueuePipelineStep>();
-        Then_TypeIsReturned<ISendPipelineStep, SendPipelineStep>();
-        Then_TypeIsReturned<IPublishPipelineStep, PublishPipelineStep>();
-        Then_TypeIsReturned<IHandleSubscribedMessage<SubscribedMessage>, SubscribedHandler>();
-        Then_TypeIsReturned<IHandleQueueMessage<QueueMessage>, QueueHandler>();
+        ThenTypeIsReturned<IRunOnStartup, RunOnStartup>();
+        ThenTypeIsReturned<ISubscribedPipelineStep, SubscribedPipelineStep>();
+        ThenTypeIsReturned<IQueuePipelineStep, QueuePipelineStep>();
+        ThenTypeIsReturned<ISendPipelineStep, SendPipelineStep>();
+        ThenTypeIsReturned<IPublishPipelineStep, PublishPipelineStep>();
+        ThenTypeIsReturned<IHandleSubscribedMessage<SubscribedMessage>, SubscribedHandler>();
+        ThenTypeIsReturned<IHandleQueueMessage<QueueMessage>, QueueHandler>();
     }
 
     [TestMethod]
@@ -375,18 +375,18 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
         TestAssemblies = [];
         using var accessor = BuildAccessor();
 
-        void Then_NoTypesReturned<TInterface>() where TInterface : class
+        void ThenNoTypesReturned<TInterface>() where TInterface : class
         {
             var actual = accessor.GetServices<TInterface>();
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.Any());
         }
 
-        Then_NoTypesReturned<IRunOnStartup>();
-        Then_NoTypesReturned<ISubscribedPipelineStep>();
-        Then_NoTypesReturned<IQueuePipelineStep>();
-        Then_NoTypesReturned<ISendPipelineStep>();
-        Then_NoTypesReturned<IPublishPipelineStep>();
+        ThenNoTypesReturned<IRunOnStartup>();
+        ThenNoTypesReturned<ISubscribedPipelineStep>();
+        ThenNoTypesReturned<IQueuePipelineStep>();
+        ThenNoTypesReturned<ISendPipelineStep>();
+        ThenNoTypesReturned<IPublishPipelineStep>();
     }
 
     protected abstract void Then_GetHandlersReturnsEmpty<THandler>(IServiceProviderAccessor accessor) where THandler : class;

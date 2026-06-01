@@ -79,7 +79,6 @@ public class BaseRegisterComponentsFixture
         VerifySingletonRegistered<IAlwaysRunTracker, AlwaysRunTracker>();
         VerifyScopedRegistered<IShareObjectsBetweenScopes, ShareObjectsBetweenScopes>();
         VerifySingletonRegistered<IDapperTypesHandler, DapperTypesHandler>();
-        VerifyScopedRegistered<IBusDataAccess, DapperDataAccess>();
         VerifyScopedRegistered<IDapperMethods, DapperMethods>();
         VerifyScopedRegistered<ISqlConnectionFactory, SqlConnectionFactory>();
         VerifySingletonRegistered<IProvideDbConnectionString, ProvideDbConnectionString>();
@@ -229,9 +228,9 @@ public class BaseRegisterComponentsFixture
     [TestMethod]
     public void Given_AssembliesList_When_Register_Then_FindableTypesAreRegistered()
     {
-        List<Assembly> _assembliesToScan = [typeof(QueueMessage1).Assembly];
+        List<Assembly> assembliesToScan = [typeof(QueueMessage1).Assembly];
 
-        _registerComponents.Register(_basicConfiguration, _assembliesToScan);
+        _registerComponents.Register(_basicConfiguration, assembliesToScan);
 
         VerifyScopedCollection<IPublishPipelineStep>([typeof(PublishPipelineStep1), typeof(PublishPipelineStep2)]);
         VerifyScopedCollection<ISendPipelineStep>([typeof(SendPipelineStep1), typeof(SendPipelineStep2)]);

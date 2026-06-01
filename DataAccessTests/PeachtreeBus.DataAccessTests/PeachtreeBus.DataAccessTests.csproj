@@ -21,6 +21,7 @@
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
         </ProjectReference>
         <ProjectReference Include="..\..\PeachtreeBus.Core\PeachtreeBus.Core.csproj"/>
+        <ProjectReference Include="..\..\PeachtreeBus.MsSql\PeachtreeBus.MsSql.csproj" />
         <ProjectReference Include="..\..\UnitTests\PeachtreeBus.Core.Tests\PeachtreeBus.Core.Tests.csproj"/>
         <ProjectReference Include="..\PeachtreeBus.DatabaseTestingShared\PeachtreeBus.DatabaseTestingShared.csproj" />
     </ItemGroup>

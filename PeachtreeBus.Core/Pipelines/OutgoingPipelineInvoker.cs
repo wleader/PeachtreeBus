@@ -10,7 +10,7 @@ public abstract class OutgoingPipelineInvoker<TInternalContext, TContext, TPipel
     : IOutgoingPipelineInvoker<TInternalContext>
     where TInternalContext : Context, TContext
     where TContext : IContext
-    where TPipeline : IPipeline<TContext>
+    where TPipeline : class, IPipeline<TContext>
     where TFactory : class, IPipelineFactory<TInternalContext, TContext, TPipeline>
 {
     public async Task Invoke(TInternalContext context)

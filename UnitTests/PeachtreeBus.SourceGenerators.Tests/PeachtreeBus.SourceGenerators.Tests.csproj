@@ -15,7 +15,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.Common" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-        <PackageReference Include="SimpleInjector" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjectio" />
     </ItemGroup>
 
     <ItemGroup>

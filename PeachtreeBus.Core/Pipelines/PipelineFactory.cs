@@ -3,7 +3,7 @@
 namespace PeachtreeBus.Pipelines
 {
     public interface IPipelineFactory<TInternalContext, TContext, TPipeline>
-        where TPipeline : IPipeline<TContext>
+        where TPipeline : class, IPipeline<TContext>
     {
         TPipeline Build(TInternalContext context);
     }
@@ -12,9 +12,9 @@ namespace PeachtreeBus.Pipelines
         IServiceProviderAccessor serviceProviderAccessor)
         : IPipelineFactory<TInternalContext, TContext, TPipeline>
         where TInternalContext : Context
-        where TPipeline : IPipeline<TContext>
+        where TPipeline : class, IPipeline<TContext>
         where TPipelineStep : IPipelineStep<TContext>
-        where TFinalStep : IPipelineFinalStep<TContext>
+        where TFinalStep : class, IPipelineFinalStep<TContext>
     {
         public TPipeline Build(TInternalContext context)
         {

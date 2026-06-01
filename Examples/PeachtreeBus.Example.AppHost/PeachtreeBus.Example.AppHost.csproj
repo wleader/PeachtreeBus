@@ -14,7 +14,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\PeachtreeBus.Example.MicrosoftDI\PeachtreeBus.Example.MicrosoftDI.csproj" />
-        <ProjectReference Include="..\PeachtreeBus.Example.SimpleInjector\PeachtreeBus.Example.SimpleInjector.csproj" />
     </ItemGroup>
 
 </Project>

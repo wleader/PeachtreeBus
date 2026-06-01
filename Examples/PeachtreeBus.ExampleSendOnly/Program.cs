@@ -4,38 +4,41 @@ using Microsoft.Extensions.Logging;
 using PeachtreeBus;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
-using PeachtreeBus.SimpleInjector;
-using SimpleInjector;
-using SimpleInjector.Lifestyles;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using PeachtreeBus.MicrosoftDependencyInjection;
 
 [assembly: ExcludeFromCodeCoverage(Justification = "This is example code.")]
 
 internal class Program
 {
-    private static readonly Container _container = new();
-
-    private static void Main()
+    private static async Task Main(string[] args)
     {
-        // setup a scoped lifestyle.
-        _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
-
         // get configuration from appsettings.json
         var configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.AddJsonFile("appsettings.json");
         var configuration = configurationBuilder.Build();
-        _container.RegisterSingleton<IConfiguration>(() => configuration);
 
         // read our connection string from the appsettings configuration.
         var connectionString = configuration.GetConnectionString("PeachtreeBus")
             ?? throw new ApplicationException("A PeachtreeBus connection string is not configured.");
 
-        // log to the console window.
-        using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+        var builder = Host.CreateApplicationBuilder(args);
+        builder.ConfigureContainer(new DefaultServiceProviderFactory(new()
         {
-            builder.AddSimpleConsole();
-        });
+            ValidateOnBuild = true,
+            ValidateScopes = true
+        }));
+
+        builder.Configuration.AddConfiguration(configuration);
+
+        // log to the console window.
+        builder.Logging.ClearProviders();
+        builder.Logging.AddSimpleConsole();
+
 
         var busConfiguration = new BusConfiguration()
         {
@@ -54,22 +57,22 @@ internal class Program
             },
         };
 
-        // register the PeachtreeBus components with the container.
-        // if you are using a different dependency injection system,
-        // you may have to register manually.
-        _container.UsePeachtreeBus(busConfiguration, loggerFactory);
+        // registers PeachtreeBus components with the container.
+        builder.Services.AddPeachtreeBus(busConfiguration);
+        
+        using var host = builder.Build();
 
-        SendMessage();
+        SendMessage(host.Services);
     }
 
-    private static void SendMessage()
+    private static void SendMessage(IServiceProvider serviceProvider)
     {
         // There must be a scope because the queue writer and shared database
         // are scoped objects.
         // If you are using a different dependency injection system,
         // you may have to provide your own IScopeFactory,
         // and register manually.
-        var scopeFactory = _container.GetInstance<IScopeFactory>();
+        var scopeFactory = serviceProvider.GetRequiredService<IScopeFactory>();
 
         // The scope factory gives us an IServiceProviderAccessor.
         // The accessor has a reference to the IServiceProvider for the scope.

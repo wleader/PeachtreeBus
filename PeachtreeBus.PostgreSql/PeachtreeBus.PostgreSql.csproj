@@ -1,3 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <PropertyGroup>
+    <RootNamespace>PeachtreeBus</RootNamespace>
+  </PropertyGroup>  
+  <ItemGroup>
+    <ProjectReference Include="..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+  </ItemGroup>
 </Project>

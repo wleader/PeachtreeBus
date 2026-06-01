@@ -12,8 +12,8 @@ public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipel
     : IIncomingPipelineInvoker<TInternalContext>
     where TInternalContext : Context, TContext
     where TContext : IContext
-    where TPipeline : IPipeline<TContext>
-    where TFactory : IPipelineFactory<TInternalContext, TContext, TPipeline>
+    where TPipeline : class, IPipeline<TContext>
+    where TFactory : class, IPipelineFactory<TInternalContext, TContext, TPipeline>
 {
     public async Task Invoke(TInternalContext context)
     {
@@ -40,7 +40,7 @@ public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipel
         // Shared DB, so we set the Shared DB to ignore the .Dispose call for the
         // duration of the scope.
 
-        ArgumentNullException.ThrowIfNull(context, nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
 
         BusContextAccessor.Set(context);
 

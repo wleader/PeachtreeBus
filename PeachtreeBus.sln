@@ -23,8 +23,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.Core", "Peacht
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.DatabaseSharing", "PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj", "{436FF017-8591-40FE-9FFE-9234C37772C2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeachtreeBus.SimpleInjector", "PeachtreeBus.SimpleInjector\PeachtreeBus.SimpleInjector.csproj", "{E229642E-90EA-4296-A586-0B25A08DCCC0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{DE1CE708-C0BC-4849-B7C7-A6AEFC7096BA}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\README.md = Docs\README.md
@@ -54,8 +52,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseSharin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MicrosoftDependencyInjection.Tests", "UnitTests\PeachtreeBus.MicrosoftDependencyInjection.Tests\PeachtreeBus.MicrosoftDependencyInjection.Tests.csproj", "{590C9D0B-D145-A5DB-EC6E-E29E630C953C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.SimpleInjector.Tests", "UnitTests\PeachtreeBus.SimpleInjector.Tests\PeachtreeBus.SimpleInjector.Tests.csproj", "{21F3825F-ECE8-B1AC-9467-017AF6F551EB}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccessTests", "DataAccessTests", "{821DFAE3-818D-4D12-938A-D3408AFF5830}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DataAccessTests", "DataAccessTests\PeachtreeBus.DataAccessTests\PeachtreeBus.DataAccessTests.csproj", "{5EB86104-15E4-0413-1C6B-DBD094475C3C}"
@@ -71,8 +67,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.ExampleSendOnly", "Examples\PeachtreeBus.ExampleSendOnly\PeachtreeBus.ExampleSendOnly.csproj", "{96A70879-CB04-0D5A-47B2-CB62AB13BA19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.MicrosoftDI", "Examples\PeachtreeBus.Example.MicrosoftDI\PeachtreeBus.Example.MicrosoftDI.csproj", "{7E73850F-582A-1C2D-588D-1B084A9F8C94}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.SimpleInjector", "Examples\PeachtreeBus.Example.SimpleInjector\PeachtreeBus.Example.SimpleInjector.csproj", "{9D81B19D-14A8-1617-AF43-55D2E3525BCA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.AppHost", "Examples\PeachtreeBus.Example.AppHost\PeachtreeBus.Example.AppHost.csproj", "{9E355254-9228-E324-3033-F44FFF524E71}"
 EndProject
@@ -95,6 +89,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.PostgreSql", "PeachtreeBus.PostgreSql\PeachtreeBus.PostgreSql.csproj", "{1683B036-5A40-4BF2-AA92-98B609C4D789}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseSharing.PostgreSql", "PeachtreeBus.DatabaseSharing.PostgreSql\PeachtreeBus.DatabaseSharing.PostgreSql.csproj", "{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MsSql", "PeachtreeBus.MsSql\PeachtreeBus.MsSql.csproj", "{274221BB-B9FA-4FCA-8E66-04B38412E725}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -120,12 +116,6 @@ Global
 		{436FF017-8591-40FE-9FFE-9234C37772C2}.Nuget|Any CPU.Build.0 = Release|Any CPU
 		{436FF017-8591-40FE-9FFE-9234C37772C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{436FF017-8591-40FE-9FFE-9234C37772C2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E229642E-90EA-4296-A586-0B25A08DCCC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E229642E-90EA-4296-A586-0B25A08DCCC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E229642E-90EA-4296-A586-0B25A08DCCC0}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
-		{E229642E-90EA-4296-A586-0B25A08DCCC0}.Nuget|Any CPU.Build.0 = Release|Any CPU
-		{E229642E-90EA-4296-A586-0B25A08DCCC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E229642E-90EA-4296-A586-0B25A08DCCC0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{397A2FE8-C559-4F0C-AE4F-E3BE6275096D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{397A2FE8-C559-4F0C-AE4F-E3BE6275096D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{397A2FE8-C559-4F0C-AE4F-E3BE6275096D}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
@@ -186,11 +176,6 @@ Global
 		{590C9D0B-D145-A5DB-EC6E-E29E630C953C}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
 		{590C9D0B-D145-A5DB-EC6E-E29E630C953C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{590C9D0B-D145-A5DB-EC6E-E29E630C953C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{21F3825F-ECE8-B1AC-9467-017AF6F551EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{21F3825F-ECE8-B1AC-9467-017AF6F551EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{21F3825F-ECE8-B1AC-9467-017AF6F551EB}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
-		{21F3825F-ECE8-B1AC-9467-017AF6F551EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{21F3825F-ECE8-B1AC-9467-017AF6F551EB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5EB86104-15E4-0413-1C6B-DBD094475C3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5EB86104-15E4-0413-1C6B-DBD094475C3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EB86104-15E4-0413-1C6B-DBD094475C3C}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
@@ -221,11 +206,6 @@ Global
 		{7E73850F-582A-1C2D-588D-1B084A9F8C94}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
 		{7E73850F-582A-1C2D-588D-1B084A9F8C94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E73850F-582A-1C2D-588D-1B084A9F8C94}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9D81B19D-14A8-1617-AF43-55D2E3525BCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9D81B19D-14A8-1617-AF43-55D2E3525BCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9D81B19D-14A8-1617-AF43-55D2E3525BCA}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
-		{9D81B19D-14A8-1617-AF43-55D2E3525BCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9D81B19D-14A8-1617-AF43-55D2E3525BCA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E355254-9228-E324-3033-F44FFF524E71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9E355254-9228-E324-3033-F44FFF524E71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E355254-9228-E324-3033-F44FFF524E71}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
@@ -282,6 +262,12 @@ Global
 		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -293,14 +279,12 @@ Global
 		{A63E1988-BB54-1156-C67C-19A227F94ABB} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{08CCA997-8596-4AD4-E8EC-C2DED8890A26} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{590C9D0B-D145-A5DB-EC6E-E29E630C953C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{21F3825F-ECE8-B1AC-9467-017AF6F551EB} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{5EB86104-15E4-0413-1C6B-DBD094475C3C} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
 		{352B1BE9-5BB7-9486-8793-6F29C7FBF4D5} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
 		{ADEAE403-20E8-F74E-D6A8-915BA9AD990A} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
 		{7F6A3911-A90A-4EA3-8B70-E0838191FACC} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
 		{96A70879-CB04-0D5A-47B2-CB62AB13BA19} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
 		{7E73850F-582A-1C2D-588D-1B084A9F8C94} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
-		{9D81B19D-14A8-1617-AF43-55D2E3525BCA} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
 		{9E355254-9228-E324-3033-F44FFF524E71} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
 		{12CDD5A0-78AC-A189-B55B-DD5DCFF7E538} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{4CB7BCC8-0BF2-43A3-A0D5-062588B9DE03} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}

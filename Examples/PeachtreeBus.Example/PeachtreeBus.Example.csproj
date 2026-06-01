@@ -9,11 +9,12 @@
         <PackageReference Include="OpenTelemetry" />
         <PackageReference Include="OpenTelemetry.Exporter.Console" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
-        <PackageReference Include="SimpleInjector" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\PeachtreeBus.Abstractions\PeachtreeBus.Abstractions.csproj" />
       <ProjectReference Include="..\..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+      <ProjectReference Include="..\..\PeachtreeBus.MsSql\PeachtreeBus.MsSql.csproj" />
     </ItemGroup>
 
     <ItemGroup>

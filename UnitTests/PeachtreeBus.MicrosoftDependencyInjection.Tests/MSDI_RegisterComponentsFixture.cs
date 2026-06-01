@@ -3,17 +3,25 @@ using Microsoft.Extensions.Logging;
 using PeachtreeBus.DependencyInjection.Testing;
 using System;
 using System.Linq;
+using Moq;
+using PeachtreeBus.Data;
 
 namespace PeachtreeBus.MicrosoftDependencyInjection.Tests;
 
 [TestClass]
 public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<IServiceCollection>
 {
-    public override IServiceProviderAccessor BuildAccessor()
+    protected override IServiceProviderAccessor BuildAccessor()
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddPeachtreeBus(BusConfiguration, TestAssemblies);
         serviceCollection.AddLogging(b => b.AddSimpleConsole());
+        
+        // This will probably change.
+        // Assumption, there will be some extension method in 
+        // the data access assemblies for adding an IBusDataAccess
+        var busDataAcess = new Mock<IBusDataAccess>();
+        serviceCollection.AddSingleton(busDataAcess.Object);
 
         AddToContainer?.Invoke(serviceCollection);
 
@@ -23,13 +31,14 @@ public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<ISer
         return factory.Create();
     }
 
-    public override void Then_GetServiceFails<TService>()
+    protected override void Then_GetServiceFails<TService>()
+        where TService : class
     {
         using var accessor = BuildAccessor();
         Assert.ThrowsExactly<InvalidOperationException>(() => accessor.GetRequiredService<TService>());
     }
 
-    public override void AddInstance<TInterface>(IServiceCollection container, TInterface instance)
+    protected override void AddInstance<TInterface>(IServiceCollection container, TInterface instance)
     {
         container.AddSingleton(typeof(TInterface), instance!);
     }
