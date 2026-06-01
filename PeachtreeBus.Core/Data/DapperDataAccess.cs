@@ -46,7 +46,7 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<Identity> AddMessage(QueueData message, QueueName queueName)
         {
-            const string EnqueueMessageStatement =
+            const string enqueueMessageStatement =
                 """
                 INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK)
                 ([MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -59,7 +59,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            string statement = string.Format(EnqueueMessageStatement, _configuration.Schema, queueName);
+            string statement = string.Format(enqueueMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@MessageId", message.MessageId);
@@ -83,7 +83,7 @@ namespace PeachtreeBus.Data
             // ROWLOCK hint to tell the server to lock at the row level instead of the default page lock.
             // NotBefore so we don't get messages that are scheduled for the future.
             // Completed and Failed are null means not previously processed and not previously exceeded retry count.
-            const string GetOnePendingMessageStatement =
+            const string getOnePendingMessageStatement =
                 """
                 SELECT TOP 1 [Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]
                 FROM [{0}].[{1}_Pending] WITH(UPDLOCK, READPAST, ROWLOCK)
@@ -93,7 +93,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            var query = string.Format(GetOnePendingMessageStatement, _configuration.Schema, queueName);
+            var query = string.Format(getOnePendingMessageStatement, _configuration.Schema, queueName);
 
             return await LogIfError(dapper.QueryFirstOrDefault<QueueData>(query));
         }
@@ -105,9 +105,9 @@ namespace PeachtreeBus.Data
             // It doesn't check that all the rows between those values
             // have a not-before less than now.
             // If there are rows in between the max and the min where the 
-            // not before is in the future, this will over-estimate.
+            // not-before is in the future, this will over-estimate.
             // It is ok to over-estimate.
-            const string EstimateQueuedStatement =
+            const string estimateQueuedStatement =
                 """
                 SELECT ISNULL(CAST(MAX(Id) - MIN([Id]) + 1 AS BIGINT), 0)
                 FROM [{0}].[{1}_Pending] WITH (READPAST, READCOMMITTEDLOCK)
@@ -116,7 +116,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            var query = string.Format(EstimateQueuedStatement, _configuration.Schema, queueName);
+            var query = string.Format(estimateQueuedStatement, _configuration.Schema, queueName);
 
             return await LogIfError(dapper.ExecuteScalar<long>(query));
         }
@@ -130,7 +130,7 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentNullException"></exception>
         public async Task CompleteMessage(QueueData message, QueueName queueName)
         {
-            const string CompleteMessageStatement =
+            const string completeMessageStatement =
                 """
                 INSERT INTO [{0}].[{1}_Completed] WITH (ROWLOCK) 
                 ([Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -144,7 +144,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            string statement = string.Format(CompleteMessageStatement, _configuration.Schema, queueName);
+            string statement = string.Format(completeMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -161,7 +161,7 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentNullException"></exception>
         public async Task FailMessage(QueueData message, QueueName queueName)
         {
-            const string FailMessageStatement =
+            const string failMessageStatement =
                 """
                 INSERT INTO [{0}].[{1}_Failed] WITH (ROWLOCK)  
                 ([Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -175,7 +175,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(FailMessageStatement, _configuration.Schema, queueName);
+            string statement = string.Format(failMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -193,7 +193,7 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentNullException"></exception>
         public async Task UpdateMessage(QueueData message, QueueName queueName)
         {
-            const string UpdateMessageStatement =
+            const string updateMessageStatement =
                 """
                 UPDATE [{0}].[{1}_Pending] WITH (ROWLOCK) SET
                 [NotBefore] = @NotBefore,
@@ -206,7 +206,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            var statement = string.Format(UpdateMessageStatement, _configuration.Schema, queueName);
+            var statement = string.Format(updateMessageStatement, _configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -226,7 +226,7 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<Identity> InsertSagaData(SagaData data, SagaName sagaName)
         {
-            const string InsertSagaStatement =
+            const string insertSagaStatement =
                 """
                 INSERT INTO [{0}].[{1}_SagaData] WITH (ROWLOCK)
                 ([SagaId], [Key], [Data], [MetaData])
@@ -239,7 +239,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(data);
 
-            string statement = string.Format(InsertSagaStatement, _configuration.Schema, sagaName);
+            string statement = string.Format(insertSagaStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@SagaId", data.SagaId);
@@ -259,7 +259,7 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentNullException"></exception>
         public async Task UpdateSagaData(SagaData data, SagaName sagaName)
         {
-            const string UpdateSagaStatement =
+            const string updateSagaStatement =
                 """
                 UPDATE [{0}].[{1}_SagaData] WITH (ROWLOCK) SET
                 [Data] = @Data,
@@ -271,7 +271,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(data);
 
-            var statement = string.Format(UpdateSagaStatement, _configuration.Schema, sagaName);
+            var statement = string.Format(updateSagaStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@Id", data.Id);
@@ -289,7 +289,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         public async Task DeleteSagaData(SagaName sagaName, SagaKey key)
         {
-            const string DeleteSagaStatement =
+            const string deleteSagaStatement =
                 """
                 DELETE FROM [{0}].[{1}_SagaData] WITH (ROWLOCK)
                 WHERE [Key] = @Key
@@ -297,7 +297,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            string statement = string.Format(DeleteSagaStatement, _configuration.Schema, sagaName);
+            string statement = string.Format(deleteSagaStatement, _configuration.Schema, sagaName);
             var p = new DynamicParameters();
             p.Add("@Key", key);
 
@@ -312,7 +312,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         public async Task<SagaData?> GetSagaData(SagaName sagaName, SagaKey key)
         {
-            // This is a multi-step operation.
+            // This is a multistep operation.
             // First we try to select and lock the target row into variables with an UPDLOCK and NOWAIT.
             // If the first select locked the row, 
             //      The @@ROWCOUNT will be 1, and we can return the selected data.
@@ -326,7 +326,7 @@ namespace PeachtreeBus.Data
             //      it means that the row really is locked by someone else.
             // If any select fails with error 1222, then the row is locked by someone else
             //      return a blocked result.
-            const string GetSagaDataStatement =
+            const string getSagaDataStatement =
                 """
                 DECLARE
                     @Id bigint,
@@ -366,7 +366,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            var query = string.Format(GetSagaDataStatement, _configuration.Schema, sagaName);
+            var query = string.Format(getSagaDataStatement, _configuration.Schema, sagaName);
 
             var p = new DynamicParameters();
             p.Add("@Key", key);
@@ -380,7 +380,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         public async Task<long> ExpireSubscriptions(int maxCount)
         {
-            const string ExpireSubscriptionsStatement =
+            const string expireSubscriptionsStatement =
                 """
                 DELETE TOP (@MaxCount) FROM [{0}].[Subscriptions] WITH (ROWLOCK, READPAST)
                 WHERE [ValidUntil] < SYSUTCDATETIME()
@@ -389,7 +389,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            string statement = string.Format(ExpireSubscriptionsStatement, _configuration.Schema);
+            string statement = string.Format(expireSubscriptionsStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
@@ -406,7 +406,7 @@ namespace PeachtreeBus.Data
         /// <returns></returns>
         public async Task Subscribe(SubscriberId subscriberId, Topic topic, UtcDateTime until)
         {
-            const string SubscribeStatement =
+            const string subscribeStatement =
                 """
                 UPDATE [{0}].[Subscriptions] WITH (UPDLOCK, SERIALIZABLE)
                     SET [ValidUntil] = @ValidUntil
@@ -423,7 +423,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            string statement = string.Format(SubscribeStatement, _configuration.Schema);
+            string statement = string.Format(subscribeStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
@@ -471,7 +471,7 @@ namespace PeachtreeBus.Data
             // this table has an index that works well for this
             // and the volume of susbcribed messages is expected to be lower than
             // for queued, so an actual count is feasable here.
-            const string EstimateQueuedStatement =
+            const string estimateQueuedStatement =
                 """
                 SELECT COUNT(*)
                 FROM [{0}].[Subscribed_Pending] WITH (READPAST, READCOMMITTEDLOCK)
@@ -481,7 +481,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            var query = string.Format(EstimateQueuedStatement, _configuration.Schema);
+            var query = string.Format(estimateQueuedStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@SubscriberId", subscriberId);
@@ -491,7 +491,7 @@ namespace PeachtreeBus.Data
 
         public async Task<long> Publish(SubscribedData message, Topic topic)
         {
-            const string PublishStatement =
+            const string publishStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                 ([SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -506,7 +506,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(PublishStatement, _configuration.Schema);
+            string statement = string.Format(publishStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Priority", message.Priority);
@@ -557,7 +557,7 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentNullException"></exception>
         public async Task FailMessage(SubscribedData message)
         {
-            const string FailMessageStatement =
+            const string failMessageStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)  
                 ([Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -571,7 +571,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            string statement = string.Format(FailMessageStatement, _configuration.Schema);
+            string statement = string.Format(failMessageStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -588,7 +588,7 @@ namespace PeachtreeBus.Data
         /// <exception cref="ArgumentNullException"></exception>
         public async Task UpdateMessage(SubscribedData message)
         {
-            const string UpdateMessageStatement =
+            const string updateMessageStatement =
                 """
                 UPDATE [{0}].[Subscribed_Pending] WITH (ROWLOCK)
                 SET [NotBefore] = @NotBefore,
@@ -601,7 +601,7 @@ namespace PeachtreeBus.Data
 
             ArgumentNullException.ThrowIfNull(message);
 
-            var statement = string.Format(UpdateMessageStatement, _configuration.Schema);
+            var statement = string.Format(updateMessageStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", message.Id);
@@ -620,7 +620,7 @@ namespace PeachtreeBus.Data
         {
             // move to failed based on ValidUntil.
 
-            const string ExpireStatement =
+            const string expireStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)
                 ([Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -633,7 +633,7 @@ namespace PeachtreeBus.Data
 
             using var _ = StartActivity();
 
-            var statement = string.Format(ExpireStatement, _configuration.Schema);
+            var statement = string.Format(expireStatement, _configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@MaxCount", maxCount);
@@ -767,8 +767,7 @@ namespace PeachtreeBus.Data
             [CallerMemberName] string caller = "Unnamed")
         {
             return ActivitySources.DataAccess.StartActivity(
-                "peachtreebus.dataaccess " + caller,
-                ActivityKind.Internal);
+                "peachtreebus.dataaccess " + caller);
         }
 
         /// <summary>
