@@ -78,7 +78,7 @@ public class TransactionProxyFixture : FixtureBase<DapperDataAccess>
     [TestMethod]
     public void Verify_DisposeTransaction()
     {
-        using var connection = new SqlConnectionProxy(TestSettings.TestDatabase);
+        using var connection = new SqlConnectionProxy(new(TestSettings.TestDatabase));
         connection.Open();
         var transaction = connection.BeginTransaction();
         transaction.Dispose();

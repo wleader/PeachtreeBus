@@ -1,35 +1,33 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace PeachtreeBus.DatabaseSharing
+namespace PeachtreeBus.DatabaseSharing;
+
+/// <summary>
+/// An interface around the SQL Connection
+/// to facilitate testing.
+/// </summary>
+public interface ISqlConnection : IBaseConnection<SqlConnection, SqlTransaction,
+    ISqlTransaction>;
+
+/// <summary>
+/// Implements the ISqlConnection interface by passing
+/// directly though to Microsoft.Data.SqlClient.SqlConnection.
+/// </summary>
+[ExcludeFromCodeCoverage(Justification =
+    "This object requires a real SQL server to properly test.")]
+public class SqlConnectionProxy(SqlConnection connection)
+    : BaseConnection<SqlConnection, SqlTransaction, ISqlTransaction>(connection), ISqlConnection
 {
-    /// <summary>
-    /// Implements the ISqlConnection interface by passing
-    /// directly though to Microsoft.Data.SqlClient.SqlConnection.
-    /// </summary>
-    /// <param name="connectionString"></param>
-    [ExcludeFromCodeCoverage(Justification =
-        "This object requires a real SQL server to properly test.")]
-    public class SqlConnectionProxy(string connectionString) : ISqlConnection
+    public override ISqlTransaction BeginTransaction() => 
+        new SqlTransactionProxy(Connection.BeginTransaction());
+
+    public override async Task<ISqlTransaction> BeginTransactionAsync(
+        CancellationToken cancellationToken = default)
     {
-        public bool Disposed { get; private set; } = false;
-        public SqlConnection Connection { get; } = new(connectionString);
-        public System.Data.ConnectionState State { get => Connection.State; }
-
-        public void Open() => Connection.Open();
-        public void Close() => Connection.Close();
-
-        public ISqlTransaction BeginTransaction()
-        {
-            return new SqlTransactionProxy(Connection.BeginTransaction());
-        }
-
-        public void Dispose()
-        {
-            Connection.Dispose();
-            GC.SuppressFinalize(this);
-            Disposed = true;
-        }
+        var t = await Connection.BeginTransactionAsync(cancellationToken);
+        return new SqlTransactionProxy((SqlTransaction)t);
     }
 }

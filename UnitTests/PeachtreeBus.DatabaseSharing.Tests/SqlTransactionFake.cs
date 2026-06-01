@@ -4,21 +4,18 @@ using PeachtreeBus.Testing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
 public class SqlTransactionFake : ISqlTransaction
 {
-    public SqlTransactionFake()
-    {
-        Transaction = SqlServerTesting.CreateTransaction();
-    }
+    public bool Disposed { get; private set; }
 
-    public bool Disposed { get; private set; } = false;
+    public SqlTransaction Transaction { get; } = SqlServerTesting.CreateTransaction();
 
-    public SqlTransaction Transaction { get; }
-
-    public bool Committed { get; private set; } = false;
+    public bool Committed { get; private set; }
 
     public void Commit()
     {
@@ -27,18 +24,37 @@ public class SqlTransactionFake : ISqlTransaction
         Committed = true;
     }
 
+    public Task CommitAsync(CancellationToken cancellationToken = default)
+    {
+        Commit();
+        return Task.CompletedTask;
+    }
+
     public void Dispose()
     {
         Disposed = true;
         GC.SuppressFinalize(this);
     }
 
-    public bool RolledBack { get; private set; } = false;
+    public ValueTask DisposeAsync()
+    {
+        Disposed = true;
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
+    }
+
+    public bool RolledBack { get; private set; }
 
     public void Rollback()
     {
         Assert.IsFalse(RolledBack, "Transaction has been rolled back twice.");
         RolledBack = true;
+    }
+
+    public Task RollbackAsync(CancellationToken cancellationToken = default)
+    {
+        Rollback();
+        return Task.CompletedTask;
     }
 
     public List<string> SavePoints { get; } = [];
@@ -57,11 +73,23 @@ public class SqlTransactionFake : ISqlTransaction
         LastRollbackName = transactionName;
     }
 
-    public string? LastSaveName { get => SavePoints.LastOrDefault(); }
+    public Task RollbackAsync(string transactionName, CancellationToken cancellationToken = default)
+    {
+        Rollback(transactionName);
+        return Task.CompletedTask;
+    }
+
+    public string? LastSaveName => SavePoints.LastOrDefault();
 
     public void Save(string savePointName)
     {
         CollectionAssert.DoesNotContain(SavePoints, LastSaveName, "Attempt to re-use an existing save point.");
         SavePoints.Add(savePointName);
+    }
+
+    public Task SaveAsync(string savePointName, CancellationToken cancellationToken = default)
+    {
+        Save(savePointName);
+        return Task.CompletedTask;
     }
 }

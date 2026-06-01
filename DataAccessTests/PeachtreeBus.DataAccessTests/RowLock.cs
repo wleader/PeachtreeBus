@@ -21,7 +21,7 @@ public class RowLock : IDisposable
 
     public RowLock(TableName tableName, int count = int.MaxValue, SchemaName? schema = null)
     {
-        _connection = new SqlConnectionProxy(TestSettings.TestDatabase);
+        _connection = new(new(TestSettings.TestDatabase));
         _connection.Open();
         _transaction = _connection.BeginTransaction();
 

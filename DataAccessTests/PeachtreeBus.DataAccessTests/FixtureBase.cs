@@ -60,16 +60,16 @@ public abstract class FixtureBase<TAccess> : TestConfig
     public virtual void TestInitialize()
     {
         // Create connections.
-        PrimaryConnection = new SqlConnectionProxy(TestSettings.TestDatabase);
+        PrimaryConnection = new SqlConnectionProxy(new(TestSettings.TestDatabase));
 
-        SecondaryConnection = new SqlConnectionProxy(TestSettings.TestDatabase);
+        SecondaryConnection = new SqlConnectionProxy(new(TestSettings.TestDatabase));
         SecondaryConnection.Open();
 
         // create the data access object.
         _connectionFactory.Setup(f => f.GetConnection()).Returns(() =>
         {
             if (PrimaryConnection.Disposed)
-                PrimaryConnection = new SqlConnectionProxy(TestSettings.TestDatabase);
+                PrimaryConnection = new SqlConnectionProxy(new(TestSettings.TestDatabase));
             return PrimaryConnection;
         });
         SharedDB = new SharedDatabase(_connectionFactory.Object);

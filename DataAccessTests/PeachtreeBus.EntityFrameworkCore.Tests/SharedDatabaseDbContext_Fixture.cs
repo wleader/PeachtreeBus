@@ -22,7 +22,7 @@ public class SharedDatabaseDbContext_Fixture
     {
         _connectionFactory = new();
         _connectionFactory.Setup(c => c.GetConnection())
-            .Returns(() => new SqlConnectionProxy(TestSettings.TestDatabase));
+            .Returns(() => new SqlConnectionProxy(new(TestSettings.TestDatabase)));
 
         _sharedDatabase = new SharedDatabase(_connectionFactory.Object);
 
