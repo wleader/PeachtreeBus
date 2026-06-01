@@ -13,14 +13,14 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.Management
 {
-    public class ManagementDataAccess(
+    public class MsSqlManagementDataAccess(
         IBusConfiguration configuration,
-        ILogger<ManagementDataAccess> log,
+        ILogger<MsSqlManagementDataAccess> log,
         IDapperMethods dapper)
         : IManagementDataAccess
     {
         private readonly IBusConfiguration _configuration = configuration;
-        private readonly ILogger<ManagementDataAccess> _log = log;
+        private readonly ILogger<MsSqlManagementDataAccess> _log = log;
 
         private const string QueueFields = "[Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
         private const string SubscribedFields = "[Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";

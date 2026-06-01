@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.DataAccessTests
 {
     [TestClass]
-    public class ManagementCancelSubscribedMessageFixture : ManagementDataAccessFixtureBase
+    public class MsSqlManagementCancelSubscribedMessageFixture : MsSqlManagementDataAccessFixtureBase
     {
         [TestMethod]
         public async Task InsertsIntoTargetTable()

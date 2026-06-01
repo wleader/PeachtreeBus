@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Core.Tests.Management;
 
 [TestClass]
-public class ManagementAccessFixture
+public class MsSqlManagementAccessFixture
 {
-    private ManagementDataAccess _dataAccess = default!;
+    private MsSqlManagementDataAccess _dataAccess = default!;
     private readonly Mock<IBusConfiguration> _busConfiguration = new();
     private readonly Mock<IDapperTypesHandler> _dapperTypes = new();
     private readonly Mock<IDapperMethods> _dapperMethods = new();
@@ -50,7 +50,7 @@ public class ManagementAccessFixture
 
         _dataAccess = new(
             _busConfiguration.Object,
-            FakeLog.Create<ManagementDataAccess>(),
+            FakeLog.Create<MsSqlManagementDataAccess>(),
             _dapperMethods.Object);
     }
 

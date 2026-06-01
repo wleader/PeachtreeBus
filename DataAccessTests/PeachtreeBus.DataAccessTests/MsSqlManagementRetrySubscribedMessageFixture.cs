@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.DataAccessTests
 {
     [TestClass]
-    public class ManagementRetrySubscribedMessageFixture : ManagementDataAccessFixtureBase
+    public class MsSqlManagementRetrySubscribedMessageFixture : MsSqlManagementDataAccessFixtureBase
     {
         [TestMethod]
         public async Task InsertsIntoTargetTable()

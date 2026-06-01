@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests
 {
-    public abstract class ManagementDataAccessFixtureBase : FixtureBase<ManagementDataAccess>
+    public abstract class MsSqlManagementDataAccessFixtureBase : FixtureBase<MsSqlManagementDataAccess>
     {
         protected MsSqlBusDataAccess BusAccess = default!;
 
@@ -26,7 +26,7 @@ namespace PeachtreeBus.DataAccessTests
             base.TestCleanup();
         }
 
-        protected override ManagementDataAccess CreateDataAccess()
+        protected override MsSqlManagementDataAccess CreateDataAccess()
         {
             BusAccess = new(
                 SharedDB,
@@ -35,7 +35,7 @@ namespace PeachtreeBus.DataAccessTests
                 DapperMethods,
                 FakeBreakerProvider);
 
-            return new ManagementDataAccess(
+            return new MsSqlManagementDataAccess(
                 Configuration.Object,
                 MockLog.Object,
                 DapperMethods);

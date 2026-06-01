@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.DataAccessTests
 {
     [TestClass]
-    public class ManagementGetFailedQueueMessagesFixture : ManagementDataAccessFixtureBase
+    public class MsSqlManagementGetCompletedSubscribedMessagesFixture : MsSqlManagementDataAccessFixtureBase
     {
         [TestMethod]
         public async Task GetsTheExpectedData()
         {
-            var s1 = await CreateFailedQueued();
-            var s2 = await CreateFailedQueued();
-            var s3 = await CreateFailedQueued();
-            var s4 = await CreateFailedQueued();
+            var s1 = await CreateCompletedSubscribed();
+            var s2 = await CreateCompletedSubscribed();
+            var s3 = await CreateCompletedSubscribed();
+            var s4 = await CreateCompletedSubscribed();
 
-            var actual = await dataAccess.GetFailedQueueMessages(DefaultQueue, 1, 2);
+            var actual = await dataAccess.GetCompletedSubscribedMessages(1, 2);
 
             Assert.AreEqual(2, actual.Count);
             Assert.IsFalse(actual.Any(s => s.Id == s1.Id), "Oldest should not be taken");
