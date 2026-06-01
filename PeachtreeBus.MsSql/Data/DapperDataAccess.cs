@@ -15,7 +15,7 @@ namespace PeachtreeBus.Data
 {
 
     /// <summary>
-    /// An implemenatin of IBusDataAccess that uses Dapper to accees the SQL database.
+    /// An implementation of IBusDataAccess that uses Dapper to access the MS SQL database.
     /// </summary>
     /// <remarks>
     /// Constructor
@@ -72,7 +72,7 @@ namespace PeachtreeBus.Data
         }
 
         /// <summary>
-        /// Gets an eligble pending message from the pending table.
+        /// Gets an eligible pending message from the pending table.
         /// </summary>
         /// <param name="queueName"></param>
         /// <returns></returns>
@@ -321,7 +321,7 @@ namespace PeachtreeBus.Data
             //      or the row doesn't exist. To Determine if the row exists, we select again with only the
             //      NOWAIT hint.
             // If the second select succeeds, then it means that another thread has locked it, and we can return
-            //      a result with Bockled as 1 (true).
+            //      a result with Blocked as 1 (true).
             // If the second select throws,
             //      it means that the row really is locked by someone else.
             // If any select fails with error 1222, then the row is locked by someone else
@@ -469,8 +469,8 @@ namespace PeachtreeBus.Data
         public async Task<long> EstimateSubscribedPending(SubscriberId subscriberId)
         {
             // this table has an index that works well for this
-            // and the volume of susbcribed messages is expected to be lower than
-            // for queued, so an actual count is feasable here.
+            // and the volume of subscribed messages is expected to be lower than
+            // for queued, so an actual count is feasible here.
             const string estimateQueuedStatement =
                 """
                 SELECT COUNT(*)
@@ -520,7 +520,7 @@ namespace PeachtreeBus.Data
         }
 
         /// <summary>
-        /// Moves a subscribed message from the pending table to the compelted table.
+        /// Moves a subscribed message from the pending table to the completed table.
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
@@ -642,7 +642,7 @@ namespace PeachtreeBus.Data
         }
 
         /// <summary>
-        /// Removes rows from the Subscribed Compelted Table.
+        /// Removes rows from the Subscribed Completed Table.
         /// </summary>
         /// <param name="olderthan"></param>
         /// <param name="maxCount"></param>
@@ -789,7 +789,7 @@ namespace PeachtreeBus.Data
         }
 
         /// <summary>
-        /// Creats a database save point.
+        /// Creates a database save point.
         /// </summary>
         /// <param name="name"></param>
         public void CreateSavepoint(string name)
