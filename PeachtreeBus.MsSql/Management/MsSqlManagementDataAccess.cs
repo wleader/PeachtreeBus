@@ -19,9 +19,6 @@ namespace PeachtreeBus.Management
         IDapperMethods dapper)
         : IManagementDataAccess
     {
-        private readonly IBusConfiguration _configuration = configuration;
-        private readonly ILogger<MsSqlManagementDataAccess> _log = log;
-
         private const string QueueFields = "[Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
         private const string SubscribedFields = "[Id], [SubscriberId], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body]";
 
@@ -41,7 +38,7 @@ namespace PeachtreeBus.Management
                 FETCH NEXT @Take ROWS ONLY
                 """;
 
-            string statement = string.Format(template, _configuration.Schema, queueName, table, fields);
+            string statement = string.Format(template, configuration.Schema, queueName, table, fields);
 
             var p = new DynamicParameters();
             p.Add("@Skip", skip);
@@ -88,7 +85,7 @@ namespace PeachtreeBus.Management
 
         public async Task CancelPendingQueueMessage(QueueName queueName, Identity id)
         {
-            const string CancelPendingQueuedStatement =
+            const string cancelPendingQueuedStatement =
                 """
                 INSERT INTO [{0}].[{1}_Failed] WITH (ROWLOCK)
                 ([Id], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -100,7 +97,7 @@ namespace PeachtreeBus.Management
 
             using var _ = StartActivity();
 
-            string statement = string.Format(CancelPendingQueuedStatement, _configuration.Schema, queueName);
+            string statement = string.Format(cancelPendingQueuedStatement, configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
@@ -110,7 +107,7 @@ namespace PeachtreeBus.Management
 
         public async Task CancelPendingSubscribedMessage(Identity id)
         {
-            const string CancelPendingSubscribedStatement =
+            const string cancelPendingSubscribedStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK) 
                 ([Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -122,7 +119,7 @@ namespace PeachtreeBus.Management
 
             using var _ = StartActivity();
 
-            string statement = string.Format(CancelPendingSubscribedStatement, _configuration.Schema);
+            string statement = string.Format(cancelPendingSubscribedStatement, configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
@@ -132,7 +129,7 @@ namespace PeachtreeBus.Management
 
         public async Task RetryFailedQueueMessage(QueueName queueName, Identity id)
         {
-            const string RetryFailedQueuedStatement =
+            const string retryFailedQueuedStatement =
                 """
                 INSERT INTO [{0}].[{1}_Pending] WITH (ROWLOCK)
                 ([MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -144,7 +141,7 @@ namespace PeachtreeBus.Management
 
             using var _ = StartActivity();
 
-            string statement = string.Format(RetryFailedQueuedStatement, _configuration.Schema, queueName);
+            string statement = string.Format(retryFailedQueuedStatement, configuration.Schema, queueName);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
@@ -154,7 +151,7 @@ namespace PeachtreeBus.Management
 
         public async Task RetryFailedSubscribedMessage(Identity id)
         {
-            const string RetryFailedSubscribedStatement =
+            const string retryFailedSubscribedStatement =
                 """
                 INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK) 
                 ([SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
@@ -166,7 +163,7 @@ namespace PeachtreeBus.Management
 
             using var _ = StartActivity();
 
-            string statement = string.Format(RetryFailedSubscribedStatement, _configuration.Schema);
+            string statement = string.Format(retryFailedSubscribedStatement, configuration.Schema);
 
             var p = new DynamicParameters();
             p.Add("@Id", id);
@@ -175,7 +172,7 @@ namespace PeachtreeBus.Management
         }
 
         [ExcludeFromCodeCoverage]
-        private async Task<T> LogIfError<T>(Task<T> task, [CallerMemberName] string caller = "Unnammed")
+        private async Task<T> LogIfError<T>(Task<T> task, [CallerMemberName] string caller = "Unnamed")
         {
             try
             {
@@ -183,7 +180,7 @@ namespace PeachtreeBus.Management
             }
             catch (Exception ex)
             {
-                _log.DataAccessError(caller, ex);
+                log.DataAccessError(caller, ex);
                 throw;
             }
         }
@@ -191,8 +188,7 @@ namespace PeachtreeBus.Management
         private static Activity? StartActivity([CallerMemberName] string caller = "Unnamed")
         {
             return ActivitySources.DataAccess.StartActivity(
-                "peachtreebus.managementdataaccess " + caller,
-                ActivityKind.Internal);
+                "peachtreebus.managementdataaccess " + caller);
         }
     }
 }
