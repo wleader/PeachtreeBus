@@ -20,6 +20,7 @@ internal class Program
         // get configuration from appsettings.json
         var configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.AddJsonFile("appsettings.json");
+        configurationBuilder.AddJsonFile("appsettings.overrides.json", true);
         var configuration = configurationBuilder.Build();
 
         // read our connection string from the appsettings configuration.
@@ -38,7 +39,6 @@ internal class Program
         // log to the console window.
         builder.Logging.ClearProviders();
         builder.Logging.AddSimpleConsole();
-
 
         var busConfiguration = new BusConfiguration()
         {
