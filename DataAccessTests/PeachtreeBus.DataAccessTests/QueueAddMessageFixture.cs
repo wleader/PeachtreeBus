@@ -5,7 +5,7 @@ using PeachtreeBus.Queues;
 
 namespace PeachtreeBus.DataAccessTests;
 
-public abstract class QueueMessageAddFixtureBase : BusDataAccessFixtureBase
+public abstract class QueueAddMessageFixture : BusDataAccessFixtureBase
 {
     [TestMethod]
     public async Task AddMessage_StoresTheMessage()

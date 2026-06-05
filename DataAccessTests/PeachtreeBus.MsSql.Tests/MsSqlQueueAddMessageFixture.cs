@@ -4,7 +4,7 @@ using PeachtreeBus.DataAccessTests;
 namespace PeachtreeBus.MsSql.Tests;
 
 [TestClass]
-public class MsSqlQueueAddMessageFixture : QueueMessageAddFixtureBase
+public class MsSqlQueueAddMessageFixture : QueueAddMessageFixture
 {
     [TestInitialize]
     public override void Initialize() => base.Initialize();

@@ -3,7 +3,7 @@ using PeachtreeBus.DataAccessTests;
 namespace PeachtreeBus.PostgreSql.Tests;
 
 [TestClass]
-public class PostgreSqlQueueAddMessageFixture : QueueMessageAddFixtureBase
+public class PostgreSqlQueueAddMessageFixture : QueueAddMessageFixture
 {
     [TestInitialize]
     public override void Initialize() => base.Initialize();
