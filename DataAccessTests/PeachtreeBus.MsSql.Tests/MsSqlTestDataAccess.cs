@@ -6,23 +6,24 @@ using Microsoft.Data.SqlClient;
 using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.Queues;
 
 namespace PeachtreeBus.MsSql.Tests;
 
 public class MsSqlTestDataAccess(ISqlConnectionFactory connectionFactory) : ITestDataAccess
 {
     private TestConfig TestConfig { get; } = new();
-    protected ISqlConnection Connection = null!;
+    private ISqlConnection _connection = null!;
     
     public void Initialize()
     {
-        Connection = connectionFactory.GetConnection();
-        Connection.Open();
+        _connection = connectionFactory.GetConnection();
+        _connection.Open();
     }
 
     public void CleanEverything()
     {
-        using var transaction = Connection.BeginTransaction();
+        using var transaction = _connection.BeginTransaction();
         string statement =
             $"TRUNCATE TABLE [{TestConfig.DefaultSchema}].[{TestConfig.QueueCompleted}]; " +
             $"TRUNCATE TABLE [{TestConfig.DefaultSchema}].[{TestConfig.QueueFailed}]; " +
@@ -32,20 +33,20 @@ public class MsSqlTestDataAccess(ISqlConnectionFactory connectionFactory) : ITes
             $"TRUNCATE TABLE [{TestConfig.DefaultSchema}].[{TestConfig.SubscribedPending}]; " +
             $"TRUNCATE TABLE [{TestConfig.DefaultSchema}].[{TestConfig.SubscribedFailed}]; " +
             $"TRUNCATE TABLE [{TestConfig.DefaultSchema}].[{TestConfig.SubscribedCompleted}]; ";
-        using var cmd = new SqlCommand(statement, Connection.Connection, transaction.Transaction);
+        using var cmd = new SqlCommand(statement, _connection.Connection, transaction.Transaction);
         cmd.ExecuteNonQuery();
         transaction.Commit();
     }
 
     public void CloseConnections()
     {
-        Connection.Close();
+        _connection.Close();
     }
 
     public long CountRowsInTable(TableName tableName)
     {
         string statement = $"SELECT COUNT(*) FROM [{TestConfig.DefaultSchema}].[{tableName}]";
-        using var cmd = new SqlCommand(statement, Connection.Connection, null);
+        using var cmd = new SqlCommand(statement, _connection.Connection, null);
         return (int)cmd.ExecuteScalar();
     }
 
@@ -53,7 +54,7 @@ public class MsSqlTestDataAccess(ISqlConnectionFactory connectionFactory) : ITes
     {
         var result = new DataSet();
         string statement = $"SELECT * FROM [{TestConfig.DefaultSchema}].[{tableName}]";
-        using var cmd = new SqlCommand(statement, Connection.Connection, null);
+        using var cmd = new SqlCommand(statement, _connection.Connection, null);
         using var adapter = new SqlDataAdapter(cmd);
         adapter.Fill(result);
         return result;
@@ -62,6 +63,19 @@ public class MsSqlTestDataAccess(ISqlConnectionFactory connectionFactory) : ITes
     public List<T> GetTableContent<T>(TableName tableName) where T : class
     {
         string statement = $"SELECT * FROM [{TestConfig.DefaultSchema}].[{tableName}]";
-        return Connection.Connection.Query<T>(statement).ToList();
+        return _connection.Connection.Query<T>(statement).ToList();
+    }
+
+    public void InsertQueueCompleted(QueueData data)
+    {
+        var statement =
+            """
+            INSERT INTO [{0}].[{1}_Completed]
+            ([Id],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
+            VALUES
+            (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
+            """;
+        statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
+        _connection.Connection.Execute(statement, data);
     }
 }

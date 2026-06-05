@@ -1,155 +1,84 @@
-﻿using Dapper;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading.Tasks;
+using PeachtreeBus.Data;
 
 namespace PeachtreeBus.DataAccessTests
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAcess.CleanQueueCompleted
-    /// </summary>
-    [TestClass]
-    public class CleanCompletedQueueMessagesFixture : MsSqlBusDataAccessFixtureBase
+    public abstract class CleanCompletedQueueMessagesFixture : BusDataAccessFixtureBase
     {
-        private long lastId = 1000;
+        private long _lastId = 1000;
 
         [TestInitialize]
-        public override void TestInitialize()
-        {
-            base.TestInitialize();
-        }
+        public override void Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void TestCleanup()
+        public override void Cleanup() => base.Cleanup();
+
+        private void Given_CompletedMessage(DateTime completed)
         {
-            base.TestCleanup();
+            TestDataAccess.InsertQueueCompleted(new()
+            {
+                Id = new(_lastId++),
+                MessageId = UniqueIdentity.New(),
+                Priority = 0,
+                NotBefore = DateTime.UtcNow.AddDays(-1),
+                Enqueued = DateTime.UtcNow.AddDays(-1),
+                Completed = completed,
+                Failed = null,
+                Retries = 0,
+                Headers = new(),
+                Body = new("{}"),
+            });
         }
 
-        /// <summary>
-        /// Inserts a row to setup the test.
-        /// </summary>
-        /// <param name="completed">The time that the message was completed.</param>
-        /// <returns></returns>
-        private async Task CreateTestRow(DateTime completed)
+        private void Given_CountCompletedMessage(int count, DateTime completed)
         {
-            // puts a row in the completed table.
-            var statement =
-            """
-            INSERT INTO [{0}].[{1}_Completed]
-            ([Id],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
-            VALUES
-            (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
-            """;
-
-            statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
-
-            var p = new DynamicParameters();
-            p.Add("@Id", lastId++);
-            p.Add("@MessageId", Guid.NewGuid());
-            p.Add("@Priority", 0);
-            p.Add("@NotBefore", DateTime.UtcNow.AddDays(-1));
-            p.Add("@Enqueued", DateTime.UtcNow.AddDays(-1));
-            p.Add("@Completed", completed);
-            p.Add("@Failed", null);
-            p.Add("@Retries", 0);
-            p.Add("@Headers", "");
-            p.Add("@Body", "");
-
-            await SecondaryConnection.Connection.ExecuteAsync(statement, p);
+            for (var i = 0; i < count; i++)
+            {
+                Given_CompletedMessage(completed);
+            }
         }
-
-        /// <summary>
-        /// Proves that rows get deleted.
-        /// </summary>
-        /// <returns></returns>
+        
         [TestMethod]
-        public async Task CleanCompletedQueueMessages_Cleans()
+        [DataRow(10, 10, 0, DisplayName = "Cleans All")]
+        [DataRow(10, 5, 5, DisplayName = "Cleans Top N")]
+        public async Task Given_MessagesCompletedYesterday_When_CleanCompletedQueueMessages_Then_TableHasCount(
+            int givenCount, int cleanupCount, int remainingCount)
         {
-            var completed = DateTime.UtcNow.AddDays(-1);
-            for (var i = 0; i < 10; i++)
-            {
-                await CreateTestRow(completed);
-            }
+            var yesterday = DateTime.UtcNow.AddDays(-1);
+            Given_CountCompletedMessage(givenCount, yesterday);
 
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
-            var olderthan = DateTime.UtcNow;
+            var olderThan = DateTime.UtcNow;
+            var deletedCount = await BusDataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderThan, cleanupCount);
+            Assert.AreEqual(cleanupCount, deletedCount);
 
-            var count = await dataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderthan, 10);
-            Assert.AreEqual(10, count);
-
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.QueueCompleted));
+            TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, remainingCount);
         }
 
-        /// <summary>
-        /// Proves that the cleanup is limited to the supplied max count.
-        /// </summary>
-        /// <returns></returns>
         [TestMethod]
-        public async Task CleanCompletedQueueMessages_CleansTopN()
+        public async Task Given_MessagesCompletedToday_When_CleanCompletedQueueMessages_Then_MessagesNotDeleted()
         {
-            var completed = DateTime.UtcNow.AddDays(-1);
-            for (var i = 0; i < 10; i++)
-            {
-                await CreateTestRow(completed);
-            }
+            Given_CountCompletedMessage(10, DateTime.UtcNow);
 
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
-            var olderthan = DateTime.UtcNow;
+            var olderThan = DateTime.UtcNow.AddMinutes(-5);
+            var deletedCount = await BusDataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderThan, 10);
 
-            var count = await dataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderthan, 5);
-            Assert.AreEqual(5, count);
-
-            Assert.AreEqual(5, CountRowsInTable(TestConfig.QueueCompleted));
+            Assert.AreEqual(0, deletedCount);
+            TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, 10);
         }
 
-        /// <summary>
-        /// Proves that messages that completed after the olderthan time are not cleaned.
-        /// </summary>
-        /// <returns></returns>
         [TestMethod]
-        public async Task CleanCompletedQueueMessages_RespectsOlderThan()
+        public async Task Given_MixOfCompleted_When_CleanCompletedQueueMessages_Then_OldMessagesAreDeleted()
         {
-            var completed = DateTime.UtcNow;
-            for (var i = 0; i < 10; i++)
-            {
-                await CreateTestRow(completed);
-            }
+            Given_CountCompletedMessage(3,  DateTime.UtcNow.AddDays(-1));
+            Given_CountCompletedMessage(7, DateTime.UtcNow);
+            
+            var olderThan = DateTime.UtcNow.AddMinutes(-5);
+            var deletedCount = await BusDataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderThan, 10);
+            Assert.AreEqual(3, deletedCount);
 
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
-            var olderthan = DateTime.UtcNow.AddMinutes(-5);
-
-            var count = await dataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderthan, 10);
-            Assert.AreEqual(0, count);
-
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
-        }
-
-        /// <summary>
-        /// Proves that older messages are cleaned and younger messages are not.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task CleanCompletedQueueMessages_HandlesMix()
-        {
-            var completed = DateTime.UtcNow.AddDays(-1);
-            for (var i = 0; i < 3; i++)
-            {
-                await CreateTestRow(completed);
-            }
-
-            completed = DateTime.UtcNow;
-            for (var i = 0; i < 7; i++)
-            {
-                await CreateTestRow(completed);
-            }
-
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
-            var olderthan = DateTime.UtcNow.AddMinutes(-5);
-
-            var count = await dataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderthan, 10);
-            Assert.AreEqual(3, count);
-
-            Assert.AreEqual(7, CountRowsInTable(TestConfig.QueueCompleted));
+            TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, 7);
         }
     }
 }

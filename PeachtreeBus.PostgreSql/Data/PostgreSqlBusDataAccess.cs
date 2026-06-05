@@ -4,8 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
-using PeachtreeBus.Data;
-using PeachtreeBus.DatabaseSharing.PostgreSql;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
@@ -21,42 +19,42 @@ public class PostgreSqlBusDataAccess(
 {
     public void BeginTransaction()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void CommitTransaction()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void RollbackTransaction()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void CreateSavepoint(string name)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void RollbackToSavepoint(string name)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void Reconnect()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<QueueData?> GetPendingQueued(QueueName queueName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<long> EstimateQueuePending(QueueName queueName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public async Task<Identity> AddMessage(QueueData message, QueueName queueName)
@@ -88,102 +86,125 @@ public class PostgreSqlBusDataAccess(
 
     public Task CompleteMessage(QueueData message, QueueName queueName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task FailMessage(QueueData message, QueueName queueName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task UpdateMessage(QueueData message, QueueName queueName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<Identity> InsertSagaData(SagaData data, SagaName sagaName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task UpdateSagaData(SagaData data, SagaName sagaName)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<SagaData?> GetSagaData(SagaName sagaName, SagaKey key)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task DeleteSagaData(SagaName sagaName, SagaKey key)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<long> ExpireSubscriptions(int maxCount)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task Subscribe(SubscriberId subscriberId, Topic topic, UtcDateTime until)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<SubscribedData?> GetPendingSubscribed(SubscriberId subscriberId)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<long> EstimateSubscribedPending(SubscriberId subscriberId)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<long> Publish(SubscribedData message, Topic topic)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task CompleteMessage(SubscribedData message)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task FailMessage(SubscribedData message)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task UpdateMessage(SubscribedData message)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<long> ExpireSubscriptionMessages(int maxCount)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderthan, int maxCount)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
-    public Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderthan, int maxCount)
+    public async Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderthan, int maxCount)
     {
-        throw new System.NotImplementedException();
+        const string statementTemplate =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.{1}_Completed
+                WHERE id IN (
+                    SELECT id FROM {0}.{1}_Completed
+                    WHERE completed < @OlderThan
+                    LIMIT @MaxCount
+                    FOR UPDATE SKIP LOCKED
+                )
+                RETURNING id
+            )
+            SELECT COUNT(*) FROM deleted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(statementTemplate, configuration.Schema, queueName);
+
+        var p = new DynamicParameters();
+        p.Add("@MaxCount", maxCount);
+        p.Add("@OlderThan", olderthan);
+
+        return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
     public Task<long> CleanSubscribedCompleted(UtcDateTime olderthan, int maxCount)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Task<long> CleanSubscribedFailed(UtcDateTime olderthan, int maxCount)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     private async Task<T> LogIfError<T>(Task<T> task,

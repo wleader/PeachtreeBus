@@ -7,6 +7,12 @@ namespace PeachtreeBus.DataAccessTests;
 
 public abstract class QueueAddMessageFixture : BusDataAccessFixtureBase
 {
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+    
     [TestMethod]
     public async Task AddMessage_StoresTheMessage()
     {
