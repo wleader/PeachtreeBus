@@ -1,6 +1,6 @@
 using PeachtreeBus.Exceptions;
 
-namespace PeachtreeBus.DatabaseTestingShared;
+namespace PeachtreeBus.DatabaseTesting;
 
 public class DatabaseName(string value)
 {

@@ -13,5 +13,5 @@ GO
 CREATE INDEX IX_Subscriptions_SubscriberTopic ON [PeachtreeBus].[Subscriptions] ([SubscriberId], [Topic])
 GO
 
-CREATE INDEX IX_Subcriptions_ValidUntilTopic ON [PeachtreeBus].[Subscriptions] ([ValidUntil], [Topic])
+CREATE INDEX IX_Subscriptions_ValidUntilTopic ON [PeachtreeBus].[Subscriptions] ([ValidUntil], [Topic])
 GO

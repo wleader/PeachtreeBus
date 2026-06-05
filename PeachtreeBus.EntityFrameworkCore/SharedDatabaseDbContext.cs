@@ -12,10 +12,10 @@ namespace PeachtreeBus.EntityFrameworkCore;
 /// </summary>
 public abstract class SharedDatabaseDbContext : DbContext
 {
-    private readonly ISharedDatabase _sharedDatabase;
+    private readonly ISqlSharedDatabase _sharedDatabase;
     public bool Disposed { get; private set; } = false;
 
-    public SharedDatabaseDbContext(ISharedDatabase sharedDatabase)
+    public SharedDatabaseDbContext(ISqlSharedDatabase sharedDatabase)
     {
         _sharedDatabase = sharedDatabase;
         _sharedDatabase.TransactionStarted += SharedDatabase_TransactionStarted;

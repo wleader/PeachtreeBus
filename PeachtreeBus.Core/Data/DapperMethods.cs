@@ -18,7 +18,7 @@ public interface IDapperMethods
 [ExcludeFromCodeCoverage(Justification = "Requires a live database connection.")]
 public class DapperMethods(
      IDapperTypesHandler configureDapper,
-     ISharedDatabase database)
+     ISqlSharedDatabase database)
     : IDapperMethods
 {
     public bool DapperConfigured { get; } = configureDapper.Configure();

@@ -1,12 +1,23 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Dapper;
+using Microsoft.Extensions.Logging;
 using PeachtreeBus.Data;
+using PeachtreeBus.DatabaseSharing.PostgreSql;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
+using PeachtreeBus.Telemetry;
 
 namespace PeachtreeBus.Data;
 
-public class PostgreSqlBusDataAccess : IBusDataAccess
+public class PostgreSqlBusDataAccess(
+    ILogger<PostgreSqlBusDataAccess> log,
+    IDapperMethods dapper,
+    IBusConfiguration configuration)
+    : IBusDataAccess
 {
     public void BeginTransaction()
     {
@@ -48,9 +59,31 @@ public class PostgreSqlBusDataAccess : IBusDataAccess
         throw new System.NotImplementedException();
     }
 
-    public Task<Identity> AddMessage(QueueData message, QueueName queueName)
+    public async Task<Identity> AddMessage(QueueData message, QueueName queueName)
     {
-        throw new System.NotImplementedException();
+        const string enqueueMessageStatement =
+            """
+            INSERT INTO {0}.{1}_Pending
+            (message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+            VALUES
+            (@MessageId, @Priority, @NotBefore, NOW(), NULL, NULL, 0, @Headers, @Body)
+            RETURNING Id;
+            """;
+
+        ArgumentNullException.ThrowIfNull(message);
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(enqueueMessageStatement, configuration.Schema, queueName);
+
+        var p = new DynamicParameters();
+        p.Add("@MessageId", message.MessageId);
+        p.Add("@Priority", message.Priority);
+        p.Add("@NotBefore", message.NotBefore);
+        p.Add("@Headers", message.Headers);
+        p.Add("@Body", message.Body);
+
+        return await LogIfError(dapper.QueryFirst<Identity>(statement, p));
     }
 
     public Task CompleteMessage(QueueData message, QueueName queueName)
@@ -151,5 +184,27 @@ public class PostgreSqlBusDataAccess : IBusDataAccess
     public Task<long> CleanSubscribedFailed(UtcDateTime olderthan, int maxCount)
     {
         throw new System.NotImplementedException();
+    }
+
+    private async Task<T> LogIfError<T>(Task<T> task,
+        [CallerMemberName] string caller = "Unnamed")
+    {
+        try
+        {
+            return await task;
+        }
+        catch (Exception ex)
+        {
+            log.DataAccessError(caller, ex);
+            throw;
+        }
+    }
+
+    private static Activity? StartActivity(
+        [CallerMemberName] string caller = "Unnamed")
+    {
+        return ActivitySources.DataAccess.StartActivity(
+            "peachtreebus.dataaccess " + caller)
+            ?.AddTag("DatabaseType", "PostgreSql");
     }
 }

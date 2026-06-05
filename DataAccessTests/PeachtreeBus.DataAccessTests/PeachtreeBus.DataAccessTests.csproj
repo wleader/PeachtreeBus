@@ -23,7 +23,8 @@
         <ProjectReference Include="..\..\PeachtreeBus.Core\PeachtreeBus.Core.csproj"/>
         <ProjectReference Include="..\..\PeachtreeBus.MsSql\PeachtreeBus.MsSql.csproj" />
         <ProjectReference Include="..\..\UnitTests\PeachtreeBus.Core.Tests\PeachtreeBus.Core.Tests.csproj"/>
-        <ProjectReference Include="..\PeachtreeBus.DatabaseTestingShared\PeachtreeBus.DatabaseTestingShared.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.DatabaseTesting.MsSql\PeachtreeBus.DatabaseTesting.MsSql.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.DatabaseTesting\PeachtreeBus.DatabaseTesting.csproj" />
     </ItemGroup>
     <ItemGroup>
         <None Update="appsettings.json">

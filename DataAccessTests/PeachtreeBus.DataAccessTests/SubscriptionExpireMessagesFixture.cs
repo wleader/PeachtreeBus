@@ -31,8 +31,8 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task ExpireMessages_InsertsIntoFailedTable()
         {
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
-            Assert.AreEqual(0, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedFailed));
 
             var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
@@ -74,11 +74,11 @@ namespace PeachtreeBus.DataAccessTests
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected2);
 
-            Assert.AreEqual(2, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(2, CountRowsInTable(TestConfig.SubscribedPending));
 
             await dataAccess.ExpireSubscriptionMessages(1000);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
         }
 
         [TestMethod]
@@ -92,15 +92,15 @@ namespace PeachtreeBus.DataAccessTests
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected2);
 
-            Assert.AreEqual(2, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(2, CountRowsInTable(TestConfig.SubscribedPending));
 
             await dataAccess.ExpireSubscriptionMessages(1);
 
-            Assert.AreEqual(1, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(1, CountRowsInTable(TestConfig.SubscribedPending));
 
             await dataAccess.ExpireSubscriptionMessages(1);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
         }
     }
 }

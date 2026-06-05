@@ -47,7 +47,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreNotEqual(0, subscriptions[0].Id.Value);
             Assert.AreEqual(subscriber, subscriptions[0].SubscriberId);
             Assert.AreEqual(topic, subscriptions[0].Topic);
-            AssertSqlDbDateTime(until, subscriptions[0].ValidUntil);
+            DataAssert.AreEqual(until, subscriptions[0].ValidUntil);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(2, subscriptions.Count);
 
             subscriptions.ForEach(s => Assert.AreEqual(subscriber, s.SubscriberId));
-            subscriptions.ForEach(s => AssertSqlDbDateTime(until, s.ValidUntil));
+            subscriptions.ForEach(s => DataAssert.AreEqual(until, s.ValidUntil));
 
             var categores = subscriptions.Select(s => s.Topic).ToList();
             Assert.IsTrue(categores.Contains(topic));
@@ -104,7 +104,7 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(2, subscriptions.Count);
 
             subscriptions.ForEach(s => Assert.AreEqual(topic, s.Topic));
-            subscriptions.ForEach(s => AssertSqlDbDateTime(until, s.ValidUntil));
+            subscriptions.ForEach(s => DataAssert.AreEqual(until, s.ValidUntil));
 
             var subscribers = subscriptions.Select(s => s.SubscriberId).ToList();
             Assert.IsTrue(subscribers.Contains(subscriber));
@@ -136,7 +136,7 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(subscriber, subscriptions[0].SubscriberId);
             Assert.AreEqual(topic, subscriptions[0].Topic);
-            AssertSqlDbDateTime(until2, subscriptions[0].ValidUntil);
+            DataAssert.AreEqual(until2, subscriptions[0].ValidUntil);
         }
 
         [TestMethod]

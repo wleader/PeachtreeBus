@@ -20,14 +20,14 @@ public abstract class MsSqlBusDataAccessFixtureBase : FixtureBase<MsSqlBusDataAc
 
     protected async Task Given_MessagesInQueue(int count)
     {
-        Assert.AreEqual(0, CountRowsInTable(QueuePending));
+        Assert.AreEqual(0, CountRowsInTable(TestConfig.QueuePending));
         for (var i = 0; i < count; i++)
         {
             await dataAccess.AddMessage(
                 TestData.CreateQueueData(
                     notBefore: DateTime.Now.AddMinutes(-1)),
-                DefaultQueue);
+                TestConfig.DefaultQueue);
         }
-        Assert.AreEqual(count, CountRowsInTable(QueuePending));
+        Assert.AreEqual(count, CountRowsInTable(TestConfig.QueuePending));
     }
 }

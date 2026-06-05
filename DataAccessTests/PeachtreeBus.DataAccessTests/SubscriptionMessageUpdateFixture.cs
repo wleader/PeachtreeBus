@@ -78,19 +78,19 @@ namespace PeachtreeBus.DataAccessTests
             // compare the unchangable fields.
             Assert.AreEqual(changedOriginal.Id, actualChanged.Id);
             Assert.AreEqual(changedOriginal.MessageId, actualChanged.MessageId);
-            AssertSqlDbDateTime(changedOriginal.Enqueued, actualChanged.Enqueued);
+            DataAssert.AreEqual(changedOriginal.Enqueued, actualChanged.Enqueued);
             Assert.AreEqual(changedOriginal.Body, actualChanged.Body);
             Assert.AreEqual(changedOriginal.SubscriberId, actualChanged.SubscriberId);
-            AssertSqlDbDateTime(changedOriginal.ValidUntil, actualChanged.ValidUntil);
+            DataAssert.AreEqual(changedOriginal.ValidUntil, actualChanged.ValidUntil);
 
             // compare the changeable fields.
-            AssertHeadersEquals(toUpdate.Headers, actualChanged.Headers);
-            AssertSqlDbDateTime(toUpdate.NotBefore, actualChanged.NotBefore);
+            DataAssert.AreEqual(toUpdate.Headers, actualChanged.Headers);
+            DataAssert.AreEqual(toUpdate.NotBefore, actualChanged.NotBefore);
             Assert.AreEqual(toUpdate.Retries, actualChanged.Retries);
 
             // completed and failed will be null for pending messages.            
-            AssertSqlDbDateTime(null, actualChanged.Completed);
-            AssertSqlDbDateTime(null, actualChanged.Failed);
+            DataAssert.AreEqual(null, actualChanged.Completed);
+            DataAssert.AreEqual(null, actualChanged.Failed);
         }
     }
 }

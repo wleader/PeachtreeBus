@@ -44,18 +44,18 @@ public class ExternallyManagedSqlConnectionFixture
     [TestMethod]
     public void When_Open_Then_Throws()
     {
-        Assert.ThrowsExactly<ExternallyManagedSqlConnectionException>(_connection.Open);
+        Assert.ThrowsExactly<ExternallyManagedConnectionException>(_connection.Open);
     }
 
     [TestMethod]
     public void When_Close_Then_Throws()
     {
-        Assert.ThrowsExactly<ExternallyManagedSqlConnectionException>(_connection.Close);
+        Assert.ThrowsExactly<ExternallyManagedConnectionException>(_connection.Close);
     }
 
     [TestMethod]
     public void Given_ExternalTransaction_When_BeginTransction_Then_Throws()
     {
-        Assert.ThrowsExactly<ExternallyManagedSqlConnectionException>(() => _ = _connection.BeginTransaction());
+        Assert.ThrowsExactly<ExternallyManagedConnectionException>(() => _ = _connection.BeginTransaction());
     }
 }

@@ -25,7 +25,7 @@ public class SharedDatabaseExternalConnectionFixture : SharedDatabaseFixtureBase
         var connection = SqlServerTesting.CreateConnection();
         var transaction = SqlServerTesting.CreateTransaction();
         _db.SetExternallyManagedConnection(connection, transaction);
-        Assert.ThrowsExactly<ExternallyManagedSqlConnectionException>(_db.Reconnect);
+        Assert.ThrowsExactly<ExternallyManagedConnectionException>(_db.Reconnect);
     }
 
     [TestMethod]
@@ -47,7 +47,7 @@ public class SharedDatabaseExternalConnectionFixture : SharedDatabaseFixtureBase
     }
 
     [TestMethod]
-    public void Given_ExternalConnection_When_SetExternalAgain_OrginalsAreDisposed()
+    public void Given_ExternalConnection_When_SetExternalAgain_OriginalsAreDisposed()
     {
         var connection1 = SqlServerTesting.CreateConnection();
         var transaction1 = SqlServerTesting.CreateTransaction();

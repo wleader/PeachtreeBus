@@ -1,12 +1,19 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace PeachtreeBus.DatabaseTestingShared;
+namespace PeachtreeBus.DatabaseTesting.MsSql;
 
-public static class DatabaseManagement
+public interface IDatabaseManagement
 {
-    private static bool DbExists(SqlConnection connection, DatabaseName name)
+    bool DbExists(SqlConnection connection, DatabaseName name);
+    void CreateDatabase(SqlConnection connection, DatabaseName name);
+    void DropDatabase(SqlConnection connection, DatabaseName name);
+    void ApplyDacPac();
+}
+
+public class DatabaseManagement(IMsSqlTestSettings settings) : IDatabaseManagement
+{
+    public bool DbExists(SqlConnection connection, DatabaseName name)
     {
         const string statement =
             """
@@ -20,7 +27,7 @@ public static class DatabaseManagement
         return (result != null);
     }
 
-    public static void CreateDatabase(SqlConnection connection, DatabaseName name)
+    public void CreateDatabase(SqlConnection connection, DatabaseName name)
     {
         const string statement = "CREATE DATABASE {0}";
         var command = new SqlCommand(string.Format(statement, name), connection);
@@ -30,7 +37,7 @@ public static class DatabaseManagement
             $"Could not Create Database '{name}'.");
     }
 
-    public static void DropDatabase(SqlConnection connection, DatabaseName name)
+    public void DropDatabase(SqlConnection connection, DatabaseName name)
     {
         if (!DbExists(connection, name))
             return;
@@ -48,10 +55,10 @@ public static class DatabaseManagement
             $"Could not Drop Database '{name}'.");
     }
 
-    public static void ApplyDacPac()
+    public void ApplyDacPac()
     {
-        var dacpac = DacPackage.Load(TestSettings.DacPacFile);
-        var dacService = new DacServices(TestSettings.TestDatabase);
-        dacService.Deploy(dacpac, TestSettings.TestDatabase.DatabaseName, true);
+        var dacpac = DacPackage.Load(settings.DacPacFile);
+        var dacService = new DacServices(settings.TestDatabase.Value);
+        dacService.Deploy(dacpac, settings.TestDatabase.DatabaseName, true);
     }
 }

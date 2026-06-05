@@ -104,7 +104,7 @@ public class SharedDatabaseExceptionHandlingFixture
     public void Given_TransactionConsumedHandlerThrows_When_CommitTransaction_Then_Throws()
     {
         _db.BeginTransaction();
-        Given_TransactionConsumed_When_Action_Then_Throws(_db.CommitTransaction);
+        Given_TransactionConsumedHandlerWillThrow_When_Action_Then_Throws(_db.CommitTransaction);
     }
 
     [TestMethod]
@@ -138,14 +138,14 @@ public class SharedDatabaseExceptionHandlingFixture
     public void Given_TransactionConsumedHandlerThrows_When_RollbackTransaction_Then_Throws()
     {
         _db.BeginTransaction();
-        Given_TransactionConsumed_When_Action_Then_Throws(_db.RollbackTransaction);
+        Given_TransactionConsumedHandlerWillThrow_When_Action_Then_Throws(_db.RollbackTransaction);
     }
 
     [TestMethod]
     public void Given_TransactionConsumedHandlerThrows_When_Reconnect_Then_Throws()
     {
         _db.BeginTransaction();
-        Given_TransactionConsumed_When_Action_Then_Throws(_db.Reconnect);
+        Given_TransactionConsumedHandlerWillThrow_When_Action_Then_Throws(_db.Reconnect);
     }
 
     [TestMethod]
@@ -168,7 +168,7 @@ public class SharedDatabaseExceptionHandlingFixture
     public void Given_TransactionConsumedHandlerThrows_When_Dispose_Then_Throws()
     {
         _db.BeginTransaction();
-        Given_TransactionConsumed_When_Action_Then_Throws(_db.Dispose);
+        Given_TransactionConsumedHandlerWillThrow_When_Action_Then_Throws(_db.Dispose);
     }
 
     private static void Given_Setup_When_Action_Then_Throws<T>(ISetup<T> setup, Action action)
@@ -189,7 +189,7 @@ public class SharedDatabaseExceptionHandlingFixture
         Assert.AreSame(ex, thrown);
     }
     
-    private void Given_TransactionConsumed_When_Action_Then_Throws(Action action)
+    private void Given_TransactionConsumedHandlerWillThrow_When_Action_Then_Throws(Action action)
     {
         _transactionConsumedHandlerException = new();
         var thrown = Assert.Throws<Exception>(action);

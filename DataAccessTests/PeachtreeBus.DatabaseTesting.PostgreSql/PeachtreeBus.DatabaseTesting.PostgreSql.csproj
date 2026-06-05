@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="MSTest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing.PostgreSql\PeachtreeBus.DatabaseSharing.PostgreSql.csproj" />
+      <ProjectReference Include="..\PeachtreeBus.DatabaseTesting\PeachtreeBus.DatabaseTesting.csproj" />
+    </ItemGroup>
+
+</Project>

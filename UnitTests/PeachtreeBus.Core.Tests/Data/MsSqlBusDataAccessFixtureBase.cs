@@ -1,5 +1,4 @@
-﻿using Castle.Components.DictionaryAdapter.Xml;
-using Dapper;
+﻿using Dapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.Core.Tests.Fakes;
@@ -15,7 +14,7 @@ public abstract class MsSqlBusDataAccessFixtureBase
     protected MsSqlBusDataAccess _dataAccess = default!;
     private readonly Mock<IBusConfiguration> _busConfiguration = new();
     private readonly Mock<IDapperMethods> _dapperMethods = new();
-    protected readonly Mock<ISharedDatabase> _sharedDb = new();
+    protected readonly Mock<ISqlSharedDatabase> _sharedDb = new();
     protected readonly FakeBreakerProvider _breakerProvider = new();
 
     private BreakerKey _breakerKey;

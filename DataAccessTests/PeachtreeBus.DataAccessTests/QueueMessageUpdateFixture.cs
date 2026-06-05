@@ -37,13 +37,13 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add two messages;
             var testMessage1 = TestData.CreateQueueData();
-            testMessage1.Id = await dataAccess.AddMessage(testMessage1, DefaultQueue);
+            testMessage1.Id = await dataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
             var testMessage2 = TestData.CreateQueueData();
-            testMessage2.Id = await dataAccess.AddMessage(testMessage2, DefaultQueue);
+            testMessage2.Id = await dataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // get and update a message.
-            var toUpdate = await dataAccess.GetPendingQueued(DefaultQueue);
+            var toUpdate = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNotNull(toUpdate);
             // set changed values
             toUpdate.MessageId = UniqueIdentity.New(); // this should never persist a change.
@@ -55,33 +55,33 @@ namespace PeachtreeBus.DataAccessTests
             toUpdate.Failed = DateTime.UtcNow;
             toUpdate.Retries = 10;
 
-            await dataAccess.UpdateMessage(toUpdate, DefaultQueue);
+            await dataAccess.UpdateMessage(toUpdate, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the error table.
-            var pending = GetTableContent(QueuePending).ToMessages();
+            var pending = GetTableContent(TestConfig.QueuePending).ToMessages();
             Assert.AreEqual(2, pending.Count);
 
             var expectUnchanged = toUpdate.Id == testMessage1.Id ? testMessage2 : testMessage1;
             var changedOriginal = toUpdate.Id != testMessage1.Id ? testMessage2 : testMessage1;
 
             var actualUnchanged = pending.Single(m => m.Id != toUpdate.Id);
-            AssertQueueDataAreEqual(expectUnchanged, actualUnchanged);
+            DataAssert.AreEqual(expectUnchanged, actualUnchanged);
 
             var actualChanged = pending.Single(m => m.Id == toUpdate.Id);
             // compare the unchangable fields.
             Assert.AreEqual(changedOriginal.Id, actualChanged.Id);
             Assert.AreEqual(changedOriginal.MessageId, actualChanged.MessageId);
-            AssertSqlDbDateTime(changedOriginal.Enqueued, actualChanged.Enqueued);
+            DataAssert.AreEqual(changedOriginal.Enqueued, actualChanged.Enqueued);
             Assert.AreEqual(changedOriginal.Body, actualChanged.Body);
             // compare the changeable fields.
-            AssertHeadersEquals(toUpdate.Headers, actualChanged.Headers);
-            AssertSqlDbDateTime(toUpdate.NotBefore, actualChanged.NotBefore);
+            DataAssert.AreEqual(toUpdate.Headers, actualChanged.Headers);
+            DataAssert.AreEqual(toUpdate.NotBefore, actualChanged.NotBefore);
             Assert.AreEqual(toUpdate.Retries, actualChanged.Retries);
 
             // completed and failed will be null for pending messages.            
-            AssertSqlDbDateTime(null, actualChanged.Completed);
-            AssertSqlDbDateTime(null, actualChanged.Failed);
+            DataAssert.AreEqual(null, actualChanged.Completed);
+            DataAssert.AreEqual(null, actualChanged.Failed);
         }
     }
 }

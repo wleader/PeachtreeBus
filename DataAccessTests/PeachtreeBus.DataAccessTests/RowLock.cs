@@ -3,7 +3,8 @@ using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 using System;
 using System.Data;
-using PeachtreeBus.DatabaseTestingShared;
+using PeachtreeBus.DatabaseTesting;
+using PeachtreeBus.DatabaseTesting.MsSql;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -14,14 +15,16 @@ namespace PeachtreeBus.DataAccessTests;
 /// </summary>
 public class RowLock : IDisposable
 {
-    private readonly SqlConnectionProxy _connection;
+    private readonly ISqlConnection _connection;
     private readonly ISqlTransaction _transaction;
 
     public DataSet DataSet { get; }
+    private TestConfig TestConfig { get; } = new();
 
     public RowLock(TableName tableName, int count = int.MaxValue, SchemaName? schema = null)
     {
-        _connection = new(new(TestSettings.TestDatabase));
+        var connectionFactory = TestServices.GetService<ISqlConnectionFactory>();
+        _connection = connectionFactory.GetConnection();
         _connection.Open();
         _transaction = _connection.BeginTransaction();
 

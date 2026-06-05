@@ -14,7 +14,7 @@ namespace PeachtreeBus.DataAccessTests;
 public class NullArgumentsFixture
 {
     private MsSqlBusDataAccess dataAccess = default!;
-    private Mock<ISharedDatabase> sharedDatabase = default!;
+    private Mock<ISqlSharedDatabase> sharedDatabase = default!;
     private Mock<IBusConfiguration> schemaConfig = default!;
     private Mock<ILogger<MsSqlBusDataAccess>> log = default!;
     private readonly Mock<IDapperMethods> sqlExecutor = new();

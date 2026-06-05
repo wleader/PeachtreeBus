@@ -17,15 +17,15 @@ namespace PeachtreeBus.DataAccessTests
             var pending = await dataAccess.GetPendingSubscribedMessages(0, 1);
             Assert.AreEqual(1, pending.Count);
             Assert.AreEqual(s1.MessageId, pending[0].MessageId);
-            AssertHeadersEquals(s1.Headers, pending[0].Headers);
-            AssertSqlDbDateTime(s1.ValidUntil, pending[0].ValidUntil);
+            DataAssert.AreEqual(s1.Headers, pending[0].Headers);
+            DataAssert.AreEqual(s1.ValidUntil, pending[0].ValidUntil);
             Assert.AreEqual(s1.Body, pending[0].Body);
-            AssertSqlDbDateTime(s1.Enqueued, pending[0].Enqueued);
+            DataAssert.AreEqual(s1.Enqueued, pending[0].Enqueued);
             Assert.AreEqual(0, pending[0].Retries);
             Assert.AreEqual(null, pending[0].Completed);
             Assert.AreEqual(null, pending[0].Failed);
             Assert.AreEqual(s1.SubscriberId, pending[0].SubscriberId);
-            AssertSqlDbDateTime(s1.NotBefore, pending[0].NotBefore);
+            DataAssert.AreEqual(s1.NotBefore, pending[0].NotBefore);
         }
 
         [TestMethod]

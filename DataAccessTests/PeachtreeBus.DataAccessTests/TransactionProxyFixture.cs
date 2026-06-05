@@ -2,11 +2,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.ClassNames;
 using PeachtreeBus.Data;
-using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using System;
 using System.Threading.Tasks;
-using PeachtreeBus.DatabaseTestingShared;
+using PeachtreeBus.DatabaseSharing;
+using PeachtreeBus.DatabaseTesting;
+using PeachtreeBus.DatabaseTesting.MsSql;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -66,19 +67,20 @@ public class TransactionProxyFixture : FixtureBase<MsSqlBusDataAccess>
         SharedDB.BeginTransaction();
         SharedDB.CreateSavepoint("Savepoint1");
 
-        await dataAccess.AddMessage(message, DefaultQueue);
+        await dataAccess.AddMessage(message, TestConfig.DefaultQueue);
 
         SharedDB.RollbackToSavepoint("Savepoint1");
         SharedDB.CommitTransaction();
 
-        var pending = await dataAccess.GetPendingQueued(DefaultQueue);
+        var pending = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
         Assert.IsNull(pending);
     }
 
     [TestMethod]
     public void Verify_DisposeTransaction()
     {
-        using var connection = new SqlConnectionProxy(new(TestSettings.TestDatabase));
+        var factory = TestServices.GetService<ISqlConnectionFactory>();
+        using var connection = factory.GetConnection();
         connection.Open();
         var transaction = connection.BeginTransaction();
         transaction.Dispose();
@@ -87,7 +89,7 @@ public class TransactionProxyFixture : FixtureBase<MsSqlBusDataAccess>
 
     protected override MsSqlBusDataAccess CreateDataAccess()
     {
-        return new MsSqlBusDataAccess(
+        return new (
             SharedDB,
             Configuration.Object,
             MockLog.Object,

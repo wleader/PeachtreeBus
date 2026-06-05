@@ -23,7 +23,7 @@ public class EstimateQueuePendingFixture : MsSqlBusDataAccessFixtureBase
     {
         await Given_MessagesInQueue(0);
 
-        Assert.AreEqual(0, await dataAccess.EstimateQueuePending(DefaultQueue));
+        Assert.AreEqual(0, await dataAccess.EstimateQueuePending(TestConfig.DefaultQueue));
     }
 
     [TestMethod]
@@ -34,7 +34,7 @@ public class EstimateQueuePendingFixture : MsSqlBusDataAccessFixtureBase
     {
         await Given_MessagesInQueue(value);
         await Task.Delay(20); // If SQL is slow to unlock this test is unreliable.
-        Assert.AreEqual(value, await dataAccess.EstimateQueuePending(DefaultQueue));
+        Assert.AreEqual(value, await dataAccess.EstimateQueuePending(TestConfig.DefaultQueue));
     }
 
     [TestMethod]
@@ -48,9 +48,9 @@ public class EstimateQueuePendingFixture : MsSqlBusDataAccessFixtureBase
     {
         await Given_MessagesInQueue(messageCount);
 
-        using var locked = new RowLock(QueuePending, lockCount);
+        using var locked = new RowLock(TestConfig.QueuePending, lockCount);
 
-        var actual = await dataAccess.EstimateQueuePending(DefaultQueue);
+        var actual = await dataAccess.EstimateQueuePending(TestConfig.DefaultQueue);
 
         // This needs a comment to explain, because why the assertions are what they
         // are is not obvious.

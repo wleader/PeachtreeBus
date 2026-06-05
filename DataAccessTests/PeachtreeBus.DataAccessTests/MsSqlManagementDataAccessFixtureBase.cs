@@ -66,7 +66,7 @@ namespace PeachtreeBus.DataAccessTests
         protected async Task<QueueData> CreatePendingQueued()
         {
             var message = TestData.CreateQueueData();
-            message.Id = await BusAccess.AddMessage(message, DefaultQueue);
+            message.Id = await BusAccess.AddMessage(message, TestConfig.DefaultQueue);
             await Task.Delay(10); // make sure that messages get sequential enqueued times.
             return message;
         }
@@ -74,14 +74,14 @@ namespace PeachtreeBus.DataAccessTests
         protected async Task<QueueData> CreateFailedQueued()
         {
             var message = await CreatePendingQueued();
-            await BusAccess.FailMessage(message, DefaultQueue);
+            await BusAccess.FailMessage(message, TestConfig.DefaultQueue);
             return message;
         }
 
         protected async Task<QueueData> CreateCompletedQueued()
         {
             var message = await CreatePendingQueued();
-            await BusAccess.CompleteMessage(message, DefaultQueue);
+            await BusAccess.CompleteMessage(message, TestConfig.DefaultQueue);
             return message;
         }
 

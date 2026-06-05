@@ -11,7 +11,7 @@ namespace PeachtreeBus.DataAccessTests
     public class ResetFixture
     {
         private MsSqlBusDataAccess _dataAccess = default!;
-        private Mock<ISharedDatabase> _sharedDb = default!;
+        private Mock<ISqlSharedDatabase> _sharedDb = default!;
         private Mock<IBusConfiguration> _configuration = default!;
         private Mock<ILogger<MsSqlBusDataAccess>> _logger = default!;
         private readonly Mock<IDapperMethods> _sqlExecutor = new();

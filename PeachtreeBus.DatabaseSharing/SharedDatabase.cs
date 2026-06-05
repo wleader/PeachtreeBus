@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
+using System.Data.Common;
 using System.Diagnostics;
 
 namespace PeachtreeBus.DatabaseSharing
@@ -16,71 +17,8 @@ namespace PeachtreeBus.DatabaseSharing
     /// dependency Injection container. This allows all the classes that interact with the database within the same message 
     /// handling scope to use the same connection and transaction.
     /// </remarks>
-    public interface ISharedDatabase : IDisposable
+    public interface ISqlSharedDatabase : IBaseSharedDatabase<SqlConnection, SqlTransaction>, IDisposable
     {
-        /// <summary>
-        /// Starts a transaction. Only one transaction should be started.
-        /// Causes the TransactionStarted event.
-        /// </summary>
-        void BeginTransaction();
-
-        /// <summary>
-        /// Commits a transaction.
-        /// Causes the TransactionConsumed event.
-        /// </summary>
-        void CommitTransaction();
-
-        /// <summary>
-        /// Rolls back a transaction.
-        /// Causes the TransactionConsumed event.
-        /// </summary>
-        void RollbackTransaction();
-
-        /// <summary>
-        /// Closes and reopens the database connection.
-        /// </summary>
-        void Reconnect();
-
-        /// <summary>
-        /// Creates a Savepoint in the Transaction.
-        /// Similar to a nested transaction.
-        /// </summary>
-        /// <param name="name">The name of the savepoint to create.</param>
-        void CreateSavepoint(string name);
-
-        /// <summary>
-        /// Rolls back to Savepoint in the transaction.
-        /// Similar to a nested transaction rollboack.
-        /// </summary>
-        /// <param name="name">The name of the savepoint to rollback to.</param>
-        void RollbackToSavepoint(string name);
-
-        void SetExternallyManagedConnection(SqlConnection connection, SqlTransaction? transaction);
-
-        /// <summary>
-        /// The current Transaction (Null when there is no transaction).
-        /// </summary>
-        SqlTransaction? Transaction { get; }
-
-        SqlConnection Connection { get; }
-
-        /// <summary>
-        /// An event to signal a new transaction so that other DbContext instances can synchronize transaction usage.
-        /// </summary>
-        event EventHandler TransactionStarted;
-
-        /// <summary>
-        /// An event to signal a transaction ended so that other DbContext instances can synchronize transaction usage.
-        /// </summary>
-        event EventHandler TransactionConsumed;
-
-        /// <summary>
-        /// Enables preventing the Shared Database object from being disposed.
-        /// This is useful because the object has to be accessible as a scoped object
-        /// in multiple DI Scopes, but the DI container must not dispose it when
-        /// and inner scope ends.
-        /// </summary>
-        bool DenyDispose { get; set; }
     }
 
     /// <summary>
@@ -89,169 +27,24 @@ namespace PeachtreeBus.DatabaseSharing
     /// share the same DB transaction.
     /// </summary>
     [DebuggerDisplay("SharedDatabase [{InstanceId}]")]
-    public class SharedDatabase(ISqlConnectionFactory connectionFactory) : ISharedDatabase
+    public class SharedDatabase(ISqlConnectionFactory connectionFactory)
+        : BaseSharedDatabase<SqlConnection, ISqlConnection, SqlTransaction, ISqlTransaction>(connectionFactory),
+            ISqlSharedDatabase
     {
-        /// <summary>
-        /// Give each instance a different ID.
-        /// Helps with diagnosing which instances are the same and different.
-        /// </summary>
-        public Guid InstanceId { get; } = Guid.NewGuid();
-
-        /// <inheritdoc/>
-        public bool DenyDispose { get; set; } = false;
-
-        /// <summary>
-        /// used to ensure thread safety.
-        /// </summary>
-        private readonly object _lock = new();
-
-        /// <inheritdoc/>
-        public event EventHandler? TransactionStarted;
-        /// <inheritdoc/>
-        public event EventHandler? TransactionConsumed;
-
-        /// <inheritdoc/>
-        public SqlTransaction? Transaction { get => _transaction?.Transaction; }
-
-        public SqlConnection Connection
+        protected override ISqlConnection CreateExternalConnection(DbConnection connection)
         {
-            get
-            {
-                _connection ??= _connectionFactory.GetConnection();
-                return _connection.Connection;
-            }
+            var sqlConnection = connection as SqlConnection
+                                ?? throw new ExternallyManagedConnectionException(
+                                    "The provided connection object is not an SqlConnection.");
+            return new ExternallyManagedSqlConnection(sqlConnection);
         }
 
-        private ISqlConnection? _connection;
-        private ISqlTransaction? _transaction;
-
-        private readonly ISqlConnectionFactory _connectionFactory = connectionFactory;
-
-        /// <inheritdoc/>
-        public void BeginTransaction()
+        protected override ISqlTransaction CreateExternalTransaction(DbTransaction transaction)
         {
-            lock (_lock)
-            {
-                _connection ??= _connectionFactory.GetConnection();
-                if (_connection.State != System.Data.ConnectionState.Open)
-                {
-                    Reconnect();
-                }
-
-                if (_transaction != null)
-                    throw new SharedDatabaseException("There is already a transaction. Use CreateSavePoint instead of nested transactions.");
-
-                _transaction = _connection.BeginTransaction();
-            }
-            TransactionStarted?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <inheritdoc/>
-        public void CommitTransaction()
-        {
-            lock (_lock)
-            {
-                if (_transaction == null)
-                    throw new SharedDatabaseException("There is no transaction to commit.");
-
-                _transaction.Commit();
-                _transaction = null;
-            }
-            TransactionConsumed?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <inheritdoc/>
-        public void CreateSavepoint(string name)
-        {
-            lock (_lock)
-            {
-                if (_transaction == null)
-                    throw new SharedDatabaseException("There is no transaction to create a save point in.");
-
-                _transaction.Save(name);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void RollbackToSavepoint(string name)
-        {
-            lock (_lock)
-            {
-                if (_transaction == null) throw new SharedDatabaseException("There is no transaction to roll back to a save point.");
-                _transaction.Rollback(name);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void RollbackTransaction()
-        {
-            lock (_lock)
-            {
-                if (_transaction == null)
-                    throw new SharedDatabaseException("There is no transaction to roll back.");
-
-                _transaction.Rollback();
-                _transaction = null;
-            }
-            TransactionConsumed?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void DisposeTransactionAndConnection()
-        {
-            // this code can call .Dispose
-            // even if the transaction and connection are 
-            // externally managed. That is because the 
-            // external classes do not pass the dispose call
-            // through to the native objects.
-
-            if (_transaction is not null)
-            {
-                _transaction.Dispose();
-                _transaction = null;
-                TransactionConsumed?.Invoke(this, EventArgs.Empty);
-            }
-
-            _connection?.Dispose();
-            _connection = null;
-        }
-
-        public void SetExternallyManagedConnection(SqlConnection connection, SqlTransaction? transaction)
-        {
-            lock (_lock)
-            {
-                DisposeTransactionAndConnection();
-                _connection = new ExternallyManagedSqlConnection(connection);
-                if (transaction is not null)
-                    _transaction = new ExternallyManagedSqlTransaction(transaction);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void Reconnect()
-        {
-            if (_connection is ExternallyManagedSqlConnection)
-                throw new ExternallyManagedSqlConnectionException(
-                    "Reconnection is not allowed when using an Externally Managed Connection.");
-
-            if (DenyDispose)
-                throw new SharedDatabaseException("Reconnection is not allowed when DenyDispose is true.");
-
-            lock (_lock)
-            {
-                DisposeTransactionAndConnection();
-                _connection = _connectionFactory.GetConnection();
-                _connection.Open();
-            }
-        }
-
-        public void Dispose()
-        {
-            if (DenyDispose) return;
-            lock (_lock)
-            {
-                DisposeTransactionAndConnection();
-            }
-            GC.SuppressFinalize(this);
+            var sqlTransaction = transaction as SqlTransaction
+                                 ?? throw new ExternallyManagedTransactionException(
+                                     "The provided transaction object is not an SqlTransaction.");
+            return new ExternallyManagedSqlTransaction(sqlTransaction);
         }
     }
 }

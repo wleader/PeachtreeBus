@@ -30,13 +30,13 @@ namespace PeachtreeBus.DataAccessTests
         {
             var newSaga = CreateTestSagaData();
 
-            Assert.AreEqual(0, CountRowsInTable(SagaData));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SagaData));
 
-            newSaga.Id = await dataAccess.InsertSagaData(newSaga, DefaultSagaName);
+            newSaga.Id = await dataAccess.InsertSagaData(newSaga, TestConfig.DefaultSagaName);
 
             Assert.IsTrue(newSaga.Id.Value > 0);
 
-            var data = GetTableContent(SagaData);
+            var data = GetTableContent(TestConfig.SagaData);
             Assert.IsNotNull(data);
 
             var sagas = data.ToSagas();

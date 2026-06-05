@@ -37,11 +37,11 @@ namespace PeachtreeBus.DataAccessTests
             var newSaga2 = CreateTestSagaData();
             newSaga2.Key = new("2");
 
-            newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, DefaultSagaName);
-            newSaga2.Id = await dataAccess.InsertSagaData(newSaga2, DefaultSagaName);
+            newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
+            newSaga2.Id = await dataAccess.InsertSagaData(newSaga2, TestConfig.DefaultSagaName);
 
             await Task.Delay(10);
-            Assert.AreEqual(2, CountRowsInTable(SagaData));
+            Assert.AreEqual(2, CountRowsInTable(TestConfig.SagaData));
 
             var updatedSaga = new SagaData
             {
@@ -53,10 +53,10 @@ namespace PeachtreeBus.DataAccessTests
                 MetaData = TestData.CreateSagaMetaData(),
             };
 
-            await dataAccess.UpdateSagaData(updatedSaga, DefaultSagaName);
+            await dataAccess.UpdateSagaData(updatedSaga, TestConfig.DefaultSagaName);
             await Task.Delay(10);
 
-            var sagas = GetTableContent(SagaData).ToSagas();
+            var sagas = GetTableContent(TestConfig.SagaData).ToSagas();
             Assert.AreEqual(2, sagas.Count);
 
             var actualSaga1 = sagas.Single(s => s.Id == newSaga1.Id);

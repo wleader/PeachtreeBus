@@ -70,7 +70,6 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
         AssertService<IShareObjectsBetweenScopes>();
         AssertService<IDapperTypesHandler>();
         AssertService<IBusDataAccess>();
-        AssertService<IDapperMethods>();
         AssertService<ISqlConnectionFactory>();
         AssertService<IProvideDbConnectionString>();
         AssertService<IRunStartupTasks>();

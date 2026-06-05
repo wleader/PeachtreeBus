@@ -19,15 +19,15 @@ namespace PeachtreeBus.DataAccessTests
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(s1.MessageId, failed[0].MessageId);
-            AssertHeadersEquals(s1.Headers, failed[0].Headers);
-            AssertSqlDbDateTime(s1.ValidUntil, failed[0].ValidUntil);
+            DataAssert.AreEqual(s1.Headers, failed[0].Headers);
+            DataAssert.AreEqual(s1.ValidUntil, failed[0].ValidUntil);
             Assert.AreEqual(s1.Body, failed[0].Body);
-            AssertSqlDbDateTime(s1.Enqueued, failed[0].Enqueued);
+            DataAssert.AreEqual(s1.Enqueued, failed[0].Enqueued);
             Assert.AreEqual(0, failed[0].Retries);
             Assert.AreEqual(null, failed[0].Completed);
-            AssertSqlDbDateTime(DateTime.UtcNow, failed[0].Failed, 5000);
+            DataAssert.AreEqual(DateTime.UtcNow, failed[0].Failed, 5000);
             Assert.AreEqual(s1.SubscriberId, failed[0].SubscriberId);
-            AssertSqlDbDateTime(s1.NotBefore, failed[0].NotBefore);
+            DataAssert.AreEqual(s1.NotBefore, failed[0].NotBefore);
         }
 
         [TestMethod]

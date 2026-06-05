@@ -31,12 +31,12 @@ namespace PeachtreeBus.DataAccessTests
             var newSaga1 = CreateTestSagaData();
             newSaga1.Key = new("1");
 
-            newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, DefaultSagaName);
+            newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
 
             await Task.Delay(10);
-            Assert.AreEqual(1, CountRowsInTable(SagaData));
+            Assert.AreEqual(1, CountRowsInTable(TestConfig.SagaData));
 
-            var actual = await dataAccess.GetSagaData(DefaultSagaName, newSaga1.Key);
+            var actual = await dataAccess.GetSagaData(TestConfig.DefaultSagaName, newSaga1.Key);
             Assert.IsNotNull(actual);
             AssertSagaEquals(newSaga1, actual);
             Assert.IsFalse(actual.Blocked);
@@ -49,8 +49,8 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task GetSagaData_ReturnsNullWhenDoesntExist()
         {
-            Assert.AreEqual(0, CountRowsInTable(SagaData));
-            var sagadata = await dataAccess.GetSagaData(DefaultSagaName, new("1"));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SagaData));
+            var sagadata = await dataAccess.GetSagaData(TestConfig.DefaultSagaName, new("1"));
             Assert.IsNull(sagadata);
         }
 
@@ -64,15 +64,15 @@ namespace PeachtreeBus.DataAccessTests
             var newSaga1 = CreateTestSagaData();
             newSaga1.Key = new("1");
 
-            newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, DefaultSagaName);
+            newSaga1.Id = await dataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
 
             await Task.Delay(10);
-            Assert.AreEqual(1, CountRowsInTable(SagaData));
+            Assert.AreEqual(1, CountRowsInTable(TestConfig.SagaData));
 
             // lock the saga data row
-            using var data = new RowLock(SagaData);
+            using var data = new RowLock(TestConfig.SagaData);
 
-            var actual = await dataAccess.GetSagaData(DefaultSagaName, newSaga1.Key);
+            var actual = await dataAccess.GetSagaData(TestConfig.DefaultSagaName, newSaga1.Key);
             Assert.IsNotNull(actual);
             Assert.IsTrue(actual.Blocked);
         }

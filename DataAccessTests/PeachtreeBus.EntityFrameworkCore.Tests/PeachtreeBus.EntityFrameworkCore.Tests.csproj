@@ -21,7 +21,8 @@
     <ItemGroup>
         <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
         <ProjectReference Include="..\..\PeachtreeBus.EntityFrameworkCore\PeachtreeBus.EntityFrameworkCore.csproj" />
-        <ProjectReference Include="..\PeachtreeBus.DatabaseTestingShared\PeachtreeBus.DatabaseTestingShared.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.DatabaseTesting.MsSql\PeachtreeBus.DatabaseTesting.MsSql.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.DatabaseTesting\PeachtreeBus.DatabaseTesting.csproj" />
     </ItemGroup>
 
     <ItemGroup>

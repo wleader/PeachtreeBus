@@ -52,7 +52,7 @@ public class EstimateSubscribedPendingFixture : MsSqlBusDataAccessFixtureBase
     {
         await Given_SubscribedMessagesPending(SubscriberId, messageCount);
 
-        using var locked = new RowLock(QueuePending, lockCount);
+        using var locked = new RowLock(TestConfig.QueuePending, lockCount);
         var actual = await dataAccess.EstimateSubscribedPending(SubscriberId);
 
         // its actually kind of hard to not count locked rows,

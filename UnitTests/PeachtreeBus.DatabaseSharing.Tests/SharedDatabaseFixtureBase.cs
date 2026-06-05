@@ -46,7 +46,7 @@ public abstract class SharedDatabaseFixtureBase
     protected ISqlConnection? GetInternalConnection()
     {
         return (ISqlConnection?)
-            typeof(SharedDatabase)
+            typeof(SharedDatabase).BaseType!
             .GetField(
                 "_connection",
                 System.Reflection.BindingFlags.Instance |
@@ -57,7 +57,7 @@ public abstract class SharedDatabaseFixtureBase
     protected ISqlTransaction? GetInternalTransaction()
     {
         return (ISqlTransaction?)
-            typeof(SharedDatabase)
+            typeof(SharedDatabase).BaseType!
             .GetField(
                 "_transaction",
                 System.Reflection.BindingFlags.Instance |

@@ -4,19 +4,34 @@ using PeachtreeBus.Sagas;
 
 namespace PeachtreeBus.DataAccessTests;
 
-public abstract class TestConfig
+public interface ITestConfig
 {
-    public static readonly SchemaName DefaultSchema = new("PeachtreeBus");
+    SchemaName DefaultSchema { get; }
+    QueueName DefaultQueue { get; }
+    TableName QueuePending { get; }
+    TableName QueueCompleted { get; }
+    TableName QueueFailed { get; }
+    SagaName DefaultSagaName { get; } 
+    TableName SagaData { get; }
+    TableName Subscriptions { get; }
+    TableName SubscribedPending { get; } 
+    TableName SubscribedFailed { get; }
+    TableName SubscribedCompleted { get; } 
+}
+
+public sealed class TestConfig : ITestConfig
+{
+    public SchemaName DefaultSchema { get; } = new ("PeachtreeBus");
     private const string QueueName = "QueueName";
-    protected static readonly QueueName DefaultQueue = new(QueueName);
-    protected static readonly TableName QueuePending = new(QueueName + "_Pending");
-    protected static readonly TableName QueueCompleted = new(QueueName + "_Completed");
-    protected static readonly TableName QueueFailed = new(QueueName + "_Failed");
+    public QueueName DefaultQueue { get; } = new(QueueName);
+    public TableName QueuePending { get; } = new(QueueName + "_Pending");
+    public TableName QueueCompleted { get; } = new(QueueName + "_Completed");
+    public TableName QueueFailed { get; } = new(QueueName + "_Failed");
     private const string SagaName = "SagaName";
-    protected static readonly SagaName DefaultSagaName = new(SagaName);
-    protected static readonly TableName SagaData = new(SagaName + "_SagaData");
-    protected static readonly TableName Subscriptions = new("Subscriptions");
-    protected static readonly TableName SubscribedPending = new("Subscribed_Pending");
-    protected static readonly TableName SubscribedFailed = new("Subscribed_Failed");
-    protected static readonly TableName SubscribedCompleted = new("Subscribed_Completed");
+    public SagaName DefaultSagaName { get; } = new(SagaName);
+    public TableName SagaData { get; } = new(SagaName + "_SagaData");
+    public TableName Subscriptions { get; } = new("Subscriptions");
+    public TableName SubscribedPending { get; } = new("Subscribed_Pending");
+    public TableName SubscribedFailed { get; } = new("Subscribed_Failed");
+    public TableName SubscribedCompleted { get; } = new("Subscribed_Completed");
 }

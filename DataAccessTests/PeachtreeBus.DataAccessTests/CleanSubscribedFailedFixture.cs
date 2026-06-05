@@ -41,7 +41,7 @@ namespace PeachtreeBus.DataAccessTests
             (@Id, @SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
             """;
 
-            statement = string.Format(statement, DefaultSchema, DefaultQueue);
+            statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
 
             var p = new DynamicParameters();
             p.Add("@Id", lastId++);
@@ -74,13 +74,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedFailed));
             var olderthan = DateTime.UtcNow;
 
             var count = await dataAccess.CleanSubscribedFailed(olderthan, 10);
             Assert.AreEqual(10, count);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedFailed));
         }
 
         /// <summary>
@@ -96,13 +96,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedFailed));
             var olderthan = DateTime.UtcNow;
 
             var count = await dataAccess.CleanSubscribedFailed(olderthan, 5);
             Assert.AreEqual(5, count);
 
-            Assert.AreEqual(5, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(5, CountRowsInTable(TestConfig.SubscribedFailed));
         }
 
         /// <summary>
@@ -118,13 +118,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedFailed));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
             var count = await dataAccess.CleanSubscribedFailed(olderthan, 10);
             Assert.AreEqual(0, count);
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedFailed));
         }
 
         /// <summary>
@@ -146,13 +146,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedFailed));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
             var count = await dataAccess.CleanSubscribedFailed(olderthan, 10);
             Assert.AreEqual(3, count);
 
-            Assert.AreEqual(7, CountRowsInTable(SubscribedFailed));
+            Assert.AreEqual(7, CountRowsInTable(TestConfig.SubscribedFailed));
         }
     }
 }

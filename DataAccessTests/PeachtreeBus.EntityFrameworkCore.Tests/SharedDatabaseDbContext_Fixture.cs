@@ -1,13 +1,12 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.DatabaseSharing;
 using System;
 using System.Data;
 using System.Linq;
-using PeachtreeBus.DatabaseTestingShared;
+using PeachtreeBus.DatabaseTesting;
+using PeachtreeBus.DatabaseTesting.MsSql;
 
 namespace PeachtreeBus.EntityFrameworkCore.Tests;
 
@@ -17,12 +16,16 @@ public class SharedDatabaseDbContext_Fixture
     private SharedDatabase _sharedDatabase = default!;
     private Mock<ISqlConnectionFactory> _connectionFactory = default!;
 
+    private IMsSqlTestSettings TestSettings = null!;
+    
     [TestInitialize]
     public void TestInitialize()
     {
+        TestSettings = TestServices.GetService<IMsSqlTestSettings>();
+        
         _connectionFactory = new();
         _connectionFactory.Setup(c => c.GetConnection())
-            .Returns(() => new SqlConnectionProxy(new(TestSettings.TestDatabase)));
+            .Returns(() => new SqlConnectionProxy(new(TestSettings.TestDatabase.Value)));
 
         _sharedDatabase = new SharedDatabase(_connectionFactory.Object);
 
@@ -31,7 +34,7 @@ public class SharedDatabaseDbContext_Fixture
 
     private void CleanupData()
     {
-        using var connection = new SqlConnection(TestSettings.TestDatabase);
+        using var connection = new SqlConnection(TestSettings.TestDatabase.Value);
         connection.Open();
         using var command = new SqlCommand(
             """

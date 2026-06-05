@@ -10,7 +10,7 @@ public class DapperMethodsFixture
 {
     private DapperMethods _methods = default!;
 
-    private readonly Mock<ISharedDatabase> _sharedDatabase = new();
+    private readonly Mock<ISqlSharedDatabase> _sharedDatabase = new();
     private readonly Mock<IDapperTypesHandler> _dapperTypes = new();
 
     [TestInitialize]

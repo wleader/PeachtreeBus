@@ -50,13 +50,13 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the completed table.
-            var completed = GetTableContent(SubscribedCompleted).ToMessages();
+            var completed = GetTableContent(TestConfig.SubscribedCompleted).ToMessages();
             Assert.AreEqual(1, completed.Count);
             var actual = completed.Single(m => m.Id == testMessage1.Id);
 
             // check the immutable fields are the oringal valules.
             Assert.AreEqual(testMessage1.MessageId, actual.MessageId, "MessageId should not change.");
-            AssertSqlDbDateTime(testMessage1.Enqueued, actual.Enqueued);
+            DataAssert.AreEqual(testMessage1.Enqueued, actual.Enqueued);
             Assert.AreEqual(testMessage1.Body, actual.Body, "Body should not change.");
         }
 
@@ -71,11 +71,11 @@ namespace PeachtreeBus.DataAccessTests
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected1);
 
-            Assert.AreEqual(1, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(1, CountRowsInTable(TestConfig.SubscribedPending));
 
             await dataAccess.CompleteMessage(expected1);
 
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
         }
 
         /// <summary>
@@ -85,8 +85,8 @@ namespace PeachtreeBus.DataAccessTests
         [TestMethod]
         public async Task CompleteMessage_InsertsIntoCompleteTable()
         {
-            Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
-            Assert.AreEqual(0, CountRowsInTable(SubscribedCompleted));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedCompleted));
 
             var expected1 = TestData.CreateSubscribedData(
                 validUntil: DateTime.UtcNow.AddMinutes(-1));

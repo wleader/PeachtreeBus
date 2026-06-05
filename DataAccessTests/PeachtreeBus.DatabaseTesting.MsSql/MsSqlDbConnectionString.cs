@@ -1,14 +1,14 @@
 using System;
 using Microsoft.Data.SqlClient;
 
-namespace PeachtreeBus.DatabaseTestingShared;
+namespace PeachtreeBus.DatabaseTesting.MsSql;
 
-public readonly record struct DbConnectionString
+public class MsSqlDbConnectionString : IDbConnectionString
 {
     public string Value { get; }
     public DatabaseName DatabaseName { get; }
     public string ServerOnlyConnectionString { get; }
-    public DbConnectionString(string? connectionString)
+    public MsSqlDbConnectionString(string? connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         Value = connectionString;
@@ -26,6 +26,6 @@ public readonly record struct DbConnectionString
 
     public override string ToString() => Value;
 
-    public static implicit operator string(DbConnectionString value) => value.Value;
-    public static implicit operator DbConnectionString(string? value) => new(value);
+    public static implicit operator string(MsSqlDbConnectionString value) => value.Value;
+    public static implicit operator MsSqlDbConnectionString(string? value) => new(value);
 }

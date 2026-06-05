@@ -88,7 +88,7 @@ internal class Program
 
         // Get the Shared Database Object
         // The container will return the same object that the QueueWriter will use.
-        var sharedDb = accessor.GetRequiredService<ISharedDatabase>();
+        var sharedDb = accessor.GetRequiredService<ISqlSharedDatabase>();
         // Replace the connection.
         sharedDb.SetExternallyManagedConnection(connection, transaction);
 

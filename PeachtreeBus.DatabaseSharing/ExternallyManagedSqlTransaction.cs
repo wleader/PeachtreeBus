@@ -1,15 +1,19 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
+using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DatabaseSharing;
 
-public class ExternallyManagedSqlTransaction(SqlTransaction transaction) : ISqlTransaction
+public class ExternallyManagedTransactionException(string message) : SharedDatabaseException(message);
+
+public abstract class ExternallyManagedTransaction<TTransaction>(TTransaction transaction) : IBaseTransaction<TTransaction>
+    where TTransaction : DbTransaction
 {
     public bool Disposed { get; private set; }
-    public SqlTransaction Transaction { get; } = transaction;
+    public TTransaction Transaction { get; } = transaction;
 
     private const string CannotCommit =
         "The transaction cannot be committed because it is an externally managed transaction.";
@@ -18,16 +22,16 @@ public class ExternallyManagedSqlTransaction(SqlTransaction transaction) : ISqlT
         "The transaction cannot be rolled back because it is an externally managed transaction.";
 
     public void Commit() =>
-        throw new ExternallyManagedSqlConnectionException(CannotCommit);
+        throw new ExternallyManagedTransactionException(CannotCommit);
 
     public Task CommitAsync(CancellationToken _ = default) =>
-        throw new ExternallyManagedSqlConnectionException(CannotCommit);
+        throw new ExternallyManagedTransactionException(CannotCommit);
 
     public void Rollback() => 
-        throw new ExternallyManagedSqlConnectionException(CannotRollback);
+        throw new ExternallyManagedTransactionException(CannotRollback);
     
     public Task RollbackAsync(CancellationToken _ = default) =>
-        throw new ExternallyManagedSqlConnectionException(CannotRollback);
+        throw new ExternallyManagedTransactionException(CannotRollback);
 
     [ExcludeFromCodeCoverage(Justification = "Testing requires a live connection.")]
     public void Rollback(string transactionName) => 
@@ -62,3 +66,7 @@ public class ExternallyManagedSqlTransaction(SqlTransaction transaction) : ISqlT
         return ValueTask.CompletedTask;
     }
 }
+
+public class ExternallyManagedSqlTransaction(SqlTransaction sqlTransaction)
+    : ExternallyManagedTransaction<SqlTransaction>(sqlTransaction)
+    , ISqlTransaction;

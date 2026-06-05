@@ -41,7 +41,7 @@ namespace PeachtreeBus.DataAccessTests
             (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
             """;
 
-            statement = string.Format(statement, DefaultSchema, DefaultQueue);
+            statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
 
             var p = new DynamicParameters();
             p.Add("@Id", lastId++);
@@ -71,13 +71,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
             var olderthan = DateTime.UtcNow;
 
-            var count = await dataAccess.CleanQueueCompleted(DefaultQueue, olderthan, 10);
+            var count = await dataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderthan, 10);
             Assert.AreEqual(10, count);
 
-            Assert.AreEqual(0, CountRowsInTable(QueueCompleted));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.QueueCompleted));
         }
 
         /// <summary>
@@ -93,13 +93,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
             var olderthan = DateTime.UtcNow;
 
-            var count = await dataAccess.CleanQueueCompleted(DefaultQueue, olderthan, 5);
+            var count = await dataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderthan, 5);
             Assert.AreEqual(5, count);
 
-            Assert.AreEqual(5, CountRowsInTable(QueueCompleted));
+            Assert.AreEqual(5, CountRowsInTable(TestConfig.QueueCompleted));
         }
 
         /// <summary>
@@ -115,13 +115,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
-            var count = await dataAccess.CleanQueueCompleted(DefaultQueue, olderthan, 10);
+            var count = await dataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderthan, 10);
             Assert.AreEqual(0, count);
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
         }
 
         /// <summary>
@@ -143,13 +143,13 @@ namespace PeachtreeBus.DataAccessTests
                 await CreateTestRow(completed);
             }
 
-            Assert.AreEqual(10, CountRowsInTable(QueueCompleted));
+            Assert.AreEqual(10, CountRowsInTable(TestConfig.QueueCompleted));
             var olderthan = DateTime.UtcNow.AddMinutes(-5);
 
-            var count = await dataAccess.CleanQueueCompleted(DefaultQueue, olderthan, 10);
+            var count = await dataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderthan, 10);
             Assert.AreEqual(3, count);
 
-            Assert.AreEqual(7, CountRowsInTable(QueueCompleted));
+            Assert.AreEqual(7, CountRowsInTable(TestConfig.QueueCompleted));
         }
     }
 }

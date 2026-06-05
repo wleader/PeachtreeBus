@@ -22,7 +22,7 @@ namespace PeachtreeBus.Data;
 /// <param name="database">A Shared Database connection.</param>
 /// <param name="configuration">Configures which DB Schema to find all the tables in.</param>
 public class MsSqlBusDataAccess(
-    ISharedDatabase database,
+    ISqlSharedDatabase database,
     IBusConfiguration configuration,
     ILogger<MsSqlBusDataAccess> log,
     IDapperMethods dapper,
@@ -766,7 +766,8 @@ public class MsSqlBusDataAccess(
         [CallerMemberName] string caller = "Unnamed")
     {
         return ActivitySources.DataAccess.StartActivity(
-            "peachtreebus.dataaccess " + caller);
+            "peachtreebus.dataaccess " + caller)
+            ?.AddTag("DatabaseType", "MsSql");
     }
 
     /// <summary>

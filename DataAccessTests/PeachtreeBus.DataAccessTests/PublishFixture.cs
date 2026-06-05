@@ -42,7 +42,7 @@ public class PublishFixture : MsSqlBusDataAccessFixtureBase
 
         var count = await dataAccess.Publish(SubscribedData, TestData.DefaultTopic);
 
-        Assert.AreEqual(0, CountRowsInTable(SubscribedPending));
+        Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
         Assert.AreEqual(0, count);
     }
 

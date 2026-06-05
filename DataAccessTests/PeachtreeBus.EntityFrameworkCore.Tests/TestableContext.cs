@@ -18,7 +18,7 @@ public class AuditLog
 }
 
 public class TestableContext(
-    ISharedDatabase sharedDatabase) 
+    ISqlSharedDatabase sharedDatabase) 
     : SharedDatabaseDbContext(sharedDatabase)
 { 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();

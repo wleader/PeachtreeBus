@@ -1,5 +1,7 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.DatabaseTestingShared;
+using PeachtreeBus.DatabaseTesting;
+using PeachtreeBus.DatabaseTesting.MsSql;
 
 namespace PeachtreeBus.EntityFrameworkCore.Tests;
 
@@ -9,7 +11,14 @@ public static class AssemblyInitialize
     [AssemblyInitialize]
     public static void Initialize(TestContext _)
     {
-        TestSettings.Initialize();
-        DbInitialization.Initialize();
+        TestServices.Initialize(c =>
+        {
+            c.AddSingleton<IInitializeTestDatabase, MsSqlInitializeDatabase>();
+            c.AddSingleton<IMsSqlTestSettings, MsSqlTestSettings>();
+            c.AddSingleton<IDatabaseManagement, DatabaseManagement>();
+        });
+
+        var initializer =  TestServices.GetService<IInitializeTestDatabase>();
+        initializer.Initialize();
     }
 }

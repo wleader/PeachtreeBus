@@ -31,19 +31,19 @@ namespace PeachtreeBus.DataAccessTests
         {
             var newMessage = TestData.CreateQueueData();
 
-            Assert.AreEqual(0, CountRowsInTable(QueuePending));
+            Assert.AreEqual(0, CountRowsInTable(TestConfig.QueuePending));
 
-            newMessage.Id = await dataAccess.AddMessage(newMessage, DefaultQueue);
+            newMessage.Id = await dataAccess.AddMessage(newMessage, TestConfig.DefaultQueue);
 
             Assert.IsTrue(newMessage.Id.Value > 0);
 
-            var data = GetTableContent(QueuePending);
+            var data = GetTableContent(TestConfig.QueuePending);
             Assert.IsNotNull(data);
 
             var messages = data.ToMessages();
             Assert.AreEqual(1, messages.Count);
 
-            AssertQueueDataAreEqual(newMessage, messages[0]);
+            DataAssert.AreEqual(newMessage, messages[0]);
         }
     }
 }

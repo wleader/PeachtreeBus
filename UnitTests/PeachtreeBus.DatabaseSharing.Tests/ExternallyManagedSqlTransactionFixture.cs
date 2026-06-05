@@ -29,12 +29,12 @@ public class ExternallyManagedSqlTransactionFixture
     [TestMethod]
     public void When_Commit_Then_Throws()
     {
-        Assert.ThrowsExactly<ExternallyManagedSqlConnectionException>(_transaction.Commit);
+        Assert.ThrowsExactly<ExternallyManagedTransactionException>(_transaction.Commit);
     }
 
     [TestMethod]
     public void When_Rollback_Then_Throws()
     {
-        Assert.ThrowsExactly<ExternallyManagedSqlConnectionException>(_transaction.Rollback);
+        Assert.ThrowsExactly<ExternallyManagedTransactionException>(_transaction.Rollback);
     }
 }
