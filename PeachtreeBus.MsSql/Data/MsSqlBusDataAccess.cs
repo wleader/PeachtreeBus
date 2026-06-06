@@ -643,10 +643,10 @@ public class MsSqlBusDataAccess(
     /// <summary>
     /// Removes rows from the Subscribed Completed Table.
     /// </summary>
-    /// <param name="olderthan"></param>
+    /// <param name="olderThan"></param>
     /// <param name="maxCount"></param>
     /// <returns></returns>
-    public async Task<long> CleanSubscribedCompleted(UtcDateTime olderthan, int maxCount)
+    public async Task<long> CleanSubscribedCompleted(UtcDateTime olderThan, int maxCount)
     {
         const string statementTemplate =
             """
@@ -662,7 +662,7 @@ public class MsSqlBusDataAccess(
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
-        p.Add("@OlderThan", olderthan);
+        p.Add("@OlderThan", olderThan);
 
         return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
@@ -670,10 +670,10 @@ public class MsSqlBusDataAccess(
     /// <summary>
     /// Removes rows from the Subscribed Failed Table
     /// </summary>
-    /// <param name="olderthan"></param>
+    /// <param name="olderThan"></param>
     /// <param name="maxCount"></param>
     /// <returns></returns>
-    public async Task<long> CleanSubscribedFailed(UtcDateTime olderthan, int maxCount)
+    public async Task<long> CleanSubscribedFailed(UtcDateTime olderThan, int maxCount)
     {
         const string statementTemplate =
             """
@@ -689,7 +689,7 @@ public class MsSqlBusDataAccess(
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
-        p.Add("@OlderThan", olderthan);
+        p.Add("@OlderThan", olderThan);
 
         return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
@@ -698,10 +698,10 @@ public class MsSqlBusDataAccess(
     /// Removes rows from a queue's completed table.
     /// </summary>
     /// <param name="queueName"></param>
-    /// <param name="olderthan"></param>
+    /// <param name="olderThan"></param>
     /// <param name="maxCount"></param>
     /// <returns></returns>
-    public async Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderthan, int maxCount)
+    public async Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderThan, int maxCount)
     {
         const string statementTemplate =
             """
@@ -716,7 +716,7 @@ public class MsSqlBusDataAccess(
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
-        p.Add("@OlderThan", olderthan);
+        p.Add("@OlderThan", olderThan);
 
         return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
@@ -725,10 +725,10 @@ public class MsSqlBusDataAccess(
     /// Removes rows from a queue's Failed Table.
     /// </summary>
     /// <param name="queueName"></param>
-    /// <param name="olderthan"></param>
+    /// <param name="olderThan"></param>
     /// <param name="maxCount"></param>
     /// <returns></returns>
-    public async Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderthan, int maxCount)
+    public async Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderThan, int maxCount)
     {
         const string statementTemplate =
             """
@@ -743,7 +743,7 @@ public class MsSqlBusDataAccess(
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
-        p.Add("@OlderThan", olderthan);
+        p.Add("@OlderThan", olderThan);
 
         return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }

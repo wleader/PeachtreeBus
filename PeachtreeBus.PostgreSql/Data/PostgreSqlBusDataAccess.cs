@@ -208,7 +208,7 @@ public class PostgreSqlBusDataAccess(
         throw new NotImplementedException();
     }
 
-    public async Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderthan, int maxCount)
+    public async Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderThan, int maxCount)
     {
         const string statementTemplate =
             """
@@ -231,12 +231,12 @@ public class PostgreSqlBusDataAccess(
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
-        p.Add("@OlderThan", olderthan);
+        p.Add("@OlderThan", olderThan);
 
         return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
-    public async Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderthan, int maxCount)
+    public async Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderThan, int maxCount)
     {
         const string statementTemplate =
             """
@@ -259,17 +259,17 @@ public class PostgreSqlBusDataAccess(
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
-        p.Add("@OlderThan", olderthan);
+        p.Add("@OlderThan", olderThan);
 
         return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
-    public Task<long> CleanSubscribedCompleted(UtcDateTime olderthan, int maxCount)
+    public Task<long> CleanSubscribedCompleted(UtcDateTime olderThan, int maxCount)
     {
         throw new NotImplementedException();
     }
 
-    public Task<long> CleanSubscribedFailed(UtcDateTime olderthan, int maxCount)
+    public Task<long> CleanSubscribedFailed(UtcDateTime olderThan, int maxCount)
     {
         throw new NotImplementedException();
     }

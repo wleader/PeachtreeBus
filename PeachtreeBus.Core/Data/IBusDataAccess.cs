@@ -22,7 +22,7 @@ namespace PeachtreeBus.Data
         void CommitTransaction();
 
         /// <summary>
-        /// Rollboack the current Database Transaction.
+        /// Rollback the current Database Transaction.
         /// </summary>
         void RollbackTransaction();
 
@@ -185,34 +185,34 @@ namespace PeachtreeBus.Data
         /// removes old data from a queue's failed messages.
         /// </summary>
         /// <param name="queueName"></param>
-        /// <param name="olderthan"></param>
+        /// <param name="olderThan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderthan, int maxCount);
+        Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderThan, int maxCount);
 
         /// <summary>
         /// removes old data from a queues completed messages
         /// </summary>
         /// <param name="queueName"></param>
-        /// <param name="olderthan"></param>
+        /// <param name="olderThan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderthan, int maxCount);
+        Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderThan, int maxCount);
 
         /// <summary>
         /// removes old data from subscribed completed messages.
         /// </summary>
-        /// <param name="olderthan"></param>
+        /// <param name="olderThan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanSubscribedCompleted(UtcDateTime olderthan, int maxCount);
+        Task<long> CleanSubscribedCompleted(UtcDateTime olderThan, int maxCount);
 
         /// <summary>
         /// removes old data from subscribed failed messages.
         /// </summary>
-        /// <param name="olderthan"></param>
+        /// <param name="olderThan"></param>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        Task<long> CleanSubscribedFailed(UtcDateTime olderthan, int maxCount);
+        Task<long> CleanSubscribedFailed(UtcDateTime olderThan, int maxCount);
     }
 }
