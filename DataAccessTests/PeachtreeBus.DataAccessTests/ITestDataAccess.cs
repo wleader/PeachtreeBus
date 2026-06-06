@@ -19,6 +19,7 @@ public interface ITestDataAccess
     void InsertQueueFailed(QueueData data);
     void InsertSubscribedPending(SubscribedData data);
     void InsertSubscribedCompleted(SubscribedData data);
+    void InsertSubscribedFailed(SubscribedData data);
     ITestConfig TestConfig { get; }
 }
 

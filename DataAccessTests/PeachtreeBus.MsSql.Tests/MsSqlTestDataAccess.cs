@@ -125,4 +125,18 @@ public class MsSqlTestDataAccess(
         string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
         _connection.Connection.Execute(statement, data);
     }
+    
+    public void InsertSubscribedFailed(SubscribedData data)
+    {
+        const string enqueueMessageStatement =
+            """
+            INSERT INTO [{0}].[Subscribed_Failed] WITH (ROWLOCK)
+            ([Id], [SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+            VALUES
+            (@Id, @SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
+            """;
+        ArgumentNullException.ThrowIfNull(data);
+        string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
+        _connection.Connection.Execute(statement, data);
+    }
 }

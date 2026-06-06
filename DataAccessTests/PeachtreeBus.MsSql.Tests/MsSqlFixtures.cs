@@ -17,3 +17,6 @@ public class MsSqlCleanQueueFailedFixture : CleanQueueFailedFixture;
 
 [TestClass]
 public class MsSqlCleanSubscribedCompletedFixture : CleanSubscribedCompletedFixture;
+
+[TestClass]
+public class MsSqlCleanSubscribedFailedFixture : CleanSubscribedFailedFixture;

@@ -126,4 +126,20 @@ public class PostgreSqlTestDataAccess(
         string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
         _connection.Connection.Execute(statement, data);
     }
+    
+    public void InsertSubscribedFailed(SubscribedData data)
+    {
+        const string enqueueMessageStatement =
+            """
+            INSERT INTO {0}.subscribed_failed
+            (id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed, 
+             failed, retries, headers, body)
+            VALUES
+            (@id, @SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed,
+             @Failed, @Retries, @Headers, @Body);
+            """;
+        ArgumentNullException.ThrowIfNull(data);
+        string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
+        _connection.Connection.Execute(statement, data);
+    }
 }
