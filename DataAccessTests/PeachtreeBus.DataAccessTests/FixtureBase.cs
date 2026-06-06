@@ -59,7 +59,7 @@ public abstract class FixtureBase<TAccess>
     /// <summary>
     /// Performs tasks that happen before each test.
     /// </summary>
-    public virtual void TestInitialize()
+    public virtual void Initialize()
     {
         var factory = TestServices.GetService<ISqlConnectionFactory>();
         
@@ -97,7 +97,7 @@ public abstract class FixtureBase<TAccess>
     /// <summary>
     /// Performs tasks that happen after each test.
     /// </summary>
-    public virtual void TestCleanup()
+    public virtual void Cleanup()
     {
         // Cleanup up any data left behind by the test.
         CleanupEverything();

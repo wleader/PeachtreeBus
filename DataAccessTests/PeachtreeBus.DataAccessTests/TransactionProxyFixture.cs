@@ -15,16 +15,10 @@ namespace PeachtreeBus.DataAccessTests;
 public class TransactionProxyFixture : FixtureBase<MsSqlBusDataAccess>
 {
     [TestInitialize]
-    public override void TestInitialize()
-    {
-        base.TestInitialize();
-    }
+    public override void Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void TestCleanup()
-    {
-        base.TestCleanup();
-    }
+    public override void Cleanup() => base.Cleanup();
 
     [TestMethod]
     public void Verify_ProxyForwardsTransactionEventsToServer()

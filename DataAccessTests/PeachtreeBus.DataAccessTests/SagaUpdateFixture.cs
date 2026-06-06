@@ -14,16 +14,10 @@ namespace PeachtreeBus.DataAccessTests
     public class SagaUpdateFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
-        public override void TestInitialize()
-        {
-            base.TestInitialize();
-        }
+        public override void Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void TestCleanup()
-        {
-            base.TestCleanup();
-        }
+        public override void Cleanup() => base.Cleanup();
 
         /// <summary>
         /// Proves that the correct row is updated and that only changable fields can change.

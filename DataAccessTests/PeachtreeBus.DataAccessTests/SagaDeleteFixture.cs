@@ -10,16 +10,11 @@ namespace PeachtreeBus.DataAccessTests
     public class SagaDeleteFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
-        public override void TestInitialize()
-        {
-            base.TestInitialize();
-        }
+        public override void Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void TestCleanup()
-        {
-            base.TestCleanup();
-        }
+        public override void Cleanup() => base.Cleanup();
+
 
         /// <summary>
         /// Proves that the correct row is deleted.

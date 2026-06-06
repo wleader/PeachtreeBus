@@ -19,17 +19,11 @@ public class PublishFixture : MsSqlBusDataAccessFixtureBase
     private SubscribedData SubscribedData = null!;
 
     [TestInitialize]
-    public override void TestInitialize()
-    {
-        base.TestInitialize();
-        SubscribedData = TestData.CreateSubscribedData();
-    }
+    public override void Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void TestCleanup()
-    {
-        base.TestCleanup();
-    }
+    public override void Cleanup() => base.Cleanup();
+
 
     [TestMethod]
     public async Task Given_NoSubscribersForTopic_When_Publish_Then_NoRowsAreAdded()

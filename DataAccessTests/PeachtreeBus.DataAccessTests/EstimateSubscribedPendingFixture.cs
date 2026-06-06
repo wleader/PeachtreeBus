@@ -11,16 +11,10 @@ public class EstimateSubscribedPendingFixture : MsSqlBusDataAccessFixtureBase
     private readonly SubscriberId SubscriberId = SubscriberId.New();
 
     [TestInitialize]
-    public override void TestInitialize()
-    {
-        base.TestInitialize();
-    }
+    public override void Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void TestCleanup()
-    {
-        base.TestCleanup();
-    }
+    public override void Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task Given_SubscribedMessagesPending_When_Estimate_ResultIsZero()

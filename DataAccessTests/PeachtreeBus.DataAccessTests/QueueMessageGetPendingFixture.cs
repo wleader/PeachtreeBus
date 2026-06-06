@@ -14,16 +14,10 @@ namespace PeachtreeBus.DataAccessTests
     public class QueueMessageGetPendingFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
-        public override void TestInitialize()
-        {
-            base.TestInitialize();
-        }
+        public override void Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void TestCleanup()
-        {
-            base.TestCleanup();
-        }
+        public override void Cleanup() => base.Cleanup();
 
         /// <summary>
         /// proves that a message is returned.

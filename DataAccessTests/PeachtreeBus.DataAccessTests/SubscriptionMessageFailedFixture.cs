@@ -15,16 +15,10 @@ namespace PeachtreeBus.DataAccessTests
     public class SubscriptionMessageFailedFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
-        public override void TestInitialize()
-        {
-            base.TestInitialize();
-        }
+        public override void Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void TestCleanup()
-        {
-            base.TestCleanup();
-        }
+        public override void Cleanup() => base.Cleanup();
 
         /// <summary>
         /// Proves that the message does not change.

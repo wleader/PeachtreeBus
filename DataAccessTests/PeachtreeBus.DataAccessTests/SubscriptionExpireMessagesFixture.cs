@@ -13,16 +13,10 @@ namespace PeachtreeBus.DataAccessTests
     public class SubscriptionExpireMessagesFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
-        public override void TestInitialize()
-        {
-            base.TestInitialize();
-        }
+        public override void Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void TestCleanup()
-        {
-            base.TestCleanup();
-        }
+        public override void Cleanup() => base.Cleanup();
 
         /// <summary>
         /// Proves that messages are copied to the Failed table.

@@ -10,16 +10,10 @@ namespace PeachtreeBus.DataAccessTests
     public class SagaInsertFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
-        public override void TestInitialize()
-        {
-            base.TestInitialize();
-        }
+        public override void Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void TestCleanup()
-        {
-            base.TestCleanup();
-        }
+        public override void Cleanup() => base.Cleanup();
 
         /// <summary>
         /// Proves the data is inserted correctly.

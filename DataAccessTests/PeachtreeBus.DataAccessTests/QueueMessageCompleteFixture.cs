@@ -15,16 +15,11 @@ namespace PeachtreeBus.DataAccessTests
     public class QueueMessageCompleteFixture : MsSqlBusDataAccessFixtureBase
     {
         [TestInitialize]
-        public override void TestInitialize()
-        {
-            base.TestInitialize();
-        }
+        public override void Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void TestCleanup()
-        {
-            base.TestCleanup();
-        }
+        public override void Cleanup() => base.Cleanup();
+
 
         /// <summary>
         /// Proves the message is copied from Pending table to Complete Table.
