@@ -139,4 +139,7 @@ public class MsSqlTestDataAccess(
         string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
         _connection.Connection.Execute(statement, data);
     }
+
+    public IDisposable LockRows(TableName tableName, int count) => 
+        new MsSqlRowLock(connectionFactory, tableName, count);
 }

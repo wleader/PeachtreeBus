@@ -52,9 +52,26 @@ public class PostgreSqlBusDataAccess(
         throw new NotImplementedException();
     }
 
-    public Task<long> EstimateQueuePending(QueueName queueName)
+    public async Task<long> EstimateQueuePending(QueueName queueName)
     {
-        throw new NotImplementedException();
+        // Gets the max and min IDs and does a diff on them.
+        // It doesn't check that all the rows between those values
+        // have a not-before less than now.
+        // If there are rows in between the max and the min where the 
+        // not-before is in the future, this will over-estimate.
+        // It is ok to over-estimate.
+        const string estimateQueuedStatement =
+            """
+            SELECT MAX(id)-MIN(id)+1 as count
+            FROM {0}.{1}_Pending
+            WHERE not_before < NOW()
+            """;
+
+        using var _ = StartActivity();
+
+        var query = string.Format(estimateQueuedStatement, configuration.Schema, queueName);
+
+        return await LogIfError(dapper.ExecuteScalar<long>(query));
     }
 
     public async Task<Identity> AddMessage(QueueData message, QueueName queueName)

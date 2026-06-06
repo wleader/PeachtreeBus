@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseTesting;
 
@@ -30,6 +31,14 @@ public abstract class BusDataAccessFixtureBase
         for (var i = 0; i < count; i++)
         {
             action();
+        }
+    }
+
+    protected async Task Repeat(Func<Task> action, int count)
+    {
+        for (var i = 0; i < count; i++)
+        {
+            await action();
         }
     }
 }

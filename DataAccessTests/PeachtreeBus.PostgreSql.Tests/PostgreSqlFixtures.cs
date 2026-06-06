@@ -20,3 +20,6 @@ public class PostgreSqlCleanSubscribedCompletedFixture : CleanSubscribedComplete
 
 [TestClass]
 public class PostgreSqlCleanSubscribedFailedFixture : CleanSubscribedFailedFixture;
+
+[TestClass]
+public class PostgreEstimateQueuePendingFixture : EstimateQueuePendingFixture;

@@ -142,4 +142,7 @@ public class PostgreSqlTestDataAccess(
         string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
         _connection.Connection.Execute(statement, data);
     }
+
+    public IDisposable LockRows(TableName tableName, int count) => 
+        new PostgreSqlRowLock(connectionFactory, tableName, count);
 }

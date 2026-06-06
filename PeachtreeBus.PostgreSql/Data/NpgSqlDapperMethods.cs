@@ -22,10 +22,8 @@ public class NpgSqlDapperMethods(
     public Task<T?> QueryFirstOrDefault<T>(string statement, DynamicParameters? parameters = null) =>
         database.Connection.QueryFirstOrDefaultAsync<T>(statement, parameters, database.Transaction);
 
-    public Task<T?> ExecuteScalar<T>(string statement, DynamicParameters? parameters = null)
-    {
-        throw new System.NotImplementedException();
-    }
+    public Task<T?> ExecuteScalar<T>(string statement, DynamicParameters? parameters = null) =>
+        database.Connection.ExecuteScalarAsync<T>(statement, parameters, database.Transaction);
 
     public Task<int> Execute(string statement, DynamicParameters? parameters = null) =>
         database.Connection.ExecuteAsync(statement, parameters, database.Transaction);

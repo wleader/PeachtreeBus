@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,6 +22,7 @@ public interface ITestDataAccess
     void InsertSubscribedCompleted(SubscribedData data);
     void InsertSubscribedFailed(SubscribedData data);
     ITestConfig TestConfig { get; }
+    IDisposable LockRows(TableName tableName, int count);
 }
 
 public static class TestDataAccessExtensions

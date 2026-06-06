@@ -20,3 +20,6 @@ public class MsSqlCleanSubscribedCompletedFixture : CleanSubscribedCompletedFixt
 
 [TestClass]
 public class MsSqlCleanSubscribedFailedFixture : CleanSubscribedFailedFixture;
+
+[TestClass]
+public class MsSqlEstimateQueuePendingFixture : EstimateQueuePendingFixture;
