@@ -16,7 +16,7 @@ public class PublishFixture : MsSqlBusDataAccessFixtureBase
     private readonly SubscriberId Subscriber3 = SubscriberId.New();
     private readonly UtcDateTime Until = DateTime.UtcNow.AddHours(1);
 
-    private SubscribedData SubscribedData = null!;
+    private SubscribedData SubscribedData = TestData.CreateSubscribedData();
 
     [TestInitialize]
     public override void Initialize() => base.Initialize();
