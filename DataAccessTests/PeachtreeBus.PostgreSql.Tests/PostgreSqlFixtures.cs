@@ -8,3 +8,6 @@ public class PostgreSqlCleanCompletedQueueMessagesFixture : CleanCompletedQueueM
 
 [TestClass]
 public class PostgreSqlQueueAddMessageFixture : QueueAddMessageFixture;
+
+[TestClass]
+public class PostgreSqlSubscriptionMessageUpdateFixture : SubscriptionMessageUpdateFixture;

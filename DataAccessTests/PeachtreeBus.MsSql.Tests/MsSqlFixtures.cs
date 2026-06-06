@@ -9,3 +9,5 @@ public class MsSqlCleanCompletedQueueMessagesFixture : CleanCompletedQueueMessag
 [TestClass]
 public class MsSqlQueueAddMessageFixture : QueueAddMessageFixture;
 
+[TestClass]
+public class MsSqlSubscriptionMessageUpdateFixture : SubscriptionMessageUpdateFixture;

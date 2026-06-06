@@ -65,7 +65,7 @@ public class PostgreSqlBusDataAccess(
             (message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
             VALUES
             (@MessageId, @Priority, @NotBefore, NOW(), NULL, NULL, 0, @Headers, @Body)
-            RETURNING Id;
+            RETURNING id;
             """;
 
         ArgumentNullException.ThrowIfNull(message);
@@ -129,9 +129,32 @@ public class PostgreSqlBusDataAccess(
         throw new NotImplementedException();
     }
 
-    public Task<SubscribedData?> GetPendingSubscribed(SubscriberId subscriberId)
+    public async Task<SubscribedData?> GetPendingSubscribed(SubscriberId subscriberId)
     {
-        throw new NotImplementedException();
+        // FOR UPDATE SKIP LOCKED
+        // makes this row unavailable to other connections and transactions.
+        // skip any rows that are locked by other connections and transactions.
+        // not_before so we don't get messages that are scheduled for the future.
+        const string statement =
+            """
+            SELECT id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, 
+                   completed, failed, retries, headers, body
+                FROM {0}.Subscribed_Pending
+                WHERE not_before < NOW()
+                AND subscriber_id = @SubscriberId
+                ORDER BY priority DESC
+                LIMIT 1
+                FOR UPDATE SKIP LOCKED;
+            """;
+
+        using var _ = StartActivity();
+
+        var query = string.Format(statement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@SubscriberId", subscriberId);
+
+        return await LogIfError(dapper.QueryFirstOrDefault<SubscribedData>(query, p));
     }
 
     public Task<long> EstimateSubscribedPending(SubscriberId subscriberId)
@@ -154,9 +177,30 @@ public class PostgreSqlBusDataAccess(
         throw new NotImplementedException();
     }
 
-    public Task UpdateMessage(SubscribedData message)
+    public async Task UpdateMessage(SubscribedData message)
     {
-        throw new NotImplementedException();
+        const string updateMessageStatement =
+            """
+            UPDATE {0}.Subscribed_Pending
+            SET not_before = @NotBefore,
+                retries = @Retries,
+                headers = @Headers
+            WHERE id = @Id
+            """;
+
+        using var _ = StartActivity();
+
+        ArgumentNullException.ThrowIfNull(message);
+
+        var statement = string.Format(updateMessageStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", message.Id);
+        p.Add("@NotBefore", message.NotBefore);
+        p.Add("@Retries", message.Retries);
+        p.Add("@Headers", message.Headers);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public Task<long> ExpireSubscriptionMessages(int maxCount)

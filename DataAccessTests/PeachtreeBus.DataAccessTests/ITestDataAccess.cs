@@ -3,6 +3,7 @@ using System.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -15,6 +16,8 @@ public interface ITestDataAccess
     DataSet GetTableContent(TableName tableName);
     List<T> GetTableContent<T>(TableName tableName) where T : class;
     void InsertQueueCompleted(QueueData data);
+    void InsertSubscribedMessage(SubscribedData data);
+    ITestConfig TestConfig { get; }
 }
 
 public static class TestDataAccessExtensions
@@ -24,4 +27,16 @@ public static class TestDataAccessExtensions
 
     public static void Then_TableIsEmpty(this ITestDataAccess dataAccess, TableName tableName) =>
         Then_TableHasCount(dataAccess, tableName, 0);
+
+    public static List<SubscriptionsRow> GetSubscriptions(this ITestDataAccess dataAccess) =>
+        dataAccess.GetTableContent<SubscriptionsRow>(dataAccess.TestConfig.Subscriptions);
+
+    public static List<SubscribedData> GetSubscribedPending(this ITestDataAccess dataAccess) =>
+        dataAccess.GetTableContent<SubscribedData>(dataAccess.TestConfig.SubscribedPending);
+    
+    public static List<SubscribedData> GetSubscribedFailed(this ITestDataAccess dataAccess) => 
+        dataAccess.GetTableContent<SubscribedData>(dataAccess.TestConfig.SubscribedFailed);
+    
+    public static List<SubscribedData> GetSubscribedCompleted(this ITestDataAccess dataAccess) =>
+        dataAccess.GetTableContent(dataAccess.TestConfig.SubscribedCompleted).ToSubscribed();
 }

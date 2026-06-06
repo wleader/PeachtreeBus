@@ -8,12 +8,15 @@ using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing.PostgreSql;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.PostgreSql.Tests;
 
-public class PostgreSqlTestDataAccess(INpgSqlConnectionFactory connectionFactory) : ITestDataAccess
+public class PostgreSqlTestDataAccess(
+    INpgSqlConnectionFactory connectionFactory,
+    ITestConfig testConfig) : ITestDataAccess
 {
-    private TestConfig TestConfig { get; } = new();
+    public ITestConfig TestConfig { get; } = testConfig;
     private INpgSqlConnection _connection = null!;
 
     public void Initialize()
@@ -78,5 +81,20 @@ public class PostgreSqlTestDataAccess(INpgSqlConnectionFactory connectionFactory
             """;
         statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
         _connection.Connection.Execute(statement, data);
+    }
+
+    public void InsertSubscribedMessage(SubscribedData data)
+    {
+        const string enqueueMessageStatement =
+            """
+            INSERT INTO {0}.subscribed_pending
+            (subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+            VALUES
+            (@SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, NOW(), NULL, NULL, 0, @Headers, @Body)
+            RETURNING id;
+            """;
+        ArgumentNullException.ThrowIfNull(data);
+        string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
+        data.Id = _connection.Connection.QueryFirst<Identity>(statement, data);
     }
 }

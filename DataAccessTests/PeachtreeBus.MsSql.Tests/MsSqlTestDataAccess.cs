@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -7,12 +8,16 @@ using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.MsSql.Tests;
 
-public class MsSqlTestDataAccess(ISqlConnectionFactory connectionFactory) : ITestDataAccess
+public class MsSqlTestDataAccess(
+    ISqlConnectionFactory connectionFactory,
+    ITestConfig testConfig)
+    : ITestDataAccess
 {
-    private TestConfig TestConfig { get; } = new();
+    public ITestConfig TestConfig { get; } = testConfig;
     private ISqlConnection _connection = null!;
     
     public void Initialize()
@@ -77,5 +82,20 @@ public class MsSqlTestDataAccess(ISqlConnectionFactory connectionFactory) : ITes
             """;
         statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
         _connection.Connection.Execute(statement, data);
+    }
+
+    public void InsertSubscribedMessage(SubscribedData data)
+    {
+        const string enqueueMessageStatement =
+            """
+            INSERT INTO [{0}].[Subscribed_Pending] WITH (ROWLOCK)
+            ([SubscriberId], [Topic], [ValidUntil], [MessageId], [Priority], [NotBefore], [Enqueued], [Completed], [Failed], [Retries], [Headers], [Body])
+            OUTPUT INSERTED.[Id]
+            VALUES
+            (@SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, SYSUTCDATETIME(), NULL, NULL, 0, @Headers, @Body)
+            """;
+        ArgumentNullException.ThrowIfNull(data);
+        string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
+        data.Id = _connection.Connection.QueryFirst<Identity>(statement, data);
     }
 }
