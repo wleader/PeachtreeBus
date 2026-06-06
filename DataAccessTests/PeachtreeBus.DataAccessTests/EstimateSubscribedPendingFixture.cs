@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests;
 
-[TestClass]
-public class EstimateSubscribedPendingFixture : MsSqlBusDataAccessFixtureBase
+public abstract class EstimateSubscribedPendingFixture : BusDataAccessFixtureBase
 {
-    private readonly SubscriberId SubscriberId = SubscriberId.New();
+    private readonly SubscriberId _subscriberId = SubscriberId.New();
 
     [TestInitialize]
     public override void Initialize() => base.Initialize();
@@ -19,9 +18,8 @@ public class EstimateSubscribedPendingFixture : MsSqlBusDataAccessFixtureBase
     [TestMethod]
     public async Task Given_SubscribedMessagesPending_When_Estimate_ResultIsZero()
     {
-        await Given_SubscribedMessagesPending(SubscriberId, 0);
-
-        Assert.AreEqual(0, await dataAccess.EstimateSubscribedPending(SubscriberId));
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        Assert.AreEqual(0, await BusDataAccess.EstimateSubscribedPending(_subscriberId));
     }
 
     [TestMethod]
@@ -30,9 +28,9 @@ public class EstimateSubscribedPendingFixture : MsSqlBusDataAccessFixtureBase
     [DataRow(10)]
     public async Task Given_SubscribedMessagesPending_When_Estimate_ResultIsValue(int value)
     {
-        await Given_SubscribedMessagesPending(SubscriberId, value);
+        Given_SubscribedMessagesPending(_subscriberId, value);
         await Task.Delay(20); // If SQL is slow to unlock this test is unreliable.
-        Assert.AreEqual(value, await dataAccess.EstimateSubscribedPending(SubscriberId));
+        Assert.AreEqual(value, await BusDataAccess.EstimateSubscribedPending(_subscriberId));
     }
 
     [TestMethod]
@@ -44,40 +42,37 @@ public class EstimateSubscribedPendingFixture : MsSqlBusDataAccessFixtureBase
     public async Task Given_SubscribedMessagesPending_And_RowsAreLock_When_Estimate_Then_Result(
         int messageCount, int lockCount)
     {
-        await Given_SubscribedMessagesPending(SubscriberId, messageCount);
+        Given_SubscribedMessagesPending(_subscriberId, messageCount);
 
-        using var locked = new RowLock(TestConfig.QueuePending, lockCount);
-        var actual = await dataAccess.EstimateSubscribedPending(SubscriberId);
+        using var locked = TestDataAccess.LockRows(TestConfig.QueuePending, lockCount);
+        var actual = await BusDataAccess.EstimateSubscribedPending(_subscriberId);
 
         // its actually kind of hard to not count locked rows,
         // and we only have to produce an estimate, not an exact number,
         // So the asserts below do not force a specific value, Just a range.
 
-        Assert.IsTrue(actual > 0, "Expected estimate result greater than zero");
-        Assert.IsTrue(actual <= messageCount, $"Expected estimate result no greater than {messageCount}");
+        Assert.IsGreaterThan(0, actual, "Expected estimate result greater than zero");
+        Assert.IsLessThanOrEqualTo(messageCount, actual, $"Expected estimate result no greater than {messageCount}");
     }
 
     [TestMethod]
     [DataRow(1)]
     [DataRow(5)]
     [DataRow(10)]
-    public async Task Given_SubsrcribedMessagesPendingForMultipleIds_When_Estimate_Then_Result(
+    public async Task Given_SubscribedMessagesPendingForMultipleIds_When_Estimate_Then_Result(
         int count)
     {
-        await Given_SubscribedMessagesPending(SubscriberId, count);
+        Given_SubscribedMessagesPending(_subscriberId, count);
         var secondSubscriber = SubscriberId.New();
-        await Given_SubscribedMessagesPending(secondSubscriber, count);
+        Given_SubscribedMessagesPending(secondSubscriber, count);
 
-        Assert.AreEqual(count, await dataAccess.EstimateSubscribedPending(SubscriberId));
+        Assert.AreEqual(count, await BusDataAccess.EstimateSubscribedPending(_subscriberId));
     }
 
-    private async Task Given_SubscribedMessagesPending(SubscriberId subscriberId, int count)
-    {
-        for (var i = 0; i < count; i++)
-        {
-            var testMessage = TestData.CreateSubscribedData(
-                subscriberId: subscriberId);
-            await InsertSubscribedMessage(testMessage);
-        }
-    }
+    private void Given_SubscribedMessagesPending(SubscriberId subscriberId, int count)
+        => Repeat(() => Given_SubscribedMessagesPending(subscriberId), count);
+
+    private void Given_SubscribedMessagesPending(SubscriberId subscriberId)
+        => TestDataAccess.InsertSubscribedPending(
+            TestData.CreateSubscribedData(subscriberId: subscriberId));
 }

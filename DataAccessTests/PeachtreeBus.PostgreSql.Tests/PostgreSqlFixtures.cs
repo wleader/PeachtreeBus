@@ -22,4 +22,7 @@ public class PostgreSqlCleanSubscribedCompletedFixture : CleanSubscribedComplete
 public class PostgreSqlCleanSubscribedFailedFixture : CleanSubscribedFailedFixture;
 
 [TestClass]
-public class PostgreEstimateQueuePendingFixture : EstimateQueuePendingFixture;
+public class PostgreSqlEstimateQueuePendingFixture : EstimateQueuePendingFixture;
+
+[TestClass]
+public class PostgreSqlEstimateSubscribedPendingFixture : EstimateSubscribedPendingFixture;

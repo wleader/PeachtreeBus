@@ -174,9 +174,24 @@ public class PostgreSqlBusDataAccess(
         return await LogIfError(dapper.QueryFirstOrDefault<SubscribedData>(query, p));
     }
 
-    public Task<long> EstimateSubscribedPending(SubscriberId subscriberId)
+    public async Task<long> EstimateSubscribedPending(SubscriberId subscriberId)
     {
-        throw new NotImplementedException();
+        const string estimateQueuedStatement =
+            """
+            SELECT COUNT(*)
+            FROM {0}.subscribed_pending
+            WHERE subscriber_id = @SubscriberId
+            AND not_before < NOW()
+            """;
+
+        using var _ = StartActivity();
+
+        var query = string.Format(estimateQueuedStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@SubscriberId", subscriberId);
+
+        return await LogIfError(dapper.ExecuteScalar<long>(query, p));
     }
 
     public Task<long> Publish(SubscribedData message, Topic topic)
