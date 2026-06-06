@@ -32,13 +32,8 @@ namespace PeachtreeBus.DataAccessTests
             });
         }
 
-        private void Given_CountCompletedMessage(int count, DateTime completed)
-        {
-            for (var i = 0; i < count; i++)
-            {
-                Given_CompletedMessage(completed);
-            }
-        }
+        private void Given_CountCompletedMessage(int count, DateTime completed) =>
+            Repeat(() => Given_CompletedMessage(completed), count);
         
         [TestMethod]
         [DataRow(10, 10, 0, DisplayName = "Cleans All")]

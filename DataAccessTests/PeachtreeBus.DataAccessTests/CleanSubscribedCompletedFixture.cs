@@ -36,18 +36,9 @@ public abstract class CleanSubscribedCompletedFixture : BusDataAccessFixtureBase
         });
     }
 
-    private void Given_CountCompletedMessages(int count, DateTime completed)
-    {
-        for(var i = 0; i < count; i++)
-        {
-            Given_CompletedMessage(completed);
-        }
-    }
+    private void Given_CountCompletedMessages(int count, DateTime completed) =>
+    Repeat(() => Given_CompletedMessage(completed), count);
 
-    /// <summary>
-    /// Proves the basic cleaning functionality.
-    /// </summary>
-    /// <returns></returns>
     [TestMethod]
     [DataRow(10,10, 0, DisplayName = "Clean All")]
     [DataRow(10,5, 5, DisplayName = "Clean Some")]

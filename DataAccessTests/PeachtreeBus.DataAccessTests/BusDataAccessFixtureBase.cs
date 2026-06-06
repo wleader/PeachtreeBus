@@ -1,3 +1,4 @@
+using System;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseTesting;
 
@@ -22,5 +23,13 @@ public abstract class BusDataAccessFixtureBase
     {
         TestDataAccess.CleanEverything();
         TestDataAccess.CloseConnections();
+    }
+
+    protected void Repeat(Action action, int count)
+    {
+        for (var i = 0; i < count; i++)
+        {
+            action();
+        }
     }
 }

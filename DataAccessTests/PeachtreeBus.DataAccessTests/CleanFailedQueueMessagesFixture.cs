@@ -33,13 +33,8 @@ public abstract class CleanQueueFailedFixture : BusDataAccessFixtureBase
         });
     }
 
-    private void Given_CountFailedMessage(int count, DateTime failed)
-    {
-        for (var i = 0; i < count; i++)
-        {
-            Given_FailedMessage(failed);
-        }
-    }
+    private void Given_CountFailedMessage(int count, DateTime failed) =>
+        Repeat(()=> Given_FailedMessage(failed), count);
 
     [TestMethod]
     [DataRow(10,10,0, DisplayName = "Clean All")]
