@@ -11,3 +11,6 @@ public class PostgreSqlQueueAddMessageFixture : QueueAddMessageFixture;
 
 [TestClass]
 public class PostgreSqlSubscriptionMessageUpdateFixture : SubscriptionMessageUpdateFixture;
+
+[TestClass]
+public class PostgreSqlCleanQueueFailedFixture : CleanQueueFailedFixture;

@@ -11,3 +11,6 @@ public class MsSqlQueueAddMessageFixture : QueueAddMessageFixture;
 
 [TestClass]
 public class MsSqlSubscriptionMessageUpdateFixture : SubscriptionMessageUpdateFixture;
+
+[TestClass]
+public class MsSqlCleanQueueFailedFixture : CleanQueueFailedFixture;

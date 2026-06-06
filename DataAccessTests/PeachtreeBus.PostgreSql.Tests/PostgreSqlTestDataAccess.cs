@@ -74,7 +74,20 @@ public class PostgreSqlTestDataAccess(
     {
         var statement =
             """
-            INSERT INTO {0}.{1}_Completed
+            INSERT INTO {0}.{1}_completed
+            (id,message_id,priority,not_before,enqueued,completed,failed,retries,headers,body)
+            VALUES
+            (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
+            """;
+        statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
+        _connection.Connection.Execute(statement, data);
+    }
+    
+    public void InsertQueueFailed(QueueData data)
+    {
+        var statement =
+            """
+            INSERT INTO {0}.{1}_failed
             (id,message_id,priority,not_before,enqueued,completed,failed,retries,headers,body)
             VALUES
             (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)

@@ -208,9 +208,32 @@ public class PostgreSqlBusDataAccess(
         throw new NotImplementedException();
     }
 
-    public Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderthan, int maxCount)
+    public async Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderthan, int maxCount)
     {
-        throw new NotImplementedException();
+        const string statementTemplate =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.{1}_failed
+                WHERE id IN (
+                    SELECT id FROM {0}.{1}_failed
+                    WHERE failed < @OlderThan
+                    LIMIT @MaxCount
+                    FOR UPDATE SKIP LOCKED
+                )
+                RETURNING id
+            )
+            SELECT COUNT(*) FROM deleted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(statementTemplate, configuration.Schema, queueName);
+
+        var p = new DynamicParameters();
+        p.Add("@MaxCount", maxCount);
+        p.Add("@OlderThan", olderthan);
+
+        return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
     public async Task<long> CleanQueueCompleted(QueueName queueName, UtcDateTime olderthan, int maxCount)
@@ -218,9 +241,9 @@ public class PostgreSqlBusDataAccess(
         const string statementTemplate =
             """
             WITH deleted_rows AS (
-                DELETE FROM {0}.{1}_Completed
+                DELETE FROM {0}.{1}_completed
                 WHERE id IN (
-                    SELECT id FROM {0}.{1}_Completed
+                    SELECT id FROM {0}.{1}_completed
                     WHERE completed < @OlderThan
                     LIMIT @MaxCount
                     FOR UPDATE SKIP LOCKED

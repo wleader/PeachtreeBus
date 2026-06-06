@@ -16,6 +16,7 @@ public interface ITestDataAccess
     DataSet GetTableContent(TableName tableName);
     List<T> GetTableContent<T>(TableName tableName) where T : class;
     void InsertQueueCompleted(QueueData data);
+    void InsertQueueFailed(QueueData data);
     void InsertSubscribedMessage(SubscribedData data);
     ITestConfig TestConfig { get; }
 }

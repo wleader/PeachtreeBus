@@ -83,6 +83,19 @@ public class MsSqlTestDataAccess(
         statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
         _connection.Connection.Execute(statement, data);
     }
+    
+    public void InsertQueueFailed(QueueData data)
+    {
+        var statement =
+            """
+            INSERT INTO [{0}].[{1}_Failed]
+            ([Id],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
+            VALUES
+            (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
+            """;
+        statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
+        _connection.Connection.Execute(statement, data);
+    }
 
     public void InsertSubscribedMessage(SubscribedData data)
     {
