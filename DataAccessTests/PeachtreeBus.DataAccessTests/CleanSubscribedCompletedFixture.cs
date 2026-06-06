@@ -1,158 +1,86 @@
-﻿using Dapper;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading.Tasks;
+using PeachtreeBus.Data;
+using PeachtreeBus.Subscriptions;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class CleanSubscribedCompletedFixture : BusDataAccessFixtureBase
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAcess.CleanSubscribedCompleted
-    /// </summary>
-    [TestClass]
-    public class CleanSubscribedCompletedFixture : MsSqlBusDataAccessFixtureBase
+    private long _lastId = 1000;
+
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
+    private void Given_CompletedMessage(DateTime completed)
     {
-        private long lastId = 1000;
-
-        [TestInitialize]
-        public override void TestInitialize()
+        TestDataAccess.InsertSubscribedCompleted(new()
         {
-            base.TestInitialize();
-        }
+            Id = new(_lastId++),
+            SubscriberId = SubscriberId.New(),
+            ValidUntil = DateTime.UtcNow.AddDays(1),
+            MessageId = UniqueIdentity.New(),
+            Priority = 0,
+            NotBefore = DateTime.UtcNow.AddDays(-1),
+            Enqueued = DateTime.UtcNow.AddDays(-1),
+            Completed = completed,
+            Failed = null,
+            Retries = 0,
+            Headers = new(),
+            Body = new("{}"),
+            Topic = new("Topic"),
+        });
+    }
 
-        [TestCleanup]
-        public override void TestCleanup()
+    private void Given_CountCompletedMessages(int count, DateTime completed)
+    {
+        for(var i = 0; i < count; i++)
         {
-            base.TestCleanup();
+            Given_CompletedMessage(completed);
         }
+    }
 
-        /// <summary>
-        /// Adds a row for the test.
-        /// </summary>
-        /// <param name="completed">The Compelted time for the subscribed message.</param>
-        /// <returns></returns>
-        private async Task CreateTestRow(DateTime completed)
-        {
-            // puts a row in the completed table.
-            var statement =
-            """
-            INSERT INTO [{0}].[Subscribed_Completed]
-            ([Id],[SubscriberId],[Topic],[ValidUntil],[MessageId],[Priority],[NotBefore],[Enqueued],[Completed],[Failed],[Retries],[Headers],[Body])
-            VALUES
-            (@Id, @SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
-            """;
+    /// <summary>
+    /// Proves the basic cleaning functionality.
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    [DataRow(10,10, 0, DisplayName = "Clean All")]
+    [DataRow(10,5, 5, DisplayName = "Clean Some")]
+    public async Task Given_CompletedMessage_When_CleanSubscribedCompleted_Then_RowsAreCleaned(
+        int messageCount, int cleanCount, int remaining)
+    {
+        Given_CountCompletedMessages(messageCount, DateTime.UtcNow.AddDays(-1));
+        var olderThan = DateTime.UtcNow;
 
-            statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
+        var deletedCount = await BusDataAccess.CleanSubscribedCompleted(olderThan, cleanCount);
+        Assert.AreEqual(cleanCount, deletedCount);
 
-            var p = new DynamicParameters();
-            p.Add("@Id", lastId++);
-            p.Add("@SubscriberId", Guid.NewGuid());
-            p.Add("@ValidUntil", DateTime.MaxValue);
-            p.Add("@MessageId", Guid.NewGuid());
-            p.Add("@Priority", 0);
-            p.Add("@NotBefore", DateTime.UtcNow.AddDays(-1));
-            p.Add("@Enqueued", DateTime.UtcNow.AddDays(-1));
-            p.Add("@Completed", completed);
-            p.Add("@Failed", null);
-            p.Add("@Retries", 0);
-            p.Add("@Headers", "");
-            p.Add("@Body", "");
-            p.Add("@Topic", "Topic");
+        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedCompleted, remaining);
+    }
 
-            await SecondaryConnection.Connection.ExecuteAsync(statement, p);
-        }
+    [TestMethod]
+    public async Task Given_RecentMessages_When_CleanSubscribedCompleted_Then_RecentMessagesAreNotDeleted()
+    {
+        Given_CountCompletedMessages(10, DateTime.UtcNow);
+        var olderThan = DateTime.UtcNow.AddMinutes(-5);
+        var deletedCount = await BusDataAccess.CleanSubscribedCompleted(olderThan, 10);
+        Assert.AreEqual(0, deletedCount);
+        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedCompleted, 10);
+    }
 
-        /// <summary>
-        /// Proves the basic cleaning functionality.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task CleanSubscribedCompleted_Cleans()
-        {
-            var completed = DateTime.UtcNow.AddDays(-1);
-            for (var i = 0; i < 10; i++)
-            {
-                await CreateTestRow(completed);
-            }
-
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedCompleted));
-            var olderthan = DateTime.UtcNow;
-
-            var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
-            Assert.AreEqual(10, count);
-
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedCompleted));
-        }
-
-        /// <summary>
-        /// Proves that cleanup is limited to the specified number of rows.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task CleanSubscribedCompleted_CleansTopN()
-        {
-            var completed = DateTime.UtcNow.AddDays(-1);
-            for (var i = 0; i < 10; i++)
-            {
-                await CreateTestRow(completed);
-            }
-
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedCompleted));
-            var olderthan = DateTime.UtcNow;
-
-            var count = await dataAccess.CleanSubscribedCompleted(olderthan, 5);
-            Assert.AreEqual(5, count);
-
-            Assert.AreEqual(5, CountRowsInTable(TestConfig.SubscribedCompleted));
-        }
-
-        /// <summary>
-        /// Proves that cleanup will not delete rows that completed after the specified time.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task CleanSubscribedCompleted_RespectsOlderThan()
-        {
-            var completed = DateTime.UtcNow;
-            for (var i = 0; i < 10; i++)
-            {
-                await CreateTestRow(completed);
-            }
-
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedCompleted));
-            var olderthan = DateTime.UtcNow.AddMinutes(-5);
-
-            var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
-            Assert.AreEqual(0, count);
-
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedCompleted));
-        }
-
-        /// <summary>
-        /// Proves that cleanup deletes old rows and not young ones.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task CleanSubscribedCompleted_HandlesMix()
-        {
-            var completed = DateTime.UtcNow.AddDays(-1);
-            for (var i = 0; i < 3; i++)
-            {
-                await CreateTestRow(completed);
-            }
-
-            completed = DateTime.UtcNow;
-            for (var i = 0; i < 7; i++)
-            {
-                await CreateTestRow(completed);
-            }
-
-            Assert.AreEqual(10, CountRowsInTable(TestConfig.SubscribedCompleted));
-            var olderthan = DateTime.UtcNow.AddMinutes(-5);
-
-            var count = await dataAccess.CleanSubscribedCompleted(olderthan, 10);
-            Assert.AreEqual(3, count);
-
-            Assert.AreEqual(7, CountRowsInTable(TestConfig.SubscribedCompleted));
-        }
+    [TestMethod]
+    public async Task CleanSubscribedCompleted_HandlesMix()
+    {
+        Given_CountCompletedMessages(3, DateTime.UtcNow.AddDays(-1));
+        Given_CountCompletedMessages(7, DateTime.UtcNow);
+        var olderThan = DateTime.UtcNow.AddMinutes(-5);
+        var deletedCount = await BusDataAccess.CleanSubscribedCompleted(olderThan, 10);
+        Assert.AreEqual(3, deletedCount);
+        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedCompleted, 7);
     }
 }

@@ -96,7 +96,7 @@ public class PostgreSqlTestDataAccess(
         _connection.Connection.Execute(statement, data);
     }
 
-    public void InsertSubscribedMessage(SubscribedData data)
+    public void InsertSubscribedPending(SubscribedData data)
     {
         const string enqueueMessageStatement =
             """
@@ -109,5 +109,21 @@ public class PostgreSqlTestDataAccess(
         ArgumentNullException.ThrowIfNull(data);
         string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
         data.Id = _connection.Connection.QueryFirst<Identity>(statement, data);
+    }
+    
+    public void InsertSubscribedCompleted(SubscribedData data)
+    {
+        const string enqueueMessageStatement =
+            """
+            INSERT INTO {0}.subscribed_completed
+            (id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed, 
+             failed, retries, headers, body)
+            VALUES
+            (@id, @SubscriberId, @Topic, @ValidUntil, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed,
+             @Failed, @Retries, @Headers, @Body);
+            """;
+        ArgumentNullException.ThrowIfNull(data);
+        string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
+        _connection.Connection.Execute(statement, data);
     }
 }

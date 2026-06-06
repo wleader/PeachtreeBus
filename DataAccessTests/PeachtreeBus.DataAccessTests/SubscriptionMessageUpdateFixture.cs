@@ -28,10 +28,10 @@ public abstract class SubscriptionMessageUpdateFixture : BusDataAccessFixtureBas
         // Add two messages;
         var testMessage1 = TestData.CreateSubscribedData();
         testMessage1.SubscriberId = SubscriberId.New();
-        TestDataAccess.InsertSubscribedMessage(testMessage1);
+        TestDataAccess.InsertSubscribedPending(testMessage1);
         var testMessage2 = TestData.CreateSubscribedData();
         testMessage2.SubscriberId = SubscriberId.New();
-        TestDataAccess.InsertSubscribedMessage(testMessage2);
+        TestDataAccess.InsertSubscribedPending(testMessage2);
         await Task.Delay(10); // wait for the rows to be ready
 
         // get and update a message.

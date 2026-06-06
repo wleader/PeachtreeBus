@@ -264,9 +264,32 @@ public class PostgreSqlBusDataAccess(
         return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
-    public Task<long> CleanSubscribedCompleted(UtcDateTime olderThan, int maxCount)
+    public async Task<long> CleanSubscribedCompleted(UtcDateTime olderThan, int maxCount)
     {
-        throw new NotImplementedException();
+        const string statementTemplate =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.subscribed_completed
+                WHERE id IN (
+                    SELECT id FROM {0}.subscribed_completed
+                    WHERE completed < @OlderThan
+                    LIMIT @MaxCount
+                    FOR UPDATE SKIP LOCKED
+                )
+                RETURNING id
+            )
+            SELECT COUNT(*) FROM deleted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(statementTemplate, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@MaxCount", maxCount);
+        p.Add("@OlderThan", olderThan);
+
+        return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
     public Task<long> CleanSubscribedFailed(UtcDateTime olderThan, int maxCount)
