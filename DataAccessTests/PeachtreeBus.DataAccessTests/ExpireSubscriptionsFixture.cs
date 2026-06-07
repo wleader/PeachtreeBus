@@ -4,50 +4,45 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class ExpireSubscriptionsFixture : BusDataAccessFixtureBase
 {
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
     /// <summary>
-    /// Proves the behavior of DapperDataAccess.ExpireSubscriptions
+    /// Proves that expired rows are deleted.
     /// </summary>
-    [TestClass]
-    public class ExpireSubscriptionsFixture : MsSqlBusDataAccessFixtureBase
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Given_CurrentAndExpiredRows_When_ExpireSubscriptions_Then_DeletesCorrectRows()
     {
-        [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        // assumes subscribe is working correctly
 
-        [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        var subscriber1 = SubscriberId.New();
+        var subscriber2 = SubscriberId.New();
+        var subscriber3 = SubscriberId.New();
+        var subscriber4 = SubscriberId.New();
+        var topic1 = new Topic("TestTopic1");
+        var topic2 = new Topic("TestTopic2");
+        var valid = DateTime.UtcNow.AddHours(1);
+        var expired = DateTime.UtcNow.AddSeconds(-1);
 
-        /// <summary>
-        /// Proves that expired rows are deleted.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task ExpireSubscriptions_DeletesCorrectRows()
-        {
-            // assumes subscribe is working correctly
+        await BusDataAccess.Subscribe(subscriber1, topic1, valid);
+        await BusDataAccess.Subscribe(subscriber2, topic2, valid);
+        await BusDataAccess.Subscribe(subscriber3, topic1, expired);
+        await BusDataAccess.Subscribe(subscriber4, topic2, expired);
 
-            var subscriber1 = SubscriberId.New();
-            var subscriber2 = SubscriberId.New();
-            var subscriber3 = SubscriberId.New();
-            var subscriber4 = SubscriberId.New();
-            var topic1 = new Topic("TestTopic1");
-            var topic2 = new Topic("TestTopic2");
-            var valid = DateTime.UtcNow.AddHours(1);
-            var expired = DateTime.UtcNow.AddSeconds(-1);
+        await BusDataAccess.ExpireSubscriptions(100);
 
-            await dataAccess.Subscribe(subscriber1, topic1, valid);
-            await dataAccess.Subscribe(subscriber2, topic2, valid);
-            await dataAccess.Subscribe(subscriber3, topic1, expired);
-            await dataAccess.Subscribe(subscriber4, topic2, expired);
+        var rows = TestDataAccess.GetSubscriptions();
 
-            await dataAccess.ExpireSubscriptions(100);
-
-            var rows = GetSubscriptions();
-
-            Assert.AreEqual(2, rows.Count);
-            Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber1 && r.Topic == topic1));
-            Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber2 && r.Topic == topic2));
-        }
+        Assert.AreEqual(2, rows.Count);
+        Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber1 && r.Topic == topic1));
+        Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber2 && r.Topic == topic2));
     }
 }

@@ -26,3 +26,6 @@ public class MsSqlEstimateQueuePendingFixture : EstimateQueuePendingFixture;
 
 [TestClass]
 public class MsSqlEstimateSubscribedPendingFixture : EstimateSubscribedPendingFixture;
+
+[TestClass]
+public class MsSqlExpireSubscriptionsFixture : ExpireSubscriptionsFixture;

@@ -136,14 +136,53 @@ public class PostgreSqlBusDataAccess(
         throw new NotImplementedException();
     }
 
-    public Task<long> ExpireSubscriptions(int maxCount)
+    public async Task<long> ExpireSubscriptions(int maxCount)
     {
-        throw new NotImplementedException();
+        const string expireSubscriptionsStatement =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM  {0}.subscriptions
+                WHERE id IN (
+                    SELECT id FROM {0}.subscriptions
+                    WHERE valid_until < NOW()
+                    LIMIT @MaxCount
+                    FOR UPDATE SKIP LOCKED
+                )
+                RETURNING id
+            )
+            SELECT COUNT(*) FROM deleted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(expireSubscriptionsStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@MaxCount", maxCount);
+
+        return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
-    public Task Subscribe(SubscriberId subscriberId, Topic topic, UtcDateTime until)
+    public async Task Subscribe(SubscriberId subscriberId, Topic topic, UtcDateTime until)
     {
-        throw new NotImplementedException();
+        const string subscribeStatement =
+            """
+            INSERT INTO {0}.subscriptions (subscriber_id, topic, valid_until)
+            VALUES (@SubscriberId, @Topic, @ValidUntil)
+            ON CONFLICT (subscriber_id, topic)
+            DO UPDATE SET valid_until = @ValidUntil;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(subscribeStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@SubscriberId", subscriberId);
+        p.Add("@Topic", topic);
+        p.Add("@ValidUntil", until);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public async Task<SubscribedData?> GetPendingSubscribed(SubscriberId subscriberId)
