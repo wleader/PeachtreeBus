@@ -479,9 +479,40 @@ public class PostgreSqlBusDataAccess(
         await LogIfError(dapper.Execute(statement, p));
     }
 
-    public Task<long> ExpireSubscriptionMessages(int maxCount)
+    public async Task<long> ExpireSubscriptionMessages(int maxCount)
     {
-        throw new NotImplementedException();
+        // move to failed based on ValidUntil.
+
+        const string expireStatement =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.subscribed_pending
+                WHERE id in (
+                    SELECT id FROM {0}.subscribed_pending
+                    WHERE valid_until < NOW()
+                    LIMIT @MaxCount
+                )
+                RETURNING id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, retries, headers, body
+            ),
+            inserted_rows AS
+            (
+                INSERT INTO {0}.subscribed_failed
+                (id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+                SELECT id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, NULL, NOW(), retries, headers, body
+                FROM deleted_rows
+                RETURNING 1
+            )
+            SELECT COUNT(*) FROM inserted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        var statement = string.Format(expireStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@MaxCount", maxCount);
+
+        return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
     public async Task<long> CleanQueueFailed(QueueName queueName, UtcDateTime olderThan, int maxCount)

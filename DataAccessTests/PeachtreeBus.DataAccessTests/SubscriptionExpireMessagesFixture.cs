@@ -4,97 +4,84 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class SubscriptionExpireMessagesFixture : BusDataAccessFixtureBase
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAccess.ExpireSubscriptionMessages
-    /// </summary>
-    [TestClass]
-    public class SubscriptionExpireMessagesFixture : MsSqlBusDataAccessFixtureBase
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
+    [TestMethod]
+    public async Task ExpireMessages_InsertsIntoFailedTable()
     {
-        [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedFailed);
 
-        [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        var expected1 = TestData.CreateSubscribedData(
+            validUntil: DateTime.UtcNow.AddMinutes(-1));
+        TestDataAccess.InsertSubscribedPending(expected1);
 
-        /// <summary>
-        /// Proves that messages are copied to the Failed table.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task ExpireMessages_InsertsIntoFailedTable()
-        {
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedFailed));
+        var expected2 = TestData.CreateSubscribedData(
+            validUntil: DateTime.UtcNow.AddMinutes(-1));
+        TestDataAccess.InsertSubscribedPending(expected2);
 
-            var expected1 = TestData.CreateSubscribedData(
-                validUntil: DateTime.UtcNow.AddMinutes(-1));
-            await InsertSubscribedMessage(expected1);
+        await BusDataAccess.ExpireSubscriptionMessages(1000);
 
-            var expected2 = TestData.CreateSubscribedData(
-                validUntil: DateTime.UtcNow.AddMinutes(-1));
-            await InsertSubscribedMessage(expected2);
+        var failed = TestDataAccess.GetSubscribedFailed();
+        Assert.AreEqual(2, failed.Count);
 
-            await BusDataAccess.ExpireSubscriptionMessages(1000);
+        var actual1 = failed.Single(s => s.Id == expected1.Id);
+        Assert.IsTrue(actual1.Failed.HasValue);
+        expected1.Failed = actual1.Failed;
+        DataAssert.AreEqual(expected1, actual1);
 
-            var failed = GetSubscribedFailed();
-            Assert.AreEqual(2, failed.Count);
+        var actual2 = failed.Single(s => s.Id == expected2.Id);
+        Assert.IsTrue(actual2.Failed.HasValue);
+        expected2.Failed = actual2.Failed;
+        DataAssert.AreEqual(expected2, actual2);
+    }
 
-            var actual1 = failed.Single(s => s.Id == expected1.Id);
-            Assert.IsTrue(actual1.Failed.HasValue);
-            expected1.Failed = actual1.Failed;
-            AssertSubscribedEquals(expected1, actual1);
+    [TestMethod]
+    public async Task ExpireMessages_DeletesFromPending()
+    {
 
-            var actual2 = failed.Single(s => s.Id == expected2.Id);
-            Assert.IsTrue(actual2.Failed.HasValue);
-            expected2.Failed = actual2.Failed;
-            AssertSubscribedEquals(expected2, actual2);
-        }
+        var expected1 = TestData.CreateSubscribedData(
+            validUntil: DateTime.UtcNow.AddMinutes(-1));
+        TestDataAccess.InsertSubscribedPending(expected1);
 
-        /// <summary>
-        /// Proves that messages are removed from the pending table.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task ExpireMessages_DeletesFromPending()
-        {
+        var expected2 = TestData.CreateSubscribedData(
+            validUntil: DateTime.UtcNow.AddMinutes(-1));
+        TestDataAccess.InsertSubscribedPending(expected2);
 
-            var expected1 = TestData.CreateSubscribedData(
-                validUntil: DateTime.UtcNow.AddMinutes(-1));
-            await InsertSubscribedMessage(expected1);
+        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 2);
 
-            var expected2 = TestData.CreateSubscribedData(
-                validUntil: DateTime.UtcNow.AddMinutes(-1));
-            await InsertSubscribedMessage(expected2);
+        await BusDataAccess.ExpireSubscriptionMessages(1000);
 
-            Assert.AreEqual(2, CountRowsInTable(TestConfig.SubscribedPending));
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+    }
 
-            await BusDataAccess.ExpireSubscriptionMessages(1000);
+    [TestMethod]
+    public async Task ExpireMessage_LimitsToMaxCount()
+    {
+        var expected1 = TestData.CreateSubscribedData(
+            validUntil: DateTime.UtcNow.AddMinutes(-1));
+        TestDataAccess.InsertSubscribedPending(expected1);
 
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
-        }
+        var expected2 = TestData.CreateSubscribedData(
+            validUntil: DateTime.UtcNow.AddMinutes(-1));
+        TestDataAccess.InsertSubscribedPending(expected2);
 
-        [TestMethod]
-        public async Task ExpireMessage_LimitsToMaxCount()
-        {
-            var expected1 = TestData.CreateSubscribedData(
-                validUntil: DateTime.UtcNow.AddMinutes(-1));
-            await InsertSubscribedMessage(expected1);
+        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 2);
 
-            var expected2 = TestData.CreateSubscribedData(
-                validUntil: DateTime.UtcNow.AddMinutes(-1));
-            await InsertSubscribedMessage(expected2);
+        await BusDataAccess.ExpireSubscriptionMessages(1);
 
-            Assert.AreEqual(2, CountRowsInTable(TestConfig.SubscribedPending));
+        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 1);
 
-            await BusDataAccess.ExpireSubscriptionMessages(1);
+        await BusDataAccess.ExpireSubscriptionMessages(1);
 
-            Assert.AreEqual(1, CountRowsInTable(TestConfig.SubscribedPending));
-
-            await BusDataAccess.ExpireSubscriptionMessages(1);
-
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
-        }
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
     }
 }

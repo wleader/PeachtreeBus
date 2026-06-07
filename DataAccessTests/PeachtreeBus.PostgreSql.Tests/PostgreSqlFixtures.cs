@@ -56,3 +56,6 @@ public class PostgreSqlSagaUpdateFixture : SagaUpdateFixture;
 
 [TestClass]
 public class PostgreSqlSagaGetFixture : SagaGetFixture;
+
+[TestClass]
+public class PostgreSqlSubscriptionExpireMessagesFixture : SubscriptionExpireMessagesFixture;

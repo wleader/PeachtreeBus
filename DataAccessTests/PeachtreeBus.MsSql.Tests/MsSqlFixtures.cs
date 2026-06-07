@@ -56,3 +56,6 @@ public class MsSqlSagaUpdateFixture : SagaUpdateFixture;
 
 [TestClass]
 public class MsSqlSagaGetFixture : SagaGetFixture;
+
+[TestClass]
+public class MsSqlSubscriptionExpireMessagesFixture : SubscriptionExpireMessagesFixture;
