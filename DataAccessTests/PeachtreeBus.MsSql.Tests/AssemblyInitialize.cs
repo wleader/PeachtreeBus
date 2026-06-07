@@ -6,6 +6,7 @@ using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.DatabaseTesting;
 using PeachtreeBus.DatabaseTesting.MsSql;
 using PeachtreeBus.Errors;
+using PeachtreeBus.Management;
 using PeachtreeBus.MsSql.Tests;
 using PeachtreeBus.Serialization;
 
@@ -21,6 +22,7 @@ public static class AssemblyInitialize
         {
             // is something needed here?
             c.AddFakeLogging();
+            c.AddScoped<IManagementDataAccess, MsSqlManagementDataAccess>();
             c.AddScoped<IBusDataAccess, MsSqlBusDataAccess>();
             c.AddScoped<ISqlSharedDatabase, SharedDatabase>();
             c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();

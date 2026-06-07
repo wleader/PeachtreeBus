@@ -33,14 +33,14 @@ namespace PeachtreeBus.Management
         Task<List<QueueData>> GetPendingQueueMessages(QueueName queueName, int skip, int take);
 
         /// <summary>
-        /// Moves the specifed Queue message from Pending to Failed.
+        /// Moves the specified Queue message from Pending to Failed.
         /// </summary>
         /// <param name="queueName">Which Queue to interact with.</param>
         /// <param name="id">The ID of the message to move.</param>
         Task CancelPendingQueueMessage(QueueName queueName, Identity id);
 
         /// <summary>
-        /// Moves the specifed Queue message from Failed to Pending.
+        /// Moves the specified Queue message from Failed to Pending.
         /// </summary>
         /// <param name="queueName">Which Queue to interact with.</param>
         /// <param name="id">The ID of the message to move.</param>
@@ -68,13 +68,13 @@ namespace PeachtreeBus.Management
         Task<List<SubscribedData>> GetPendingSubscribedMessages(int skip, int take);
 
         /// <summary>
-        /// Moves the specifed Subscribed message from Pending to Failed.
+        /// Moves the specified Subscribed message from Pending to Failed.
         /// </summary>
         /// <param name="id">The ID of the message to move.</param>
         Task CancelPendingSubscribedMessage(Identity id);
 
         /// <summary>
-        /// Moves the specifed Subscribed message from Failed to Pending.
+        /// Moves the specified Subscribed message from Failed to Pending.
         /// </summary>
         /// <param name="id">The ID of the message to move.</param>
         Task RetryFailedSubscribedMessage(Identity id);

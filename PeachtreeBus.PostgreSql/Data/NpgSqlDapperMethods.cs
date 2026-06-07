@@ -11,10 +11,8 @@ public class NpgSqlDapperMethods(
 {
     public bool DapperConfigured { get; } = configureDapper.Configure();
     
-    public Task<IEnumerable<T>> Query<T>(string statement, DynamicParameters? parameters = null)
-    {
-        throw new System.NotImplementedException();
-    }
+    public Task<IEnumerable<T>> Query<T>(string statement, DynamicParameters? parameters = null) =>
+        database.Connection.QueryAsync<T>(statement, parameters, database.Transaction);
 
     public Task<T> QueryFirst<T>(string statement, DynamicParameters? parameters = null) => 
         database.Connection.QueryFirstAsync<T>(statement, parameters, database.Transaction);

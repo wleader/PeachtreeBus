@@ -8,6 +8,7 @@ using PeachtreeBus.DatabaseSharing.PostgreSql;
 using PeachtreeBus.DatabaseTesting;
 using PeachtreeBus.DatabaseTesting.PostgreSql;
 using PeachtreeBus.Errors;
+using PeachtreeBus.Management;
 using PeachtreeBus.Serialization;
 
 namespace PeachtreeBus.PostgreSql.Tests;
@@ -22,6 +23,7 @@ public static class AssemblyInitialize
         {
             // is something needed here?
             c.AddFakeLogging();
+            c.AddScoped<IManagementDataAccess, PostgreSqlManagementDataAccess>();
             //c.AddTransient<IMsSqlTestConnectionFactory, MsSqlTestConnectionFactory>();
             //c.AddSingleton<IMsSqlTestSettings, MsSqlTestSettings>();
             c.AddScoped<IBusDataAccess, PostgreSqlBusDataAccess>();

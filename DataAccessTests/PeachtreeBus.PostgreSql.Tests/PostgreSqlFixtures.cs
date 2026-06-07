@@ -71,3 +71,6 @@ public class PostgreSqlSubscriptionMessageGetPendingFixture : SubscriptionMessag
 
 [TestClass]
 public class PostgreSqlSubscriptionMessageFailedFixture : SubscriptionMessageFailedFixture;
+
+[TestClass]
+public class PostgreSqlManagementGetPendingQueueMessagesFixture : ManagementGetPendingQueueMessagesFixture;

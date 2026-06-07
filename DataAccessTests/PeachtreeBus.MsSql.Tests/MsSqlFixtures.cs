@@ -71,3 +71,6 @@ public class MsSqlSubscriptionMessageGetPendingFixture : SubscriptionMessageGetP
 
 [TestClass]
 public class MsSqlSubscriptionMessageFailedFixture : SubscriptionMessageFailedFixture;
+
+[TestClass]
+public class MsSqlManagementGetPendingQueueMessagesFixture : ManagementGetPendingQueueMessagesFixture;
