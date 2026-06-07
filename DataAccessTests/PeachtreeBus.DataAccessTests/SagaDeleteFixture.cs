@@ -1,46 +1,35 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
+using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Sagas;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class SagaDeleteFixture : BusDataAccessFixtureBase
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAccess.DeleteSagaData
-    /// </summary>
-    [TestClass]
-    public class SagaDeleteFixture : MsSqlBusDataAccessFixtureBase
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
+    [TestMethod]
+    public async Task DeleteSaga_DeletesTheCorrectSaga()
     {
-        [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        var newSaga1 = TestData.CreateSagaData(sagaKey: new("1"));
+        var newSaga2 = TestData.CreateSagaData(sagaKey: new("2"));
 
-        [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
+        newSaga2.Id = await BusDataAccess.InsertSagaData(newSaga2,  TestConfig.DefaultSagaName);
 
+        await Task.Delay(10);
+        TestDataAccess.Then_TableHasCount(TestConfig.SagaData, 2);
 
-        /// <summary>
-        /// Proves that the correct row is deleted.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task DeleteSaga_DeletesTheCorrectSaga()
-        {
-            var newSaga1 = CreateTestSagaData();
-            newSaga1.Key = new("1");
-            var newSaga2 = CreateTestSagaData();
-            newSaga2.Key = new("2");
+        await BusDataAccess.DeleteSagaData( TestConfig.DefaultSagaName, newSaga1.Key);
+        await Task.Delay(10);
 
-            newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
-            newSaga2.Id = await BusDataAccess.InsertSagaData(newSaga2,  TestConfig.DefaultSagaName);
-
-            await Task.Delay(10);
-            Assert.AreEqual(2, CountRowsInTable( TestConfig.SagaData));
-
-            await BusDataAccess.DeleteSagaData( TestConfig.DefaultSagaName, newSaga1.Key);
-            await Task.Delay(10);
-
-            var sagas = GetTableContent( TestConfig.SagaData).ToSagas();
-            Assert.AreEqual(1, sagas.Count);
-
-            AssertSagaEquals(newSaga2, sagas[0]);
-        }
+        var sagas = TestDataAccess.GetTableContent<SagaData>(TestConfig.SagaData);
+        Assert.AreEqual(1, sagas.Count);
+        DataAssert.AreEqual(newSaga2, sagas[0]);
     }
 }

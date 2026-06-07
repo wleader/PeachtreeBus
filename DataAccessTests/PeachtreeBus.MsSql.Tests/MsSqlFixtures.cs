@@ -47,3 +47,6 @@ public class MsSqlQueueMessageUpdateFixture : QueueMessageUpdateFixture;
 
 [TestClass]
 public class MsSqlSagaInsertFixture : SagaInsertFixture;
+
+[TestClass]
+public class MsSqlSagaDeleteFixture : SagaDeleteFixture;

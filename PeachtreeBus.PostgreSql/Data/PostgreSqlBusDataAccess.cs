@@ -238,9 +238,21 @@ public class PostgreSqlBusDataAccess(
         throw new NotImplementedException();
     }
 
-    public Task DeleteSagaData(SagaName sagaName, SagaKey key)
+    public async Task DeleteSagaData(SagaName sagaName, SagaKey key)
     {
-        throw new NotImplementedException();
+        const string deleteSagaStatement =
+            """
+            DELETE FROM {0}.{1}_sagadata
+            WHERE key = @Key
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(deleteSagaStatement, configuration.Schema, sagaName);
+        var p = new DynamicParameters();
+        p.Add("@Key", key);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public async Task<long> ExpireSubscriptions(int maxCount)

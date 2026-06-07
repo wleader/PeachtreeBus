@@ -47,3 +47,6 @@ public class PostgreSqlQueueMessageUpdateFixture : QueueMessageUpdateFixture;
 
 [TestClass]
 public class PostgreSqlSagaInsertFixture : SagaInsertFixture;
+
+[TestClass]
+public class PostgreSqlSagaDeleteFixture : SagaDeleteFixture;
