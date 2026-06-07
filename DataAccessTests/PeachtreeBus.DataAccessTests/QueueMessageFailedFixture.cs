@@ -80,7 +80,7 @@ public abstract class QueueMessageFailedFixture : BusDataAccessFixtureBase
         testMessage1.Id = await BusDataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
         await Task.Delay(10); // wait for the rows to be ready
 
-        // get and faile a message.
+        // get and fail a message.
         var messageToFail = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
         Assert.IsNotNull(messageToFail);
         messageToFail.Failed = DateTime.UtcNow;

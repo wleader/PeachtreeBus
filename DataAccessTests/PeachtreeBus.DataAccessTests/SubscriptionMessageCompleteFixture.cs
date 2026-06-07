@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
 using System;
@@ -40,7 +39,7 @@ public abstract class SubscriptionMessageCompleteFixture : BusDataAccessFixtureB
         Assert.AreEqual(1, completed.Count);
         var actual = completed.Single(m => m.Id == testMessage1.Id);
 
-        // check the immutable fields are the oringal valules.
+        // check the immutable fields are the original values.
         Assert.AreEqual(testMessage1.MessageId, actual.MessageId, "MessageId should not change.");
         DataAssert.AreEqual(testMessage1.Enqueued, actual.Enqueued);
         Assert.AreEqual(testMessage1.Body, actual.Body, "Body should not change.");

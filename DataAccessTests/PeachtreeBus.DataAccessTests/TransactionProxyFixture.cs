@@ -7,7 +7,6 @@ using System;
 using System.Threading.Tasks;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.DatabaseTesting;
-using PeachtreeBus.DatabaseTesting.MsSql;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -42,7 +41,7 @@ public class TransactionProxyFixture : FixtureBase<MsSqlBusDataAccess>
     }
 
     [TestMethod]
-    public async Task Verify_ProxyUsesSavepoints()
+    public async Task Verify_ProxyUsesSavePoints()
     {
         var message = new QueueData
         {
@@ -76,9 +75,9 @@ public class TransactionProxyFixture : FixtureBase<MsSqlBusDataAccess>
         var factory = TestServices.GetService<ISqlConnectionFactory>();
         using var connection = factory.GetConnection();
         connection.Open();
-        var transaction = connection.BeginTransaction();
-        transaction.Dispose();
-        Assert.IsTrue(transaction.Disposed);
+        var t = connection.BeginTransaction();
+        t.Dispose();
+        Assert.IsTrue(t.Disposed);
     }
 
     protected override MsSqlBusDataAccess CreateDataAccess()

@@ -1,21 +1,15 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.Sagas;
 using PeachtreeBus.Serialization;
 using PeachtreeBus.Subscriptions;
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
 using PeachtreeBus.DatabaseTesting;
-using PeachtreeBus.DatabaseTesting.MsSql;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -129,95 +123,6 @@ public abstract class FixtureBase<TAccess>
         transaction.Commit();
     }
 
-    /// <summary>
-    /// Uses the secondary connection to count the rows in a table.
-    /// </summary>
-    /// <param name="table"></param>
-    /// <returns></returns>
-    protected int CountRowsInTable(TableName table)
-    {
-        string statment = $"SELECT COUNT(*) FROM [{TestConfig.DefaultSchema}].[{table}]";
-        using var cmd = new SqlCommand(statment, SecondaryConnection.Connection, null);
-        return (int)cmd.ExecuteScalar();
-    }
-
-    /// <summary>
-    /// Gets everything in a table as a dataset using the secondary connection.
-    /// </summary>
-    /// <param name="tablename"></param>
-    /// <returns></returns>
-    protected DataSet GetTableContent(TableName tablename)
-    {
-        var result = new DataSet();
-        string statement = $"SELECT * FROM [{TestConfig.DefaultSchema}].[{tablename}]";
-        using (var cmd = new SqlCommand(statement, SecondaryConnection.Connection, null))
-        using (var adpater = new SqlDataAdapter(cmd))
-        {
-            adpater.Fill(result);
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// Tests two SagaDatas are equal.
-    /// </summary>
-    /// <param name="expected"></param>
-    /// <param name="actual"></param>
-    protected void AssertSagaEquals(SagaData expected, SagaData actual)
-    {
-        Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null");
-        Assert.IsNotNull(actual, "Actual is null, expected is not.");
-        Assert.IsNotNull(expected, "Expected is null, actual is not.");
-        Assert.AreEqual(expected.Id, actual.Id);
-        Assert.AreEqual(expected.Data, actual.Data);
-        Assert.AreEqual(expected.SagaId, actual.SagaId);
-        Assert.AreEqual(expected.Key, actual.Key);
-        // don't check the blocked because its not really part of the
-        // entity. Test that as needed in tests.
-        //Assert.AreEqual(expected.Blocked, actual.Blocked);
-        Assert.AreEqual(expected.MetaData, actual.MetaData);
-    }
-
-    /// <summary>
-    /// Tests that two SubscribedMessage are equal.
-    /// </summary>
-    /// <param name="expected"></param>
-    /// <param name="actual"></param>
-    protected void AssertSubscribedEquals(SubscribedData expected, SubscribedData actual)
-    {
-        Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
-        Assert.IsNotNull(actual, "Actual is null, expected is not.");
-        Assert.IsNotNull(expected, "Expected is null, actual is not.");
-        DataAssert.AreEqual(expected.Headers, actual.Headers);
-        Assert.AreEqual(expected.MessageId, actual.MessageId);
-        DataAssert.AreEqual(expected.NotBefore, actual.NotBefore);
-        Assert.AreEqual(expected.Id, actual.Id);
-        Assert.AreEqual(expected.Body, actual.Body);
-        DataAssert.AreEqual(expected.Completed, actual.Completed);
-        DataAssert.AreEqual(expected.Enqueued, actual.Enqueued);
-        DataAssert.AreEqual(expected.Failed, actual.Failed);
-        Assert.AreEqual(expected.Retries, actual.Retries);
-        Assert.AreEqual(expected.SubscriberId, actual.SubscriberId);
-        DataAssert.AreEqual(expected.ValidUntil, actual.ValidUntil);
-        Assert.AreEqual(expected.Topic, actual.Topic);
-    }
-
-    /// <summary>
-    /// Creates a new SagaData
-    /// </summary>
-    /// <returns></returns>
-    protected SagaData CreateTestSagaData()
-    {
-        return new SagaData
-        {
-            Blocked = false,
-            Data = new("Data"),
-            SagaId = UniqueIdentity.New(),
-            Key = new("Key"),
-            MetaData = TestData.CreateSagaMetaData(),
-        };
-    }
-
     protected async Task InsertSubscribedMessage(SubscribedData message)
     {
         const string EnqueueMessageStatement =
@@ -245,9 +150,4 @@ public abstract class FixtureBase<TAccess>
 
         message.Id = await SecondaryConnection.Connection.QueryFirstAsync<Identity>(statement, p);
     }
-
-    protected List<SubscriptionsRow> GetSubscriptions() => GetTableContent(TestConfig.Subscriptions).ToSubscriptions();
-    protected List<SubscribedData> GetSubscribedPending() => GetTableContent(TestConfig.SubscribedPending).ToSubscribed();
-    protected List<SubscribedData> GetSubscribedFailed() => GetTableContent(TestConfig.SubscribedFailed).ToSubscribed();
-    protected List<SubscribedData> GetSubscribedCompleted() => GetTableContent(TestConfig.SubscribedCompleted).ToSubscribed();
 }

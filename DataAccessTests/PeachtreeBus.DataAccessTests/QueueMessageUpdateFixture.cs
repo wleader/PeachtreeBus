@@ -53,7 +53,7 @@ public abstract class QueueMessageUpdateFixture : BusDataAccessFixtureBase
         DataAssert.AreEqual(expectUnchanged, actualUnchanged);
 
         var actualChanged = pending.Single(m => m.Id == toUpdate.Id);
-        // compare the unchangable fields.
+        // compare the un-changing fields.
         Assert.AreEqual(changedOriginal.Id, actualChanged.Id);
         Assert.AreEqual(changedOriginal.MessageId, actualChanged.MessageId);
         DataAssert.AreEqual(changedOriginal.Enqueued, actualChanged.Enqueued);

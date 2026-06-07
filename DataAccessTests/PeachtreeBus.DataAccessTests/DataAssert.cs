@@ -97,7 +97,7 @@ public static class DataAssert
         Assert.AreEqual(expected.Data, actual.Data);
         Assert.AreEqual(expected.SagaId, actual.SagaId);
         Assert.AreEqual(expected.Key, actual.Key);
-        // don't check the blocked because its not really part of the
+        // don't check the blocked because it's not really part of the
         // entity. Test that as needed in tests.
         // Assert.AreEqual(expected.Blocked, actual.Blocked);
         Assert.AreEqual(expected.MetaData, actual.MetaData);

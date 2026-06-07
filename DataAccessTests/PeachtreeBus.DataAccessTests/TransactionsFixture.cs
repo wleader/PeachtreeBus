@@ -5,88 +5,68 @@ using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseSharing;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+[TestClass]
+public class TransactionsFixture
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAccess CreateSavePoint, RollbackToSavepoint,
-    /// BeginTransaction, RollbackTransaction, and CommitTransaction
-    /// </summary>
-    [TestClass]
-    public class TransactionsFixture
+    private readonly Mock<ILogger<MsSqlBusDataAccess>> _mockLog = new();
+    private readonly Mock<ISqlSharedDatabase> _mockSharedDatabase = new();
+    private readonly Mock<IDapperMethods> _mockDapperMethods = new();
+    private readonly FakeBreakerProvider _fakeBreakerProvider = new();
+    private MsSqlBusDataAccess _dataAccess = null!;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private Mock<ILogger<MsSqlBusDataAccess>> MockLog = default!;
-        private Mock<ISqlSharedDatabase> MockSharedDatabase = default!;
-        private Mock<IDapperMethods> MockDapperMethods = default!;
-        private FakeBreakerProvider FakeBreakerProvider = new();
-        private MsSqlBusDataAccess dataAccess = default!;
+        _mockLog.Reset();
+        _mockSharedDatabase.Reset();
+        _mockDapperMethods.Reset();
+        _dataAccess = new(
+            _mockSharedDatabase.Object,
+            null!,
+            _mockLog.Object,
+            _mockDapperMethods.Object,
+            _fakeBreakerProvider);
+    }
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            MockLog = new Mock<ILogger<MsSqlBusDataAccess>>();
-            MockSharedDatabase = new();
-            MockDapperMethods = new();
-            dataAccess = new MsSqlBusDataAccess(
-                MockSharedDatabase.Object,
-                null!,
-                MockLog.Object,
-                MockDapperMethods.Object,
-                FakeBreakerProvider);
-        }
+    [TestMethod]
+    public void StartTransaction_InvokesSharedDB()
+    {
+        _mockSharedDatabase.Setup(db => db.BeginTransaction()).Verifiable();
+        _dataAccess.BeginTransaction();
+        _mockSharedDatabase.Verify();
+    }
 
-        /// <summary>
-        /// Proves that BeginTransaction is passed through to the Shared Database object.
-        /// </summary>
-        [TestMethod]
-        public void StartTransaction_InvokesSharedDB()
-        {
-            MockSharedDatabase.Setup(db => db.BeginTransaction()).Verifiable();
-            dataAccess.BeginTransaction();
-            MockSharedDatabase.Verify();
-        }
+    [TestMethod]
+    public void CommitTransaction_InvokesSharedDB()
+    {
+        _mockSharedDatabase.Setup(db => db.CommitTransaction()).Verifiable();
+        _dataAccess.CommitTransaction();
+        _mockSharedDatabase.Verify();
+    }
 
-        /// <summary>
-        /// Proves that CommitTransaction is passed through to the Shared Database object.
-        /// </summary>
-        [TestMethod]
-        public void CommitTransaction_InvokesSharedDB()
-        {
-            MockSharedDatabase.Setup(db => db.CommitTransaction()).Verifiable();
-            dataAccess.CommitTransaction();
-            MockSharedDatabase.Verify();
-        }
+    [TestMethod]
+    public void RollbackTransaction_InvokesSharedDB()
+    {
+        _mockSharedDatabase.Setup(db => db.RollbackTransaction()).Verifiable();
+        _dataAccess.RollbackTransaction();
+        _mockSharedDatabase.Verify();
+    }
 
-        /// <summary>
-        /// Proves that RollbackTransaction is passed through to the shared database object.
-        /// </summary>
-        [TestMethod]
-        public void RollbackTransaction_InvokesSharedDB()
-        {
-            MockSharedDatabase.Setup(db => db.RollbackTransaction()).Verifiable();
-            dataAccess.RollbackTransaction();
-            MockSharedDatabase.Verify();
-        }
+    [TestMethod]
+    public void CreateSavepoint_InvokesSharedDB()
+    {
+        _mockSharedDatabase.Setup(db => db.CreateSavepoint("Savepoint")).Verifiable();
+        _dataAccess.CreateSavepoint("Savepoint");
+        _mockSharedDatabase.Verify();
+    }
 
-        /// <summary>
-        /// Proves that CreateSavepont is passed through to the shared database object.
-        /// </summary>
-        [TestMethod]
-        public void CreateSavepoint_InvokesSharedDB()
-        {
-            MockSharedDatabase.Setup(db => db.CreateSavepoint("Savepoint")).Verifiable();
-            dataAccess.CreateSavepoint("Savepoint");
-            MockSharedDatabase.Verify();
-        }
-
-        /// <summary>
-        /// Proves that RollbackToSavepoint is passed through to the shared database object.
-        /// </summary>
-        [TestMethod]
-        public void RollbackToSavepoint_InvokesSharedDB()
-        {
-            MockSharedDatabase.Setup(db => db.RollbackToSavepoint("Savepoint")).Verifiable();
-            dataAccess.RollbackToSavepoint("Savepoint");
-            MockSharedDatabase.Verify();
-        }
+    [TestMethod]
+    public void RollbackToSavepoint_InvokesSharedDB()
+    {
+        _mockSharedDatabase.Setup(db => db.RollbackToSavepoint("Savepoint")).Verifiable();
+        _dataAccess.RollbackToSavepoint("Savepoint");
+        _mockSharedDatabase.Verify();
     }
 }

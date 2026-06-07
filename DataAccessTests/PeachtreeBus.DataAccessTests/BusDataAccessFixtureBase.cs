@@ -32,7 +32,7 @@ public abstract class BusDataAccessFixtureBase
         Scope.Dispose();
     }
 
-    protected void Repeat(Action action, int count)
+    protected static void Repeat(Action action, int count)
     {
         for (var i = 0; i < count; i++)
         {
@@ -40,7 +40,7 @@ public abstract class BusDataAccessFixtureBase
         }
     }
 
-    protected async Task Repeat(Func<Task> action, int count)
+    protected static async Task Repeat(Func<Task> action, int count)
     {
         for (var i = 0; i < count; i++)
         {

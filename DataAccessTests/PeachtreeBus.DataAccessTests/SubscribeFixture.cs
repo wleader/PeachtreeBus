@@ -57,9 +57,9 @@ public abstract class SubscribeFixture : BusDataAccessFixtureBase
         subscriptions.ForEach(s => Assert.AreEqual(subscriber, s.SubscriberId));
         subscriptions.ForEach(s => DataAssert.AreEqual(until, s.ValidUntil));
 
-        var categores = subscriptions.Select(s => s.Topic).ToList();
-        Assert.IsTrue(categores.Contains(topic));
-        Assert.IsTrue(categores.Contains(topic2));
+        var categories = subscriptions.Select(s => s.Topic).ToList();
+        Assert.IsTrue(categories.Contains(topic));
+        Assert.IsTrue(categories.Contains(topic2));
     }
 
     /// <summary>

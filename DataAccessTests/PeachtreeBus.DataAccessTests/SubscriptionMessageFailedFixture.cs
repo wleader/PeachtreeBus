@@ -39,7 +39,7 @@ public abstract class SubscriptionMessageFailedFixture : BusDataAccessFixtureBas
         Assert.AreEqual(1, failed.Count);
         var actual = failed.Single(m => m.Id == testMessage1.Id);
 
-        // check the immutable fields are the oringal valules.
+        // check the immutable fields are the original values.
         Assert.AreEqual(testMessage1.MessageId, actual.MessageId, "MessageId should not change.");
         DataAssert.AreEqual(testMessage1.Enqueued, actual.Enqueued);
         Assert.AreEqual(testMessage1.Body, actual.Body, "Body should not change.");
