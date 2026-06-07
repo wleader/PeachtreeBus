@@ -233,9 +233,38 @@ public class PostgreSqlBusDataAccess(
         return await LogIfError(dapper.ExecuteScalar<long>(query, p));
     }
 
-    public Task<long> Publish(SubscribedData message, Topic topic)
+    public async Task<long> Publish(SubscribedData message, Topic topic)
     {
-        throw new NotImplementedException();
+        const string publishStatement =
+            """
+            WITH inserted_rows AS (
+                INSERT INTO {0}.subscribed_pending
+                ( subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed,
+                  failed, retries, headers, body)
+                SELECT subscriber_id, @Topic, @ValidUntil, gen_random_uuid(), @Priority, @NotBefore, NOW(), NULL, NULL, 0, @Headers, @Body
+                FROM {0}.subscriptions
+                WHERE topic = @Topic
+                AND valid_until > NOW()
+                RETURNING id
+            )
+            SELECT COUNT(*) FROM inserted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        ArgumentNullException.ThrowIfNull(message);
+
+        string statement = string.Format(publishStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@Priority", message.Priority);
+        p.Add("@ValidUntil", message.ValidUntil);
+        p.Add("@NotBefore", message.NotBefore);
+        p.Add("@Headers", message.Headers);
+        p.Add("@Body", message.Body);
+        p.Add("@Topic", topic);
+
+        return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
     public Task CompleteMessage(SubscribedData message)

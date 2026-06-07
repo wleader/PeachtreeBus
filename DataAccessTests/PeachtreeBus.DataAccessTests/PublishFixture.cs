@@ -8,15 +8,13 @@ using System.Threading.Tasks;
 
 namespace PeachtreeBus.DataAccessTests;
 
-[TestClass]
-public class PublishFixture : MsSqlBusDataAccessFixtureBase
+public abstract class PublishFixture : BusDataAccessFixtureBase
 {
-    private readonly SubscriberId Subscriber1 = SubscriberId.New();
-    private readonly SubscriberId Subscriber2 = SubscriberId.New();
-    private readonly SubscriberId Subscriber3 = SubscriberId.New();
-    private readonly UtcDateTime Until = DateTime.UtcNow.AddHours(1);
-
-    private SubscribedData SubscribedData = TestData.CreateSubscribedData();
+    private readonly SubscriberId _subscriber1 = SubscriberId.New();
+    private readonly SubscriberId _subscriber2 = SubscriberId.New();
+    private readonly SubscriberId _subscriber3 = SubscriberId.New();
+    private readonly UtcDateTime _until = DateTime.UtcNow.AddHours(1);
+    private readonly SubscribedData _subscribedData = TestData.CreateSubscribedData();
 
     [TestInitialize]
     public override void Initialize() => base.Initialize();
@@ -29,38 +27,38 @@ public class PublishFixture : MsSqlBusDataAccessFixtureBase
     public async Task Given_NoSubscribersForTopic_When_Publish_Then_NoRowsAreAdded()
     {
         // have some subscribers for another topic.
-        await dataAccess.Subscribe(Subscriber1, TestData.DefaultTopic2, Until);
-        await dataAccess.Subscribe(Subscriber2, TestData.DefaultTopic2, Until);
-        var subscriptions = GetSubscriptions();
+        await BusDataAccess.Subscribe(_subscriber1, TestData.DefaultTopic2, _until);
+        await BusDataAccess.Subscribe(_subscriber2, TestData.DefaultTopic2, _until);
+        var subscriptions = TestDataAccess.GetSubscriptions();
         Assert.AreEqual(2, subscriptions.Count);
 
-        var count = await dataAccess.Publish(SubscribedData, TestData.DefaultTopic);
-
-        Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
-        Assert.AreEqual(0, count);
+        var publishedCount = await BusDataAccess.Publish(_subscribedData, TestData.DefaultTopic);
+        Assert.AreEqual(0, publishedCount);
+        
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
     }
 
     [TestMethod]
     public async Task Given_Subscribers_And_MultipleCategories_When_Publish_CorrectRowsAreAdded()
     {
-        await dataAccess.Subscribe(Subscriber1, TestData.DefaultTopic, Until);
-        await dataAccess.Subscribe(Subscriber1, TestData.DefaultTopic2, Until);
-        await dataAccess.Subscribe(Subscriber2, TestData.DefaultTopic, Until);
-        await dataAccess.Subscribe(Subscriber2, TestData.DefaultTopic2, Until);
-        await dataAccess.Subscribe(Subscriber3, TestData.DefaultTopic2, Until);
+        await BusDataAccess.Subscribe(_subscriber1, TestData.DefaultTopic, _until);
+        await BusDataAccess.Subscribe(_subscriber1, TestData.DefaultTopic2, _until);
+        await BusDataAccess.Subscribe(_subscriber2, TestData.DefaultTopic, _until);
+        await BusDataAccess.Subscribe(_subscriber2, TestData.DefaultTopic2, _until);
+        await BusDataAccess.Subscribe(_subscriber3, TestData.DefaultTopic2, _until);
 
-        var count = await dataAccess.Publish(SubscribedData, TestData.DefaultTopic);
+        var count = await BusDataAccess.Publish(_subscribedData, TestData.DefaultTopic);
         Assert.AreEqual(2, count);
 
-        var messages = GetSubscribedPending();
+        var messages = TestDataAccess.GetSubscribedPending();
         Assert.AreEqual(2, messages.Count);
 
-        var actual1 = messages.Single(m => m.SubscriberId == Subscriber1);
-        AssertPublishedEquals(SubscribedData, actual1);
-        var actual2 = messages.Single(m => m.SubscriberId == Subscriber2);
-        AssertPublishedEquals(SubscribedData, actual2);
+        var actual1 = messages.Single(m => m.SubscriberId == _subscriber1);
+        DataAssert.PublishedEquals(_subscribedData, actual1);
+        var actual2 = messages.Single(m => m.SubscriberId == _subscriber2);
+        DataAssert.PublishedEquals(_subscribedData, actual2);
 
         // Subscriber 3 isn't subscribed to Topic 1, so shouldn't have any messages.
-        Assert.IsFalse(messages.Any(m => m.SubscriberId == Subscriber3));
+        Assert.IsFalse(messages.Any(m => m.SubscriberId == _subscriber3));
     }
 }

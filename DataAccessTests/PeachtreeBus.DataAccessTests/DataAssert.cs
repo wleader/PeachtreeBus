@@ -1,6 +1,8 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -65,5 +67,24 @@ public static class DataAssert
         // they can be off by a few ms, so just make sure it's close
         var actualDrift = Math.Abs(expected.Subtract(actual).TotalMilliseconds);
         Assert.IsLessThan(allowDriftMs, actualDrift);
+    }
+
+    public static void PublishedEquals(SubscribedData expected, SubscribedData actual)
+    {
+        Assert.IsNotNull(actual);
+        Assert.IsNotNull(expected);
+        AreEqual(expected.Headers, actual.Headers);
+        AreEqual(expected.NotBefore, actual.NotBefore);
+        Assert.AreEqual(expected.Body, actual.Body);
+        AreEqual(expected.Completed, actual.Completed);
+        AreEqual(expected.Enqueued, actual.Enqueued);
+        AreEqual(expected.Failed, actual.Failed);
+        Assert.AreEqual(expected.Retries, actual.Retries);
+        AreEqual(expected.ValidUntil, actual.ValidUntil);
+        Assert.AreEqual(expected.Topic, actual.Topic);
+
+        // these are generated so should not be the 'zero' value.
+        Assert.AreNotEqual(UniqueIdentity.Empty, actual.MessageId);
+        Assert.AreNotEqual(0, actual.Id.Value);
     }
 }

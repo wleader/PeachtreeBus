@@ -29,3 +29,6 @@ public class PostgreSqlEstimateSubscribedPendingFixture : EstimateSubscribedPend
 
 [TestClass]
 public class PostgreSqlExpireSubscriptionsFixture : ExpireSubscriptionsFixture;
+
+[TestClass]
+public class PostgreSqlPublishFixture : PublishFixture;

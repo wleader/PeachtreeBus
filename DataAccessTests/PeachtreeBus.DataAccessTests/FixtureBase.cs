@@ -202,23 +202,6 @@ public abstract class FixtureBase<TAccess>
         Assert.AreEqual(expected.Topic, actual.Topic);
     }
 
-    protected void AssertPublishedEquals(SubscribedData expected, SubscribedData actual)
-    {
-        Assert.IsFalse(expected == null && actual == null, "Do not assert Null is Null.");
-        Assert.IsNotNull(actual, "Actual is null, expected is not.");
-        Assert.IsNotNull(expected, "Expected is null, actual is not.");
-        DataAssert.AreEqual(expected.Headers, actual.Headers);
-        DataAssert.AreEqual(expected.NotBefore, actual.NotBefore);
-        // Do not assert the actual.Id as it is database generated.
-        Assert.AreEqual(expected.Body, actual.Body);
-        DataAssert.AreEqual(expected.Completed, actual.Completed);
-        DataAssert.AreEqual(expected.Enqueued, actual.Enqueued);
-        DataAssert.AreEqual(expected.Failed, actual.Failed);
-        Assert.AreEqual(expected.Retries, actual.Retries);
-        DataAssert.AreEqual(expected.ValidUntil, actual.ValidUntil);
-        Assert.AreEqual(expected.Topic, actual.Topic);
-    }
-
     /// <summary>
     /// Creates a new SagaData
     /// </summary>

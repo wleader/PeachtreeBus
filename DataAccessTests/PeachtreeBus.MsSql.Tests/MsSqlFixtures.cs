@@ -29,3 +29,6 @@ public class MsSqlEstimateSubscribedPendingFixture : EstimateSubscribedPendingFi
 
 [TestClass]
 public class MsSqlExpireSubscriptionsFixture : ExpireSubscriptionsFixture;
+
+[TestClass]
+public class MsSqlPublishFixture : PublishFixture;
