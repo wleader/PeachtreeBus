@@ -47,9 +47,23 @@ public class PostgreSqlBusDataAccess(
         throw new NotImplementedException();
     }
 
-    public Task<QueueData?> GetPendingQueued(QueueName queueName)
+    public async Task<QueueData?> GetPendingQueued(QueueName queueName)
     {
-        throw new NotImplementedException();
+        // FOR UPDATE SKIP LOCKED - skips rows locked by other connections.
+        // NotBefore so we don't get messages that are scheduled for the future.
+        // Order by priority to get the highest priority messages first.
+        const string getOnePendingMessageStatement =
+            """
+            SELECT id, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body
+            FROM {0}.{1}_pending
+            WHERE not_before < NOW()
+            ORDER BY priority DESC
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED;
+            """;
+        using var _ = StartActivity();
+        var query = string.Format(getOnePendingMessageStatement, configuration.Schema, queueName);
+        return await LogIfError(dapper.QueryFirstOrDefault<QueueData>(query));
     }
 
     public async Task<long> EstimateQueuePending(QueueName queueName)
@@ -101,9 +115,31 @@ public class PostgreSqlBusDataAccess(
         return await LogIfError(dapper.QueryFirst<Identity>(statement, p));
     }
 
-    public Task CompleteMessage(QueueData message, QueueName queueName)
+    public async Task CompleteMessage(QueueData message, QueueName queueName)
     {
-        throw new NotImplementedException();
+        const string completeMessageStatement =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.{1}_pending
+                WHERE id = @Id
+                RETURNING id, message_id, priority, not_before, enqueued, retries, headers, body
+            )
+            INSERT INTO {0}.{1}_completed 
+            (id, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+            SELECT id, message_id, priority, not_before, enqueued, NOW(), NULL,  retries, headers, body
+            FROM deleted_rows;
+            """;
+
+        ArgumentNullException.ThrowIfNull(message);
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(completeMessageStatement, configuration.Schema, queueName);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", message.Id);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public Task FailMessage(QueueData message, QueueName queueName)

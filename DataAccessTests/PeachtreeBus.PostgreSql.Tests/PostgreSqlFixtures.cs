@@ -32,3 +32,6 @@ public class PostgreSqlExpireSubscriptionsFixture : ExpireSubscriptionsFixture;
 
 [TestClass]
 public class PostgreSqlPublishFixture : PublishFixture;
+
+[TestClass]
+public class PostgreSqlQueueMessageCompleteFixture : QueueMessageCompleteFixture;

@@ -38,10 +38,19 @@ public static class TestDataAccessExtensions
 
     public static List<SubscribedData> GetSubscribedPending(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<SubscribedData>(dataAccess.TestConfig.SubscribedPending);
-    
-    public static List<SubscribedData> GetSubscribedFailed(this ITestDataAccess dataAccess) => 
+
+    public static List<SubscribedData> GetSubscribedFailed(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<SubscribedData>(dataAccess.TestConfig.SubscribedFailed);
-    
+
     public static List<SubscribedData> GetSubscribedCompleted(this ITestDataAccess dataAccess) =>
-        dataAccess.GetTableContent(dataAccess.TestConfig.SubscribedCompleted).ToSubscribed();
+        dataAccess.GetTableContent<SubscribedData>(dataAccess.TestConfig.SubscribedCompleted);
+
+    public static List<QueueData> GetQueuedPending(this ITestDataAccess dataAccess) =>
+        dataAccess.GetTableContent<QueueData>(dataAccess.TestConfig.QueuePending);
+
+    public static List<QueueData> GetQueuedCompleted(this ITestDataAccess dataAccess) =>
+        dataAccess.GetTableContent<QueueData>(dataAccess.TestConfig.QueueCompleted);
+
+    public static List<QueueData> GetQueuedFailed(this ITestDataAccess dataAccess) =>
+        dataAccess.GetTableContent<QueueData>(dataAccess.TestConfig.QueueFailed);
 }

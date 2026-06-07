@@ -32,3 +32,6 @@ public class MsSqlExpireSubscriptionsFixture : ExpireSubscriptionsFixture;
 
 [TestClass]
 public class MsSqlPublishFixture : PublishFixture;
+
+[TestClass]
+public class MsSqlQueueMessageCompleteFixture: QueueMessageCompleteFixture;
