@@ -41,3 +41,6 @@ public class PostgreSqlQueueMessageFailedFixture : QueueMessageFailedFixture;
 
 [TestClass]
 public class PostgreSqlQueueMessageGetPendingFixture : QueueMessageGetPendingFixture;
+
+[TestClass]
+public class PostgreSqlQueueMessageUpdateFixture : QueueMessageUpdateFixture;

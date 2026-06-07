@@ -41,3 +41,6 @@ public class MsSqlQueueMessageFailedFixture : QueueMessageFailedFixture;
 
 [TestClass]
 public class MsSqlQueueMessageGetPendingFixture : QueueMessageGetPendingFixture;
+
+[TestClass]
+public class MsSqlQueueMessageUpdateFixture : QueueMessageUpdateFixture;

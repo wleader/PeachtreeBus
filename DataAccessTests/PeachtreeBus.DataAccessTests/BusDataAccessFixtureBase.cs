@@ -11,7 +11,7 @@ public abstract class BusDataAccessFixtureBase
     protected ITestDataAccess TestDataAccess { get; private set; } = null!;
     protected IBusDataAccess BusDataAccess { get; private set; } = null!;
     protected ITestConfig TestConfig { get; private set; } = null!;
-    private IServiceScope Scope { get; set; } = null;
+    private IServiceScope Scope { get; set; } = null!;
 
     public virtual void Initialize()
     {

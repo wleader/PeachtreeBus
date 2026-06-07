@@ -181,9 +181,30 @@ public class PostgreSqlBusDataAccess(
         await LogIfError(dapper.Execute(statement, p));
     }
 
-    public Task UpdateMessage(QueueData message, QueueName queueName)
+    public async Task UpdateMessage(QueueData message, QueueName queueName)
     {
-        throw new NotImplementedException();
+        const string updateMessageStatement =
+            """
+            UPDATE {0}.{1}_pending SET
+            not_before = @NotBefore,
+            retries = @Retries,
+            headers = @Headers
+            WHERE id = @Id
+            """;
+
+        using var _ = StartActivity();
+
+        ArgumentNullException.ThrowIfNull(message);
+
+        var statement = string.Format(updateMessageStatement, configuration.Schema, queueName);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", message.Id);
+        p.Add("@NotBefore", message.NotBefore);
+        p.Add("@Retries", message.Retries);
+        p.Add("@Headers", message.Headers);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public Task<Identity> InsertSagaData(SagaData data, SagaName sagaName)
