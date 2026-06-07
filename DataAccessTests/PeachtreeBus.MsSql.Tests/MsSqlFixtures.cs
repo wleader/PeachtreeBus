@@ -65,3 +65,6 @@ public class MsSqlSubscribeFixture : SubscribeFixture;
 
 [TestClass]
 public class MsSqlSubscriptionMessageCompleteFixture : SubscriptionMessageCompleteFixture;
+
+[TestClass]
+public class MsSqlSubscriptionMessageGetPendingFixture : SubscriptionMessageGetPendingFixture;
