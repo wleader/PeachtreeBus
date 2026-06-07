@@ -252,9 +252,47 @@ public class PostgreSqlBusDataAccess(
         await LogIfError(dapper.Execute(statement, p));
     }
 
-    public Task<SagaData?> GetSagaData(SagaName sagaName, SagaKey key)
+    public async Task<SagaData?> GetSagaData(SagaName sagaName, SagaKey key)
     {
-        throw new NotImplementedException();
+        // The result is a union of two table expressions.
+        // The first expression 
+        //      If locked selects no row.
+        //      If not locked gets the row and locks it.
+        // The second expression gets no matter what.
+        // Next we select a union of these two expressions.
+        // We either get the freshly locked row from the first expression,
+        // or the already locked row from the second expression.
+        // the resulting row's blocked column tells the application
+        // if the row already exists and is locked.
+        
+        const string getSagaDataStatement =
+            """
+            WITH not_blocked as
+            (
+                SELECT id, saga_id, key, data, meta_data, FALSE as blocked 
+                FROM {0}.{1}_sagadata
+                WHERE key = "key"
+                FOR UPDATE SKIP LOCKED
+            ), fallback_blocked as
+            (
+                SELECT id, saga_id, key, data, meta_data, TRUE as blocked 
+                FROM {0}.{1}_sagadata
+                WHERE key = "key"
+            )
+            SELECT id, saga_id, key, data, meta_data, blocked FROM not_blocked
+            UNION ALL
+            SELECT id, saga_id, key, data, meta_data, blocked FROM fallback_blocked
+            WHERE NOT EXISTS (SELECT * FROM not_blocked)
+            """;
+
+        using var _ = StartActivity();
+
+        var query = string.Format(getSagaDataStatement, configuration.Schema, sagaName);
+
+        var p = new DynamicParameters();
+        p.Add("@Key", key);
+
+        return await LogIfError(dapper.QueryFirstOrDefault<SagaData>(query, p));
     }
 
     public async Task DeleteSagaData(SagaName sagaName, SagaKey key)

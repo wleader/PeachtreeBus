@@ -53,3 +53,6 @@ public class PostgreSqlSagaDeleteFixture : SagaDeleteFixture;
 
 [TestClass]
 public class PostgreSqlSagaUpdateFixture : SagaUpdateFixture;
+
+[TestClass]
+public class PostgreSqlSagaGetFixture : SagaGetFixture;

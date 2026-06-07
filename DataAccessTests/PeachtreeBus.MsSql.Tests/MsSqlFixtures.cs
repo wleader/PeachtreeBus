@@ -53,3 +53,6 @@ public class MsSqlSagaDeleteFixture : SagaDeleteFixture;
 
 [TestClass]
 public class MsSqlSagaUpdateFixture : SagaUpdateFixture;
+
+[TestClass]
+public class MsSqlSagaGetFixture : SagaGetFixture;

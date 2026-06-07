@@ -1,74 +1,67 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
+using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Sagas;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class SagaGetFixture : BusDataAccessFixtureBase
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAccess.GetSagaData
-    /// </summary>
-    [TestClass]
-    public class SagaGetFixture : MsSqlBusDataAccessFixtureBase
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
+    [TestMethod]
+    public async Task Given_NotLockedSagaDataRow_When_GetSagaData_Then_ResultIsNotBlocked()
     {
-        [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        var newSaga1 = TestData.CreateSagaData(sagaKey: new("1"));
+        newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
 
-        [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        await Task.Delay(10);
+        TestDataAccess.Then_TableHasCount(TestConfig.SagaData, 1);
 
-        /// <summary>
-        /// Proves that that Blocked is set correctly when the row is not locked.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetSagaData_ReturnsUnblockedWhenRowIsNotLocked()
+        BusDataAccess.BeginTransaction();
+        try
         {
-            var newSaga1 = CreateTestSagaData();
-            newSaga1.Key = new("1");
-
-            newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
-
-            await Task.Delay(10);
-            Assert.AreEqual(1, CountRowsInTable(TestConfig.SagaData));
-
             var actual = await BusDataAccess.GetSagaData(TestConfig.DefaultSagaName, newSaga1.Key);
             Assert.IsNotNull(actual);
-            AssertSagaEquals(newSaga1, actual);
+            DataAssert.AreEqual(newSaga1, actual);
             Assert.IsFalse(actual.Blocked);
+            
+            // check that getting the saga data locked it.
+            using var notLockedRows = TestDataAccess.LockRows<SagaData>(TestConfig.SagaData);
+            Assert.IsEmpty(notLockedRows.Data);
         }
-
-        /// <summary>
-        /// Proves that null is returned when matching row is not found.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetSagaData_ReturnsNullWhenDoesntExist()
+        finally
         {
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SagaData));
-            var sagadata = await BusDataAccess.GetSagaData(TestConfig.DefaultSagaName, new("1"));
-            Assert.IsNull(sagadata);
-        }
+            BusDataAccess.RollbackTransaction();
+        } 
+    }
 
-        /// <summary>
-        /// proves that blocked is true, when the row is locked.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetSagaData_ReturnsBlockedWhenRowIsLocked()
-        {
-            var newSaga1 = CreateTestSagaData();
-            newSaga1.Key = new("1");
+    [TestMethod]
+    public async Task Given_RowNotInTable_When_GetSagaData_Then_ResultIsNull()
+    {
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SagaData);
+        var actual = await BusDataAccess.GetSagaData(TestConfig.DefaultSagaName, new("1"));
+        Assert.IsNull(actual);
+    }
 
-            newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
+    [TestMethod]
+    public async Task Given_RowInTable_And_RowIsLocked_When_GetSagaData_Then_ResultIsBlocked()
+    {
+        var newSaga1 = TestData.CreateSagaData(sagaKey: new("1"));
+        newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
 
-            await Task.Delay(10);
-            Assert.AreEqual(1, CountRowsInTable(TestConfig.SagaData));
+        await Task.Delay(10);
+        
+        // lock the saga data row
+        using var locked = TestDataAccess.LockRows<SagaData>(TestConfig.SagaData);
 
-            // lock the saga data row
-            using var data = new RowLock(TestConfig.SagaData);
-
-            var actual = await BusDataAccess.GetSagaData(TestConfig.DefaultSagaName, newSaga1.Key);
-            Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.Blocked);
-        }
+        var actual = await BusDataAccess.GetSagaData(TestConfig.DefaultSagaName, newSaga1.Key);
+        Assert.IsNotNull(actual);
+        Assert.IsTrue(actual.Blocked);
     }
 }
