@@ -45,7 +45,7 @@ public abstract class FixtureBase<TAccess>
     /// <summary>
     /// The data acess being tested.
     /// </summary>
-    protected TAccess dataAccess = default!;
+    protected TAccess BusDataAccess = default!;
 
     protected Mock<IBusConfiguration> Configuration = default!;
 
@@ -84,7 +84,7 @@ public abstract class FixtureBase<TAccess>
 
         MockLog = new Mock<ILogger<TAccess>>();
 
-        dataAccess = CreateDataAccess();
+        BusDataAccess = CreateDataAccess();
 
         // start all tests with an Empty DB.
         // each test will setup rows it needs.

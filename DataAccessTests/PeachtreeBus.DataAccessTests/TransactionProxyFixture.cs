@@ -61,12 +61,12 @@ public class TransactionProxyFixture : FixtureBase<MsSqlBusDataAccess>
         SharedDB.BeginTransaction();
         SharedDB.CreateSavepoint("Savepoint1");
 
-        await dataAccess.AddMessage(message, TestConfig.DefaultQueue);
+        await BusDataAccess.AddMessage(message, TestConfig.DefaultQueue);
 
         SharedDB.RollbackToSavepoint("Savepoint1");
         SharedDB.CommitTransaction();
 
-        var pending = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+        var pending = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
         Assert.IsNull(pending);
     }
 

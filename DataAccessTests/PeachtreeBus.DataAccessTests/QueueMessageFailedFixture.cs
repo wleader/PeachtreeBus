@@ -30,16 +30,16 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add two messages;
             var testMessage1 = TestData.CreateQueueData();
-            testMessage1.Id = await dataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
+            testMessage1.Id = await BusDataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
             var testMessage2 = TestData.CreateQueueData();
-            testMessage2.Id = await dataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
+            testMessage2.Id = await BusDataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // get and Fail a message.
-            var messageToFail = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var messageToFail = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNotNull(messageToFail);
             messageToFail.Failed = DateTime.UtcNow;
-            await dataAccess.FailMessage(messageToFail, TestConfig.DefaultQueue);
+            await BusDataAccess.FailMessage(messageToFail, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the error table.
@@ -57,15 +57,15 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add two messages;
             var testMessage1 = TestData.CreateQueueData();
-            testMessage1.Id = await dataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
+            testMessage1.Id = await BusDataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
             var testMessage2 = TestData.CreateQueueData();
-            testMessage2.Id = await dataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
+            testMessage2.Id = await BusDataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
-            var messageToFail = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var messageToFail = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNotNull(messageToFail);
             messageToFail.Failed = DateTime.UtcNow;
-            await dataAccess.FailMessage(messageToFail, TestConfig.DefaultQueue);
+            await BusDataAccess.FailMessage(messageToFail, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             var pending = GetTableContent(TestConfig.QueuePending).ToMessages();
@@ -82,11 +82,11 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add two messages;
             var testMessage1 = TestData.CreateQueueData();
-            testMessage1.Id = await dataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
+            testMessage1.Id = await BusDataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // get and faile a message.
-            var messageToFail = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var messageToFail = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNotNull(messageToFail);
             messageToFail.Failed = DateTime.UtcNow;
             // screw with the fields that shouldn't change.
@@ -94,7 +94,7 @@ namespace PeachtreeBus.DataAccessTests
             messageToFail.Enqueued = messageToFail.Enqueued.AddMinutes(1);
             messageToFail.MessageId = UniqueIdentity.New();
 
-            await dataAccess.FailMessage(messageToFail, TestConfig.DefaultQueue);
+            await BusDataAccess.FailMessage(messageToFail, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the completed table.

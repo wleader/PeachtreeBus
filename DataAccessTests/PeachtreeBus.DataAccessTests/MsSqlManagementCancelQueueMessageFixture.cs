@@ -13,9 +13,9 @@ namespace PeachtreeBus.DataAccessTests
             var s1 = await CreatePendingQueued();
             await CreatePendingQueued();
 
-            await dataAccess.CancelPendingQueueMessage(TestConfig.DefaultQueue, s1.Id);
+            await BusDataAccess.CancelPendingQueueMessage(TestConfig.DefaultQueue, s1.Id);
 
-            var failed = await dataAccess.GetFailedQueueMessages(TestConfig.DefaultQueue, 0, 1);
+            var failed = await BusDataAccess.GetFailedQueueMessages(TestConfig.DefaultQueue, 0, 1);
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(s1.MessageId, failed[0].MessageId);
             DataAssert.AreEqual(s1.Headers, failed[0].Headers);
@@ -33,9 +33,9 @@ namespace PeachtreeBus.DataAccessTests
             var s1 = await CreatePendingQueued();
             var s2 = await CreatePendingQueued();
 
-            await dataAccess.CancelPendingQueueMessage(TestConfig.DefaultQueue, s1.Id);
+            await BusDataAccess.CancelPendingQueueMessage(TestConfig.DefaultQueue, s1.Id);
 
-            var pending = await dataAccess.GetPendingQueueMessages(TestConfig.DefaultQueue, 0, int.MaxValue);
+            var pending = await BusDataAccess.GetPendingQueueMessages(TestConfig.DefaultQueue, 0, int.MaxValue);
             Assert.AreEqual(1, pending.Count);
             Assert.AreEqual(s2.Id, pending[0].Id);
         }

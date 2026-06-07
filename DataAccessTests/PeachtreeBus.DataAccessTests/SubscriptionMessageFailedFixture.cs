@@ -32,7 +32,7 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // get and complete a message.
-            var messageToComplete = await dataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
+            var messageToComplete = await BusDataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
             Assert.IsNotNull(messageToComplete);
             messageToComplete.Completed = DateTime.UtcNow;
             // screw with the fields that shouldn't change.
@@ -40,7 +40,7 @@ namespace PeachtreeBus.DataAccessTests
             messageToComplete.Enqueued = messageToComplete.Enqueued.AddMinutes(1);
             messageToComplete.MessageId = UniqueIdentity.New();
 
-            await dataAccess.FailMessage(messageToComplete);
+            await BusDataAccess.FailMessage(messageToComplete);
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the completed table.
@@ -67,7 +67,7 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(1, CountRowsInTable(TestConfig.SubscribedPending));
 
-            await dataAccess.FailMessage(expected1);
+            await BusDataAccess.FailMessage(expected1);
 
             Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
         }
@@ -86,7 +86,7 @@ namespace PeachtreeBus.DataAccessTests
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected1);
 
-            await dataAccess.FailMessage(expected1);
+            await BusDataAccess.FailMessage(expected1);
 
             var failed = GetSubscribedFailed();
 

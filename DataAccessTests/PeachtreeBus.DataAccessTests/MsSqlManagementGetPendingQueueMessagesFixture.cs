@@ -15,7 +15,7 @@ namespace PeachtreeBus.DataAccessTests
             var s3 = await CreatePendingQueued();
             var s4 = await CreatePendingQueued();
 
-            var actual = await dataAccess.GetPendingQueueMessages(TestConfig.DefaultQueue, 1, 2);
+            var actual = await BusDataAccess.GetPendingQueueMessages(TestConfig.DefaultQueue, 1, 2);
 
             Assert.AreEqual(2, actual.Count);
             Assert.IsFalse(actual.Any(s => s.Id == s1.Id), "Oldest should not be taken");

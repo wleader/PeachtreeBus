@@ -28,11 +28,11 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add one message;
             var testMessage = TestData.CreateQueueData();
-            testMessage.Id = await dataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
+            testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
 
             await Task.Delay(10); // wait for the rows to be ready
 
-            var actual = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNotNull(actual);
             DataAssert.AreEqual(testMessage, actual);
         }
@@ -47,17 +47,17 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add two messages;
             var testMessage1 = TestData.CreateQueueData();
-            testMessage1.Id = await dataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
+            testMessage1.Id = await BusDataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
             var testMessage2 = TestData.CreateQueueData();
-            testMessage2.Id = await dataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
+            testMessage2.Id = await BusDataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
 
             await Task.Delay(10); // wait for the rows to be ready
 
             // get a message and leave the transaction open.
-            dataAccess.BeginTransaction();
+            BusDataAccess.BeginTransaction();
             try
             {
-                var actual = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+                var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
                 Assert.IsNotNull(actual, "Did not read a message back.");
 
                 using var GetUnlocked = new RowLock(TestConfig.QueuePending);
@@ -69,7 +69,7 @@ namespace PeachtreeBus.DataAccessTests
             }
             finally
             {
-                dataAccess.RollbackTransaction();
+                BusDataAccess.RollbackTransaction();
             }
         }
 
@@ -82,14 +82,14 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add one message;
             var testMessage = TestData.CreateQueueData();
-            testMessage.Id = await dataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
+            testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // lock the whole table.
             using var pending = new RowLock(TestConfig.QueuePending);
 
             // check that the locked row can not be fetched.
-            var actual = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNull(actual);
         }
 
@@ -103,9 +103,9 @@ namespace PeachtreeBus.DataAccessTests
             // Add one message;
             var testMessage = TestData.CreateQueueData();
             testMessage.NotBefore = testMessage.NotBefore.AddHours(1);
-            testMessage.Id = await dataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
+            testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
-            var actual = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNull(actual);
         }
 
@@ -119,12 +119,12 @@ namespace PeachtreeBus.DataAccessTests
             // Add one message;
             var testMessage = TestData.CreateQueueData();
             testMessage.NotBefore = testMessage.NotBefore.AddMilliseconds(200);
-            testMessage.Id = await dataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
+            testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
-            var actual = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNull(actual);
             await Task.Delay(400);
-            actual = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNotNull(actual);
             DataAssert.AreEqual(testMessage, actual);
         }
@@ -135,16 +135,16 @@ namespace PeachtreeBus.DataAccessTests
             var lowMessage = TestData.CreateQueueData();
             lowMessage.Priority = 1;
             lowMessage.NotBefore = DateTime.UtcNow.AddMinutes(-2);
-            lowMessage.Id = await dataAccess.AddMessage(lowMessage, TestConfig.DefaultQueue);
+            lowMessage.Id = await BusDataAccess.AddMessage(lowMessage, TestConfig.DefaultQueue);
 
             var highMessage = TestData.CreateQueueData();
             highMessage.Priority = 2;
             highMessage.NotBefore = DateTime.UtcNow.AddMinutes(-1);
-            highMessage.Id = await dataAccess.AddMessage(highMessage, TestConfig.DefaultQueue);
+            highMessage.Id = await BusDataAccess.AddMessage(highMessage, TestConfig.DefaultQueue);
 
             await Task.Delay(10); // wait for the rows to be ready
 
-            var actual = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNotNull(actual);
             DataAssert.AreEqual(highMessage, actual);
         }

@@ -33,7 +33,7 @@ namespace PeachtreeBus.DataAccessTests
             var topic = new Topic("TestTopic");
             var until = DateTime.UtcNow.AddMinutes(30);
 
-            await dataAccess.Subscribe(subscriber, topic, until);
+            await BusDataAccess.Subscribe(subscriber, topic, until);
 
             subscriptions = GetSubscriptions();
 
@@ -59,10 +59,10 @@ namespace PeachtreeBus.DataAccessTests
             var topic = new Topic("TestTopic");
             var until = DateTime.UtcNow.AddMinutes(30);
 
-            await dataAccess.Subscribe(subscriber, topic, until);
+            await BusDataAccess.Subscribe(subscriber, topic, until);
 
             var topic2 = new Topic("TestTopic2");
-            await dataAccess.Subscribe(subscriber, topic2, until);
+            await BusDataAccess.Subscribe(subscriber, topic2, until);
 
             subscriptions = GetSubscriptions();
             Assert.AreEqual(2, subscriptions.Count);
@@ -89,10 +89,10 @@ namespace PeachtreeBus.DataAccessTests
             var topic = new Topic("TestTopic");
             var until = DateTime.UtcNow.AddMinutes(30);
 
-            await dataAccess.Subscribe(subscriber, topic, until);
+            await BusDataAccess.Subscribe(subscriber, topic, until);
 
             var subscriber2 = SubscriberId.New();
-            await dataAccess.Subscribe(subscriber2, topic, until);
+            await BusDataAccess.Subscribe(subscriber2, topic, until);
 
             subscriptions = GetSubscriptions();
             Assert.AreEqual(2, subscriptions.Count);
@@ -119,10 +119,10 @@ namespace PeachtreeBus.DataAccessTests
             var topic = new Topic("TestTopic");
             var until = DateTime.UtcNow.AddMinutes(30);
 
-            await dataAccess.Subscribe(subscriber, topic, until);
+            await BusDataAccess.Subscribe(subscriber, topic, until);
 
             var until2 = until.AddHours(1);
-            await dataAccess.Subscribe(subscriber, topic, until2);
+            await BusDataAccess.Subscribe(subscriber, topic, until2);
 
             subscriptions = GetSubscriptions();
 
@@ -137,7 +137,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task Given_UninitializedSubscriberId_When_Subscribe_Then_Throws()
         {
             await Assert.ThrowsExactlyAsync<SubscriberIdException>(() =>
-                dataAccess.Subscribe(TestData.UnintializedSubscriberId, TestData.DefaultTopic, DateTime.UtcNow.AddMinutes(30)));
+                BusDataAccess.Subscribe(TestData.UnintializedSubscriberId, TestData.DefaultTopic, DateTime.UtcNow.AddMinutes(30)));
         }
     }
 }

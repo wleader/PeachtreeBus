@@ -36,7 +36,7 @@ namespace PeachtreeBus.DataAccessTests
                 validUntil: DateTime.UtcNow.AddMinutes(-1));
             await InsertSubscribedMessage(expected2);
 
-            await dataAccess.ExpireSubscriptionMessages(1000);
+            await BusDataAccess.ExpireSubscriptionMessages(1000);
 
             var failed = GetSubscribedFailed();
             Assert.AreEqual(2, failed.Count);
@@ -70,7 +70,7 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(2, CountRowsInTable(TestConfig.SubscribedPending));
 
-            await dataAccess.ExpireSubscriptionMessages(1000);
+            await BusDataAccess.ExpireSubscriptionMessages(1000);
 
             Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
         }
@@ -88,11 +88,11 @@ namespace PeachtreeBus.DataAccessTests
 
             Assert.AreEqual(2, CountRowsInTable(TestConfig.SubscribedPending));
 
-            await dataAccess.ExpireSubscriptionMessages(1);
+            await BusDataAccess.ExpireSubscriptionMessages(1);
 
             Assert.AreEqual(1, CountRowsInTable(TestConfig.SubscribedPending));
 
-            await dataAccess.ExpireSubscriptionMessages(1);
+            await BusDataAccess.ExpireSubscriptionMessages(1);
 
             Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
         }

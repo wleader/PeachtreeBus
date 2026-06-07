@@ -13,9 +13,9 @@ namespace PeachtreeBus.DataAccessTests
             var s1 = await CreatePendingSubscribed();
             await CreatePendingSubscribed();
 
-            await dataAccess.CancelPendingSubscribedMessage(s1.Id);
+            await BusDataAccess.CancelPendingSubscribedMessage(s1.Id);
 
-            var failed = await dataAccess.GetFailedSubscribedMessages(0, int.MaxValue);
+            var failed = await BusDataAccess.GetFailedSubscribedMessages(0, int.MaxValue);
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(s1.MessageId, failed[0].MessageId);
@@ -36,9 +36,9 @@ namespace PeachtreeBus.DataAccessTests
             var s1 = await CreatePendingSubscribed();
             var s2 = await CreatePendingSubscribed();
 
-            await dataAccess.CancelPendingSubscribedMessage(s1.Id);
+            await BusDataAccess.CancelPendingSubscribedMessage(s1.Id);
 
-            var pending = await dataAccess.GetPendingSubscribedMessages(0, int.MaxValue);
+            var pending = await BusDataAccess.GetPendingSubscribedMessages(0, int.MaxValue);
             Assert.AreEqual(1, pending.Count);
             Assert.AreEqual(s2.Id, pending[0].Id);
         }

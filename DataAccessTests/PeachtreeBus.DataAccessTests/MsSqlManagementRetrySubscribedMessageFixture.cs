@@ -12,9 +12,9 @@ namespace PeachtreeBus.DataAccessTests
             var s1 = await CreateFailedSubscribed();
             await CreateFailedSubscribed();
 
-            await dataAccess.RetryFailedSubscribedMessage(s1.Id);
+            await BusDataAccess.RetryFailedSubscribedMessage(s1.Id);
 
-            var pending = await dataAccess.GetPendingSubscribedMessages(0, 1);
+            var pending = await BusDataAccess.GetPendingSubscribedMessages(0, 1);
             Assert.AreEqual(1, pending.Count);
             Assert.AreEqual(s1.MessageId, pending[0].MessageId);
             DataAssert.AreEqual(s1.Headers, pending[0].Headers);
@@ -34,9 +34,9 @@ namespace PeachtreeBus.DataAccessTests
             var s1 = await CreateFailedSubscribed();
             var s2 = await CreateFailedSubscribed();
 
-            await dataAccess.RetryFailedSubscribedMessage(s1.Id);
+            await BusDataAccess.RetryFailedSubscribedMessage(s1.Id);
 
-            var failed = await dataAccess.GetFailedSubscribedMessages(0, int.MaxValue);
+            var failed = await BusDataAccess.GetFailedSubscribedMessages(0, int.MaxValue);
             Assert.AreEqual(1, failed.Count);
             Assert.AreEqual(s2.Id, failed[0].Id);
         }

@@ -32,13 +32,13 @@ namespace PeachtreeBus.DataAccessTests
         {
             // Add two messages;
             var testMessage1 = TestData.CreateQueueData();
-            testMessage1.Id = await dataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
+            testMessage1.Id = await BusDataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
             var testMessage2 = TestData.CreateQueueData();
-            testMessage2.Id = await dataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
+            testMessage2.Id = await BusDataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // get and update a message.
-            var toUpdate = await dataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+            var toUpdate = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
             Assert.IsNotNull(toUpdate);
             // set changed values
             toUpdate.MessageId = UniqueIdentity.New(); // this should never persist a change.
@@ -50,7 +50,7 @@ namespace PeachtreeBus.DataAccessTests
             toUpdate.Failed = DateTime.UtcNow;
             toUpdate.Retries = 10;
 
-            await dataAccess.UpdateMessage(toUpdate, TestConfig.DefaultQueue);
+            await BusDataAccess.UpdateMessage(toUpdate, TestConfig.DefaultQueue);
             await Task.Delay(10); // wait for the rows to be ready
 
             // Check that it ended up in the error table.

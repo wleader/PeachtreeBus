@@ -31,7 +31,7 @@ namespace PeachtreeBus.DataAccessTests
                 notBefore: DateTime.UtcNow.AddHours(1));
             await InsertSubscribedMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
-            var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
+            var actual = await BusDataAccess.GetPendingSubscribed(testMessage.SubscriberId);
             Assert.IsNull(actual);
         }
 
@@ -51,7 +51,7 @@ namespace PeachtreeBus.DataAccessTests
             using var pending = new RowLock(TestConfig.SubscribedPending);
 
             // check that the locked row can not be fetched.
-            var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
+            var actual = await BusDataAccess.GetPendingSubscribed(testMessage.SubscriberId);
             Assert.IsNull(actual);
         }
 
@@ -67,10 +67,10 @@ namespace PeachtreeBus.DataAccessTests
                 notBefore: DateTime.UtcNow.AddMilliseconds(200));
             await InsertSubscribedMessage(testMessage);
             await Task.Delay(10); // wait for the rows to be ready
-            var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
+            var actual = await BusDataAccess.GetPendingSubscribed(testMessage.SubscriberId);
             Assert.IsNull(actual);
             await Task.Delay(400);
-            actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
+            actual = await BusDataAccess.GetPendingSubscribed(testMessage.SubscriberId);
             Assert.IsNotNull(actual);
             AssertSubscribedEquals(testMessage, actual);
         }
@@ -88,7 +88,7 @@ namespace PeachtreeBus.DataAccessTests
 
             await Task.Delay(10); // wait for the rows to be ready
 
-            var actual = await dataAccess.GetPendingSubscribed(testMessage.SubscriberId);
+            var actual = await BusDataAccess.GetPendingSubscribed(testMessage.SubscriberId);
             Assert.IsNotNull(actual);
             AssertSubscribedEquals(testMessage, actual);
         }
@@ -109,10 +109,10 @@ namespace PeachtreeBus.DataAccessTests
             await Task.Delay(10); // wait for the rows to be ready
 
             // get a message and leave the transaction open.
-            dataAccess.BeginTransaction();
+            BusDataAccess.BeginTransaction();
             try
             {
-                var actual = await dataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
+                var actual = await BusDataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
                 Assert.IsNotNull(actual, "Did not read a message back.");
 
                 using var data = new RowLock(TestConfig.SubscribedPending);
@@ -124,7 +124,7 @@ namespace PeachtreeBus.DataAccessTests
             }
             finally
             {
-                dataAccess.RollbackTransaction();
+                BusDataAccess.RollbackTransaction();
             }
         }
 
@@ -149,7 +149,7 @@ namespace PeachtreeBus.DataAccessTests
 
             await Task.Delay(10); // wait for the rows to be ready
 
-            var actual = await dataAccess.GetPendingSubscribed(subscriber);
+            var actual = await BusDataAccess.GetPendingSubscribed(subscriber);
             Assert.IsNotNull(actual);
             AssertSubscribedEquals(highMessage, actual);
         }
@@ -158,7 +158,7 @@ namespace PeachtreeBus.DataAccessTests
         public async Task GetPendingSubscriptionMessage_ThrowsIfSubscriberIsGuidEmpty()
         {
             await Assert.ThrowsExactlyAsync<SubscriberIdException>(() =>
-                dataAccess.GetPendingSubscribed(TestData.UnintializedSubscriberId));
+                BusDataAccess.GetPendingSubscribed(TestData.UnintializedSubscriberId));
         }
     }
 }
