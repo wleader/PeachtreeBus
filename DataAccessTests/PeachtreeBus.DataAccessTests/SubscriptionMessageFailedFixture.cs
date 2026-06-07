@@ -1,101 +1,83 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Abstractions.Tests;
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class SubscriptionMessageFailedFixture : BusDataAccessFixtureBase
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAccess.FailMessage (Subscribed)
-    /// </summary>
-    [TestClass]
-    public class SubscriptionMessageFailedFixture : MsSqlBusDataAccessFixtureBase
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
+    [TestMethod]
+    public async Task FailMessage_CantMutateFields()
     {
-        [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        var testMessage1 = TestData.CreateSubscribedData();
+        TestDataAccess.InsertSubscribedPending(testMessage1);
+        await Task.Delay(10); // wait for the rows to be ready
 
-        [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        // get and complete a message.
+        var messageToComplete = await BusDataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
+        Assert.IsNotNull(messageToComplete);
+        messageToComplete.Completed = DateTime.UtcNow;
+        // screw with the fields that shouldn't change.
+        messageToComplete.Body = new("NewBody");
+        messageToComplete.Enqueued = messageToComplete.Enqueued.AddMinutes(1);
+        messageToComplete.MessageId = UniqueIdentity.New();
 
-        /// <summary>
-        /// Proves that the message does not change.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task FailMessage_CantMutateFields()
-        {
-            var testMessage1 = TestData.CreateSubscribedData();
-            await InsertSubscribedMessage(testMessage1);
-            await Task.Delay(10); // wait for the rows to be ready
+        await BusDataAccess.FailMessage(messageToComplete);
+        await Task.Delay(10); // wait for the rows to be ready
 
-            // get and complete a message.
-            var messageToComplete = await BusDataAccess.GetPendingSubscribed(testMessage1.SubscriberId);
-            Assert.IsNotNull(messageToComplete);
-            messageToComplete.Completed = DateTime.UtcNow;
-            // screw with the fields that shouldn't change.
-            messageToComplete.Body = new("NewBody");
-            messageToComplete.Enqueued = messageToComplete.Enqueued.AddMinutes(1);
-            messageToComplete.MessageId = UniqueIdentity.New();
+        // Check that it ended up in the completed table.
+        var failed = TestDataAccess.GetSubscribedFailed();
+        Assert.AreEqual(1, failed.Count);
+        var actual = failed.Single(m => m.Id == testMessage1.Id);
 
-            await BusDataAccess.FailMessage(messageToComplete);
-            await Task.Delay(10); // wait for the rows to be ready
+        // check the immutable fields are the oringal valules.
+        Assert.AreEqual(testMessage1.MessageId, actual.MessageId, "MessageId should not change.");
+        DataAssert.AreEqual(testMessage1.Enqueued, actual.Enqueued);
+        Assert.AreEqual(testMessage1.Body, actual.Body, "Body should not change.");
+    }
 
-            // Check that it ended up in the completed table.
-            var failed = GetTableContent(TestConfig.SubscribedFailed).ToMessages();
-            Assert.AreEqual(1, failed.Count);
-            var actual = failed.Single(m => m.Id == testMessage1.Id);
+    [TestMethod]
+    public async Task FailMessage_DeletesFromPendingTable()
+    {
+        var expected1 = TestData.CreateSubscribedData(
+            validUntil: DateTime.UtcNow.AddMinutes(-1));
+        TestDataAccess.InsertSubscribedPending(expected1);
 
-            // check the immutable fields are the oringal valules.
-            Assert.AreEqual(testMessage1.MessageId, actual.MessageId, "MessageId should not change.");
-            DataAssert.AreEqual(testMessage1.Enqueued, actual.Enqueued);
-            Assert.AreEqual(testMessage1.Body, actual.Body, "Body should not change.");
-        }
+        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 1);
 
-        /// <summary>
-        /// Proves the message is removed from the pending table.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task FailMessage_DeletesFromPendingTable()
-        {
-            var expected1 = TestData.CreateSubscribedData(
-                validUntil: DateTime.UtcNow.AddMinutes(-1));
-            await InsertSubscribedMessage(expected1);
+        await BusDataAccess.FailMessage(expected1);
 
-            Assert.AreEqual(1, CountRowsInTable(TestConfig.SubscribedPending));
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+    }
 
-            await BusDataAccess.FailMessage(expected1);
+    [TestMethod]
+    public async Task FailMessage_InsertsIntoFailedTable()
+    {
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedFailed);
 
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
-        }
+        var expected1 = TestData.CreateSubscribedData(
+            validUntil: DateTime.UtcNow.AddMinutes(-1));
+        TestDataAccess.InsertSubscribedPending(expected1);
 
-        /// <summary>
-        /// proves the message is copied to the failed table.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task FailMessage_InsertsIntoFailedTable()
-        {
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedPending));
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SubscribedFailed));
+        await BusDataAccess.FailMessage(expected1);
 
-            var expected1 = TestData.CreateSubscribedData(
-                validUntil: DateTime.UtcNow.AddMinutes(-1));
-            await InsertSubscribedMessage(expected1);
+        var failed = TestDataAccess.GetSubscribedFailed();
 
-            await BusDataAccess.FailMessage(expected1);
+        Assert.AreEqual(1, failed.Count);
 
-            var failed = GetSubscribedFailed();
-
-            Assert.AreEqual(1, failed.Count);
-
-            var actual1 = failed.Single(s => s.Id == expected1.Id);
-            Assert.IsTrue(actual1.Failed.HasValue);
-            expected1.Failed = actual1.Failed;
-            AssertSubscribedEquals(expected1, actual1);
-        }
+        var actual1 = failed.Single(s => s.Id == expected1.Id);
+        Assert.IsTrue(actual1.Failed.HasValue);
+        expected1.Failed = actual1.Failed;
+        DataAssert.AreEqual(expected1, actual1);
     }
 }

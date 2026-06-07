@@ -67,4 +67,7 @@ public class PostgreSqlSubscribeFixture : SubscribeFixture;
 public class PostgreSqlSubscriptionMessageCompleteFixture : SubscriptionMessageCompleteFixture;
 
 [TestClass]
-public class PostgreSqlSubscriptionMessageGetPendingFixturee : SubscriptionMessageGetPendingFixture;
+public class PostgreSqlSubscriptionMessageGetPendingFixture : SubscriptionMessageGetPendingFixture;
+
+[TestClass]
+public class PostgreSqlSubscriptionMessageFailedFixture : SubscriptionMessageFailedFixture;
