@@ -5,65 +5,54 @@ using PeachtreeBus.Sagas;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class SagaUpdateFixture : BusDataAccessFixtureBase
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAccess.Update saga
-    /// </summary>
-    [TestClass]
-    public class SagaUpdateFixture : MsSqlBusDataAccessFixtureBase
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
+    [TestMethod]
+    public async Task UpdateSaga_Updates()
     {
-        [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        var newSaga1 = TestData.CreateSagaData(sagaKey: new("1"));
+        var newSaga2 = TestData.CreateSagaData(sagaKey: new("2"));
 
-        [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
+        newSaga2.Id = await BusDataAccess.InsertSagaData(newSaga2, TestConfig.DefaultSagaName);
 
-        /// <summary>
-        /// Proves that the correct row is updated and that only changable fields can change.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task UpdateSaga_Updates()
+        await Task.Delay(10);
+        TestDataAccess.Then_TableHasCount(TestConfig.SagaData, 2);
+
+        var updatedSaga = new SagaData
         {
-            var newSaga1 = CreateTestSagaData();
-            newSaga1.Key = new("1");
-            var newSaga2 = CreateTestSagaData();
-            newSaga2.Key = new("2");
+            Id = newSaga1.Id,
+            Blocked = true, // doesn't actually get stored.
+            Data = new("NewData"), // check this gets updated
+            Key = new("NewKey"), // check this doesn't update
+            SagaId = UniqueIdentity.New(), // check this doesn't update
+            MetaData = TestData.CreateSagaMetaData(),
+        };
 
-            newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
-            newSaga2.Id = await BusDataAccess.InsertSagaData(newSaga2, TestConfig.DefaultSagaName);
+        await BusDataAccess.UpdateSagaData(updatedSaga, TestConfig.DefaultSagaName);
+        await Task.Delay(10);
 
-            await Task.Delay(10);
-            Assert.AreEqual(2, CountRowsInTable(TestConfig.SagaData));
+        var sagas = TestDataAccess.GetTableContent<SagaData>(TestConfig.SagaData);
+        Assert.AreEqual(2, sagas.Count);
 
-            var updatedSaga = new SagaData
-            {
-                Id = newSaga1.Id,
-                Blocked = true, // doesn't actually get stored.
-                Data = new("NewData"), // check this gets updated
-                Key = new("NewKey"), // check this doesn't update
-                SagaId = UniqueIdentity.New(), // check this doesn't update
-                MetaData = TestData.CreateSagaMetaData(),
-            };
+        var actualSaga1 = sagas.Single(s => s.Id == newSaga1.Id);
+        var actualSaga2 = sagas.Single(s => s.Id == newSaga2.Id);
 
-            await BusDataAccess.UpdateSagaData(updatedSaga, TestConfig.DefaultSagaName);
-            await Task.Delay(10);
+        // saga 2 should be unchanged.
+        DataAssert.AreEqual(newSaga2, actualSaga2);
 
-            var sagas = GetTableContent(TestConfig.SagaData).ToSagas();
-            Assert.AreEqual(2, sagas.Count);
+        // Check that saga1 changes in the right ways.
 
-            var actualSaga1 = sagas.Single(s => s.Id == newSaga1.Id);
-            var actualSaga2 = sagas.Single(s => s.Id == newSaga2.Id);
-
-            // saga 2 should be unchanged.
-            AssertSagaEquals(newSaga2, actualSaga2);
-
-            // Check that saga1 changes in the right ways.
-
-            Assert.AreEqual(newSaga1.Key, actualSaga1.Key); // key shouldn't change.
-            Assert.AreEqual(newSaga1.SagaId, actualSaga1.SagaId); // SagaId Shouldn't change
-            Assert.AreEqual(updatedSaga.Data, actualSaga1.Data); // Data should change
-        }
+        Assert.AreEqual(newSaga1.Key, actualSaga1.Key); // key shouldn't change.
+        Assert.AreEqual(newSaga1.SagaId, actualSaga1.SagaId); // SagaId Shouldn't change
+        Assert.AreEqual(updatedSaga.Data, actualSaga1.Data); // Data should change
     }
 }

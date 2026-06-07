@@ -228,9 +228,28 @@ public class PostgreSqlBusDataAccess(
         return await LogIfError(dapper.QueryFirst<Identity>(statement, p));
     }
 
-    public Task UpdateSagaData(SagaData data, SagaName sagaName)
+    public async Task UpdateSagaData(SagaData data, SagaName sagaName)
     {
-        throw new NotImplementedException();
+        const string updateSagaStatement =
+            """
+            UPDATE {0}.{1}_sagadata SET
+            data = @Data,
+            meta_data = @MetaData
+            WHERE id = @Id
+            """;
+
+        using var _ = StartActivity();
+
+        ArgumentNullException.ThrowIfNull(data);
+
+        var statement = string.Format(updateSagaStatement, configuration.Schema, sagaName);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", data.Id);
+        p.Add("@Data", data.Data);
+        p.Add("@MetaData", data.MetaData);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public Task<SagaData?> GetSagaData(SagaName sagaName, SagaKey key)

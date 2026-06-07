@@ -50,3 +50,6 @@ public class MsSqlSagaInsertFixture : SagaInsertFixture;
 
 [TestClass]
 public class MsSqlSagaDeleteFixture : SagaDeleteFixture;
+
+[TestClass]
+public class MsSqlSagaUpdateFixture : SagaUpdateFixture;
