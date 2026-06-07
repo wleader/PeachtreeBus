@@ -8,6 +8,11 @@ using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.DataAccessTests;
 
+public interface ILockedRows<T> : IDisposable
+{
+    List<T> Data { get; }
+}
+
 public interface ITestDataAccess
 {
     void Initialize();
@@ -22,7 +27,7 @@ public interface ITestDataAccess
     void InsertSubscribedCompleted(SubscribedData data);
     void InsertSubscribedFailed(SubscribedData data);
     ITestConfig TestConfig { get; }
-    IDisposable LockRows(TableName tableName, int count);
+    ILockedRows<T> LockRows<T>(TableName tableName, int count = int.MaxValue);
 }
 
 public static class TestDataAccessExtensions

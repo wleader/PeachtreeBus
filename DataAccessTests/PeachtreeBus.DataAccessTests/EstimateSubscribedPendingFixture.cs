@@ -2,6 +2,7 @@
 using PeachtreeBus.Core.Tests;
 using PeachtreeBus.Subscriptions;
 using System.Threading.Tasks;
+using PeachtreeBus.Queues;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -44,7 +45,7 @@ public abstract class EstimateSubscribedPendingFixture : BusDataAccessFixtureBas
     {
         Given_SubscribedMessagesPending(_subscriberId, messageCount);
 
-        using var locked = TestDataAccess.LockRows(TestConfig.QueuePending, lockCount);
+        using var locked = TestDataAccess.LockRows<QueueData>(TestConfig.QueuePending, lockCount);
         var actual = await BusDataAccess.EstimateSubscribedPending(_subscriberId);
 
         // its actually kind of hard to not count locked rows,

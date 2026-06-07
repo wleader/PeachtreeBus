@@ -140,6 +140,6 @@ public class MsSqlTestDataAccess(
         _connection.Connection.Execute(statement, data);
     }
 
-    public IDisposable LockRows(TableName tableName, int count) => 
-        new MsSqlRowLock(connectionFactory, tableName, count);
+    public ILockedRows<T> LockRows<T>(TableName tableName, int count) => 
+        new MsSqlRowLock<T>(connectionFactory, tableName, count);
 }

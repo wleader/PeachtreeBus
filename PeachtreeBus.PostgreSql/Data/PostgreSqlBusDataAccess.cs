@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
+using PeachtreeBus.DatabaseSharing.PostgreSql;
+using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
@@ -14,37 +16,47 @@ namespace PeachtreeBus.Data;
 public class PostgreSqlBusDataAccess(
     ILogger<PostgreSqlBusDataAccess> log,
     IDapperMethods dapper,
-    IBusConfiguration configuration)
+    IBusConfiguration configuration,
+    INpgSqlSharedDatabase database,
+    ICircuitBreakerProvider breakerProvider)
     : IBusDataAccess
 {
+    private ICircuitBreaker Breaker => field ??= breakerProvider.GetBreaker(breakerProvider.BusDataConnectionKey);
+    
     public void BeginTransaction()
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        database.BeginTransaction();
     }
 
     public void CommitTransaction()
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        database.CommitTransaction();
     }
 
     public void RollbackTransaction()
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        database.RollbackTransaction();
     }
 
     public void CreateSavepoint(string name)
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        database.CreateSavepoint(name);
     }
 
     public void RollbackToSavepoint(string name)
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        database.RollbackToSavepoint(name);
     }
 
     public void Reconnect()
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        Breaker.Guard(database.Reconnect);
     }
 
     public async Task<QueueData?> GetPendingQueued(QueueName queueName)

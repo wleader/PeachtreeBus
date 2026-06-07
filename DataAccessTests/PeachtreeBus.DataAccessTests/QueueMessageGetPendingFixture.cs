@@ -4,149 +4,127 @@ using PeachtreeBus.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using PeachtreeBus.Queues;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class QueueMessageGetPendingFixture : BusDataAccessFixtureBase
 {
-    /// <summary>
-    /// Proves the behavior of DapperDataAccess.GetPendingQueued
-    /// </summary>
-    [TestClass]
-    public class QueueMessageGetPendingFixture : MsSqlBusDataAccessFixtureBase
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
+    [TestMethod]
+    public async Task GetPendingQueued_GetsMessage()
     {
-        [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        // Add one message;
+        var testMessage = TestData.CreateQueueData();
+        testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
 
-        [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        await Task.Delay(10); // wait for the rows to be ready
 
-        /// <summary>
-        /// proves that a message is returned.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingQueued_GetsMessage()
+        var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+        Assert.IsNotNull(actual);
+        DataAssert.AreEqual(testMessage, actual);
+    }
+
+    [TestMethod]
+    public async Task GetPendingQueued_LocksTheMessage()
+    {
+        // Add two messages;
+        var testMessage1 = TestData.CreateQueueData();
+        testMessage1.Id = await BusDataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
+        var testMessage2 = TestData.CreateQueueData();
+        testMessage2.Id = await BusDataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
+
+        await Task.Delay(10); // wait for the rows to be ready
+
+        // get a message and leave the transaction open.
+        BusDataAccess.BeginTransaction();
+        ILockedRows<QueueData>? rowsNotLockedByGetPending = null;
+        try
         {
-            // Add one message;
-            var testMessage = TestData.CreateQueueData();
-            testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
-
-            await Task.Delay(10); // wait for the rows to be ready
-
             var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
-            Assert.IsNotNull(actual);
-            DataAssert.AreEqual(testMessage, actual);
-        }
+            Assert.IsNotNull(actual, "Did not read a message back.");
 
-        /// <summary>
-        /// Proves that the returned message is locked so that other
-        /// connections to the DB cannot get the same message.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingQueued_LocksTheMessage()
+            rowsNotLockedByGetPending = TestDataAccess.LockRows<QueueData>(TestConfig.QueuePending);
+            var unlockedMessages = rowsNotLockedByGetPending.Data;
+
+            Assert.AreEqual(1, unlockedMessages.Count, "Wrong number of unlocked messages.");
+            Assert.AreNotEqual(testMessage1.Id, testMessage2.Id, "Test Messages have the same ID.");
+            Assert.IsFalse(unlockedMessages.Any(m => m.Id == actual.Id),
+            $"Locked message {actual.Id} found in unlocked messages {unlockedMessages[0].Id}");
+        }
+        finally
         {
-            // Add two messages;
-            var testMessage1 = TestData.CreateQueueData();
-            testMessage1.Id = await BusDataAccess.AddMessage(testMessage1, TestConfig.DefaultQueue);
-            var testMessage2 = TestData.CreateQueueData();
-            testMessage2.Id = await BusDataAccess.AddMessage(testMessage2, TestConfig.DefaultQueue);
-
-            await Task.Delay(10); // wait for the rows to be ready
-
-            // get a message and leave the transaction open.
-            BusDataAccess.BeginTransaction();
-            try
-            {
-                var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
-                Assert.IsNotNull(actual, "Did not read a message back.");
-
-                using var GetUnlocked = new RowLock(TestConfig.QueuePending);
-                var unlockedMessages = GetUnlocked.DataSet.ToMessages();
-
-                Assert.AreEqual(1, unlockedMessages.Count, "Wrong number of unlocked messages.");
-                Assert.AreNotEqual(testMessage1.Id, testMessage2.Id, "Test Messages have the same ID.");
-                Assert.IsFalse(unlockedMessages.Any(m => m.Id == actual.Id), $"Locked message {actual.Id} found in unlocked messages {unlockedMessages[0].Id}");
-            }
-            finally
-            {
-                BusDataAccess.RollbackTransaction();
-            }
+            rowsNotLockedByGetPending?.Dispose();
+            BusDataAccess.RollbackTransaction();
         }
+    }
 
-        /// <summary>
-        /// Proves that locked messages are not returned.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingQueued_DoesNotReturnLocked()
-        {
-            // Add one message;
-            var testMessage = TestData.CreateQueueData();
-            testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
-            await Task.Delay(10); // wait for the rows to be ready
+    [TestMethod]
+    public async Task GetPendingQueued_DoesNotReturnLocked()
+    {
+        // Add one message;
+        var testMessage = TestData.CreateQueueData();
+        testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
+        await Task.Delay(10); // wait for the rows to be ready
 
-            // lock the whole table.
-            using var pending = new RowLock(TestConfig.QueuePending);
+        // lock the whole table.
+        using var pending = TestDataAccess.LockRows<QueueData>(TestConfig.QueuePending);
 
-            // check that the locked row can not be fetched.
-            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
-            Assert.IsNull(actual);
-        }
+        // check that the locked row can not be fetched.
+        var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+        Assert.IsNull(actual);
+    }
 
-        /// <summary>
-        /// Proves that a message is not returned before its NotBefore time.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingQueued_DoesNotReturnDelayedMessage()
-        {
-            // Add one message;
-            var testMessage = TestData.CreateQueueData();
-            testMessage.NotBefore = testMessage.NotBefore.AddHours(1);
-            testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
-            await Task.Delay(10); // wait for the rows to be ready
-            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
-            Assert.IsNull(actual);
-        }
+    [TestMethod]
+    public async Task GetPendingQueued_DoesNotReturnDelayedMessage()
+    {
+        // Add one message;
+        var testMessage = TestData.CreateQueueData();
+        testMessage.NotBefore = testMessage.NotBefore.AddHours(1);
+        testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
+        await Task.Delay(10); // wait for the rows to be ready
+        var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+        Assert.IsNull(actual);
+    }
 
-        /// <summary>
-        /// Proves that a message can be returned after its NotBefore time.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task GetPendingQueued_DoesReturnDelayedAfterWait()
-        {
-            // Add one message;
-            var testMessage = TestData.CreateQueueData();
-            testMessage.NotBefore = testMessage.NotBefore.AddMilliseconds(200);
-            testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
-            await Task.Delay(10); // wait for the rows to be ready
-            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
-            Assert.IsNull(actual);
-            await Task.Delay(400);
-            actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
-            Assert.IsNotNull(actual);
-            DataAssert.AreEqual(testMessage, actual);
-        }
+    [TestMethod]
+    public async Task GetPendingQueued_DoesReturnDelayedAfterWait()
+    {
+        // Add one message;
+        var testMessage = TestData.CreateQueueData();
+        testMessage.NotBefore = testMessage.NotBefore.AddMilliseconds(200);
+        testMessage.Id = await BusDataAccess.AddMessage(testMessage, TestConfig.DefaultQueue);
+        await Task.Delay(10); // wait for the rows to be ready
+        var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+        Assert.IsNull(actual);
+        await Task.Delay(400);
+        actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+        Assert.IsNotNull(actual);
+        DataAssert.AreEqual(testMessage, actual);
+    }
 
-        [TestMethod]
-        public async Task GetPendingQueued_ReturnsHigherPriorityMessage()
-        {
-            var lowMessage = TestData.CreateQueueData();
-            lowMessage.Priority = 1;
-            lowMessage.NotBefore = DateTime.UtcNow.AddMinutes(-2);
-            lowMessage.Id = await BusDataAccess.AddMessage(lowMessage, TestConfig.DefaultQueue);
+    [TestMethod]
+    public async Task GetPendingQueued_ReturnsHigherPriorityMessage()
+    {
+        var lowMessage = TestData.CreateQueueData();
+        lowMessage.Priority = 1;
+        lowMessage.NotBefore = DateTime.UtcNow.AddMinutes(-2);
+        lowMessage.Id = await BusDataAccess.AddMessage(lowMessage, TestConfig.DefaultQueue);
 
-            var highMessage = TestData.CreateQueueData();
-            highMessage.Priority = 2;
-            highMessage.NotBefore = DateTime.UtcNow.AddMinutes(-1);
-            highMessage.Id = await BusDataAccess.AddMessage(highMessage, TestConfig.DefaultQueue);
+        var highMessage = TestData.CreateQueueData();
+        highMessage.Priority = 2;
+        highMessage.NotBefore = DateTime.UtcNow.AddMinutes(-1);
+        highMessage.Id = await BusDataAccess.AddMessage(highMessage, TestConfig.DefaultQueue);
 
-            await Task.Delay(10); // wait for the rows to be ready
+        await Task.Delay(10); // wait for the rows to be ready
 
-            var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
-            Assert.IsNotNull(actual);
-            DataAssert.AreEqual(highMessage, actual);
-        }
+        var actual = await BusDataAccess.GetPendingQueued(TestConfig.DefaultQueue);
+        Assert.IsNotNull(actual);
+        DataAssert.AreEqual(highMessage, actual);
     }
 }

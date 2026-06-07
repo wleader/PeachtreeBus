@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Queues;
 
 namespace PeachtreeBus.DataAccessTests;
 
@@ -49,7 +50,7 @@ public abstract class EstimateQueuePendingFixture : BusDataAccessFixtureBase
     {
         await Given_MessagesInQueue(messageCount);
 
-        using var locked = TestDataAccess.LockRows(TestConfig.QueuePending, lockCount);
+        using var locked = TestDataAccess.LockRows<QueueData>(TestConfig.QueuePending, lockCount);
 
         var actual = await BusDataAccess.EstimateQueuePending(TestConfig.DefaultQueue);
 

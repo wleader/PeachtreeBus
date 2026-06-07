@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using PeachtreeBus.Data;
 using PeachtreeBus.DatabaseTesting;
 
@@ -10,12 +11,16 @@ public abstract class BusDataAccessFixtureBase
     protected ITestDataAccess TestDataAccess { get; private set; } = null!;
     protected IBusDataAccess BusDataAccess { get; private set; } = null!;
     protected ITestConfig TestConfig { get; private set; } = null!;
+    private IServiceScope Scope { get; set; } = null;
 
     public virtual void Initialize()
     {
-        TestConfig = TestServices.GetService<ITestConfig>();
-        BusDataAccess = TestServices.GetService<IBusDataAccess>();
-        TestDataAccess = TestServices.GetService<ITestDataAccess>();
+        Scope = TestServices.ServiceProvider.CreateScope();
+
+        TestConfig = Scope.ServiceProvider.GetRequiredService<ITestConfig>();
+        BusDataAccess = Scope.ServiceProvider.GetRequiredService<IBusDataAccess>();
+        BusDataAccess.Reconnect();
+        TestDataAccess = Scope.ServiceProvider.GetRequiredService<ITestDataAccess>();
         TestDataAccess.Initialize();
         TestDataAccess.CleanEverything();
     }
@@ -24,6 +29,7 @@ public abstract class BusDataAccessFixtureBase
     {
         TestDataAccess.CleanEverything();
         TestDataAccess.CloseConnections();
+        Scope.Dispose();
     }
 
     protected void Repeat(Action action, int count)

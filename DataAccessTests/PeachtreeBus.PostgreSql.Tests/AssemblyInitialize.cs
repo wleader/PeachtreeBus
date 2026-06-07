@@ -24,12 +24,12 @@ public static class AssemblyInitialize
             c.AddFakeLogging();
             //c.AddTransient<IMsSqlTestConnectionFactory, MsSqlTestConnectionFactory>();
             //c.AddSingleton<IMsSqlTestSettings, MsSqlTestSettings>();
-            c.AddTransient<IBusDataAccess, PostgreSqlBusDataAccess>();
-            c.AddTransient<INpgSqlSharedDatabase, NpgSqlSharedDatabase>();
+            c.AddScoped<IBusDataAccess, PostgreSqlBusDataAccess>();
+            c.AddScoped<INpgSqlSharedDatabase, NpgSqlSharedDatabase>();
             c.AddSingleton<INpgSqlConnectionFactory, NpgSqlConnectionFactory>();
             //c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
-            c.AddSingleton<IDapperMethods, NpgSqlDapperMethods>();
+            c.AddScoped<IDapperMethods, NpgSqlDapperMethods>();
             c.AddSingleton<IDapperTypesHandler, NpgSqlDapperTypesHandler>();
             c.AddSingleton<ISerializer, DefaultSerializer>();
             c.AddTransient<ICircuitBreakerProvider, FakeBreakerProvider>();

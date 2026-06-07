@@ -115,14 +115,17 @@ public abstract class BaseSharedDatabase<TConnection, TConnectionInterface, TTra
     {
         get
         {
-            _connection ??= connectionFactory.GetConnection();
-            return _connection.Connection;
+            lock (_lock)
+            {
+                _connection ??= connectionFactory.GetConnection();
+                return _connection.Connection;
+            }
         }
     }
     
     /// <inheritdoc/>
-    public TTransaction? Transaction { get => _transaction?.Transaction; }
-    
+    public TTransaction? Transaction => _transaction?.Transaction;
+
     /// <inheritdoc/>
     public void BeginTransaction()
     {

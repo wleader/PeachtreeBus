@@ -143,6 +143,6 @@ public class PostgreSqlTestDataAccess(
         _connection.Connection.Execute(statement, data);
     }
 
-    public IDisposable LockRows(TableName tableName, int count) => 
-        new PostgreSqlRowLock(connectionFactory, tableName, count);
+    public ILockedRows<T> LockRows<T>(TableName tableName, int count) => 
+        new PostgreSqlRowLock<T>(connectionFactory, tableName, count);
 }

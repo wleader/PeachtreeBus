@@ -1,20 +1,21 @@
 using System;
-using System.Data;
-using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
+using System.Linq;
+using Dapper;
 using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing;
 
 namespace PeachtreeBus.MsSql.Tests;
 
-public class MsSqlRowLock : IDisposable
+public class MsSqlRowLock<T> : ILockedRows<T>
 {
     private readonly ISqlConnection _connection;
     private readonly ISqlTransaction _transaction;
-
-    public DataSet DataSet { get; }
     private TestConfig TestConfig { get; } = new();
 
+    public List<T> Data { get; }
+    
     public MsSqlRowLock(
         ISqlConnectionFactory connectionFactory,
         TableName tableName,
@@ -34,14 +35,10 @@ public class MsSqlRowLock : IDisposable
              WITH (UPDLOCK, READPAST, ROWLOCK)
              """;
 
-        using var cmd = new SqlCommand(statement, _connection.Connection, _transaction.Transaction);
-        cmd.Parameters.AddWithValue("@Count", count);
+        var p = new DynamicParameters();
+        p.Add("@Count", count);
 
-        var dataSet = new DataSet();
-        using var adapter = new SqlDataAdapter(cmd);
-        adapter.Fill(dataSet);
-
-        DataSet = dataSet;
+        Data = _connection.Connection.Query<T>(statement, p, _transaction.Transaction).ToList();
     }
 
     public void Dispose()

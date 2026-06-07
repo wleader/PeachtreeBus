@@ -1,19 +1,21 @@
 using System;
-using System.Data;
-using Npgsql;
+using System.Collections.Generic;
+using System.Linq;
+using Dapper;
 using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing.PostgreSql;
 
 namespace PeachtreeBus.PostgreSql.Tests;
 
-public class PostgreSqlRowLock : IDisposable
+public class PostgreSqlRowLock<T> : ILockedRows<T>
 {
     private readonly INpgSqlConnection _connection;
     private readonly INpgSqlTransaction _transaction;
 
-    public DataSet DataSet { get; }
     private TestConfig TestConfig { get; } = new();
+    
+    public List<T> Data { get; }
 
     public PostgreSqlRowLock(
         INpgSqlConnectionFactory connectionFactory,
@@ -35,14 +37,10 @@ public class PostgreSqlRowLock : IDisposable
              FOR UPDATE SKIP LOCKED;
              """;
 
-        using var cmd = new NpgsqlCommand(statement, _connection.Connection, _transaction.Transaction);
-        cmd.Parameters.AddWithValue("@Count", count);
+        var p = new DynamicParameters();
+        p.Add("@Count", count);
 
-        var dataSet = new DataSet();
-        using var adapter = new NpgsqlDataAdapter(cmd);
-        adapter.Fill(dataSet);
-
-        DataSet = dataSet;
+        Data = _connection.Connection.Query<T>(statement, p, _transaction.Transaction).ToList();
     }
 
     public void Dispose()

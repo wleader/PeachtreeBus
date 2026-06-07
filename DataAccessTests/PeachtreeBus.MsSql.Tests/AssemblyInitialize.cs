@@ -21,11 +21,11 @@ public static class AssemblyInitialize
         {
             // is something needed here?
             c.AddFakeLogging();
-            c.AddTransient<IBusDataAccess, MsSqlBusDataAccess>();
-            c.AddTransient<ISqlSharedDatabase, SharedDatabase>();
+            c.AddScoped<IBusDataAccess, MsSqlBusDataAccess>();
+            c.AddScoped<ISqlSharedDatabase, SharedDatabase>();
             c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
-            c.AddSingleton<IDapperMethods, DapperMethods>();
+            c.AddScoped<IDapperMethods, DapperMethods>();
             c.AddSingleton<IDapperTypesHandler, DapperTypesHandler>();
             c.AddSingleton<ISerializer, DefaultSerializer>();
             c.AddTransient<ICircuitBreakerProvider, FakeBreakerProvider>();
