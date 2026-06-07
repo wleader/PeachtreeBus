@@ -29,16 +29,17 @@ public class PostgreSqlTestDataAccess(
     {
         using var transaction = _connection.BeginTransaction();
         string statement =
-            $"TRUNCATE TABLE {TestConfig.DefaultSchema}.{TestConfig.QueueCompleted}; " +
-            $"TRUNCATE TABLE {TestConfig.DefaultSchema}.{TestConfig.QueueFailed}; " +
-            $"TRUNCATE TABLE {TestConfig.DefaultSchema}.{TestConfig.QueuePending}; " +
-            $"TRUNCATE TABLE {TestConfig.DefaultSchema}.{TestConfig.SagaData}; " +
-            $"TRUNCATE TABLE {TestConfig.DefaultSchema}.{TestConfig.Subscriptions}; " +
-            $"TRUNCATE TABLE {TestConfig.DefaultSchema}.{TestConfig.SubscribedPending}; " +
-            $"TRUNCATE TABLE {TestConfig.DefaultSchema}.{TestConfig.SubscribedFailed}; " +
-            $"TRUNCATE TABLE {TestConfig.DefaultSchema}.{TestConfig.SubscribedCompleted}; ";
-        using var cmd = new NpgsqlCommand(statement, _connection.Connection, transaction.Transaction);
-        cmd.ExecuteNonQuery();
+        $"""
+             DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.QueueCompleted};
+             DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.QueueFailed};
+             DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.QueuePending};
+             DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.SagaData};
+             DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.Subscriptions};
+             DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.SubscribedPending};
+             DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.SubscribedFailed};
+             DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.SubscribedCompleted};
+         """;
+        _connection.Connection.Execute(statement, null, transaction.Transaction);
         transaction.Commit();
     }
 
