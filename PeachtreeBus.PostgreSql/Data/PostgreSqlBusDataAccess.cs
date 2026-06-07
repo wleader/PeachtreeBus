@@ -443,9 +443,31 @@ public class PostgreSqlBusDataAccess(
         return await LogIfError(dapper.QueryFirst<long>(statement, p));
     }
 
-    public Task CompleteMessage(SubscribedData message)
+    public async Task CompleteMessage(SubscribedData message)
     {
-        throw new NotImplementedException();
+        const string completeMessageStatement =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.subscribed_pending
+                WHERE id = @Id
+                RETURNING id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, retries, headers, body
+            )
+            INSERT INTO {0}.subscribed_completed 
+            (id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+            SELECT id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, NOW(), NULL,  retries, headers, body
+            FROM deleted_rows;
+            """;
+
+        ArgumentNullException.ThrowIfNull(message);
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(completeMessageStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", message.Id);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public Task FailMessage(SubscribedData message)

@@ -62,3 +62,6 @@ public class PostgreSqlSubscriptionExpireMessagesFixture : SubscriptionExpireMes
 
 [TestClass]
 public class PostgreSqlSubscribeFixture : SubscribeFixture;
+
+[TestClass]
+public class PostgreSqlSubscriptionMessageCompleteFixture : SubscriptionMessageCompleteFixture;

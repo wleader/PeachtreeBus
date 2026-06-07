@@ -62,3 +62,6 @@ public class MsSqlSubscriptionExpireMessagesFixture : SubscriptionExpireMessages
 
 [TestClass]
 public class MsSqlSubscribeFixture : SubscribeFixture;
+
+[TestClass]
+public class MsSqlSubscriptionMessageCompleteFixture : SubscriptionMessageCompleteFixture;
