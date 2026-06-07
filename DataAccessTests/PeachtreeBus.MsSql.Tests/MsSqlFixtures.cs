@@ -44,3 +44,6 @@ public class MsSqlQueueMessageGetPendingFixture : QueueMessageGetPendingFixture;
 
 [TestClass]
 public class MsSqlQueueMessageUpdateFixture : QueueMessageUpdateFixture;
+
+[TestClass]
+public class MsSqlSagaInsertFixture : SagaInsertFixture;

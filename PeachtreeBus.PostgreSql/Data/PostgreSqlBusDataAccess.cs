@@ -207,9 +207,25 @@ public class PostgreSqlBusDataAccess(
         await LogIfError(dapper.Execute(statement, p));
     }
 
-    public Task<Identity> InsertSagaData(SagaData data, SagaName sagaName)
+    public async Task<Identity> InsertSagaData(SagaData data, SagaName sagaName)
     {
-        throw new NotImplementedException();
+        const string insertSagaStatement =
+            """
+            INSERT INTO {0}.{1}_sagadata
+            (saga_id, key, data, meta_data)
+            VALUES
+            (@SagaId, @Key, @Data, @MetaData)
+            RETURNING id;
+            """;
+        using var _ = StartActivity();
+        ArgumentNullException.ThrowIfNull(data);
+        string statement = string.Format(insertSagaStatement, configuration.Schema, sagaName);
+        var p = new DynamicParameters();
+        p.Add("@SagaId", data.SagaId);
+        p.Add("@Key", data.Key);
+        p.Add("@Data", data.Data);
+        p.Add("@MetaData", data.MetaData);
+        return await LogIfError(dapper.QueryFirst<Identity>(statement, p));
     }
 
     public Task UpdateSagaData(SagaData data, SagaName sagaName)

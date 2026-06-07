@@ -44,3 +44,6 @@ public class PostgreSqlQueueMessageGetPendingFixture : QueueMessageGetPendingFix
 
 [TestClass]
 public class PostgreSqlQueueMessageUpdateFixture : QueueMessageUpdateFixture;
+
+[TestClass]
+public class PostgreSqlSagaInsertFixture : SagaInsertFixture;

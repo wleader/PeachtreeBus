@@ -2,6 +2,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
+using PeachtreeBus.Sagas;
 using PeachtreeBus.Subscriptions;
 
 namespace PeachtreeBus.DataAccessTests;
@@ -86,5 +87,19 @@ public static class DataAssert
         // these are generated so should not be the 'zero' value.
         Assert.AreNotEqual(UniqueIdentity.Empty, actual.MessageId);
         Assert.AreNotEqual(0, actual.Id.Value);
+    }
+    
+    public static void AreEqual(SagaData expected, SagaData actual)
+    {
+        Assert.IsNotNull(actual);
+        Assert.IsNotNull(expected);
+        Assert.AreEqual(expected.Id, actual.Id);
+        Assert.AreEqual(expected.Data, actual.Data);
+        Assert.AreEqual(expected.SagaId, actual.SagaId);
+        Assert.AreEqual(expected.Key, actual.Key);
+        // don't check the blocked because its not really part of the
+        // entity. Test that as needed in tests.
+        // Assert.AreEqual(expected.Blocked, actual.Blocked);
+        Assert.AreEqual(expected.MetaData, actual.MetaData);
     }
 }

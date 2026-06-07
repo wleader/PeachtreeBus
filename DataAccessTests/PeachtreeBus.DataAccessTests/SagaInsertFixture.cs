@@ -1,42 +1,36 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
+using PeachtreeBus.Core.Tests;
+using PeachtreeBus.Sagas;
 
-namespace PeachtreeBus.DataAccessTests
+namespace PeachtreeBus.DataAccessTests;
+
+public abstract class SagaInsertFixture : BusDataAccessFixtureBase
 {
+    [TestInitialize]
+    public override void Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override void Cleanup() => base.Cleanup();
+
     /// <summary>
-    /// Proves the behavior of DapperDataAccess.Insert saga
+    /// Proves the data is inserted correctly.
     /// </summary>
-    [TestClass]
-    public class SagaInsertFixture : MsSqlBusDataAccessFixtureBase
+    /// <returns></returns>
+    [TestMethod]
+    public async Task InsertSaga_StoresTheData()
     {
-        [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        var newSaga = TestData.CreateSagaData();
 
-        [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        TestDataAccess.Then_TableIsEmpty(TestConfig.SagaData);
 
-        /// <summary>
-        /// Proves the data is inserted correctly.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task InsertSaga_StoresTheData()
-        {
-            var newSaga = CreateTestSagaData();
+        newSaga.Id = await BusDataAccess.InsertSagaData(newSaga, TestConfig.DefaultSagaName);
 
-            Assert.AreEqual(0, CountRowsInTable(TestConfig.SagaData));
+        Assert.IsTrue(newSaga.Id.Value > 0);
 
-            newSaga.Id = await BusDataAccess.InsertSagaData(newSaga, TestConfig.DefaultSagaName);
+        var sagas = TestDataAccess.GetTableContent<SagaData>(TestConfig.SagaData);
+        Assert.AreEqual(1, sagas.Count);
 
-            Assert.IsTrue(newSaga.Id.Value > 0);
-
-            var data = GetTableContent(TestConfig.SagaData);
-            Assert.IsNotNull(data);
-
-            var sagas = data.ToSagas();
-            Assert.AreEqual(1, sagas.Count);
-
-            AssertSagaEquals(newSaga, sagas[0]);
-        }
+        DataAssert.AreEqual(newSaga, sagas[0]);
     }
 }
