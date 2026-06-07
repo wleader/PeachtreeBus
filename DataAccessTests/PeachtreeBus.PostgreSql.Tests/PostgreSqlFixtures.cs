@@ -35,3 +35,6 @@ public class PostgreSqlPublishFixture : PublishFixture;
 
 [TestClass]
 public class PostgreSqlQueueMessageCompleteFixture : QueueMessageCompleteFixture;
+
+[TestClass]
+public class PostgreSqlQueueMessageFailedFixture : QueueMessageFailedFixture;
