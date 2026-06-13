@@ -165,7 +165,7 @@ public class PostgreSqlBusDataAccess(
             )
             INSERT INTO {0}.{1}_failed 
             (id, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
-            SELECT id, message_id, priority, not_before, enqueued, NULL, NOW(),  retries, headers, body
+            SELECT id, message_id, priority, not_before, enqueued, NULL, NOW(),  retries, @Headers, body
             FROM deleted_rows;
             """;
 
@@ -177,6 +177,7 @@ public class PostgreSqlBusDataAccess(
 
         var p = new DynamicParameters();
         p.Add("@Id", message.Id);
+        p.Add("@Headers", message.Headers);
 
         await LogIfError(dapper.Execute(statement, p));
     }

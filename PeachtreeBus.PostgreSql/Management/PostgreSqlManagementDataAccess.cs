@@ -20,7 +20,10 @@ public class PostgreSqlManagementDataAccess(
 {
     private const string QueueFields = "id, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body";
     
-    private static readonly TableName Pending = new("pending");
+    private static readonly TableName Failed = new("Failed");
+    private static readonly TableName Completed = new("Completed");
+    private static readonly TableName Pending = new("Pending");
+    private static readonly QueueName Subscribed = new("Subscribed");
     
     private async Task<List<T>> GetMessages<T>(string fields, QueueName queueName, TableName table, int skip, int take)
     {
@@ -41,14 +44,16 @@ public class PostgreSqlManagementDataAccess(
         return [.. (await LogIfError(dapper.Query<T>(statement, p)))];
     }
     
-    public Task<List<QueueData>> GetFailedQueueMessages(QueueName queueName, int skip, int take)
+    public async Task<List<QueueData>> GetFailedQueueMessages(QueueName queueName, int skip, int take)
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        return await GetMessages<QueueData>(QueueFields, queueName, Failed, skip, take);
     }
 
-    public Task<List<QueueData>> GetCompletedQueueMessages(QueueName queueName, int skip, int take)
+    public async Task<List<QueueData>> GetCompletedQueueMessages(QueueName queueName, int skip, int take)
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        return await GetMessages<QueueData>(QueueFields, queueName, Completed, skip, take);
     }
 
     public async Task<List<QueueData>> GetPendingQueueMessages(QueueName queueName, int skip, int take)
@@ -57,9 +62,29 @@ public class PostgreSqlManagementDataAccess(
         return await GetMessages<QueueData>(QueueFields, queueName, Pending, skip, take);
     }
 
-    public Task CancelPendingQueueMessage(QueueName queueName, Identity id)
+    public async Task CancelPendingQueueMessage(QueueName queueName, Identity id)
     {
-        throw new NotImplementedException();
+        const string cancelPendingQueuedStatement =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.{1}_pending
+                WHERE id = @Id
+                RETURNING id, message_id, priority, not_before, enqueued, retries, headers, body
+            )
+            INSERT INTO {0}.{1}_failed 
+            (id, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+            SELECT id, message_id, priority, not_before, enqueued, NULL, NOW(),  retries, headers, body
+            FROM deleted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(cancelPendingQueuedStatement, configuration.Schema, queueName);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", id);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public Task RetryFailedQueueMessage(QueueName queueName, Identity id)

@@ -24,4 +24,11 @@ public abstract class ManagementDataAccessFixtureBase : DataAccessFixtureBase<IM
         await Task.Delay(10); // make sure that messages get sequential enqueued times.
         return message;
     }
+
+    protected async Task<QueueData> CreateCompletedQueued()
+    {
+        var message = await CreatePendingQueued();
+        await BusAccess.CompleteMessage(message, TestConfig.DefaultQueue);
+        return message;
+    }
 }

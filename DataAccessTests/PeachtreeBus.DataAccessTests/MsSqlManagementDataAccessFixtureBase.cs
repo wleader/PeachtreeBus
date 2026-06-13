@@ -72,13 +72,5 @@ namespace PeachtreeBus.DataAccessTests
             await BusAccess.FailMessage(message, TestConfig.DefaultQueue);
             return message;
         }
-
-        protected async Task<QueueData> CreateCompletedQueued()
-        {
-            var message = await CreatePendingQueued();
-            await BusAccess.CompleteMessage(message, TestConfig.DefaultQueue);
-            return message;
-        }
-
     }
 }

@@ -74,3 +74,9 @@ public class MsSqlSubscriptionMessageFailedFixture : SubscriptionMessageFailedFi
 
 [TestClass]
 public class MsSqlManagementGetPendingQueueMessagesFixture : ManagementGetPendingQueueMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementCancelQueueMessageFixture : ManagementCancelQueueMessageFixture;
+
+[TestClass]
+public class MsSqlManagementGetCompletedQueueMessagesFixture : ManagementGetCompletedQueueMessagesFixture;
