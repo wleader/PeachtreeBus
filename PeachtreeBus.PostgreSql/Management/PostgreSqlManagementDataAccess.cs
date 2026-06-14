@@ -88,9 +88,29 @@ public class PostgreSqlManagementDataAccess(
         await LogIfError(dapper.Execute(statement, p));
     }
 
-    public Task RetryFailedQueueMessage(QueueName queueName, Identity id)
+    public async Task RetryFailedQueueMessage(QueueName queueName, Identity id)
     {
-        throw new NotImplementedException();
+        const string retryFailedQueuedStatement =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.{1}_failed
+                WHERE id = @Id
+                RETURNING message_id, priority, not_before, enqueued, retries, headers, body
+            )
+            INSERT INTO {0}.{1}_pending 
+            (message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+            SELECT message_id, priority, not_before, enqueued, NULL, NULL, 0, headers, body
+            FROM deleted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(retryFailedQueuedStatement, configuration.Schema, queueName);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", id);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public async Task<List<SubscribedData>> GetFailedSubscribedMessages(int skip, int take)
@@ -136,9 +156,29 @@ public class PostgreSqlManagementDataAccess(
         await LogIfError(dapper.Execute(statement, p));
     }
 
-    public Task RetryFailedSubscribedMessage(Identity id)
+    public async Task RetryFailedSubscribedMessage(Identity id)
     {
-        throw new NotImplementedException();
+        const string retryFailedSubscribedStatement =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.subscribed_failed
+                WHERE id = @Id
+                RETURNING subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, retries, headers, body
+            )
+            INSERT INTO {0}.subscribed_pending 
+            (subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+            SELECT subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, NULL, NULL, 0, headers, body
+            FROM deleted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(retryFailedSubscribedStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", id);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
     
     [ExcludeFromCodeCoverage]

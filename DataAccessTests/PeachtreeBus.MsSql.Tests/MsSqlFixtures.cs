@@ -95,3 +95,9 @@ public class MsSqlManagementGetFailedSubscribedMessagesFixture : ManagementGetFa
 
 [TestClass]
 public class MsSqlManagementGetPendingSubscribedMessagesFixture : ManagementGetPendingSubscribedMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementRetryQueueMessageFixture : ManagementRetryQueueMessageFixture;
+
+[TestClass]
+public class MsSqlManagementRetrySubscribedMessageFixture : ManagementRetrySubscribedMessageFixture;
