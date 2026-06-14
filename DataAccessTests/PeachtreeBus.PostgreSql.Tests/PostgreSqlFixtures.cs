@@ -92,3 +92,6 @@ public class PostgreSqlManagementGetFailedQueueMessagesFixture : ManagementGetFa
 
 [TestClass]
 public class PostgreSqlManagementGetFailedSubscribedMessagesFixture : ManagementGetFailedSubscribedMessagesFixture;
+
+[TestClass]
+public class PostgreSqlManagementGetPendingSubscribedMessagesFixture : ManagementGetPendingSubscribedMessagesFixture;

@@ -92,3 +92,6 @@ public class MsSqlManagementGetFailedQueueMessagesFixture : ManagementGetFailedQ
 
 [TestClass]
 public class MsSqlManagementGetFailedSubscribedMessagesFixture : ManagementGetFailedSubscribedMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementGetPendingSubscribedMessagesFixture : ManagementGetPendingSubscribedMessagesFixture;
