@@ -564,15 +564,17 @@ public class PostgreSqlBusDataAccess(
     {
         const string statementTemplate =
             """
-            WITH deleted_rows AS (
-                DELETE FROM {0}.{1}_failed
-                WHERE id IN (
-                    SELECT id FROM {0}.{1}_failed
-                    WHERE failed < @OlderThan
-                    LIMIT @MaxCount
-                    FOR UPDATE SKIP LOCKED
-                )
-                RETURNING id
+            WITH expired_rows AS (
+                SELECT id FROM {0}.{1}_failed
+                WHERE failed < @OlderThan
+                LIMIT @MaxCount
+                FOR UPDATE SKIP LOCKED
+            )
+            , deleted_rows AS (
+                DELETE FROM {0}.{1}_failed d
+                USING expired_rows e
+                WHERE d.id = e.id
+                RETURNING d.id
             )
             SELECT COUNT(*) FROM deleted_rows;
             """;
@@ -592,15 +594,17 @@ public class PostgreSqlBusDataAccess(
     {
         const string statementTemplate =
             """
-            WITH deleted_rows AS (
-                DELETE FROM {0}.{1}_completed
-                WHERE id IN (
-                    SELECT id FROM {0}.{1}_completed
-                    WHERE completed < @OlderThan
-                    LIMIT @MaxCount
-                    FOR UPDATE SKIP LOCKED
-                )
-                RETURNING id
+            WITH expired_rows AS (
+                SELECT id FROM {0}.{1}_completed
+                WHERE completed < @OlderThan
+                LIMIT @MaxCount
+                FOR UPDATE SKIP LOCKED
+            )
+            , deleted_rows AS (
+                DELETE FROM {0}.{1}_completed d
+                USING  expired_rows e
+                WHERE d.id = e.id
+                RETURNING d.id
             )
             SELECT COUNT(*) FROM deleted_rows;
             """;
@@ -620,15 +624,17 @@ public class PostgreSqlBusDataAccess(
     {
         const string statementTemplate =
             """
-            WITH deleted_rows AS (
-                DELETE FROM {0}.subscribed_completed
-                WHERE id IN (
-                    SELECT id FROM {0}.subscribed_completed
-                    WHERE completed < @OlderThan
-                    LIMIT @MaxCount
-                    FOR UPDATE SKIP LOCKED
-                )
-                RETURNING id
+            WITH expired_rows AS (
+                SELECT id FROM {0}.subscribed_completed
+                WHERE completed < @OlderThan
+                LIMIT @MaxCount
+                FOR UPDATE SKIP LOCKED
+            )
+            , deleted_rows AS (
+                DELETE FROM {0}.subscribed_completed d
+                USING expired_rows e
+                WHERE d.id = e.id
+                RETURNING d.id
             )
             SELECT COUNT(*) FROM deleted_rows;
             """;
@@ -648,15 +654,17 @@ public class PostgreSqlBusDataAccess(
     {
         const string statementTemplate =
             """
-            WITH deleted_rows AS (
-                DELETE FROM {0}.subscribed_failed
-                WHERE id IN (
-                    SELECT id FROM {0}.subscribed_failed
-                    WHERE failed < @OlderThan
-                    LIMIT @MaxCount
-                    FOR UPDATE SKIP LOCKED
-                )
-                RETURNING id
+            WITH expired_rows as (
+                SELECT id FROM {0}.subscribed_failed
+                WHERE failed < @OlderThan
+                LIMIT @MaxCount
+                FOR UPDATE SKIP LOCKED
+            )
+            , deleted_rows AS (
+                DELETE FROM {0}.subscribed_failed d
+                USING expired_rows e
+                WHERE d.id = e.id
+                RETURNING d.id
             )
             SELECT COUNT(*) FROM deleted_rows;
             """;
