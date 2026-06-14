@@ -54,4 +54,11 @@ public abstract class ManagementDataAccessFixtureBase : DataAccessFixtureBase<IM
         await BusAccess.FailMessage(message, TestConfig.DefaultQueue);
         return message;
     }
+    
+    protected async Task<SubscribedData> CreateFailedSubscribed()
+    {
+        var message = await CreatePendingSubscribed();
+        await BusAccess.FailMessage(message);
+        return message;
+    }
 }

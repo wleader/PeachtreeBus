@@ -51,13 +51,6 @@ namespace PeachtreeBus.DataAccessTests
             return message;
         }
 
-        protected async Task<SubscribedData> CreateCompletedSubscribed()
-        {
-            var message = await CreatePendingSubscribed();
-            await BusAccess.CompleteMessage(message);
-            return message;
-        }
-
         protected async Task<QueueData> CreatePendingQueued()
         {
             var message = TestData.CreateQueueData();
