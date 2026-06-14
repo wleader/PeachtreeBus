@@ -86,3 +86,6 @@ public class MsSqlManagementCancelSubscribedMessageFixture : ManagementCancelSub
 
 [TestClass]
 public class MsSqlManagementGetCompletedSubscribedMessagesFixture : ManagementGetCompletedSubscribedMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementGetFailedQueueMessagesFixture : ManagementGetFailedQueueMessagesFixture;
