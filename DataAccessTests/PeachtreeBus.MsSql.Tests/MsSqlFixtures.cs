@@ -80,3 +80,6 @@ public class MsSqlManagementCancelQueueMessageFixture : ManagementCancelQueueMes
 
 [TestClass]
 public class MsSqlManagementGetCompletedQueueMessagesFixture : ManagementGetCompletedQueueMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementCancelSubscribedMessageFixture : ManagementCancelSubscribedMessageFixture;

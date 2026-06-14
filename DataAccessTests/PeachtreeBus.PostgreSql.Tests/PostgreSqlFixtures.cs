@@ -80,3 +80,6 @@ public class PostgreSqlManagementCancelQueueMessageFixture : ManagementCancelQue
 
 [TestClass]
 public class PostgreSqlManagementGetCompletedQueueMessagesFixture : ManagementGetCompletedQueueMessagesFixture;
+
+[TestClass]
+public class PostgreSqlManagementCancelSubscribedMessageFixture : ManagementCancelSubscribedMessageFixture;

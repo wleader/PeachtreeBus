@@ -19,6 +19,7 @@ public class PostgreSqlManagementDataAccess(
     IDapperMethods dapper) : IManagementDataAccess
 {
     private const string QueueFields = "id, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body";
+    private const string SubscribedFields = "id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body";
     
     private static readonly TableName Failed = new("Failed");
     private static readonly TableName Completed = new("Completed");
@@ -92,24 +93,47 @@ public class PostgreSqlManagementDataAccess(
         throw new NotImplementedException();
     }
 
-    public Task<List<SubscribedData>> GetFailedSubscribedMessages(int skip, int take)
+    public async Task<List<SubscribedData>> GetFailedSubscribedMessages(int skip, int take)
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        return await GetMessages<SubscribedData>(SubscribedFields, Subscribed, Failed, skip, take);
     }
 
-    public Task<List<SubscribedData>> GetCompletedSubscribedMessages(int skip, int take)
+    public async Task<List<SubscribedData>> GetCompletedSubscribedMessages(int skip, int take)
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        return await GetMessages<SubscribedData>(SubscribedFields, Subscribed, Completed, skip, take);
     }
 
-    public Task<List<SubscribedData>> GetPendingSubscribedMessages(int skip, int take)
+    public async Task<List<SubscribedData>> GetPendingSubscribedMessages(int skip, int take)
     {
-        throw new NotImplementedException();
+        using var _ = StartActivity();
+        return await GetMessages<SubscribedData>(SubscribedFields, Subscribed, Pending, skip, take);
     }
 
-    public Task CancelPendingSubscribedMessage(Identity id)
+    public async Task CancelPendingSubscribedMessage(Identity id)
     {
-        throw new NotImplementedException();
+        const string cancelPendingSubscribedStatement =
+            """
+            WITH deleted_rows AS (
+                DELETE FROM {0}.subscribed_pending
+                WHERE id = @Id
+                RETURNING id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, retries, headers, body
+            )
+            INSERT INTO {0}.subscribed_failed 
+            (id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, completed, failed, retries, headers, body)
+            SELECT id, subscriber_id, topic, valid_until, message_id, priority, not_before, enqueued, NULL, NOW(),  retries, headers, body
+            FROM deleted_rows;
+            """;
+
+        using var _ = StartActivity();
+
+        string statement = string.Format(cancelPendingSubscribedStatement, configuration.Schema);
+
+        var p = new DynamicParameters();
+        p.Add("@Id", id);
+
+        await LogIfError(dapper.Execute(statement, p));
     }
 
     public Task RetryFailedSubscribedMessage(Identity id)
