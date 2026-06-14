@@ -7,10 +7,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class ManagementCancelQueueMessageFixture : ManagementDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
     
     [TestMethod]
     public async Task InsertsIntoTargetTable()

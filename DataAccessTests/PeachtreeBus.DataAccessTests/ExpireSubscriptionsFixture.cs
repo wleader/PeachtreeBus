@@ -9,10 +9,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class ExpireSubscriptionsFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     /// <summary>
     /// Proves that expired rows are deleted.
@@ -39,7 +39,7 @@ public abstract class ExpireSubscriptionsFixture : BusDataAccessFixtureBase
 
         await BusDataAccess.ExpireSubscriptions(100);
 
-        var rows = TestDataAccess.GetSubscriptions();
+        var rows = await TestDataAccess.GetSubscriptions();
 
         Assert.AreEqual(2, rows.Count);
         Assert.IsNotNull(rows.Single(r => r.SubscriberId == subscriber1 && r.Topic == topic1));

@@ -10,10 +10,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class SubscriptionMessageGetPendingFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task GetPendingSubscriptionMessage_DoesNotReturnDelayedMessage()
@@ -21,7 +21,7 @@ public abstract class SubscriptionMessageGetPendingFixture : BusDataAccessFixtur
         // Add one message;
         var testMessage = TestData.CreateSubscribedData(
             notBefore: DateTime.UtcNow.AddHours(1));
-        TestDataAccess.InsertSubscribedPending(testMessage);
+        await TestDataAccess.InsertSubscribedPending(testMessage);
         await Task.Delay(10); // wait for the rows to be ready
         var actual = await BusDataAccess.GetPendingSubscribed(testMessage.SubscriberId);
         Assert.IsNull(actual);
@@ -32,7 +32,7 @@ public abstract class SubscriptionMessageGetPendingFixture : BusDataAccessFixtur
     {
         // Add one message;
         var testMessage = TestData.CreateSubscribedData();
-        TestDataAccess.InsertSubscribedPending(testMessage);
+        await TestDataAccess.InsertSubscribedPending(testMessage);
         await Task.Delay(10); // wait for the rows to be ready
 
         // lock the subscribed message.
@@ -49,7 +49,7 @@ public abstract class SubscriptionMessageGetPendingFixture : BusDataAccessFixtur
         // Add one message;
         var testMessage = TestData.CreateSubscribedData(
             notBefore: DateTime.UtcNow.AddMilliseconds(200));
-        TestDataAccess.InsertSubscribedPending(testMessage);
+        await TestDataAccess.InsertSubscribedPending(testMessage);
         await Task.Delay(10); // wait for the rows to be ready
         var actual = await BusDataAccess.GetPendingSubscribed(testMessage.SubscriberId);
         Assert.IsNull(actual);
@@ -64,7 +64,7 @@ public abstract class SubscriptionMessageGetPendingFixture : BusDataAccessFixtur
     {
         // Add one message;
         var testMessage = TestData.CreateSubscribedData();
-        TestDataAccess.InsertSubscribedPending(testMessage);
+        await TestDataAccess.InsertSubscribedPending(testMessage);
 
         await Task.Delay(10); // wait for the rows to be ready
 
@@ -78,9 +78,9 @@ public abstract class SubscriptionMessageGetPendingFixture : BusDataAccessFixtur
     {
         // Add two messages;
         var testMessage1 = TestData.CreateSubscribedData();
-        TestDataAccess.InsertSubscribedPending(testMessage1);
+        await TestDataAccess.InsertSubscribedPending(testMessage1);
         var testMessage2 = TestData.CreateSubscribedData();
-        TestDataAccess.InsertSubscribedPending(testMessage2);
+        await TestDataAccess.InsertSubscribedPending(testMessage2);
 
         await Task.Delay(10); // wait for the rows to be ready
 
@@ -113,13 +113,13 @@ public abstract class SubscriptionMessageGetPendingFixture : BusDataAccessFixtur
             priority: 1,
             notBefore: DateTime.UtcNow.AddMinutes(-2),
             subscriberId: subscriber);
-        TestDataAccess.InsertSubscribedPending(lowMessage);
+        await TestDataAccess.InsertSubscribedPending(lowMessage);
 
         var highMessage = TestData.CreateSubscribedData(
             priority: 2,
             notBefore: DateTime.UtcNow.AddMinutes(-1),
             subscriberId: subscriber);
-        TestDataAccess.InsertSubscribedPending(highMessage);
+        await TestDataAccess.InsertSubscribedPending(highMessage);
 
         await Task.Delay(10); // wait for the rows to be ready
 

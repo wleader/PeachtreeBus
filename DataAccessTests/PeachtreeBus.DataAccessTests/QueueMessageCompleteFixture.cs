@@ -10,10 +10,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class QueueMessageCompleteFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task CompleteMessage_InsertsIntoCompleteTable()
@@ -33,7 +33,7 @@ public abstract class QueueMessageCompleteFixture : BusDataAccessFixtureBase
         await Task.Delay(10); // wait for the rows to be ready
 
         // Check that it ended up in the completed table.
-        var completed = TestDataAccess.GetQueuedCompleted();
+        var completed = await TestDataAccess.GetQueuedCompleted();
         Assert.AreEqual(1, completed.Count);
         DataAssert.AreEqual(messageToComplete, completed[0]);
     }
@@ -54,7 +54,7 @@ public abstract class QueueMessageCompleteFixture : BusDataAccessFixtureBase
         await BusDataAccess.CompleteMessage(messageToComplete, TestConfig.DefaultQueue);
         await Task.Delay(10); // wait for the rows to be ready
 
-        var pending = TestDataAccess.GetQueuedPending();
+        var pending = await TestDataAccess.GetQueuedPending();
         Assert.AreEqual(1, pending.Count);
         Assert.IsFalse(pending.Any(m => m.Id == messageToComplete.Id), "Completed message is still in the pending table.");
     }
@@ -80,7 +80,7 @@ public abstract class QueueMessageCompleteFixture : BusDataAccessFixtureBase
         await Task.Delay(10); // wait for the rows to be ready
 
         // Check that it ended up in the completed table.
-        var completed = TestDataAccess.GetQueuedCompleted();
+        var completed = await TestDataAccess.GetQueuedCompleted();
         Assert.AreEqual(1, completed.Count);
         var actual = completed.Single(m => m.Id == testMessage1.Id);
 

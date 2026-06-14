@@ -9,28 +9,28 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class SubscriptionExpireMessagesFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task ExpireMessages_InsertsIntoFailedTable()
     {
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedFailed);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedFailed);
 
         var expected1 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected1);
+        await TestDataAccess.InsertSubscribedPending(expected1);
 
         var expected2 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected2);
+        await TestDataAccess.InsertSubscribedPending(expected2);
 
         await BusDataAccess.ExpireSubscriptionMessages(1000);
 
-        var failed = TestDataAccess.GetSubscribedFailed();
+        var failed = await TestDataAccess.GetSubscribedFailed();
         Assert.AreEqual(2, failed.Count);
 
         var actual1 = failed.Single(s => s.Id == expected1.Id);
@@ -50,17 +50,17 @@ public abstract class SubscriptionExpireMessagesFixture : BusDataAccessFixtureBa
 
         var expected1 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected1);
+        await TestDataAccess.InsertSubscribedPending(expected1);
 
         var expected2 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected2);
+        await TestDataAccess.InsertSubscribedPending(expected2);
 
-        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 2);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 2);
 
         await BusDataAccess.ExpireSubscriptionMessages(1000);
 
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
     }
 
     [TestMethod]
@@ -68,20 +68,20 @@ public abstract class SubscriptionExpireMessagesFixture : BusDataAccessFixtureBa
     {
         var expected1 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected1);
+        await TestDataAccess.InsertSubscribedPending(expected1);
 
         var expected2 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected2);
+        await TestDataAccess.InsertSubscribedPending(expected2);
 
-        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 2);
-
-        await BusDataAccess.ExpireSubscriptionMessages(1);
-
-        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 1);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 2);
 
         await BusDataAccess.ExpireSubscriptionMessages(1);
 
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 1);
+
+        await BusDataAccess.ExpireSubscriptionMessages(1);
+
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
     }
 }

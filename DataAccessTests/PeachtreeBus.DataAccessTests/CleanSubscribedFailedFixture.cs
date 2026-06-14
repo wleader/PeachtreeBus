@@ -11,14 +11,14 @@ public abstract class CleanSubscribedFailedFixture : BusDataAccessFixtureBase
     private long _lastId = 1000;
 
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
     
-    private void Given_FailedMessage(DateTime failed)
+    private Task Given_FailedMessage(DateTime failed)
     {
-        TestDataAccess.InsertSubscribedFailed(new()
+        return TestDataAccess.InsertSubscribedFailed(new()
         {
             Id = new(_lastId++),
             SubscriberId = SubscriberId.New(),
@@ -36,40 +36,45 @@ public abstract class CleanSubscribedFailedFixture : BusDataAccessFixtureBase
         });
     }
 
-    private void Given_CountFailedMessages(int count, DateTime failed) =>
+    private Task Given_CountFailedMessages(int count, DateTime failed) =>
         Repeat(() => Given_FailedMessage(failed), count);
 
-    [TestMethod] [DataRow(10, 10, 0, DisplayName = "Clean All")] [DataRow(10, 5, 5, DisplayName = "Clean Some")]
+    [TestMethod]
+    [DataRow(10, 10, 0, DisplayName = "Clean All")]
+    [DataRow(10, 5, 5, DisplayName = "Clean Some")]
     public async Task Given_FailedMessages_When_CleanSubscribedFailed_Then_RowsAreCleaned(
         int messageCount, int cleanCount, int remaining)
     {
-        Given_CountFailedMessages(messageCount, DateTime.UtcNow.AddDays(-1));
-        var olderThan = DateTime.UtcNow;
+        await Given_CountFailedMessages(messageCount, DateTime.UtcNow.AddDays(-1));
 
+        // Its not clear why, but this test is unreliable without checking the created messages.
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedFailed, messageCount);
+        
+        var olderThan = DateTime.UtcNow;
         var deletedCount = await BusDataAccess.CleanSubscribedFailed(olderThan, cleanCount);
         Assert.AreEqual(cleanCount, deletedCount);
 
-        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedFailed, remaining);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedFailed, remaining);
     }
 
     [TestMethod]
     public async Task Given_RecentMessages_When_CleanSubscribedFailed_Then_RecentMessagesAreNotDeleted()
     {
-        Given_CountFailedMessages(10, DateTime.UtcNow);
+        await Given_CountFailedMessages(10, DateTime.UtcNow);
         var olderThan = DateTime.UtcNow.AddMinutes(-5);
         var deletedCount = await BusDataAccess.CleanSubscribedFailed(olderThan, 10);
         Assert.AreEqual(0, deletedCount);
-        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedFailed, 10);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedFailed, 10);
     }
 
     [TestMethod]
     public async Task CleanSubscribedFailed_HandlesMix()
     {
-        Given_CountFailedMessages(3, DateTime.UtcNow.AddDays(-1));
-        Given_CountFailedMessages(7, DateTime.UtcNow);
+        await Given_CountFailedMessages(3, DateTime.UtcNow.AddDays(-1));
+        await Given_CountFailedMessages(7, DateTime.UtcNow);
         var olderThan = DateTime.UtcNow.AddMinutes(-5);
         var deletedCount = await BusDataAccess.CleanSubscribedFailed(olderThan, 10);
         Assert.AreEqual(3, deletedCount);
-        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedFailed, 7);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedFailed, 7);
     }
 }

@@ -10,15 +10,15 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class SubscribeFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task Subscribe_AddsRowWhenSubscriberAndTopicDoNotExist()
     {
-        var subscriptions = TestDataAccess.GetSubscriptions();
+        var subscriptions = await TestDataAccess.GetSubscriptions();
         Assert.AreEqual(0, subscriptions.Count);
 
         var subscriber = SubscriberId.New();
@@ -27,7 +27,7 @@ public abstract class SubscribeFixture : BusDataAccessFixtureBase
 
         await BusDataAccess.Subscribe(subscriber, topic, until);
 
-        subscriptions = TestDataAccess.GetSubscriptions();
+        subscriptions = await TestDataAccess.GetSubscriptions();
 
         Assert.AreEqual(1, subscriptions.Count);
         Assert.AreNotEqual(0, subscriptions[0].Id.Value);
@@ -39,7 +39,7 @@ public abstract class SubscribeFixture : BusDataAccessFixtureBase
     [TestMethod]
     public async Task Subscribe_AddsRowWhenSubscriberExistsAndTopicDoesNot()
     {
-        var subscriptions = TestDataAccess.GetSubscriptions();
+        var subscriptions = await TestDataAccess.GetSubscriptions();
         Assert.AreEqual(0, subscriptions.Count);
 
         var subscriber = SubscriberId.New();
@@ -51,7 +51,7 @@ public abstract class SubscribeFixture : BusDataAccessFixtureBase
         var topic2 = new Topic("TestTopic2");
         await BusDataAccess.Subscribe(subscriber, topic2, until);
 
-        subscriptions = TestDataAccess.GetSubscriptions();
+        subscriptions = await TestDataAccess.GetSubscriptions();
         Assert.AreEqual(2, subscriptions.Count);
 
         subscriptions.ForEach(s => Assert.AreEqual(subscriber, s.SubscriberId));
@@ -69,7 +69,7 @@ public abstract class SubscribeFixture : BusDataAccessFixtureBase
     [TestMethod]
     public async Task Subscribe_AddsRowWhenSubscriberDoesNotExistAndTopicExists()
     {
-        var subscriptions = TestDataAccess.GetSubscriptions();
+        var subscriptions = await TestDataAccess.GetSubscriptions();
         Assert.AreEqual(0, subscriptions.Count);
 
         var subscriber = SubscriberId.New();
@@ -81,7 +81,7 @@ public abstract class SubscribeFixture : BusDataAccessFixtureBase
         var subscriber2 = SubscriberId.New();
         await BusDataAccess.Subscribe(subscriber2, topic, until);
 
-        subscriptions = TestDataAccess.GetSubscriptions();
+        subscriptions = await TestDataAccess.GetSubscriptions();
         Assert.AreEqual(2, subscriptions.Count);
 
         subscriptions.ForEach(s => Assert.AreEqual(topic, s.Topic));
@@ -95,7 +95,7 @@ public abstract class SubscribeFixture : BusDataAccessFixtureBase
     [TestMethod]
     public async Task Subscribe_UpdatesWhenSubscriberAndTopicAlreadyExist()
     {
-        var subscriptions = TestDataAccess.GetSubscriptions();
+        var subscriptions = await TestDataAccess.GetSubscriptions();
         Assert.AreEqual(0, subscriptions.Count);
 
         var subscriber = SubscriberId.New();
@@ -107,7 +107,7 @@ public abstract class SubscribeFixture : BusDataAccessFixtureBase
         var until2 = until.AddHours(1);
         await BusDataAccess.Subscribe(subscriber, topic, until2);
 
-        subscriptions = TestDataAccess.GetSubscriptions();
+        subscriptions = await TestDataAccess.GetSubscriptions();
 
         Assert.AreEqual(1, subscriptions.Count);
 

@@ -10,16 +10,16 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class SubscriptionMessageFailedFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task FailMessage_CantMutateFields()
     {
         var testMessage1 = TestData.CreateSubscribedData();
-        TestDataAccess.InsertSubscribedPending(testMessage1);
+        await TestDataAccess.InsertSubscribedPending(testMessage1);
         await Task.Delay(10); // wait for the rows to be ready
 
         // get and complete a message.
@@ -35,7 +35,7 @@ public abstract class SubscriptionMessageFailedFixture : BusDataAccessFixtureBas
         await Task.Delay(10); // wait for the rows to be ready
 
         // Check that it ended up in the completed table.
-        var failed = TestDataAccess.GetSubscribedFailed();
+        var failed = await TestDataAccess.GetSubscribedFailed();
         Assert.AreEqual(1, failed.Count);
         var actual = failed.Single(m => m.Id == testMessage1.Id);
 
@@ -50,28 +50,28 @@ public abstract class SubscriptionMessageFailedFixture : BusDataAccessFixtureBas
     {
         var expected1 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected1);
+        await TestDataAccess.InsertSubscribedPending(expected1);
 
-        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 1);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 1);
 
         await BusDataAccess.FailMessage(expected1);
 
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
     }
 
     [TestMethod]
     public async Task FailMessage_InsertsIntoFailedTable()
     {
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedFailed);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedFailed);
 
         var expected1 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected1);
+        await TestDataAccess.InsertSubscribedPending(expected1);
 
         await BusDataAccess.FailMessage(expected1);
 
-        var failed = TestDataAccess.GetSubscribedFailed();
+        var failed = await TestDataAccess.GetSubscribedFailed();
 
         Assert.AreEqual(1, failed.Count);
 

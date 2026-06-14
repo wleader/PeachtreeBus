@@ -8,10 +8,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class SagaGetFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task Given_NotLockedSagaDataRow_When_GetSagaData_Then_ResultIsNotBlocked()
@@ -20,7 +20,7 @@ public abstract class SagaGetFixture : BusDataAccessFixtureBase
         newSaga1.Id = await BusDataAccess.InsertSagaData(newSaga1, TestConfig.DefaultSagaName);
 
         await Task.Delay(10);
-        TestDataAccess.Then_TableHasCount(TestConfig.SagaData, 1);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SagaData, 1);
 
         BusDataAccess.BeginTransaction();
         try
@@ -43,7 +43,7 @@ public abstract class SagaGetFixture : BusDataAccessFixtureBase
     [TestMethod]
     public async Task Given_RowNotInTable_When_GetSagaData_Then_ResultIsNull()
     {
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SagaData);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SagaData);
         var actual = await BusDataAccess.GetSagaData(TestConfig.DefaultSagaName, new("1"));
         Assert.IsNull(actual);
     }

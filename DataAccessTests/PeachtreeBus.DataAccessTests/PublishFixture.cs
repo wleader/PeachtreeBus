@@ -17,10 +17,10 @@ public abstract class PublishFixture : BusDataAccessFixtureBase
     private readonly SubscribedData _subscribedData = TestData.CreateSubscribedData();
 
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
 
     [TestMethod]
@@ -29,13 +29,13 @@ public abstract class PublishFixture : BusDataAccessFixtureBase
         // have some subscribers for another topic.
         await BusDataAccess.Subscribe(_subscriber1, TestData.DefaultTopic2, _until);
         await BusDataAccess.Subscribe(_subscriber2, TestData.DefaultTopic2, _until);
-        var subscriptions = TestDataAccess.GetSubscriptions();
+        var subscriptions = await TestDataAccess.GetSubscriptions();
         Assert.AreEqual(2, subscriptions.Count);
 
         var publishedCount = await BusDataAccess.Publish(_subscribedData, TestData.DefaultTopic);
         Assert.AreEqual(0, publishedCount);
         
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
     }
 
     [TestMethod]
@@ -50,7 +50,7 @@ public abstract class PublishFixture : BusDataAccessFixtureBase
         var count = await BusDataAccess.Publish(_subscribedData, TestData.DefaultTopic);
         Assert.AreEqual(2, count);
 
-        var messages = TestDataAccess.GetSubscribedPending();
+        var messages = await TestDataAccess.GetSubscribedPending();
         Assert.AreEqual(2, messages.Count);
 
         var actual1 = messages.Single(m => m.SubscriberId == _subscriber1);

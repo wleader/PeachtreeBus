@@ -10,16 +10,16 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class SubscriptionMessageCompleteFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task CompleteMessage_CantMutateFields()
     {
         var testMessage1 = TestData.CreateSubscribedData();
-        TestDataAccess.InsertSubscribedPending(testMessage1);
+        await TestDataAccess.InsertSubscribedPending(testMessage1);
         await Task.Delay(10); // wait for the rows to be ready
 
         // get and complete a message.
@@ -35,7 +35,7 @@ public abstract class SubscriptionMessageCompleteFixture : BusDataAccessFixtureB
         await Task.Delay(10); // wait for the rows to be ready
 
         // Check that it ended up in the completed table.
-        var completed = TestDataAccess.GetSubscribedCompleted();
+        var completed = await TestDataAccess.GetSubscribedCompleted();
         Assert.AreEqual(1, completed.Count);
         var actual = completed.Single(m => m.Id == testMessage1.Id);
 
@@ -50,28 +50,28 @@ public abstract class SubscriptionMessageCompleteFixture : BusDataAccessFixtureB
     {
         var expected1 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected1);
+        await TestDataAccess.InsertSubscribedPending(expected1);
 
-        TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 1);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SubscribedPending, 1);
 
         await BusDataAccess.CompleteMessage(expected1);
 
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
     }
 
     [TestMethod]
     public async Task CompleteMessage_InsertsIntoCompleteTable()
     {
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedCompleted);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedPending);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SubscribedCompleted);
 
         var expected1 = TestData.CreateSubscribedData(
             validUntil: DateTime.UtcNow.AddMinutes(-1));
-        TestDataAccess.InsertSubscribedPending(expected1);
+        await TestDataAccess.InsertSubscribedPending(expected1);
 
         await BusDataAccess.CompleteMessage(expected1);
 
-        var completed = TestDataAccess.GetSubscribedCompleted();
+        var completed = await TestDataAccess.GetSubscribedCompleted();
 
         Assert.AreEqual(1, completed.Count);
 

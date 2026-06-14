@@ -11,10 +11,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class QueueMessageUpdateFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task Update_UpdatesPendingTable()
@@ -43,7 +43,7 @@ public abstract class QueueMessageUpdateFixture : BusDataAccessFixtureBase
         await Task.Delay(10); // wait for the rows to be ready
 
         // Check that it ended up in the error table.
-        var pending = TestDataAccess.GetQueuedPending();
+        var pending = await TestDataAccess.GetQueuedPending();
         Assert.AreEqual(2, pending.Count);
 
         var expectUnchanged = toUpdate.Id == testMessage1.Id ? testMessage2 : testMessage1;

@@ -10,10 +10,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class SagaUpdateFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     [TestMethod]
     public async Task UpdateSaga_Updates()
@@ -25,7 +25,7 @@ public abstract class SagaUpdateFixture : BusDataAccessFixtureBase
         newSaga2.Id = await BusDataAccess.InsertSagaData(newSaga2, TestConfig.DefaultSagaName);
 
         await Task.Delay(10);
-        TestDataAccess.Then_TableHasCount(TestConfig.SagaData, 2);
+        await TestDataAccess.Then_TableHasCount(TestConfig.SagaData, 2);
 
         var updatedSaga = new SagaData
         {
@@ -40,7 +40,7 @@ public abstract class SagaUpdateFixture : BusDataAccessFixtureBase
         await BusDataAccess.UpdateSagaData(updatedSaga, TestConfig.DefaultSagaName);
         await Task.Delay(10);
 
-        var sagas = TestDataAccess.GetTableContent<SagaData>(TestConfig.SagaData);
+        var sagas = await TestDataAccess.GetTableContent<SagaData>(TestConfig.SagaData);
         Assert.AreEqual(2, sagas.Count);
 
         var actualSaga1 = sagas.Single(s => s.Id == newSaga1.Id);

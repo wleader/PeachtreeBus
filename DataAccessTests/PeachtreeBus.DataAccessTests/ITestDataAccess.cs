@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
 using PeachtreeBus.Queues;
@@ -15,47 +16,47 @@ public interface ILockedRows<T> : IDisposable
 
 public interface ITestDataAccess
 {
-    void Initialize();
-    void CleanEverything();
-    void CloseConnections();
-    long CountRowsInTable(TableName tableName);
+    Task Initialize();
+    Task CleanEverything();
+    Task CloseConnections();
+    Task<long> CountRowsInTable(TableName tableName);
     DataSet GetTableContent(TableName tableName);
-    List<T> GetTableContent<T>(TableName tableName) where T : class;
-    void InsertQueueCompleted(QueueData data);
-    void InsertQueueFailed(QueueData data);
-    void InsertSubscribedPending(SubscribedData data);
-    void InsertSubscribedCompleted(SubscribedData data);
-    void InsertSubscribedFailed(SubscribedData data);
+    Task<List<T>> GetTableContent<T>(TableName tableName) where T : class;
+    Task InsertQueueCompleted(QueueData data);
+    Task InsertQueueFailed(QueueData data);
+    Task InsertSubscribedPending(SubscribedData data);
+    Task InsertSubscribedCompleted(SubscribedData data);
+    Task InsertSubscribedFailed(SubscribedData data);
     ITestConfig TestConfig { get; }
     ILockedRows<T> LockRows<T>(TableName tableName, int count = int.MaxValue);
 }
 
 public static class TestDataAccessExtensions
 {
-    public static void Then_TableHasCount(this ITestDataAccess dataAccess, TableName tableName, int expectedCount) =>
-        Assert.AreEqual(expectedCount, dataAccess.CountRowsInTable(tableName));
+    public static async Task Then_TableHasCount(this ITestDataAccess dataAccess, TableName tableName, int expectedCount) =>
+        Assert.AreEqual(expectedCount, await dataAccess.CountRowsInTable(tableName));
 
-    public static void Then_TableIsEmpty(this ITestDataAccess dataAccess, TableName tableName) =>
+    public static Task Then_TableIsEmpty(this ITestDataAccess dataAccess, TableName tableName) =>
         Then_TableHasCount(dataAccess, tableName, 0);
 
-    public static List<SubscriptionsRow> GetSubscriptions(this ITestDataAccess dataAccess) =>
+    public static Task<List<SubscriptionsRow>> GetSubscriptions(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<SubscriptionsRow>(dataAccess.TestConfig.Subscriptions);
 
-    public static List<SubscribedData> GetSubscribedPending(this ITestDataAccess dataAccess) =>
+    public static Task<List<SubscribedData>> GetSubscribedPending(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<SubscribedData>(dataAccess.TestConfig.SubscribedPending);
 
-    public static List<SubscribedData> GetSubscribedFailed(this ITestDataAccess dataAccess) =>
+    public static Task<List<SubscribedData>> GetSubscribedFailed(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<SubscribedData>(dataAccess.TestConfig.SubscribedFailed);
 
-    public static List<SubscribedData> GetSubscribedCompleted(this ITestDataAccess dataAccess) =>
+    public static Task<List<SubscribedData>> GetSubscribedCompleted(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<SubscribedData>(dataAccess.TestConfig.SubscribedCompleted);
 
-    public static List<QueueData> GetQueuedPending(this ITestDataAccess dataAccess) =>
+    public static Task<List<QueueData>> GetQueuedPending(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<QueueData>(dataAccess.TestConfig.QueuePending);
 
-    public static List<QueueData> GetQueuedCompleted(this ITestDataAccess dataAccess) =>
+    public static Task<List<QueueData>> GetQueuedCompleted(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<QueueData>(dataAccess.TestConfig.QueueCompleted);
 
-    public static List<QueueData> GetQueuedFailed(this ITestDataAccess dataAccess) =>
+    public static Task<List<QueueData>> GetQueuedFailed(this ITestDataAccess dataAccess) =>
         dataAccess.GetTableContent<QueueData>(dataAccess.TestConfig.QueueFailed);
 }

@@ -8,10 +8,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class SagaInsertFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     /// <summary>
     /// Proves the data is inserted correctly.
@@ -22,13 +22,13 @@ public abstract class SagaInsertFixture : BusDataAccessFixtureBase
     {
         var newSaga = TestData.CreateSagaData();
 
-        TestDataAccess.Then_TableIsEmpty(TestConfig.SagaData);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.SagaData);
 
         newSaga.Id = await BusDataAccess.InsertSagaData(newSaga, TestConfig.DefaultSagaName);
 
         Assert.IsTrue(newSaga.Id.Value > 0);
 
-        var sagas = TestDataAccess.GetTableContent<SagaData>(TestConfig.SagaData);
+        var sagas = await TestDataAccess.GetTableContent<SagaData>(TestConfig.SagaData);
         Assert.AreEqual(1, sagas.Count);
 
         DataAssert.AreEqual(newSaga, sagas[0]);

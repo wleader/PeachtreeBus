@@ -10,14 +10,14 @@ namespace PeachtreeBus.DataAccessTests
         private long _lastId = 1000;
 
         [TestInitialize]
-        public override void Initialize() => base.Initialize();
+        public override Task Initialize() => base.Initialize();
 
         [TestCleanup]
-        public override void Cleanup() => base.Cleanup();
+        public override Task Cleanup() => base.Cleanup();
 
-        private void Given_CompletedMessage(DateTime completed)
+        private Task Given_CompletedMessage(DateTime completed)
         {
-            TestDataAccess.InsertQueueCompleted(new()
+            return TestDataAccess.InsertQueueCompleted(new()
             {
                 Id = new(_lastId++),
                 MessageId = UniqueIdentity.New(),
@@ -32,7 +32,7 @@ namespace PeachtreeBus.DataAccessTests
             });
         }
 
-        private void Given_CountCompletedMessage(int count, DateTime completed) =>
+        private Task Given_CountCompletedMessage(int count, DateTime completed) =>
             Repeat(() => Given_CompletedMessage(completed), count);
         
         [TestMethod]
@@ -42,38 +42,41 @@ namespace PeachtreeBus.DataAccessTests
             int givenCount, int cleanupCount, int remainingCount)
         {
             var yesterday = DateTime.UtcNow.AddDays(-1);
-            Given_CountCompletedMessage(givenCount, yesterday);
+            await Given_CountCompletedMessage(givenCount, yesterday);
+            
+            // Its not clear why, but this test is unreliable without checking the given messages
+            await TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, givenCount);
 
             var olderThan = DateTime.UtcNow;
             var deletedCount = await BusDataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderThan, cleanupCount);
             Assert.AreEqual(cleanupCount, deletedCount);
 
-            TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, remainingCount);
+            await TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, remainingCount);
         }
 
         [TestMethod]
         public async Task Given_MessagesCompletedToday_When_CleanCompletedQueueMessages_Then_MessagesNotDeleted()
         {
-            Given_CountCompletedMessage(10, DateTime.UtcNow);
+            await Given_CountCompletedMessage(10, DateTime.UtcNow);
 
             var olderThan = DateTime.UtcNow.AddMinutes(-5);
             var deletedCount = await BusDataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderThan, 10);
 
             Assert.AreEqual(0, deletedCount);
-            TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, 10);
+            await TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, 10);
         }
 
         [TestMethod]
         public async Task Given_MixOfCompleted_When_CleanCompletedQueueMessages_Then_OldMessagesAreDeleted()
         {
-            Given_CountCompletedMessage(3,  DateTime.UtcNow.AddDays(-1));
-            Given_CountCompletedMessage(7, DateTime.UtcNow);
+            await Given_CountCompletedMessage(3,  DateTime.UtcNow.AddDays(-1));
+            await Given_CountCompletedMessage(7, DateTime.UtcNow);
             
             var olderThan = DateTime.UtcNow.AddMinutes(-5);
             var deletedCount = await BusDataAccess.CleanQueueCompleted(TestConfig.DefaultQueue, olderThan, 10);
             Assert.AreEqual(3, deletedCount);
 
-            TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, 7);
+            await TestDataAccess.Then_TableHasCount(TestConfig.QueueCompleted, 7);
         }
     }
 }

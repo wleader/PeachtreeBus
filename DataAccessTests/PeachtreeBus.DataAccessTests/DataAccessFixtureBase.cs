@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using PeachtreeBus.DatabaseTesting;
@@ -12,21 +11,21 @@ public abstract class DataAccessFixtureBase<TDataAccessInterface>
     protected ITestDataAccess TestDataAccess { get; private set; } = null!;
     protected TDataAccessInterface BusDataAccess { get; private set; } = null!;
     protected ITestConfig TestConfig { get; private set; } = null!;
-    protected IServiceScope Scope { get; set; } = null!;
+    protected IServiceScope Scope { get; private set; } = null!;
 
-    public virtual void Initialize()
+    public virtual async Task Initialize()
     {
         Scope = TestServices.ServiceProvider.CreateScope();
         TestConfig = Scope.ServiceProvider.GetRequiredService<ITestConfig>();
         BusDataAccess = Scope.ServiceProvider.GetRequiredService<TDataAccessInterface>();
         TestDataAccess = Scope.ServiceProvider.GetRequiredService<ITestDataAccess>();
-        TestDataAccess.Initialize();
-        TestDataAccess.CleanEverything();
+        await TestDataAccess.Initialize();
+        await TestDataAccess.CleanEverything();
     }
 
-    public virtual void Cleanup()
+    public virtual async Task Cleanup()
     {
-        TestDataAccess.CloseConnections();
+        await TestDataAccess.CloseConnections();
         Scope.Dispose();
     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Dapper;
 using Npgsql;
 using PeachtreeBus.Data;
@@ -19,15 +20,15 @@ public class PostgreSqlTestDataAccess(
     public ITestConfig TestConfig { get; } = testConfig;
     private INpgSqlConnection _connection = null!;
 
-    public void Initialize()
+    public Task Initialize()
     {
         _connection = connectionFactory.GetConnection();
-        _connection.Open();
+        return _connection.OpenAsync();
     }
 
-    public void CleanEverything()
+    public async Task CleanEverything()
     {
-        using var transaction = _connection.BeginTransaction();
+        await using var transaction = await _connection.BeginTransactionAsync();
         string statement =
         $"""
              DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.QueueCompleted};
@@ -39,20 +40,17 @@ public class PostgreSqlTestDataAccess(
              DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.SubscribedFailed};
              DELETE FROM {TestConfig.DefaultSchema}.{TestConfig.SubscribedCompleted};
          """;
-        _connection.Connection.Execute(statement, null, transaction.Transaction);
-        transaction.Commit();
+        await _connection.Connection.ExecuteAsync(statement, null, transaction.Transaction);
+        await transaction.CommitAsync();
     }
 
-    public void CloseConnections()
-    {
-        _connection.Close();
-    }
+    public Task CloseConnections() => _connection.CloseAsync();
 
-    public long CountRowsInTable(TableName tableName)
+    public async Task<long> CountRowsInTable(TableName tableName)
     {
         string statement = $"SELECT COUNT(*) FROM {TestConfig.DefaultSchema}.{tableName}";
-        using var cmd = new NpgsqlCommand(statement, _connection.Connection, null);
-        return (long)(cmd.ExecuteScalar() ?? throw new ApplicationException("Scalar not returned."));
+        await using var cmd = new NpgsqlCommand(statement, _connection.Connection, null);
+        return (long)(await cmd.ExecuteScalarAsync())!;
     }
 
     public DataSet GetTableContent(TableName tableName)
@@ -65,13 +63,13 @@ public class PostgreSqlTestDataAccess(
         return result;
     }
 
-    public List<T> GetTableContent<T>(TableName tableName) where T : class
+    public async Task<List<T>> GetTableContent<T>(TableName tableName) where T : class
     {
         string statement = $"SELECT * FROM {TestConfig.DefaultSchema}.{tableName}";
-        return _connection.Connection.Query<T>(statement).ToList();
+        return (await _connection.Connection.QueryAsync<T>(statement)).ToList();
     }
 
-    public void InsertQueueCompleted(QueueData data)
+    public Task InsertQueueCompleted(QueueData data)
     {
         var statement =
             """
@@ -81,10 +79,10 @@ public class PostgreSqlTestDataAccess(
             (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
             """;
         statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
-        _connection.Connection.Execute(statement, data);
+        return _connection.Connection.ExecuteAsync(statement, data);
     }
     
-    public void InsertQueueFailed(QueueData data)
+    public Task InsertQueueFailed(QueueData data)
     {
         var statement =
             """
@@ -94,10 +92,10 @@ public class PostgreSqlTestDataAccess(
             (@Id, @MessageId, @Priority, @NotBefore, @Enqueued, @Completed, @Failed, @Retries, @Headers, @Body)
             """;
         statement = string.Format(statement, TestConfig.DefaultSchema, TestConfig.DefaultQueue);
-        _connection.Connection.Execute(statement, data);
+        return _connection.Connection.ExecuteAsync(statement, data);
     }
 
-    public void InsertSubscribedPending(SubscribedData data)
+    public async Task InsertSubscribedPending(SubscribedData data)
     {
         const string enqueueMessageStatement =
             """
@@ -109,10 +107,10 @@ public class PostgreSqlTestDataAccess(
             """;
         ArgumentNullException.ThrowIfNull(data);
         string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
-        data.Id = _connection.Connection.QueryFirst<Identity>(statement, data);
+        data.Id = await _connection.Connection.QueryFirstAsync<Identity>(statement, data);
     }
     
-    public void InsertSubscribedCompleted(SubscribedData data)
+    public Task InsertSubscribedCompleted(SubscribedData data)
     {
         const string enqueueMessageStatement =
             """
@@ -125,10 +123,10 @@ public class PostgreSqlTestDataAccess(
             """;
         ArgumentNullException.ThrowIfNull(data);
         string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
-        _connection.Connection.Execute(statement, data);
+        return _connection.Connection.ExecuteAsync(statement, data);
     }
     
-    public void InsertSubscribedFailed(SubscribedData data)
+    public Task InsertSubscribedFailed(SubscribedData data)
     {
         const string enqueueMessageStatement =
             """
@@ -141,7 +139,7 @@ public class PostgreSqlTestDataAccess(
             """;
         ArgumentNullException.ThrowIfNull(data);
         string statement = string.Format(enqueueMessageStatement, TestConfig.DefaultSchema);
-        _connection.Connection.Execute(statement, data);
+        return _connection.Connection.ExecuteAsync(statement, data);
     }
 
     public ILockedRows<T> LockRows<T>(TableName tableName, int count) => 

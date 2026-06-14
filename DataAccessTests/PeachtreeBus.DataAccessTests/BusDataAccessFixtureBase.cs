@@ -1,12 +1,13 @@
+using System.Threading.Tasks;
 using PeachtreeBus.Data;
 
 namespace PeachtreeBus.DataAccessTests;
 
 public abstract class BusDataAccessFixtureBase : DataAccessFixtureBase<IBusDataAccess>
 {
-    public override void Initialize()
+    public override async Task Initialize()
     {
-        base.Initialize();
+        await base.Initialize();
         BusDataAccess.Reconnect();
     }
 }

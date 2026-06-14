@@ -11,9 +11,9 @@ public abstract class ManagementDataAccessFixtureBase : DataAccessFixtureBase<IM
 {
     protected IBusDataAccess BusAccess { get; private set; } = null!;
     
-    public override void Initialize()
+    public override async Task Initialize()
     {
-        base.Initialize();
+        await base.Initialize();
         BusAccess = Scope.ServiceProvider.GetRequiredService<IBusDataAccess>();
     }
 

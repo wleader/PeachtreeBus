@@ -9,10 +9,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class EstimateQueuePendingFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
     private Task Given_MessageInQueue() =>
         BusDataAccess.AddMessage(
@@ -24,7 +24,7 @@ public abstract class EstimateQueuePendingFixture : BusDataAccessFixtureBase
     [TestMethod]
     public async Task Given_NoMessagesInQueue_When_Estimate_ResultIsZero()
     {
-        TestDataAccess.Then_TableIsEmpty(TestConfig.QueuePending);
+        await TestDataAccess.Then_TableIsEmpty(TestConfig.QueuePending);
         Assert.AreEqual(0, await BusDataAccess.EstimateQueuePending(TestConfig.DefaultQueue));
     }
 

@@ -8,23 +8,23 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class QueueAddMessageFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
     
     [TestMethod]
     public async Task AddMessage_StoresTheMessage()
     {
         var newMessage = TestData.CreateQueueData();
 
-        Assert.AreEqual(0, TestDataAccess.CountRowsInTable(TestConfig.QueuePending));
+        Assert.AreEqual(0, await TestDataAccess.CountRowsInTable(TestConfig.QueuePending));
 
         newMessage.Id = await BusDataAccess.AddMessage(newMessage, TestConfig.DefaultQueue);
 
         Assert.IsTrue(newMessage.Id.Value > 0);
 
-        var messages = TestDataAccess.GetTableContent<QueueData>(TestConfig.QueuePending);
+        var messages = await TestDataAccess.GetTableContent<QueueData>(TestConfig.QueuePending);
         Assert.AreEqual(1, messages.Count);
 
         DataAssert.AreEqual(newMessage, messages[0]);

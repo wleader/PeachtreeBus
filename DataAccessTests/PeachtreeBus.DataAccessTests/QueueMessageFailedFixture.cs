@@ -10,10 +10,10 @@ namespace PeachtreeBus.DataAccessTests;
 public abstract class QueueMessageFailedFixture : BusDataAccessFixtureBase
 {
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
 
     /// <summary>
@@ -38,7 +38,7 @@ public abstract class QueueMessageFailedFixture : BusDataAccessFixtureBase
         await Task.Delay(10); // wait for the rows to be ready
 
         // Check that it ended up in the error table.
-        var failed = TestDataAccess.GetQueuedFailed();
+        var failed = await TestDataAccess.GetQueuedFailed();
         Assert.AreEqual(1, failed.Count);
         DataAssert.AreEqual(messageToFail, failed[0]);
     }
@@ -63,7 +63,7 @@ public abstract class QueueMessageFailedFixture : BusDataAccessFixtureBase
         await BusDataAccess.FailMessage(messageToFail, TestConfig.DefaultQueue);
         await Task.Delay(10); // wait for the rows to be ready
 
-        var pending = TestDataAccess.GetQueuedPending();
+        var pending = await TestDataAccess.GetQueuedPending();
         Assert.AreEqual(1, pending.Count);
         Assert.IsFalse(pending.Any(m => m.Id == messageToFail.Id), "Failed message is still in the pending table.");
     }
@@ -93,7 +93,7 @@ public abstract class QueueMessageFailedFixture : BusDataAccessFixtureBase
         await Task.Delay(10); // wait for the rows to be ready
 
         // Check that it ended up in the completed table.
-        var failed = TestDataAccess.GetQueuedFailed();
+        var failed = await TestDataAccess.GetQueuedFailed();
         Assert.AreEqual(1, failed.Count);
         var actual = failed.Single(m => m.Id == testMessage1.Id);
 

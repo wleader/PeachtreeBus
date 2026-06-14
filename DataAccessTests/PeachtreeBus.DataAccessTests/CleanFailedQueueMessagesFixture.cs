@@ -10,14 +10,14 @@ public abstract class CleanQueueFailedFixture : BusDataAccessFixtureBase
     private long _lastId = 1000;
 
     [TestInitialize]
-    public override void Initialize() => base.Initialize();
+    public override Task Initialize() => base.Initialize();
 
     [TestCleanup]
-    public override void Cleanup() => base.Cleanup();
+    public override Task Cleanup() => base.Cleanup();
 
-    private void Given_FailedMessage(DateTime failed)
+    private Task Given_FailedMessage(DateTime failed)
     {
-        TestDataAccess.InsertQueueFailed(new()
+        return TestDataAccess.InsertQueueFailed(new()
         {
             Id = new(_lastId++),
             MessageId = UniqueIdentity.New(),
@@ -32,7 +32,7 @@ public abstract class CleanQueueFailedFixture : BusDataAccessFixtureBase
         });
     }
 
-    private void Given_CountFailedMessage(int count, DateTime failed) =>
+    private Task Given_CountFailedMessage(int count, DateTime failed) =>
         Repeat(()=> Given_FailedMessage(failed), count);
 
     [TestMethod]
@@ -41,22 +41,22 @@ public abstract class CleanQueueFailedFixture : BusDataAccessFixtureBase
     public async Task Given_CountMessages_When_CleanQueueFailed_Then_TableHasCount(
         int messageCount, int cleanCount, int remaining)
     {
-        Given_CountFailedMessage(messageCount, DateTime.UtcNow.AddDays(-1));
+        await Given_CountFailedMessage(messageCount, DateTime.UtcNow.AddDays(-1));
         var olderThan = DateTime.UtcNow;
         var deletedCount = await BusDataAccess.CleanQueueFailed(TestConfig.DefaultQueue, olderThan, cleanCount);
         Assert.AreEqual(cleanCount, deletedCount);
-        TestDataAccess.Then_TableHasCount(TestConfig.QueueFailed,remaining);
+        await TestDataAccess.Then_TableHasCount(TestConfig.QueueFailed,remaining);
     }
 
     [TestMethod]
     public async Task Given_RecentMessages_When_CleanQueueFailed_Then_RecentNotDeleted()
     {
-        Given_CountFailedMessage(10, DateTime.UtcNow);
+        await Given_CountFailedMessage(10, DateTime.UtcNow);
         var olderThan = DateTime.UtcNow.AddMinutes(-5);
 
         var deletedCount = await BusDataAccess.CleanQueueFailed(TestConfig.DefaultQueue, olderThan, 10);
         Assert.AreEqual(0, deletedCount);
-        TestDataAccess.Then_TableHasCount(TestConfig.QueueFailed, 10);
+        await TestDataAccess.Then_TableHasCount(TestConfig.QueueFailed, 10);
     }
 
     /// <summary>
@@ -66,12 +66,12 @@ public abstract class CleanQueueFailedFixture : BusDataAccessFixtureBase
     [TestMethod]
     public async Task CleanQueueFailed_HandlesMix()
     {
-        Given_CountFailedMessage(3, DateTime.UtcNow.AddDays(-1));
-        Given_CountFailedMessage(7, DateTime.UtcNow);
+        await Given_CountFailedMessage(3, DateTime.UtcNow.AddDays(-1));
+        await Given_CountFailedMessage(7, DateTime.UtcNow);
         var olderThan = DateTime.UtcNow.AddMinutes(-5);
 
         var deletedCount = await BusDataAccess.CleanQueueFailed(TestConfig.DefaultQueue, olderThan, 10);
         Assert.AreEqual(3, deletedCount);
-        TestDataAccess.Then_TableHasCount(TestConfig.QueueFailed, 7);
+        await TestDataAccess.Then_TableHasCount(TestConfig.QueueFailed, 7);
     }
 }
