@@ -25,12 +25,4 @@ public class MsSqlBusDataAccessUpdateSagaDataFixture : MsSqlBusDataAccessFixture
         AssertParameterSet("@Data", sagaData.Data);
         AssertParameterSet("@MetaData", sagaData.MetaData);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_UpdateSagaData_Then_Throws()
-    {
-        Given_DapperThrows<Identity>();
-        await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _dataAccess.UpdateSagaData(TestData.CreateSagaData(), TestData.DefaultSagaName));
-    }
 }

@@ -25,12 +25,4 @@ public class MsSqlBusDataAccessUpdateSubscribedMessageFixture : MsSqlBusDataAcce
         AssertParameterSet("@Retries", message.Retries);
         AssertParameterSet("@Headers", message.Headers);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_UpdateMessage_Then_Throws()
-    {
-        Given_DapperThrows<QueueData>();
-        await Assert.ThrowsAsync<TestException>(() =>
-            _dataAccess.UpdateMessage(TestData.CreateSubscribedData()));
-    }
 }

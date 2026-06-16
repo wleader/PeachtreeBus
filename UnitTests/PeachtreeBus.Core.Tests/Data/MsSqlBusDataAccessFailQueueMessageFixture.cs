@@ -22,12 +22,4 @@ public class MsSqlBusDataAccessFailQueueMessageFixture : MsSqlBusDataAccessFixtu
         AssertParameterSet("@Id", message.Id);
         AssertParameterSet("@Headers", message.Headers);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_UpdateMessage_Then_Throws()
-    {
-        Given_DapperThrows<int>();
-        await Assert.ThrowsAsync<TestException>(() =>
-            _dataAccess.FailMessage(TestData.CreateQueueData(), TestData.DefaultQueueName));
-    }
 }

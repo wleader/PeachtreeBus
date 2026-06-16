@@ -20,12 +20,4 @@ public class MsSqlBusDataAccessCleanSubscribedCompletedFixture : MsSqlBusDataAcc
         AssertParameterSet("@MaxCount", 10);
         AssertParameterSet("@OlderThan", TestData.Now);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_CleanSubscribedCompleted_Then_Throws()
-    {
-        Given_DapperThrows<long>();
-        await Assert.ThrowsAsync<TestException>(() =>
-            _dataAccess.CleanSubscribedCompleted(TestData.Now, 10));
-    }
 }

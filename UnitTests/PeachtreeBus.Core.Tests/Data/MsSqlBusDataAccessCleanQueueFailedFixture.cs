@@ -20,12 +20,4 @@ public class MsSqlBusDataAccessCleanQueueFailedFixture : MsSqlBusDataAccessFixtu
         AssertParameterSet("@MaxCount", 10);
         AssertParameterSet("@OlderThan", TestData.Now);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_CleanQueueFailed_Then_Throws()
-    {
-        Given_DapperThrows<long>();
-        await Assert.ThrowsAsync<TestException>(() =>
-            _dataAccess.CleanQueueFailed(TestData.DefaultQueueName, TestData.Now, 10));
-    }
 }

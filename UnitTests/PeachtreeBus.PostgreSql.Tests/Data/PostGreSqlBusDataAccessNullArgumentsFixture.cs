@@ -18,12 +18,10 @@ public sealed class PostGreSqlBusDataAccessNullArgumentsFixture
     private readonly Mock<IDapperMethods> _dapper = new();
     private readonly FakeBreakerProvider _breakerProvider = new();
     
-    protected override PostgreSqlBusDataAccess CreateDataAccess()
-    {
-        return new(_log.Object,
+    protected override PostgreSqlBusDataAccess CreateDataAccess() =>
+        new(_log.Object,
             _dapper.Object,
             _configuration.Object,
             _sharedDb.Object,
             _breakerProvider);
-    }
 }

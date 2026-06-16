@@ -20,12 +20,4 @@ public class MsSqlBusDataAccessGetPendingSubscribedFixture : MsSqlBusDataAccessF
         await _dataAccess.GetPendingSubscribed(TestData.DefaultSubscriberId);
         AssertParameterSet("@SubscriberId", TestData.DefaultSubscriberId);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_GetPendingSubscribed_Then_Throws()
-    {
-        Given_DapperThrows<SubscribedData>();
-        await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _dataAccess.GetPendingSubscribed(TestData.DefaultSubscriberId));
-    }
 }

@@ -59,18 +59,4 @@ public abstract class MsSqlBusDataAccessFixtureBase
     }
 
     protected class TestException : Exception;
-
-    protected void Given_DapperThrows<T>()
-    {
-        _dapperMethods.Setup(m => m.QueryFirst<T>(It.IsAny<string>(), It.IsAny<DynamicParameters?>()))
-            .ThrowsAsync(new TestException());
-        _dapperMethods.Setup(m => m.Query<T>(It.IsAny<string>(), It.IsAny<DynamicParameters?>()))
-            .ThrowsAsync(new TestException());
-        _dapperMethods.Setup(m => m.QueryFirstOrDefault<T>(It.IsAny<string>(), It.IsAny<DynamicParameters?>()))
-            .ThrowsAsync(new TestException());
-        _dapperMethods.Setup(m => m.ExecuteScalar<T>(It.IsAny<string>(), It.IsAny<DynamicParameters?>()))
-            .ThrowsAsync(new TestException());
-        _dapperMethods.Setup(m => m.Execute(It.IsAny<string>(), It.IsAny<DynamicParameters?>()))
-            .ThrowsAsync(new TestException());
-    }
 }

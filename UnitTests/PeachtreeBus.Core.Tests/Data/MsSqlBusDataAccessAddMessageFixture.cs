@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.Data;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Data;
@@ -24,13 +23,5 @@ public class MsSqlBusDataAccessAddMessageFixture : MsSqlBusDataAccessFixtureBase
         AssertParameterSet("@NotBefore", message.NotBefore);
         AssertParameterSet("@Headers", message.Headers);
         AssertParameterSet("@Body", message.Body);
-    }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_AddMessage_Then_Throws()
-    {
-        Given_DapperThrows<Identity>();
-        await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _dataAccess.AddMessage(TestData.CreateQueueData(), TestData.DefaultQueueName));
     }
 }

@@ -6,85 +6,76 @@ using PeachtreeBus.Data;
 namespace PeachtreeBus.Core.Tests.Data;
 
 public abstract class BusDataAccessNullArgumentsFixtureBase<TBusDataAccess>
+    : BusDataAccessUnitTestBase<TBusDataAccess>
     where TBusDataAccess : IBusDataAccess
 {
-    private TBusDataAccess _dataAccess = default!;
-    
-    [TestInitialize]
-    public void Initialize()
-    {
-        _dataAccess = CreateDataAccess();
-    }
-
-    protected abstract TBusDataAccess CreateDataAccess();
-    
     [TestMethod]
     public async Task Given_NullSagaData_When_Update_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.UpdateSagaData(null!, TestData.DefaultSagaName));
+            DataAccess.UpdateSagaData(null!, TestData.DefaultSagaName));
     }
 
     [TestMethod]
     public async Task Given_NullSubscribedMessage_When_FailMessage_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.FailMessage(null!));
+            DataAccess.FailMessage(null!));
     }
 
     [TestMethod]
     public async Task Given_NullQueueMessage_When_FailMessage_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.FailMessage(null!, TestData.DefaultQueueName));
+            DataAccess.FailMessage(null!, TestData.DefaultQueueName));
     }
 
     [TestMethod]
     public async Task Given_NullSubscribedMessage_When_CompleteMessage_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.CompleteMessage(null!));
+            DataAccess.CompleteMessage(null!));
     }
 
     [TestMethod]
     public async Task Given_NullQueueMessage_When_CompletedMessage_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.CompleteMessage(null!, TestData.DefaultQueueName));
+            DataAccess.CompleteMessage(null!, TestData.DefaultQueueName));
     }
 
     [TestMethod]
     public async Task Given_NullSagaData_When_InsertSagaData_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.InsertSagaData(null!, TestData.DefaultSagaName));
+            DataAccess.InsertSagaData(null!, TestData.DefaultSagaName));
     }
 
     [TestMethod]
     public async Task Given_NullQueueMessage_When_Update_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.UpdateMessage(null!, TestData.DefaultQueueName));
+            DataAccess.UpdateMessage(null!, TestData.DefaultQueueName));
     }
 
     [TestMethod]
     public async Task Given_NullSubscribedMessage_When_Update_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.UpdateMessage(null!));
+            DataAccess.UpdateMessage(null!));
     }
 
     [TestMethod]
     public async Task Given_NullQueueMessage_When_AddMessage_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.AddMessage(null!, TestData.DefaultQueueName));
+            DataAccess.AddMessage(null!, TestData.DefaultQueueName));
     }
 
     [TestMethod]
     public async Task Given_NullMessage_When_Publish_Then_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.Publish(null!, TestData.DefaultTopic));
+            DataAccess.Publish(null!, TestData.DefaultTopic));
     }
 }

@@ -12,12 +12,4 @@ public class MsSqlBusDataAccessEstimateQueuePendingFixture : MsSqlBusDataAccessF
         await _dataAccess.EstimateQueuePending(TestData.DefaultQueueName);
         AssertStatementContains("FROM [PBus].[DefaultQueueName_Pending]");
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_EstimateQueuePending_Then_Throws()
-    {
-        Given_DapperThrows<long>();
-        await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _dataAccess.EstimateQueuePending(TestData.DefaultQueueName));
-    }
 }

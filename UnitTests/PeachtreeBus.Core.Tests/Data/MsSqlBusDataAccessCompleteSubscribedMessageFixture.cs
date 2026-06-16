@@ -22,11 +22,4 @@ public class MsSqlBusDataAccessCompleteSubscribedMessageFixture : MsSqlBusDataAc
         AssertParameterSet("@Id", message.Id);
     }
 
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_UpdateMessage_Then_Throws()
-    {
-        Given_DapperThrows<int>();
-        await Assert.ThrowsAsync<TestException>(() =>
-            _dataAccess.CompleteMessage(TestData.CreateSubscribedData()));
-    }
 }

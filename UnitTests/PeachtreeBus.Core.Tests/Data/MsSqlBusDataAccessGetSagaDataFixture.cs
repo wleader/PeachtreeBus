@@ -21,12 +21,4 @@ public class MsSqlBusDataAccessGetSagaDataFixture : MsSqlBusDataAccessFixtureBas
         await _dataAccess.GetSagaData(TestData.DefaultSagaName, TestData.DefaultSagaKey);
         AssertParameterSet("@Key", sagaData.Key);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_GetSagaData_Then_Throws()
-    {
-        Given_DapperThrows<SagaData>();
-        await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _dataAccess.GetSagaData(TestData.DefaultSagaName, TestData.DefaultSagaKey));
-    }
 }

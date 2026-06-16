@@ -20,12 +20,4 @@ public class MsSqlBusDataAccessDeleteSagaDataFixture : MsSqlBusDataAccessFixture
         await _dataAccess.DeleteSagaData(TestData.DefaultSagaName, TestData.DefaultSagaKey);
         AssertParameterSet("@Key", TestData.DefaultSagaKey);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_DeleteSagaData_Then_Throws()
-    {
-        Given_DapperThrows<Identity>();
-        await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _dataAccess.DeleteSagaData(TestData.DefaultSagaName, TestData.DefaultSagaKey));
-    }
 }

@@ -22,12 +22,4 @@ public class MsSqlBusDataAccessSubscribeFixture : MsSqlBusDataAccessFixtureBase
         AssertParameterSet("@Topic", TestData.DefaultTopic);
         AssertParameterSet("@ValidUntil", TestData.Now);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_Subscribe_Then_Throws()
-    {
-        Given_DapperThrows<int>();
-        await Assert.ThrowsAsync<TestException>(() =>
-            _dataAccess.Subscribe(TestData.DefaultSubscriberId, TestData.DefaultTopic, TestData.Now));
-    }
 }

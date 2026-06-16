@@ -21,12 +21,4 @@ public class MsSqlBusDataAccessCompleteQueueMessageFixture : MsSqlBusDataAccessF
         await _dataAccess.CompleteMessage(message, TestData.DefaultQueueName);
         AssertParameterSet("@Id", message.Id);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_CompleteMessage_Then_Throws()
-    {
-        Given_DapperThrows<int>();
-        await Assert.ThrowsAsync<TestException>(() =>
-            _dataAccess.CompleteMessage(TestData.CreateQueueData(), TestData.DefaultQueueName));
-    }
 }

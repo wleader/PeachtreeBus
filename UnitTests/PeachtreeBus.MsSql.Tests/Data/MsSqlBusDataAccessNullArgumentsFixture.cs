@@ -18,13 +18,11 @@ public sealed class MsSqlBusDataAccessNullArgumentsFixture
     private readonly Mock<IDapperMethods> _dapper = new();
     private readonly FakeBreakerProvider _breakerProvider = new();
 
-    protected override MsSqlBusDataAccess CreateDataAccess()
-    {
-        return new(
+    protected override MsSqlBusDataAccess CreateDataAccess() =>
+        new(
             _sharedDb.Object,
             _configuration.Object,
             _log.Object,
             _dapper.Object,
             _breakerProvider);
-    }
 }

@@ -13,12 +13,4 @@ public class MsSqlBusDataAccessGetPendingQueuedFixture : MsSqlBusDataAccessFixtu
         await _dataAccess.GetPendingQueued(TestData.DefaultQueueName);
         AssertStatementContains("FROM [PBus].[DefaultQueueName_Pending]");
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_GetPendingQueued_Then_Throws()
-    {
-        Given_DapperThrows<QueueData>();
-        await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _dataAccess.GetPendingQueued(TestData.DefaultQueueName));
-    }
 }

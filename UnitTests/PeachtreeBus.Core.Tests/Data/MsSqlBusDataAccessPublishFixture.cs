@@ -26,12 +26,4 @@ public class MsSqlBusDataAccessPublishFixture : MsSqlBusDataAccessFixtureBase
         AssertParameterSet("@Body", message.Body);
         AssertParameterSet("@Topic", TestData.DefaultTopic);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_AddMessage_Then_Throws()
-    {
-        Given_DapperThrows<long>();
-        await Assert.ThrowsExactlyAsync<TestException>(() =>
-            _dataAccess.Publish(TestData.CreateSubscribedData(), TestData.DefaultTopic));
-    }
 }

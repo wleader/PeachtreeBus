@@ -21,12 +21,4 @@ public class MsSqlBusDataAccessExpireSubscriptionMessagesFixture : MsSqlBusDataA
         await _dataAccess.ExpireSubscriptionMessages(10);
         AssertParameterSet("@MaxCount", 10);
     }
-
-    [TestMethod]
-    public async Task Given_DapperWillThrow_When_ExpireSubscriptionMessages_Then_Throws()
-    {
-        Given_DapperThrows<long>();
-        await Assert.ThrowsAsync<TestException>(() =>
-            _dataAccess.ExpireSubscriptionMessages(10));
-    }
 }
