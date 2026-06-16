@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
-using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.DatabaseTesting;
 using PeachtreeBus.DatabaseTesting.MsSql;
 
-namespace PeachtreeBus.DataAccessTests;
+namespace PeachtreeBus.DatabaseSharing.MsSql.Tests;
 
 [TestClass]
 public static class AssemblyInitialize
@@ -21,6 +20,7 @@ public static class AssemblyInitialize
             c.AddSingleton<IDatabaseManagement, DatabaseManagement>();
             c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
+            c.AddScoped<MsSqlSharedDatabase>();
         });
         
         var initializer =  TestServices.GetService<IInitializeTestDatabase>();

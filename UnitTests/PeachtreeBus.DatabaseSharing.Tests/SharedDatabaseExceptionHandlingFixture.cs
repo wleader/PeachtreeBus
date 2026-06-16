@@ -8,7 +8,7 @@ namespace PeachtreeBus.DatabaseSharing.Tests;
 [TestClass]
 public class SharedDatabaseExceptionHandlingFixture
 {
-    private SharedDatabase _db = null!;
+    private MsSqlSharedDatabase _db = null!;
     private Mock<ISqlConnectionFactory> _connectionFactory = null!;
     private Mock<ISqlConnection> _connection = null!;
     private Mock<ISqlTransaction> _transaction = null!;

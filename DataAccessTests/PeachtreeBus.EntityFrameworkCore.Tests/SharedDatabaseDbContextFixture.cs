@@ -11,30 +11,30 @@ using PeachtreeBus.DatabaseTesting.MsSql;
 namespace PeachtreeBus.EntityFrameworkCore.Tests;
 
 [TestClass]
-public class SharedDatabaseDbContext_Fixture
+public class SharedDatabaseDbContextFixture
 {
-    private SharedDatabase _sharedDatabase = default!;
-    private Mock<ISqlConnectionFactory> _connectionFactory = default!;
+    private MsSqlSharedDatabase _msSqlSharedDatabase = null!;
+    private Mock<ISqlConnectionFactory> _connectionFactory = null!;
 
-    private IMsSqlTestSettings TestSettings = null!;
+    private IMsSqlTestSettings _testSettings = null!;
     
     [TestInitialize]
     public void TestInitialize()
     {
-        TestSettings = TestServices.GetService<IMsSqlTestSettings>();
+        _testSettings = TestServices.GetService<IMsSqlTestSettings>();
         
         _connectionFactory = new();
         _connectionFactory.Setup(c => c.GetConnection())
-            .Returns(() => new SqlConnectionProxy(new(TestSettings.TestDatabase.Value)));
+            .Returns(() => new SqlConnectionProxy(new(_testSettings.TestDatabase.Value)));
 
-        _sharedDatabase = new SharedDatabase(_connectionFactory.Object);
+        _msSqlSharedDatabase = new MsSqlSharedDatabase(_connectionFactory.Object);
 
         CleanupData();
     }
 
     private void CleanupData()
     {
-        using var connection = new SqlConnection(TestSettings.TestDatabase.Value);
+        using var connection = new SqlConnection(_testSettings.TestDatabase.Value);
         connection.Open();
         using var command = new SqlCommand(
             """
@@ -46,13 +46,13 @@ public class SharedDatabaseDbContext_Fixture
     [TestCleanup]
     public void TestCleanup()
     {
-        _sharedDatabase.Dispose();
+        _msSqlSharedDatabase.Dispose();
     }
 
     [TestMethod]
     public void Then_ContextIsDisposable()
     {
-        var context = new TestableContext(_sharedDatabase);
+        var context = new TestableContext(_msSqlSharedDatabase);
         context.Dispose();
         Assert.IsTrue(context.Disposed);
     }
@@ -60,25 +60,25 @@ public class SharedDatabaseDbContext_Fixture
     [TestMethod]
     public void When_UseContext_Then_ConnectionIsOpened()
     {
-        Assert.AreNotEqual(ConnectionState.Open, _sharedDatabase.Connection.State);
-        var context = new TestableContext(_sharedDatabase);
+        Assert.AreNotEqual(ConnectionState.Open, _msSqlSharedDatabase.Connection.State);
+        var context = new TestableContext(_msSqlSharedDatabase);
         Assert.IsFalse(context.AuditLogs.Any());
-        Assert.AreEqual(ConnectionState.Open, _sharedDatabase.Connection.State);
+        Assert.AreEqual(ConnectionState.Open, _msSqlSharedDatabase.Connection.State);
     }
 
     [TestMethod]
     public void Give_SharedDbHasTransaction_When_CreateContext_Then_TransactionIsEnlisted()
     {
         // start with  transaction before the context is created
-        _sharedDatabase.BeginTransaction();
-        using (var context = new TestableContext(_sharedDatabase))
+        _msSqlSharedDatabase.BeginTransaction();
+        using (var context = new TestableContext(_msSqlSharedDatabase))
         {
             context.AuditLogs.Add(new() { Occured = DateTime.UtcNow, Message = "TestMessage" });
             context.SaveChanges();
-            _sharedDatabase.RollbackTransaction();
+            _msSqlSharedDatabase.RollbackTransaction();
         }
 
-        using (var context = new TestableContext(_sharedDatabase))
+        using (var context = new TestableContext(_msSqlSharedDatabase))
         {
             Assert.IsFalse(context.AuditLogs.Any());
         }
@@ -88,15 +88,15 @@ public class SharedDatabaseDbContext_Fixture
     public void Given_Context_When_SharedDbBeginsTransaction_Then_TransactionIsEnlisted()
     {
         // create the context, then start the transaction.
-        using (var context = new TestableContext(_sharedDatabase))
+        using (var context = new TestableContext(_msSqlSharedDatabase))
         {
-            _sharedDatabase.BeginTransaction();
+            _msSqlSharedDatabase.BeginTransaction();
             context.AuditLogs.Add(new() { Occured = DateTime.UtcNow, Message = "TestMessage" });
             context.SaveChanges();
-            _sharedDatabase.RollbackTransaction();
+            _msSqlSharedDatabase.RollbackTransaction();
         }
 
-        using (var context = new TestableContext(_sharedDatabase))
+        using (var context = new TestableContext(_msSqlSharedDatabase))
         {
             Assert.IsFalse(context.AuditLogs.Any());
         }

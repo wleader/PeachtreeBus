@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
 using System.Data.Common;
 using System.Diagnostics;
 
@@ -17,9 +16,7 @@ namespace PeachtreeBus.DatabaseSharing
     /// dependency Injection container. This allows all the classes that interact with the database within the same message 
     /// handling scope to use the same connection and transaction.
     /// </remarks>
-    public interface ISqlSharedDatabase : IBaseSharedDatabase<SqlConnection, SqlTransaction>, IDisposable
-    {
-    }
+    public interface ISqlSharedDatabase : IBaseSharedDatabase<SqlConnection, SqlTransaction>;
 
     /// <summary>
     /// A class that manages sharing a transaction between Data Access code
@@ -27,7 +24,7 @@ namespace PeachtreeBus.DatabaseSharing
     /// share the same DB transaction.
     /// </summary>
     [DebuggerDisplay("SharedDatabase [{InstanceId}]")]
-    public class SharedDatabase(ISqlConnectionFactory connectionFactory)
+    public class MsSqlSharedDatabase(ISqlConnectionFactory connectionFactory)
         : BaseSharedDatabase<SqlConnection, ISqlConnection, SqlTransaction, ISqlTransaction>(connectionFactory),
             ISqlSharedDatabase
     {

@@ -26,14 +26,6 @@
         <ProjectReference Include="..\PeachtreeBus.DatabaseTesting.MsSql\PeachtreeBus.DatabaseTesting.MsSql.csproj" />
         <ProjectReference Include="..\PeachtreeBus.DatabaseTesting\PeachtreeBus.DatabaseTesting.csproj" />
     </ItemGroup>
-    <ItemGroup>
-        <None Update="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="appsettings.user.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
     <PropertyGroup>
         <SsdtUnitTestVersion>3.1</SsdtUnitTestVersion>
     </PropertyGroup>

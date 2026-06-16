@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MSTest"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+      <ProjectReference Include="..\PeachtreeBus.DatabaseTesting.PostgreSql\PeachtreeBus.DatabaseTesting.PostgreSql.csproj" />
+      <ProjectReference Include="..\PeachtreeBus.DatabaseTesting\PeachtreeBus.DatabaseTesting.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="appsettings.user.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+</Project>

@@ -22,19 +22,14 @@ namespace PeachtreeBus.Data;
 /// <param name="database">A Shared Database connection.</param>
 /// <param name="configuration">Configures which DB Schema to find all the tables in.</param>
 public class MsSqlBusDataAccess(
-    ISqlSharedDatabase database,
+    ISharedDatabase database,
     IBusConfiguration configuration,
     ILogger<MsSqlBusDataAccess> log,
     IDapperMethods dapper,
     ICircuitBreakerProvider breakerProvider)
     : IBusDataAccess
 {
-    private readonly ISharedDatabase _database = database;
-    private readonly ILogger<MsSqlBusDataAccess> _log = log;
-    private readonly IBusConfiguration _configuration = configuration;
-
-    private ICircuitBreaker? _breaker;
-    private ICircuitBreaker Breaker => _breaker ??= breakerProvider.GetBreaker(breakerProvider.BusDataConnectionKey);
+    private ICircuitBreaker Breaker => field ??= breakerProvider.GetBreaker(breakerProvider.BusDataConnectionKey);
 
     /// <summary>
     /// Adds a queue message to the queue's pending table.
@@ -58,7 +53,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        string statement = string.Format(enqueueMessageStatement, _configuration.Schema, queueName);
+        string statement = string.Format(enqueueMessageStatement, configuration.Schema, queueName);
 
         var p = new DynamicParameters();
         p.Add("@MessageId", message.MessageId);
@@ -92,7 +87,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        var query = string.Format(getOnePendingMessageStatement, _configuration.Schema, queueName);
+        var query = string.Format(getOnePendingMessageStatement, configuration.Schema, queueName);
 
         return await LogIfError(dapper.QueryFirstOrDefault<QueueData>(query));
     }
@@ -115,7 +110,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        var query = string.Format(estimateQueuedStatement, _configuration.Schema, queueName);
+        var query = string.Format(estimateQueuedStatement, configuration.Schema, queueName);
 
         return await LogIfError(dapper.ExecuteScalar<long>(query));
     }
@@ -143,7 +138,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        string statement = string.Format(completeMessageStatement, _configuration.Schema, queueName);
+        string statement = string.Format(completeMessageStatement, configuration.Schema, queueName);
 
         var p = new DynamicParameters();
         p.Add("@Id", message.Id);
@@ -174,7 +169,7 @@ public class MsSqlBusDataAccess(
 
         ArgumentNullException.ThrowIfNull(message);
 
-        string statement = string.Format(failMessageStatement, _configuration.Schema, queueName);
+        string statement = string.Format(failMessageStatement, configuration.Schema, queueName);
 
         var p = new DynamicParameters();
         p.Add("@Id", message.Id);
@@ -205,7 +200,7 @@ public class MsSqlBusDataAccess(
 
         ArgumentNullException.ThrowIfNull(message);
 
-        var statement = string.Format(updateMessageStatement, _configuration.Schema, queueName);
+        var statement = string.Format(updateMessageStatement, configuration.Schema, queueName);
 
         var p = new DynamicParameters();
         p.Add("@Id", message.Id);
@@ -238,7 +233,7 @@ public class MsSqlBusDataAccess(
 
         ArgumentNullException.ThrowIfNull(data);
 
-        string statement = string.Format(insertSagaStatement, _configuration.Schema, sagaName);
+        string statement = string.Format(insertSagaStatement, configuration.Schema, sagaName);
 
         var p = new DynamicParameters();
         p.Add("@SagaId", data.SagaId);
@@ -270,7 +265,7 @@ public class MsSqlBusDataAccess(
 
         ArgumentNullException.ThrowIfNull(data);
 
-        var statement = string.Format(updateSagaStatement, _configuration.Schema, sagaName);
+        var statement = string.Format(updateSagaStatement, configuration.Schema, sagaName);
 
         var p = new DynamicParameters();
         p.Add("@Id", data.Id);
@@ -296,7 +291,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        string statement = string.Format(deleteSagaStatement, _configuration.Schema, sagaName);
+        string statement = string.Format(deleteSagaStatement, configuration.Schema, sagaName);
         var p = new DynamicParameters();
         p.Add("@Key", key);
 
@@ -365,7 +360,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        var query = string.Format(getSagaDataStatement, _configuration.Schema, sagaName);
+        var query = string.Format(getSagaDataStatement, configuration.Schema, sagaName);
 
         var p = new DynamicParameters();
         p.Add("@Key", key);
@@ -388,7 +383,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        string statement = string.Format(expireSubscriptionsStatement, _configuration.Schema);
+        string statement = string.Format(expireSubscriptionsStatement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
@@ -422,7 +417,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        string statement = string.Format(subscribeStatement, _configuration.Schema);
+        string statement = string.Format(subscribeStatement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@SubscriberId", subscriberId);
@@ -456,7 +451,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        var query = string.Format(statement, _configuration.Schema);
+        var query = string.Format(statement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@SubscriberId", subscriberId);
@@ -480,7 +475,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        var query = string.Format(estimateQueuedStatement, _configuration.Schema);
+        var query = string.Format(estimateQueuedStatement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@SubscriberId", subscriberId);
@@ -505,7 +500,7 @@ public class MsSqlBusDataAccess(
 
         ArgumentNullException.ThrowIfNull(message);
 
-        string statement = string.Format(publishStatement, _configuration.Schema);
+        string statement = string.Format(publishStatement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@Priority", message.Priority);
@@ -540,7 +535,7 @@ public class MsSqlBusDataAccess(
 
         ArgumentNullException.ThrowIfNull(message);
 
-        string statement = string.Format(completeStatement, _configuration.Schema);
+        string statement = string.Format(completeStatement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@Id", message.Id);
@@ -570,7 +565,7 @@ public class MsSqlBusDataAccess(
 
         ArgumentNullException.ThrowIfNull(message);
 
-        string statement = string.Format(failMessageStatement, _configuration.Schema);
+        string statement = string.Format(failMessageStatement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@Id", message.Id);
@@ -600,7 +595,7 @@ public class MsSqlBusDataAccess(
 
         ArgumentNullException.ThrowIfNull(message);
 
-        var statement = string.Format(updateMessageStatement, _configuration.Schema);
+        var statement = string.Format(updateMessageStatement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@Id", message.Id);
@@ -632,7 +627,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        var statement = string.Format(expireStatement, _configuration.Schema);
+        var statement = string.Format(expireStatement, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
@@ -658,7 +653,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        string statement = string.Format(statementTemplate, _configuration.Schema);
+        string statement = string.Format(statementTemplate, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
@@ -685,7 +680,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        string statement = string.Format(statementTemplate, _configuration.Schema);
+        string statement = string.Format(statementTemplate, configuration.Schema);
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
@@ -712,7 +707,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        string statement = string.Format(statementTemplate, _configuration.Schema, queueName);
+        string statement = string.Format(statementTemplate, configuration.Schema, queueName);
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
@@ -739,7 +734,7 @@ public class MsSqlBusDataAccess(
 
         using var _ = StartActivity();
 
-        var statement = string.Format(statementTemplate, _configuration.Schema, queueName);
+        var statement = string.Format(statementTemplate, configuration.Schema, queueName);
 
         var p = new DynamicParameters();
         p.Add("@MaxCount", maxCount);
@@ -757,7 +752,7 @@ public class MsSqlBusDataAccess(
         }
         catch (Exception ex)
         {
-            _log.DataAccessError(caller, ex);
+            log.DataAccessError(caller, ex);
             throw;
         }
     }
@@ -776,7 +771,7 @@ public class MsSqlBusDataAccess(
     public void BeginTransaction()
     {
         using var _ = StartActivity();
-        _database.BeginTransaction();
+        database.BeginTransaction();
     }
 
     /// <summary>
@@ -785,7 +780,7 @@ public class MsSqlBusDataAccess(
     public void CommitTransaction()
     {
         using var _ = StartActivity();
-        _database.CommitTransaction();
+        database.CommitTransaction();
     }
 
     /// <summary>
@@ -795,7 +790,7 @@ public class MsSqlBusDataAccess(
     public void CreateSavepoint(string name)
     {
         using var _ = StartActivity();
-        _database.CreateSavepoint(name);
+        database.CreateSavepoint(name);
     }
 
     /// <summary>
@@ -805,7 +800,7 @@ public class MsSqlBusDataAccess(
     public void RollbackToSavepoint(string name)
     {
         using var _ = StartActivity();
-        _database.RollbackToSavepoint(name);
+        database.RollbackToSavepoint(name);
     }
 
     /// <summary>
@@ -814,12 +809,12 @@ public class MsSqlBusDataAccess(
     public void RollbackTransaction()
     {
         using var _ = StartActivity();
-        _database.RollbackTransaction();
+        database.RollbackTransaction();
     }
 
     public void Reconnect()
     {
         using var _ = StartActivity();
-        Breaker.Guard(_database.Reconnect);
+        Breaker.Guard(database.Reconnect);
     }
 }

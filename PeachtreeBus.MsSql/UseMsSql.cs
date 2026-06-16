@@ -9,6 +9,6 @@ public class UseMsSql : IRegisterBusDataAccess
     {
         provider.RegisterScoped<IBusDataAccess, MsSqlBusDataAccess>();
         provider.RegisterScoped<IDapperMethods, DapperMethods>();
-        provider.RegisterScoped<ISqlSharedDatabase, SharedDatabase>();
+        provider.RegisterScoped<ISqlSharedDatabase, MsSqlSharedDatabase>();
     }
 }

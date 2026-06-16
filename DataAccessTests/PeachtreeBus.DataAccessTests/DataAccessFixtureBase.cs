@@ -29,14 +29,6 @@ public abstract class DataAccessFixtureBase<TDataAccessInterface>
         Scope.Dispose();
     }
 
-    protected static void Repeat(Action action, int count)
-    {
-        for (var i = 0; i < count; i++)
-        {
-            action();
-        }
-    }
-
     protected static async Task Repeat(Func<Task> action, int count)
     {
         for (var i = 0; i < count; i++)

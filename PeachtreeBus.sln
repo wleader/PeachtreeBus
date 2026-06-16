@@ -90,9 +90,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseSharin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MsSql", "PeachtreeBus.MsSql\PeachtreeBus.MsSql.csproj", "{274221BB-B9FA-4FCA-8E66-04B38412E725}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MsSql.Tests", "DataAccessTests\PeachtreeBus.MsSql.Tests\PeachtreeBus.MsSql.Tests.csproj", "{9D3C2892-2382-4D96-860B-97EB5B35484C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MsSql.DataAccessTests", "DataAccessTests\PeachtreeBus.MsSql.DataAccessTests\PeachtreeBus.MsSql.DataAccessTests.csproj", "{9D3C2892-2382-4D96-860B-97EB5B35484C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.PostgreSql.Tests", "DataAccessTests\PeachtreeBus.PostgreSql.Tests\PeachtreeBus.PostgreSql.Tests.csproj", "{777EC920-A4F4-4EA6-97D7-CB63A968CB7A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.PostgreSql.DataAccessTests", "DataAccessTests\PeachtreeBus.PostgreSql.DataAccessTests\PeachtreeBus.PostgreSql.DataAccessTests.csproj", "{777EC920-A4F4-4EA6-97D7-CB63A968CB7A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseTesting.MsSql", "DataAccessTests\PeachtreeBus.DatabaseTesting.MsSql\PeachtreeBus.DatabaseTesting.MsSql.csproj", "{99491F0F-22A9-4505-AAD3-4094E11E1896}"
 EndProject
@@ -103,6 +103,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MsSql.Tests", "UnitTests\PeachtreeBus.MsSql.Tests\PeachtreeBus.MsSql.Tests.csproj", "{AEDEA7F4-7990-46C3-A199-D60B197BA3FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.PostgreSql.Tests", "UnitTests\PeachtreeBus.PostgreSql.Tests\PeachtreeBus.PostgreSql.Tests.csproj", "{645A90BD-B4AB-46B1-A028-D1AFDF3F59F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseSharing.PostgreSql.Tests", "DataAccessTests\PeachtreeBus.DatabaseSharing.PostgreSql.Tests\PeachtreeBus.DatabaseSharing.PostgreSql.Tests.csproj", "{C2BA4B6D-03E4-49E0-9C8A-736755A9206F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseSharing.MsSql.Tests", "DataAccessTests\PeachtreeBus.DatabaseSharing.MsSql.Tests\PeachtreeBus.DatabaseSharing.MsSql.Tests.csproj", "{B16DA9CE-9B09-474C-8576-79140BED990F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -316,6 +320,18 @@ Global
 		{645A90BD-B4AB-46B1-A028-D1AFDF3F59F5}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{645A90BD-B4AB-46B1-A028-D1AFDF3F59F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{645A90BD-B4AB-46B1-A028-D1AFDF3F59F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2BA4B6D-03E4-49E0-9C8A-736755A9206F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2BA4B6D-03E4-49E0-9C8A-736755A9206F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2BA4B6D-03E4-49E0-9C8A-736755A9206F}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2BA4B6D-03E4-49E0-9C8A-736755A9206F}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{C2BA4B6D-03E4-49E0-9C8A-736755A9206F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2BA4B6D-03E4-49E0-9C8A-736755A9206F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B16DA9CE-9B09-474C-8576-79140BED990F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B16DA9CE-9B09-474C-8576-79140BED990F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B16DA9CE-9B09-474C-8576-79140BED990F}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{B16DA9CE-9B09-474C-8576-79140BED990F}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{B16DA9CE-9B09-474C-8576-79140BED990F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B16DA9CE-9B09-474C-8576-79140BED990F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -346,6 +362,8 @@ Global
 		{82D21047-7387-4088-9DD1-B929D37A5345} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
 		{AEDEA7F4-7990-46C3-A199-D60B197BA3FE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{645A90BD-B4AB-46B1-A028-D1AFDF3F59F5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{C2BA4B6D-03E4-49E0-9C8A-736755A9206F} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
+		{B16DA9CE-9B09-474C-8576-79140BED990F} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {152625A8-2D37-455D-B3A6-DB03D605D21C}

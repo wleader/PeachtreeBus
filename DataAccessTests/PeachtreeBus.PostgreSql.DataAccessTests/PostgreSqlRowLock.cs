@@ -6,7 +6,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing.PostgreSql;
 
-namespace PeachtreeBus.PostgreSql.Tests;
+namespace PeachtreeBus.PostgreSql.DataAccessTests;
 
 public class PostgreSqlRowLock<T> : ILockedRows<T>
 {

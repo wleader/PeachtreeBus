@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
-using PeachtreeBus.DatabaseSharing.PostgreSql;
+using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Sagas;
@@ -17,7 +17,7 @@ public class PostgreSqlBusDataAccess(
     ILogger<PostgreSqlBusDataAccess> log,
     IDapperMethods dapper,
     IBusConfiguration configuration,
-    INpgSqlSharedDatabase database,
+    ISharedDatabase database,
     ICircuitBreakerProvider breakerProvider)
     : IBusDataAccess
 {

@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.DataAccessTests.BusDataAccess;
 using PeachtreeBus.DataAccessTests.ManagementDataAccess;
 
-namespace PeachtreeBus.PostgreSql.Tests;
+namespace PeachtreeBus.PostgreSql.DataAccessTests;
 
 [TestClass]
 public class PostgreSqlCleanCompletedQueueMessagesFixture : CleanCompletedQueueMessagesFixture;

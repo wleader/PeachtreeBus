@@ -6,7 +6,7 @@ namespace PeachtreeBus.DatabaseSharing.Tests;
 
 public abstract class SharedDatabaseFixtureBase
 {
-    protected SharedDatabase _db = default!;
+    protected MsSqlSharedDatabase _db = default!;
     protected SqlConnectionFake _lastConnection = default!;
     protected bool _transactionConsumed = false;
     protected bool _transactionStarted = false;
@@ -16,7 +16,7 @@ public abstract class SharedDatabaseFixtureBase
         var connectionFactory = new Mock<ISqlConnectionFactory>();
         connectionFactory.Setup(f => f.GetConnection()).Returns(GetNewConnection);
 
-        _db = new SharedDatabase(connectionFactory.Object);
+        _db = new MsSqlSharedDatabase(connectionFactory.Object);
         _db.TransactionConsumed += TransactionConsumedEventHandler;
         _db.TransactionStarted += TransactionStartedEventHandler;
     }
@@ -46,7 +46,7 @@ public abstract class SharedDatabaseFixtureBase
     protected ISqlConnection? GetInternalConnection()
     {
         return (ISqlConnection?)
-            typeof(SharedDatabase).BaseType!
+            typeof(MsSqlSharedDatabase).BaseType!
             .GetField(
                 "_connection",
                 System.Reflection.BindingFlags.Instance |
@@ -57,7 +57,7 @@ public abstract class SharedDatabaseFixtureBase
     protected ISqlTransaction? GetInternalTransaction()
     {
         return (ISqlTransaction?)
-            typeof(SharedDatabase).BaseType!
+            typeof(MsSqlSharedDatabase).BaseType!
             .GetField(
                 "_transaction",
                 System.Reflection.BindingFlags.Instance |

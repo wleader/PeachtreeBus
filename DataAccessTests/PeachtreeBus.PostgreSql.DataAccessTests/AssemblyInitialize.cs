@@ -11,7 +11,7 @@ using PeachtreeBus.Errors;
 using PeachtreeBus.Management;
 using PeachtreeBus.Serialization;
 
-namespace PeachtreeBus.PostgreSql.Tests;
+namespace PeachtreeBus.PostgreSql.DataAccessTests;
 
 [TestClass]
 public static class AssemblyInitialize
@@ -27,7 +27,9 @@ public static class AssemblyInitialize
             //c.AddTransient<IMsSqlTestConnectionFactory, MsSqlTestConnectionFactory>();
             //c.AddSingleton<IMsSqlTestSettings, MsSqlTestSettings>();
             c.AddScoped<IBusDataAccess, PostgreSqlBusDataAccess>();
-            c.AddScoped<INpgSqlSharedDatabase, NpgSqlSharedDatabase>();
+            c.AddScoped<NpgSqlSharedDatabase>();
+            c.AddScoped<INpgSqlSharedDatabase>(sp => sp.GetRequiredService<NpgSqlSharedDatabase>());
+            c.AddScoped<ISharedDatabase>(sp => sp.GetRequiredService<NpgSqlSharedDatabase>());
             c.AddSingleton<INpgSqlConnectionFactory, NpgSqlConnectionFactory>();
             //c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();

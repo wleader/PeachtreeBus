@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -11,7 +10,7 @@ using PeachtreeBus.DatabaseSharing.PostgreSql;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 
-namespace PeachtreeBus.PostgreSql.Tests;
+namespace PeachtreeBus.PostgreSql.DataAccessTests;
 
 public class PostgreSqlTestDataAccess(
     INpgSqlConnectionFactory connectionFactory,
@@ -51,16 +50,6 @@ public class PostgreSqlTestDataAccess(
         string statement = $"SELECT COUNT(*) FROM {TestConfig.DefaultSchema}.{tableName}";
         await using var cmd = new NpgsqlCommand(statement, _connection.Connection, null);
         return (long)(await cmd.ExecuteScalarAsync())!;
-    }
-
-    public DataSet GetTableContent(TableName tableName)
-    {
-        var result = new DataSet();
-        string statement = $"SELECT * FROM {TestConfig.DefaultSchema}.{tableName}";
-        using var cmd = new NpgsqlCommand(statement, _connection.Connection, null);
-        using var adapter = new NpgsqlDataAdapter(cmd);
-        adapter.Fill(result);
-        return result;
     }
 
     public async Task<List<T>> GetTableContent<T>(TableName tableName) where T : class

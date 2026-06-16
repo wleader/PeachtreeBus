@@ -6,7 +6,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing;
 
-namespace PeachtreeBus.MsSql.Tests;
+namespace PeachtreeBus.MsSql.DataAccessTests;
 
 public class MsSqlRowLock<T> : ILockedRows<T>
 {

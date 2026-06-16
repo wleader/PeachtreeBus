@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.DataAccessTests.BusDataAccess;
 using PeachtreeBus.DataAccessTests.ManagementDataAccess;
 
-namespace PeachtreeBus.MsSql.Tests;
+namespace PeachtreeBus.MsSql.DataAccessTests;
 
 [TestClass]
 public class MsSqlCleanCompletedQueueMessagesFixture : CleanCompletedQueueMessagesFixture;

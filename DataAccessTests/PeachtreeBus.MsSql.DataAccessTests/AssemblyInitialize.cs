@@ -2,15 +2,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
+using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.DatabaseTesting;
 using PeachtreeBus.DatabaseTesting.MsSql;
 using PeachtreeBus.Errors;
 using PeachtreeBus.Management;
-using PeachtreeBus.MsSql.Tests;
 using PeachtreeBus.Serialization;
 
-namespace PeachtreeBus.DataAccessTests;
+namespace PeachtreeBus.MsSql.DataAccessTests;
 
 [TestClass]
 public static class AssemblyInitialize
@@ -24,7 +24,9 @@ public static class AssemblyInitialize
             c.AddFakeLogging();
             c.AddScoped<IManagementDataAccess, MsSqlManagementDataAccess>();
             c.AddScoped<IBusDataAccess, MsSqlBusDataAccess>();
-            c.AddScoped<ISqlSharedDatabase, SharedDatabase>();
+            c.AddScoped<MsSqlSharedDatabase>();
+            c.AddScoped<ISqlSharedDatabase>(sp => sp.GetRequiredService<MsSqlSharedDatabase>());
+            c.AddScoped<ISharedDatabase>(sp => sp.GetRequiredService<MsSqlSharedDatabase>());
             c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
             c.AddScoped<IDapperMethods, DapperMethods>();

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
@@ -20,7 +19,6 @@ public interface ITestDataAccess
     Task CleanEverything();
     Task CloseConnections();
     Task<long> CountRowsInTable(TableName tableName);
-    DataSet GetTableContent(TableName tableName);
     Task<List<T>> GetTableContent<T>(TableName tableName) where T : class;
     Task InsertQueueCompleted(QueueData data);
     Task InsertQueueFailed(QueueData data);
