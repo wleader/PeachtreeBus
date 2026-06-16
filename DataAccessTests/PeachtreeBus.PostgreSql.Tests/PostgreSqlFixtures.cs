@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PeachtreeBus.DataAccessTests;
+using PeachtreeBus.DataAccessTests.BusDataAccess;
+using PeachtreeBus.DataAccessTests.ManagementDataAccess;
 
 namespace PeachtreeBus.PostgreSql.Tests;
 

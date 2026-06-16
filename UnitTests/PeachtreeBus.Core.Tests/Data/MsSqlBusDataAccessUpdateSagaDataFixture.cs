@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Data;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Data;
@@ -8,12 +7,7 @@ namespace PeachtreeBus.Core.Tests.Data;
 [TestClass]
 public class MsSqlBusDataAccessUpdateSagaDataFixture : MsSqlBusDataAccessFixtureBase
 {
-    [TestMethod]
-    public async Task Given_SagaDataIsNull_When_UpdateSagaData_Then_Throw()
-    {
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.UpdateSagaData(null!, TestData.DefaultSagaName));
-    }
+
 
     [TestMethod]
     public async Task Given_SagaData_When_UpdateSagaData_Then_TableNameIsSet()

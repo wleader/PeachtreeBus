@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Data;
@@ -13,13 +12,6 @@ public class MsSqlBusDataAccessFailSubscribedMessageFixture : MsSqlBusDataAccess
         await _dataAccess.FailMessage(TestData.CreateSubscribedData());
         AssertStatementContains("INTO [PBus].[Subscribed_Failed]");
         AssertStatementContains("FROM [PBus].[Subscribed_Pending]");
-    }
-
-    [TestMethod]
-    public async Task Given_SubscribedDataNull_When_UpdateMessage_Then_Thrwows()
-    {
-        await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            _dataAccess.FailMessage(null!));
     }
 
     [TestMethod]

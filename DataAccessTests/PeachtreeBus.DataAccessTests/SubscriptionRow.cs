@@ -1,6 +1,9 @@
 ﻿using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable ClassNeverInstantiated.Global
+
 namespace PeachtreeBus.DataAccessTests
 {
     /// <summary>

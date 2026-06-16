@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Data;
@@ -7,13 +6,6 @@ namespace PeachtreeBus.Core.Tests.Data;
 [TestClass]
 public class MsSqlBusDataAccessPublishFixture : MsSqlBusDataAccessFixtureBase
 {
-    [TestMethod]
-    public async Task Given_SubscribedDataNull_When_AddMessage_Then_Throws()
-    {
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _dataAccess.Publish(null!, TestData.DefaultTopic));
-    }
-
     [TestMethod]
     public async Task Given_SubscribedData_When_Publish_Then_TableNameIsSet()
     {

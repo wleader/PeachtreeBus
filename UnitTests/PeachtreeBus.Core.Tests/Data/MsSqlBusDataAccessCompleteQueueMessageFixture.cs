@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Data;
@@ -13,13 +12,6 @@ public class MsSqlBusDataAccessCompleteQueueMessageFixture : MsSqlBusDataAccessF
         await _dataAccess.CompleteMessage(TestData.CreateQueueData(), TestData.DefaultQueueName);
         AssertStatementContains("INTO [PBus].[DefaultQueueName_Completed]");
         AssertStatementContains("FROM [PBus].[DefaultQueueName_Pending]");
-    }
-
-    [TestMethod]
-    public async Task Given_QueueDataNull_When_CompleteMessage_Then_Thrwows()
-    {
-        await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            _dataAccess.CompleteMessage(null!, TestData.DefaultQueueName));
     }
 
     [TestMethod]

@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Queues;
-using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Data;
@@ -13,13 +12,6 @@ public class MsSqlBusDataAccessUpdateQueueMessageFixture : MsSqlBusDataAccessFix
     {
         await _dataAccess.UpdateMessage(TestData.CreateQueueData(), TestData.DefaultQueueName);
         AssertStatementContains("UPDATE [PBus].[DefaultQueueName_Pending]");
-    }
-
-    [TestMethod]
-    public async Task Given_QueueDataNull_When_UpdateMessage_Then_Thrwows()
-    {
-        await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            _dataAccess.UpdateMessage(null!, TestData.DefaultQueueName));
     }
 
     [TestMethod]

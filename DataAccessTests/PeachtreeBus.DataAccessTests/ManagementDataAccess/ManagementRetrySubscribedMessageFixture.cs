@@ -1,0 +1,48 @@
+﻿using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace PeachtreeBus.DataAccessTests.ManagementDataAccess;
+
+public abstract class ManagementRetrySubscribedMessageFixture : ManagementDataAccessFixtureBase
+{
+    [TestInitialize]
+    public override Task Initialize() => base.Initialize();
+
+    [TestCleanup]
+    public override Task Cleanup() => base.Cleanup();
+
+    [TestMethod]
+    public async Task InsertsIntoTargetTable()
+    {
+        var s1 = await CreateFailedSubscribed();
+        await CreateFailedSubscribed();
+
+        await BusDataAccess.RetryFailedSubscribedMessage(s1.Id);
+
+        var pending = await BusDataAccess.GetPendingSubscribedMessages(0, 1);
+        Assert.AreEqual(1, pending.Count);
+        Assert.AreEqual(s1.MessageId, pending[0].MessageId);
+        DataAssert.AreEqual(s1.Headers, pending[0].Headers);
+        DataAssert.AreEqual(s1.ValidUntil, pending[0].ValidUntil);
+        Assert.AreEqual(s1.Body, pending[0].Body);
+        DataAssert.AreEqual(s1.Enqueued, pending[0].Enqueued);
+        Assert.AreEqual(0, pending[0].Retries);
+        Assert.AreEqual(null, pending[0].Completed);
+        Assert.AreEqual(null, pending[0].Failed);
+        Assert.AreEqual(s1.SubscriberId, pending[0].SubscriberId);
+        DataAssert.AreEqual(s1.NotBefore, pending[0].NotBefore);
+    }
+
+    [TestMethod]
+    public async Task DeletesFromSourceTable()
+    {
+        var s1 = await CreateFailedSubscribed();
+        var s2 = await CreateFailedSubscribed();
+
+        await BusDataAccess.RetryFailedSubscribedMessage(s1.Id);
+
+        var failed = await BusDataAccess.GetFailedSubscribedMessages(0, int.MaxValue);
+        Assert.AreEqual(1, failed.Count);
+        Assert.AreEqual(s2.Id, failed[0].Id);
+    }
+}

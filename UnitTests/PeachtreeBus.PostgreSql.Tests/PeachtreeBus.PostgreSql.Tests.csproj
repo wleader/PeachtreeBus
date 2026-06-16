@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MSTest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\PeachtreeBus.PostgreSql\PeachtreeBus.PostgreSql.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.Core.Tests\PeachtreeBus.Core.Tests.csproj" />
+    </ItemGroup>
+
+</Project>
