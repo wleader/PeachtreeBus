@@ -6,7 +6,7 @@ using Dapper;
 using Npgsql;
 using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
-using PeachtreeBus.DatabaseSharing.PostgreSql;
+using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Queues;
 using PeachtreeBus.Subscriptions;
 

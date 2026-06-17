@@ -1,7 +1,7 @@
 using System.Data.Common;
 using Npgsql;
 
-namespace PeachtreeBus.DatabaseSharing.PostgreSql;
+namespace PeachtreeBus.DatabaseSharing;
 
 public interface INpgSqlSharedDatabase : IBaseSharedDatabase<NpgsqlConnection, NpgsqlTransaction>;
 

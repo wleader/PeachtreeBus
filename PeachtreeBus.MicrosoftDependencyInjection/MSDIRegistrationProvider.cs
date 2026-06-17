@@ -13,8 +13,9 @@ public class MSDIRegistrationProvider(IServiceCollection services) : IRegistrati
         RegisterSingleton<IScopeFactory, MSDIScopeFactory>();
         RegisterScoped<IServiceProviderAccessor, MSDIServiceProviderAccessor>();
 
-        services.AddScoped(sp => sp.GetRequiredService<IShareObjectsBetweenScopes>().SharedDatabase ??=
-            new MsSqlSharedDatabase(sp.GetRequiredService<ISqlConnectionFactory>()));
+        services.AddScoped(sp =>
+            sp.GetRequiredService<IShareObjectsBetweenScopes>().SharedDatabase ??=
+                sp.GetRequiredService<ISharedDatabase>());
 
         services.AddSingleton<ClassNameService>();
         services.AddSingleton<IClassNameService>(sp => new CachedClassNameService(sp.GetRequiredService<ClassNameService>()));

@@ -1,21 +1,21 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Testing;
-using System.Diagnostics.CodeAnalysis;
 
-namespace PeachtreeBus.DatabaseSharing.Tests;
+namespace PeachtreeBus.DatabaseSharing.MsSql.Tests;
 
 [TestClass]
 public class ExternallyManagedSqlConnectionFixture
 {
-    private SqlConnection _nativeConnection = default!;
-    private bool _nativeConncetionDisposed = false;
-    private ExternallyManagedSqlConnection _connection = default!;
+    private SqlConnection _nativeConnection = null!;
+    private bool _nativeConnectionDisposed;
+    private ExternallyManagedSqlConnection _connection = null!;
 
     [TestInitialize]
-    public void Intialize()
+    public void Initialize()
     {
-        _nativeConnection = SqlServerTesting.CreateConnection();
+        _nativeConnection = UninitializedObjects.Create<SqlConnection>();
         _nativeConnection.Disposed += NativeConnection_Disposed;
         _connection = new ExternallyManagedSqlConnection(_nativeConnection);
     }
@@ -23,14 +23,13 @@ public class ExternallyManagedSqlConnectionFixture
     [ExcludeFromCodeCoverage(Justification = "If this runs, it is a test failure.")]
     private void NativeConnection_Disposed(object? sender, System.EventArgs e)
     {
-        _nativeConncetionDisposed = true;
+        _nativeConnectionDisposed = true;
     }
 
     [TestCleanup]
     public void Cleanup()
     {
-        if (_nativeConnection is not null)
-            _nativeConnection.Disposed -= NativeConnection_Disposed;
+        _nativeConnection.Disposed -= NativeConnection_Disposed;
     }
 
     [TestMethod]
@@ -38,7 +37,7 @@ public class ExternallyManagedSqlConnectionFixture
     {
         _connection.Dispose();
         Assert.IsTrue(_connection.Disposed);
-        Assert.IsFalse(_nativeConncetionDisposed, "The connection must not be disposed.");
+        Assert.IsFalse(_nativeConnectionDisposed, "The connection must not be disposed.");
     }
 
     [TestMethod]
@@ -54,7 +53,7 @@ public class ExternallyManagedSqlConnectionFixture
     }
 
     [TestMethod]
-    public void Given_ExternalTransaction_When_BeginTransction_Then_Throws()
+    public void Given_ExternalTransaction_When_BeginTransaction_Then_Throws()
     {
         Assert.ThrowsExactly<ExternallyManagedConnectionException>(() => _ = _connection.BeginTransaction());
     }

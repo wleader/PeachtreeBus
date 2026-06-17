@@ -2,30 +2,31 @@
 using PeachtreeBus.Testing;
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
-public class SqlConnectionFake : ISqlConnection
+public class TestableConnectionFake : ITestableConnection
 {
     public bool Disposed { get; private set; }
 
-    public SqlTransactionFake? LastTransaction { get; private set; }
+    public TestableTransactionFake? LastTransaction { get; private set; }
 
-    public SqlConnection Connection { get; } = SqlServerTesting.CreateConnection();
+    public DbConnection Connection { get; } = UninitializedObjects.Create<SqlConnection>();
 
     public ConnectionState State { get; set; }
 
-    public ISqlTransaction BeginTransaction()
+    public ITestableTransaction BeginTransaction()
     {
-        return LastTransaction = new SqlTransactionFake();
+        return LastTransaction = new TestableTransactionFake();
     }
 
-    public Task<ISqlTransaction> BeginTransactionAsync(CancellationToken _ = default)
+    public Task<ITestableTransaction> BeginTransactionAsync(CancellationToken _ = default)
     {
         LastTransaction = new();
-        return Task.FromResult<ISqlTransaction>(LastTransaction);
+        return Task.FromResult<ITestableTransaction>(LastTransaction);
     }
 
     public void Close() => State = ConnectionState.Closed;

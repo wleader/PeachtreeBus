@@ -4,7 +4,7 @@ using Moq;
 using PeachtreeBus.Core.Tests.Data;
 using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
-using PeachtreeBus.DatabaseSharing.PostgreSql;
+using PeachtreeBus.DatabaseSharing;
 
 namespace PeachtreeBus.PostgreSql.Tests.Data;
 

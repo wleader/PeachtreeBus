@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MSTest"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing.MsSql\PeachtreeBus.DatabaseSharing.MsSql.csproj" />
+      <ProjectReference Include="..\..\PeachtreeBus.Testing\PeachtreeBus.Testing.csproj" />
+    </ItemGroup>
+
+</Project>

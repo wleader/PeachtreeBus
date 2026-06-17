@@ -4,7 +4,6 @@ using PeachtreeBus.Core.Tests.Fakes;
 using PeachtreeBus.Data;
 using PeachtreeBus.DataAccessTests;
 using PeachtreeBus.DatabaseSharing;
-using PeachtreeBus.DatabaseSharing.PostgreSql;
 using PeachtreeBus.DatabaseTesting;
 using PeachtreeBus.DatabaseTesting.PostgreSql;
 using PeachtreeBus.Errors;
@@ -24,16 +23,13 @@ public static class AssemblyInitialize
             // is something needed here?
             c.AddFakeLogging();
             c.AddScoped<IManagementDataAccess, PostgreSqlManagementDataAccess>();
-            //c.AddTransient<IMsSqlTestConnectionFactory, MsSqlTestConnectionFactory>();
-            //c.AddSingleton<IMsSqlTestSettings, MsSqlTestSettings>();
             c.AddScoped<IBusDataAccess, PostgreSqlBusDataAccess>();
             c.AddScoped<NpgSqlSharedDatabase>();
             c.AddScoped<INpgSqlSharedDatabase>(sp => sp.GetRequiredService<NpgSqlSharedDatabase>());
             c.AddScoped<ISharedDatabase>(sp => sp.GetRequiredService<NpgSqlSharedDatabase>());
             c.AddSingleton<INpgSqlConnectionFactory, NpgSqlConnectionFactory>();
-            //c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
-            c.AddScoped<IDapperMethods, NpgSqlDapperMethods>();
+            c.AddScoped<IDapperMethods, DapperMethods>();
             c.AddSingleton<IDapperTypesHandler, NpgSqlDapperTypesHandler>();
             c.AddSingleton<ISerializer, DefaultSerializer>();
             c.AddTransient<ICircuitBreakerProvider, FakeBreakerProvider>();

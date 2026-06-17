@@ -13,9 +13,9 @@ namespace PeachtreeBus.Core.Tests;
 public class SendOnlyFactoryFixture
 {
     private SendOnlyFactory _factory = default!;
-    private readonly SqlConnection _connection = SqlServerTesting.CreateConnection();
-    private readonly SqlTransaction? _transaction = SqlServerTesting.CreateTransaction();
-    private readonly FakeServiceProviderAccessor _accessor = new(null);
+    private readonly SqlConnection _connection = UninitializedObjects.Create<SqlConnection>();
+    private readonly SqlTransaction? _transaction = UninitializedObjects.Create<SqlTransaction>();
+    private readonly FakeServiceProviderAccessor _accessor = new();
 
     private readonly FakeServiceProvider _provider = new();
 

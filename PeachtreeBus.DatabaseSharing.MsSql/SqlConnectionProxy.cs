@@ -31,3 +31,7 @@ public class SqlConnectionProxy(SqlConnection connection)
         return new SqlTransactionProxy((SqlTransaction)t);
     }
 }
+
+public class ExternallyManagedSqlConnection(SqlConnection connection) 
+    : ExternallyManagedConnection<SqlConnection, SqlTransaction, ISqlTransaction>(connection)
+        ,ISqlConnection;

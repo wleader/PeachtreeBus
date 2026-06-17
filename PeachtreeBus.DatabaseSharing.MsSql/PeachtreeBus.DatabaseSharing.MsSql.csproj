@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <RootNamespace>PeachtreeBus.DatabaseSharing</RootNamespace>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Testing;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
@@ -22,45 +23,45 @@ public class SharedDatabaseExternalConnectionFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void Given_ExternalConnection_When_Reconnect_Then_Throws()
     {
-        var connection = SqlServerTesting.CreateConnection();
-        var transaction = SqlServerTesting.CreateTransaction();
-        _db.SetExternallyManagedConnection(connection, transaction);
-        Assert.ThrowsExactly<ExternallyManagedConnectionException>(_db.Reconnect);
+        var connection = UninitializedObjects.Create<SqlConnection>();
+        var transaction = UninitializedObjects.Create<SqlTransaction>();
+        Db.SetExternallyManagedConnection(connection, transaction);
+        Assert.ThrowsExactly<ExternallyManagedConnectionException>(Db.Reconnect);
     }
 
     [TestMethod]
     public void When_SetExternalConnection_Then_ObjectsAreSetup()
     {
-        var connection = SqlServerTesting.CreateConnection();
-        var transaction = SqlServerTesting.CreateTransaction();
-        _db.SetExternallyManagedConnection(connection, transaction);
-        Assert.AreSame(connection, _db.Connection);
-        Assert.AreSame(transaction, _db.Transaction);
+        var connection = UninitializedObjects.Create<SqlConnection>();
+        var transaction = UninitializedObjects.Create<SqlTransaction>();
+        Db.SetExternallyManagedConnection(connection, transaction);
+        Assert.AreSame(connection, Db.Connection);
+        Assert.AreSame(transaction, Db.Transaction);
 
         var internalConnection = GetInternalConnection();
         Assert.IsNotNull(internalConnection);
-        Assert.IsTrue(internalConnection is ExternallyManagedSqlConnection);
+        Assert.IsTrue(internalConnection is ExternallyManagedTestableConnection);
 
         var internalTransaction = GetInternalTransaction();
         Assert.IsNotNull(internalTransaction);
-        Assert.IsTrue(internalTransaction is ExternallyManagedSqlTransaction);
+        Assert.IsTrue(internalTransaction is ExternallyManagedTestableTransaction);
     }
 
     [TestMethod]
     public void Given_ExternalConnection_When_SetExternalAgain_OriginalsAreDisposed()
     {
-        var connection1 = SqlServerTesting.CreateConnection();
-        var transaction1 = SqlServerTesting.CreateTransaction();
-        _db.SetExternallyManagedConnection(connection1, transaction1);
+        var connection1 = UninitializedObjects.Create<SqlConnection>();
+        var transaction1 = UninitializedObjects.Create<SqlTransaction>();
+        Db.SetExternallyManagedConnection(connection1, transaction1);
 
         var originalConnection = GetInternalConnection();
         Assert.IsNotNull(originalConnection);
         var originalTransaction = GetInternalTransaction();
         Assert.IsNotNull(originalTransaction);
 
-        var connection2 = SqlServerTesting.CreateConnection();
-        var transaction2 = SqlServerTesting.CreateTransaction();
-        _db.SetExternallyManagedConnection(connection2, transaction2);
+        var connection2 = UninitializedObjects.Create<SqlConnection>();
+        var transaction2 = UninitializedObjects.Create<SqlTransaction>();
+        Db.SetExternallyManagedConnection(connection2, transaction2);
 
         Assert.IsTrue(originalConnection.Disposed);
         Assert.IsTrue(originalTransaction.Disposed);

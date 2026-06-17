@@ -22,7 +22,7 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void When_New_Then_HasInstanceId()
     {
-        Assert.AreNotEqual(Guid.Empty, _db.InstanceId);
+        Assert.AreNotEqual(Guid.Empty, Db.InstanceId);
     }
 
     #region When_Dispose
@@ -32,31 +32,31 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
     [DataRow(false)]
     public void Given_DenyDispose_When_Dispose_Then_Disposed(bool deny)
     {
-        _db.Reconnect();
-        _db.DenyDispose = deny;
-        _db.Dispose();
-        Assert.AreEqual(!deny, _lastConnection.Disposed);
+        Db.Reconnect();
+        Db.DenyDispose = deny;
+        Db.Dispose();
+        Assert.AreEqual(!deny, LastConnection.Disposed);
     }
 
     [TestMethod]
     public void Given_ATransactionIsStarted_When_Dispose_Then_TransactionIsDisposed()
     {
-        _db.BeginTransaction();
-        Assert.IsNotNull(_lastConnection.LastTransaction);
-        _db.DenyDispose = false;
-        _db.Dispose();
-        Assert.IsTrue(_lastConnection.LastTransaction.Disposed);
-        Assert.IsTrue(_transactionConsumed);
+        Db.BeginTransaction();
+        Assert.IsNotNull(LastConnection.LastTransaction);
+        Db.DenyDispose = false;
+        Db.Dispose();
+        Assert.IsTrue(LastConnection.LastTransaction.Disposed);
+        Assert.IsTrue(TransactionConsumed);
     }
 
     [TestMethod]
     public void Given_AConnectionIsMade_When_Dispose_Then_ConnectionIsDisposed()
     {
-        _db.Reconnect();
-        Assert.IsNotNull(_lastConnection);
-        _db.DenyDispose = false;
-        _db.Dispose();
-        Assert.IsTrue(_lastConnection.Disposed);
+        Db.Reconnect();
+        Assert.IsNotNull(LastConnection);
+        Db.DenyDispose = false;
+        Db.Dispose();
+        Assert.IsTrue(LastConnection.Disposed);
     }
 
     #endregion
@@ -66,19 +66,19 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void Given_ThereIsNoTransaction_When_RollbackTransaction_Then_Throws()
     {
-        Assert.IsNull(_db.Transaction);
-        Assert.ThrowsExactly<SharedDatabaseException>(_db.RollbackTransaction);
+        Assert.IsNull(Db.Transaction);
+        Assert.ThrowsExactly<SharedDatabaseException>(Db.RollbackTransaction);
     }
 
     [TestMethod]
     public void Given_ATransactionIsStarted_When_RollbackTransaction_Then_RolledBack_And_TransactionIsConsumed()
     {
-        _db.BeginTransaction();
-        var originalTransaction = _lastConnection.LastTransaction;
+        Db.BeginTransaction();
+        var originalTransaction = LastConnection.LastTransaction;
         Assert.IsNotNull(originalTransaction);
-        _db.RollbackTransaction();
+        Db.RollbackTransaction();
         Assert.IsTrue(originalTransaction.RolledBack);
-        Assert.IsTrue(_transactionConsumed);
+        Assert.IsTrue(TransactionConsumed);
     }
 
     #endregion
@@ -88,39 +88,39 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void Given_ATransactionIsStarted_When_Reconnect_Then_TransactionIsConsumed_And_TransactionIsDisposed()
     {
-        _db.BeginTransaction();
-        Assert.IsNotNull(_lastConnection.LastTransaction);
-        var originalTransaction = _lastConnection.LastTransaction;
-        _db.Reconnect();
+        Db.BeginTransaction();
+        Assert.IsNotNull(LastConnection.LastTransaction);
+        var originalTransaction = LastConnection.LastTransaction;
+        Db.Reconnect();
         Assert.IsTrue(originalTransaction.Disposed);
-        Assert.IsTrue(_transactionConsumed);
+        Assert.IsTrue(TransactionConsumed);
     }
 
     [TestMethod]
     public void Given_AConnectionIsMade_When_Reconnect_Then_ConnectionIsClosed_And_ConnectionIsDisposed_And_ANewConnectionIsMade()
     {
-        _db.Reconnect();
-        var originalConnection = _lastConnection;
+        Db.Reconnect();
+        var originalConnection = LastConnection;
         Assert.IsNotNull(originalConnection);
-        _db.Reconnect();
+        Db.Reconnect();
         Assert.IsTrue(originalConnection.Disposed);
-        Assert.AreNotSame(originalConnection, _lastConnection);
+        Assert.AreNotSame(originalConnection, LastConnection);
     }
 
     [TestMethod]
     public void Given_AConnectionIsNotMade_When_Reconnect_Then_ANewConnectionIsMade()
     {
-        _db.Reconnect();
-        Assert.IsNotNull(_lastConnection);
-        Assert.IsNotNull(_db.Connection);
-        Assert.AreSame(_lastConnection.Connection, _db.Connection);
+        Db.Reconnect();
+        Assert.IsNotNull(LastConnection);
+        Assert.IsNotNull(Db.Connection);
+        Assert.AreSame(LastConnection.Connection, Db.Connection);
     }
 
     [TestMethod]
     public void Given_DenyDispose_When_Reconnection_Then_Throws()
     {
-        _db.DenyDispose = true;
-        Assert.ThrowsExactly<SharedDatabaseException>(_db.Reconnect);
+        Db.DenyDispose = true;
+        Assert.ThrowsExactly<SharedDatabaseException>(Db.Reconnect);
     }
 
     #endregion
@@ -130,21 +130,21 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void Given_ThereIsNoTransaction_When_RollbackToSavepoint_Then_Throws()
     {
-        _db.Reconnect();
-        Assert.IsNull(_db.Transaction);
+        Db.Reconnect();
+        Assert.IsNull(Db.Transaction);
         Assert.ThrowsExactly<SharedDatabaseException>(() =>
-            _db.RollbackToSavepoint("Savepoint1"));
+            Db.RollbackToSavepoint("Savepoint1"));
     }
 
     [TestMethod]
     public void Given_ThereIsASavepoint_When_RollbackToSavepoint_Then_Rollback()
     {
-        _db.BeginTransaction();
-        Assert.IsNotNull(_lastConnection.LastTransaction);
+        Db.BeginTransaction();
+        Assert.IsNotNull(LastConnection.LastTransaction);
         const string savepointName = "Savepoint1";
-        _db.CreateSavepoint(savepointName);
-        _db.RollbackToSavepoint(savepointName);
-        Assert.AreEqual(savepointName, _lastConnection.LastTransaction.LastRollbackName);
+        Db.CreateSavepoint(savepointName);
+        Db.RollbackToSavepoint(savepointName);
+        Assert.AreEqual(savepointName, LastConnection.LastTransaction.LastRollbackName);
     }
 
     #endregion
@@ -154,28 +154,28 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void Given_ThereIsNoTransaction_When_CommitTransaction_ThenThrows()
     {
-        _db.Reconnect();
-        Assert.IsNull(_lastConnection.LastTransaction);
-        Assert.ThrowsExactly<SharedDatabaseException>(_db.CommitTransaction);
+        Db.Reconnect();
+        Assert.IsNull(LastConnection.LastTransaction);
+        Assert.ThrowsExactly<SharedDatabaseException>(Db.CommitTransaction);
     }
 
     [TestMethod]
     public void Given_ATransactionIsStarted_When_CommitTransaction_Then_TransactionIsCommitted()
     {
-        _db.BeginTransaction();
-        var originalTransaction = _lastConnection.LastTransaction;
+        Db.BeginTransaction();
+        var originalTransaction = LastConnection.LastTransaction;
         Assert.IsNotNull(originalTransaction);
         Assert.IsFalse(originalTransaction.Committed);
-        _db.CommitTransaction();
+        Db.CommitTransaction();
         Assert.IsTrue(originalTransaction.Committed);
     }
 
     [TestMethod]
     public void Given_ATransactionIsStarted_When_CommitTransaction_Then_TransactionIsConsumed()
     {
-        _db.BeginTransaction();
-        _db.CommitTransaction();
-        Assert.IsTrue(_transactionConsumed);
+        Db.BeginTransaction();
+        Db.CommitTransaction();
+        Assert.IsTrue(TransactionConsumed);
     }
 
     #endregion
@@ -185,37 +185,37 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void When_BeginTransaction_Then_TransactionStartedEvent()
     {
-        _db.BeginTransaction();
-        Assert.IsTrue(_transactionStarted);
+        Db.BeginTransaction();
+        Assert.IsTrue(TransactionStarted);
     }
 
     [TestMethod]
     public void Given_ConnectionIsNotMade_When_BeginTransaction_Then_ConnectionIsOpened_And_TransactionIsCreated_And_TransactionStartedEvent()
     {
-        _db.Reconnect();
-        _lastConnection.Close();
-        _db.BeginTransaction();
-        Assert.AreEqual(ConnectionState.Open, _lastConnection.State);
-        Assert.IsTrue(_transactionStarted);
-        Assert.IsNotNull(_db.Transaction);
+        Db.Reconnect();
+        LastConnection.Close();
+        Db.BeginTransaction();
+        Assert.AreEqual(ConnectionState.Open, LastConnection.State);
+        Assert.IsTrue(TransactionStarted);
+        Assert.IsNotNull(Db.Transaction);
     }
 
     [TestMethod]
     public void Given_ConnectionIsMade_When_BeginTransaction_Then_ConnectionIsOpened_And_TransactionIsCreated_And_TransactionStartedEvent()
     {
-        _db.Reconnect();
-        Assert.AreEqual(ConnectionState.Open, _lastConnection.State);
-        Assert.IsNull(_lastConnection.LastTransaction);
-        _db.BeginTransaction();
-        Assert.IsTrue(_transactionStarted);
-        Assert.IsNotNull(_db.Transaction);
+        Db.Reconnect();
+        Assert.AreEqual(ConnectionState.Open, LastConnection.State);
+        Assert.IsNull(LastConnection.LastTransaction);
+        Db.BeginTransaction();
+        Assert.IsTrue(TransactionStarted);
+        Assert.IsNotNull(Db.Transaction);
     }
 
     [TestMethod]
     public void Given_ATransactionIsStarted_When_BeginTransaction_Then_Throws()
     {
-        _db.BeginTransaction();
-        Assert.ThrowsExactly<SharedDatabaseException>(_db.BeginTransaction);
+        Db.BeginTransaction();
+        Assert.ThrowsExactly<SharedDatabaseException>(Db.BeginTransaction);
     }
 
     #endregion
@@ -225,19 +225,19 @@ public class SharedDatabaseFixture : SharedDatabaseFixtureBase
     [TestMethod]
     public void Given_ATransactionIsStarted_When_CreateSavepoint_Then_SavepointCreated()
     {
-        _db.BeginTransaction();
-        Assert.IsNotNull(_lastConnection.LastTransaction);
-        _db.CreateSavepoint("Savepoint1");
-        Assert.AreEqual("Savepoint1", _lastConnection.LastTransaction.LastSaveName);
+        Db.BeginTransaction();
+        Assert.IsNotNull(LastConnection.LastTransaction);
+        Db.CreateSavepoint("Savepoint1");
+        Assert.AreEqual("Savepoint1", LastConnection.LastTransaction.LastSaveName);
     }
 
     [TestMethod]
     public void Given_ThereIsNoTransaction_When_CreateSavepoint_Then_Throws()
     {
-        _db.Reconnect();
-        Assert.IsNull(_lastConnection.LastTransaction);
-        Assert.ThrowsExactly<SharedDatabaseException>(() => _db.CreateSavepoint("Savepoint1"));
-        Assert.IsNull(_lastConnection.LastTransaction);
+        Db.Reconnect();
+        Assert.IsNull(LastConnection.LastTransaction);
+        Assert.ThrowsExactly<SharedDatabaseException>(() => Db.CreateSavepoint("Savepoint1"));
+        Assert.IsNull(LastConnection.LastTransaction);
     }
 
     #endregion

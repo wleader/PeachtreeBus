@@ -80,7 +80,6 @@ public class BaseRegisterComponentsFixture
         VerifyScopedRegistered<IShareObjectsBetweenScopes, ShareObjectsBetweenScopes>();
         VerifySingletonRegistered<IDapperTypesHandler, DapperTypesHandler>();
         VerifyScopedRegistered<IDapperMethods, DapperMethods>();
-        VerifyScopedRegistered<ISqlConnectionFactory, SqlConnectionFactory>();
         VerifySingletonRegistered<IProvideDbConnectionString, ProvideDbConnectionString>();
         VerifySingletonRegistered<IRunStartupTasks, RunStarupTasks>();
         VerifyScopedRegistered<IStarters, Starters>();

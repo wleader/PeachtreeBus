@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
+﻿using System;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -66,7 +65,3 @@ public abstract class ExternallyManagedTransaction<TTransaction>(TTransaction tr
         return ValueTask.CompletedTask;
     }
 }
-
-public class ExternallyManagedSqlTransaction(SqlTransaction sqlTransaction)
-    : ExternallyManagedTransaction<SqlTransaction>(sqlTransaction)
-    , ISqlTransaction;

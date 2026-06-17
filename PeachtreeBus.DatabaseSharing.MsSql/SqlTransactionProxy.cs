@@ -15,3 +15,8 @@ public interface ISqlTransaction : IBaseTransaction<SqlTransaction>;
 public class SqlTransactionProxy(SqlTransaction transaction)
     : BaseTransaction<SqlTransaction>(transaction)
     , ISqlTransaction;
+
+
+public class ExternallyManagedSqlTransaction(SqlTransaction sqlTransaction)
+    : ExternallyManagedTransaction<SqlTransaction>(sqlTransaction)
+        , ISqlTransaction;

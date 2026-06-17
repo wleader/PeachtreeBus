@@ -12,19 +12,19 @@ namespace PeachtreeBus.EntityFrameworkCore;
 /// </summary>
 public abstract class SharedDatabaseDbContext : DbContext
 {
-    private readonly ISqlSharedDatabase _sharedDatabase;
-    public bool Disposed { get; private set; } = false;
+    private readonly ISharedDatabase _sharedDatabase;
+    public bool Disposed { get; private set; }
 
-    public SharedDatabaseDbContext(ISqlSharedDatabase sharedDatabase)
+    protected SharedDatabaseDbContext(ISharedDatabase sharedDatabase)
     {
         _sharedDatabase = sharedDatabase;
         _sharedDatabase.TransactionStarted += SharedDatabase_TransactionStarted;
         _sharedDatabase.TransactionConsumed += SharedDatabase_TransactionConsumed;
-        if (_sharedDatabase.Transaction != null)
+        if (_sharedDatabase.NativeTransaction != null)
         {
             // if a transaction was started on the connection before this instance was created,
             // enlist that transaction.
-            Database.UseTransaction(_sharedDatabase.Transaction);
+            Database.UseTransaction(_sharedDatabase.NativeTransaction);
         }
     }
 
@@ -48,18 +48,18 @@ public abstract class SharedDatabaseDbContext : DbContext
     {
         // a transaction was started on a context that shares this connection.
         // if it wasn't this instance we need to enlist it.
-        if (!ReferenceEquals(Database.CurrentTransaction?.GetDbTransaction(), _sharedDatabase.Transaction))
+        if (!ReferenceEquals(Database.CurrentTransaction?.GetDbTransaction(), _sharedDatabase.NativeTransaction))
         {
-            Database.UseTransaction(_sharedDatabase.Transaction);
+            Database.UseTransaction(_sharedDatabase.NativeTransaction);
         }
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // Makes EF use the existing SQL connection instead of creating its own.
-        if (_sharedDatabase.Connection.State != System.Data.ConnectionState.Open)
-            _sharedDatabase.Connection.Open();
+        if (_sharedDatabase.NativeConnection.State != System.Data.ConnectionState.Open)
+            _sharedDatabase.NativeConnection.Open();
         // tell EF that it does not own the connection so that it will not try to dispose it.
-        optionsBuilder.UseSqlServer(_sharedDatabase.Connection, false);
+        optionsBuilder.UseSqlServer(_sharedDatabase.NativeConnection, false);
     }
 }

@@ -2,18 +2,18 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Testing;
 
-namespace PeachtreeBus.DatabaseSharing.Tests;
+namespace PeachtreeBus.DatabaseSharing.MsSql.Tests;
 
 [TestClass]
 public class ExternallyManagedSqlTransactionFixture
 {
-    private ExternallyManagedSqlTransaction _transaction = default!;
-    private SqlTransaction _nativeTransaction = default!;
+    private ExternallyManagedSqlTransaction _transaction = null!;
+    private SqlTransaction _nativeTransaction = null!;
 
     [TestInitialize]
-    public void Intialize()
+    public void Initialize()
     {
-        _nativeTransaction = SqlServerTesting.CreateTransaction();
+        _nativeTransaction = UninitializedObjects.Create<SqlTransaction>();
         _transaction = new(_nativeTransaction);
     }
 
@@ -23,7 +23,7 @@ public class ExternallyManagedSqlTransactionFixture
         _transaction.Dispose();
         Assert.IsTrue(_transaction.Disposed);
         // unfortunately we can't check that the actual
-        // SqlTransaction object wasn't disposed because its got no event or property we can read.
+        // SqlTransaction object wasn't disposed because it has no event or property we can read.
     }
 
     [TestMethod]

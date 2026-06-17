@@ -6,63 +6,63 @@ namespace PeachtreeBus.DatabaseSharing.Tests;
 
 public abstract class SharedDatabaseFixtureBase
 {
-    protected MsSqlSharedDatabase _db = default!;
-    protected SqlConnectionFake _lastConnection = default!;
-    protected bool _transactionConsumed = false;
-    protected bool _transactionStarted = false;
+    protected TestableSharedDatabase Db = null!;
+    protected TestableConnectionFake? LastConnection;
+    protected bool TransactionConsumed;
+    protected bool TransactionStarted;
 
     public virtual void Initialize()
     {
-        var connectionFactory = new Mock<ISqlConnectionFactory>();
+        var connectionFactory = new Mock<ITestableConnectionFactory>();
         connectionFactory.Setup(f => f.GetConnection()).Returns(GetNewConnection);
 
-        _db = new MsSqlSharedDatabase(connectionFactory.Object);
-        _db.TransactionConsumed += TransactionConsumedEventHandler;
-        _db.TransactionStarted += TransactionStartedEventHandler;
+        Db = new TestableSharedDatabase(connectionFactory.Object);
+        Db.TransactionConsumed += TransactionConsumedEventHandler;
+        Db.TransactionStarted += TransactionStartedEventHandler;
     }
 
     public virtual void Cleanup()
     {
-        _db.TransactionConsumed -= TransactionConsumedEventHandler;
+        Db.TransactionConsumed -= TransactionConsumedEventHandler;
     }
 
-    private SqlConnectionFake GetNewConnection()
+    private TestableConnectionFake GetNewConnection()
     {
-        return _lastConnection = new SqlConnectionFake();
+        return LastConnection = new TestableConnectionFake();
     }
 
     private void TransactionConsumedEventHandler(object? sender, EventArgs e)
     {
-        Assert.IsFalse(_transactionConsumed, "Transaction Consumed Event Fired Twice.");
-        _transactionConsumed = true;
+        Assert.IsFalse(TransactionConsumed, "Transaction Consumed Event Fired Twice.");
+        TransactionConsumed = true;
     }
 
     private void TransactionStartedEventHandler(object? sender, EventArgs e)
     {
-        Assert.IsFalse(_transactionStarted, "Transaction Started Event Fired Twice.");
-        _transactionStarted = true;
+        Assert.IsFalse(TransactionStarted, "Transaction Started Event Fired Twice.");
+        TransactionStarted = true;
     }
 
-    protected ISqlConnection? GetInternalConnection()
+    protected ITestableConnection? GetInternalConnection()
     {
-        return (ISqlConnection?)
-            typeof(MsSqlSharedDatabase).BaseType!
+        return (ITestableConnection?)
+            typeof(TestableSharedDatabase).BaseType!
             .GetField(
                 "_connection",
                 System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(_db);
+            .GetValue(Db);
     }
 
-    protected ISqlTransaction? GetInternalTransaction()
+    protected ITestableTransaction? GetInternalTransaction()
     {
-        return (ISqlTransaction?)
-            typeof(MsSqlSharedDatabase).BaseType!
+        return (ITestableTransaction?)
+            typeof(TestableSharedDatabase).BaseType!
             .GetField(
                 "_transaction",
                 System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(_db);
+            .GetValue(Db);
     }
 
 }

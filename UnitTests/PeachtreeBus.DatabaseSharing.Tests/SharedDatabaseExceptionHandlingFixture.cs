@@ -5,13 +5,12 @@ using Moq.Language.Flow;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
-[TestClass]
-public class SharedDatabaseExceptionHandlingFixture
+public abstract class SharedDatabaseExceptionHandlingFixture
 {
-    private MsSqlSharedDatabase _db = null!;
-    private Mock<ISqlConnectionFactory> _connectionFactory = null!;
-    private Mock<ISqlConnection> _connection = null!;
-    private Mock<ISqlTransaction> _transaction = null!;
+    private TestableSharedDatabase _db = null!;
+    private Mock<ITestableConnectionFactory> _connectionFactory = null!;
+    private Mock<ITestableConnection> _connection = null!;
+    private Mock<ITestableTransaction> _transaction = null!;
 
     private Exception? _transactionStartedHandlerException;
     private Exception? _transactionConsumedHandlerException;

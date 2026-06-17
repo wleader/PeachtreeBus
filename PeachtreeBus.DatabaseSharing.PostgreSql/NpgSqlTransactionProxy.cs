@@ -1,6 +1,6 @@
 using Npgsql;
 
-namespace PeachtreeBus.DatabaseSharing.PostgreSql;
+namespace PeachtreeBus.DatabaseSharing;
 
 public interface INpgSqlTransaction : IBaseTransaction<NpgsqlTransaction>;
 

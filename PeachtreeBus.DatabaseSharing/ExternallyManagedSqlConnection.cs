@@ -4,7 +4,6 @@ using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 
 namespace PeachtreeBus.DatabaseSharing;
 
@@ -60,6 +59,3 @@ public abstract class ExternallyManagedConnection<TConnection, TTransaction, TTr
     }
 }
 
-public class ExternallyManagedSqlConnection(SqlConnection connection) 
-    : ExternallyManagedConnection<SqlConnection, SqlTransaction, ISqlTransaction>(connection)
-    ,ISqlConnection;

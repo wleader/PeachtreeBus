@@ -3,23 +3,6 @@
 namespace PeachtreeBus.DatabaseSharing;
 
 /// <summary>
-/// Defines an interface that provides a DB Connection string.
-/// </summary>
-public interface IProvideDbConnectionString
-{
-    string GetDbConnectionString();
-}
-
-public interface IDbConnectionFactory<TConnectionInterface>
-{
-    /// <summary>
-    /// Creates a new SqlConnection.
-    /// </summary>
-    /// <returns></returns>
-    TConnectionInterface GetConnection();
-}
-
-/// <summary>
 /// Defines an interface that creates connections to an SQL database.
 /// </summary>
 public interface ISqlConnectionFactory : IDbConnectionFactory<ISqlConnection>;

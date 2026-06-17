@@ -49,9 +49,9 @@ public interface ISharedDatabase : IDisposable, IAsyncDisposable
 
     /// <summary>
     /// Rolls back to Savepoint in the transaction.
-    /// Similar to a nested transaction rollboack.
+    /// Similar to a nested transaction roll back.
     /// </summary>
-    /// <param name="name">The name of the savepoint to rollback to.</param>
+    /// <param name="name">The name of the savepoint to roll back to.</param>
     void RollbackToSavepoint(string name);
 
     /// <summary>
@@ -65,6 +65,9 @@ public interface ISharedDatabase : IDisposable, IAsyncDisposable
     event EventHandler TransactionConsumed;
     
     void SetExternallyManagedConnection(DbConnection connection, DbTransaction? transaction);
+
+    DbConnection NativeConnection { get; }
+    DbTransaction? NativeTransaction { get; }
 }
 
 public interface IBaseSharedDatabase<out TConnection, out TTransaction> : ISharedDatabase
@@ -125,6 +128,9 @@ public abstract class BaseSharedDatabase<TConnection, TConnectionInterface, TTra
     
     /// <inheritdoc/>
     public TTransaction? Transaction => _transaction?.Transaction;
+
+    public DbConnection NativeConnection => Connection;
+    public DbTransaction? NativeTransaction => Transaction;
 
     /// <inheritdoc/>
     public void BeginTransaction()

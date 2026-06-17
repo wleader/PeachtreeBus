@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Npgsql;
 
-namespace PeachtreeBus.DatabaseSharing.PostgreSql;
+namespace PeachtreeBus.DatabaseSharing;
 
 /// <summary>
 /// An interface around the NpgsqlConnection

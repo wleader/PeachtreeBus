@@ -3,17 +3,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeachtreeBus.Testing;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.DatabaseSharing.Tests;
 
-public class SqlTransactionFake : ISqlTransaction
+public class TestableTransactionFake : ITestableTransaction
 {
     public bool Disposed { get; private set; }
 
-    public SqlTransaction Transaction { get; } = SqlServerTesting.CreateTransaction();
+    public DbTransaction Transaction { get; } = UninitializedObjects.Create<SqlTransaction>();
 
     public bool Committed { get; private set; }
 
