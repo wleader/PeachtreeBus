@@ -16,7 +16,7 @@ namespace PeachtreeBus.Example.Data
     /// A Data Access example that share the database connection and transaction object with PeachtreeBus.
     /// </summary>
     public class ExampleDataAccess(
-        ISqlSharedDatabase database)
+        ISharedDatabase database)
         : IExampleDataAccess
     {
         public Task Audit(string message)
@@ -24,7 +24,7 @@ namespace PeachtreeBus.Example.Data
             const string statement = "INSERT INTO[ExampleApp].[AuditLog] ([Occured],[Message]) VALUES(SYSUTCDATETIME(),@Message)";
             var p = new DynamicParameters();
             p.Add("@Message", message);
-            return database.Connection.ExecuteAsync(statement, p, database.Transaction);
+            return database.NativeConnection.ExecuteAsync(statement, p, database.NativeTransaction);
         }
     }
 }

@@ -1,9 +1,19 @@
+using System.Diagnostics.CodeAnalysis;
 using Aspire.Hosting;
 using Projects;
 
-var builder = DistributedApplication.CreateBuilder(args);
+namespace PeachtreeBus.Example.AppHost;
 
-builder.AddProject<PeachtreeBus_Example_MicrosoftDI>("Example-Endpoint-MicrosoftDI")
-    .WithExplicitStart();
+[ExcludeFromCodeCoverage(Justification = "Code is an example.")]
+public static class Program
+{
+    public static void Main(string[] args)
+    {
+        var builder = DistributedApplication.CreateBuilder(args);
 
-builder.Build().Run();
+        builder.AddProject<PeachtreeBus_Example_MicrosoftDI>("Example-Endpoint-MicrosoftDI")
+            .WithExplicitStart();
+
+        builder.Build().Run();
+    }
+}
