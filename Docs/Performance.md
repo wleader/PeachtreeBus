@@ -29,10 +29,10 @@ Browser Interface.
 ### Counters
 Counters are numbers that only go up.
 
+* messaging.client.sent.messages - A count of messages sent.
 * messaging.client.consumed.messages - A count of successfully processed messages.
 * peachtreebus.client.attempted.messages - A count of attempts to handle a message.
 * peachtreebus.client.failed.messages - A count of messages sent to the Failed queue.
-* messaging.client.sent.messages - A count of messages sent.
 * peachtreebus.client.retry.messages - A count of messages that got scheduled for a retry.
 * peachtreebus.client.blockedsaga.messsage - A count of times when a message was re-queued because it's saga was locked.
 
