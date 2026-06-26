@@ -47,7 +47,7 @@ public class CurrentTasksFixture
     }
 
     [TestMethod]
-    public async Task Given_MultipleAddedTask_And_WhenAll_When_AllTasksCompelte_Then_WhenAllCompletes()
+    public async Task Given_MultipleAddedTask_And_WhenAll_When_AllTasksCompleted_Then_AllCompleted()
     {
         var source = new TaskCompletionSource();
         _tasks.Add(source.Task);

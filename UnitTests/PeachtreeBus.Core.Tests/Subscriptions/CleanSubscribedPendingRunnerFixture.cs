@@ -12,7 +12,7 @@ public class CleanSubscribedPendingRunnerFixture : RunnerFixtureBase<CleanSubscr
     {
         return new(
             _dataAccess.Object,
-            FakeLog.Create<CleanSubscribedPendingRunner>(),
+            _log.Object,
             _task.Object);
     }
 }

@@ -73,10 +73,11 @@ public class ProcessSubscribedTask(
                 context.Data.MessageId,
                 context.SubscriberId,
                 ex);
-            _dataAccess.RollbackToSavepoint(savepointName);
+            activity.AddException(ex);
+
+            _dataAccess.RollbackToSavePointAfterException(savepointName, ex);
             // increment the retry count, (or maybe even fail the message)
             await _reader.Fail(context, ex);
-            activity.AddException(ex);
         }
         finally
         {

@@ -81,11 +81,11 @@ public class ProcessQueuedTask(
             // there was an exception, Rollback to the save point to undo
             // any db changes done by the handlers.
             _log.HandlerException(context.CurrentHandler!, context.MessageId, context.MessageClass, ex);
-            _dataAccess.RollbackToSavepoint(SavepointName);
+            activity.AddException(ex);
+
+            _dataAccess.RollbackToSavePointAfterException(SavepointName, ex);
             // increment the retry count, (or maybe even fail the message)
             await _queueReader.Fail(context, ex);
-
-            activity.AddException(ex);
         }
         finally
         {

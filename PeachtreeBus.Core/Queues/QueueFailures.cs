@@ -28,7 +28,7 @@ namespace PeachtreeBus.Queues
             catch (Exception ex)
             {
                 log.HandlerThrow(handleFailed.GetType(), message.GetType(), ex);
-                dataAccess.RollbackToSavepoint(SavePointName);
+                dataAccess.RollbackToSavePointAfterException(SavePointName, ex);
             }
         }
     }

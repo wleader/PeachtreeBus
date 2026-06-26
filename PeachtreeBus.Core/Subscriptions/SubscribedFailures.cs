@@ -28,7 +28,7 @@ namespace PeachtreeBus.Subscriptions
             catch (Exception ex)
             {
                 log.HandlerThrow(handler.GetType(), message.GetType(), ex);
-                dataAccess.RollbackToSavepoint(SavePointName);
+                dataAccess.RollbackToSavePointAfterException(SavePointName, ex);
             }
         }
     }

@@ -12,7 +12,7 @@ public class ProcessSubscribedRunnerFixture : RunnerFixtureBase<ProcessSubscribe
     {
         return new(
             _dataAccess.Object,
-            FakeLog.Create<ProcessSubscribedRunner>(),
+            _log.Object,
             _task.Object);
     }
 }

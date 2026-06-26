@@ -6,6 +6,7 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Subscriptions;
 using PeachtreeBus.Telemetry;
 using PeachtreeBus.Testing;
+using System;
 using System.Threading.Tasks;
 
 namespace PeachtreeBus.Core.Tests.Subscriptions;
@@ -129,5 +130,22 @@ public class ProcessSubscribedTaskFixture
 
         var activity = listener.ExpectOneCompleteActivity();
         activity.AssertException(ex);
+    }
+
+    [TestMethod]
+    public async Task Given_PipelineThrows_And_RollbackThrows_When_DoWork_Then_ThrowsAggregateException()
+    {
+        var ex = new TestException();
+        _invoker.Setup(i => i.Invoke(_context!))
+            .Callback(() => _pipelineInvoked = true)
+            .ThrowsAsync(ex);
+
+        var rollbackException = new InvalidOperationException("Rollback Failed.");
+        _dataAccess.Setup(x => x.RollbackToSavepoint("BeforeSubscriptionHandler"))
+            .Throws(rollbackException);
+
+        var thrown = await Assert.ThrowsExactlyAsync<AggregateException>(_task.RunOne);
+        CollectionAssert.Contains(thrown.InnerExceptions, ex);
+        CollectionAssert.Contains(thrown.InnerExceptions, rollbackException);
     }
 }

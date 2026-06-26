@@ -6,6 +6,7 @@ using PeachtreeBus.Tasks;
 using PeachtreeBus.Testing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -147,6 +148,35 @@ public abstract class RunnerFixtureBase<TRunner, TTask>
         _task.Verify(t => t.RunOne(), Times.Once);
         _dataAccess.Verify(d => d.CommitTransaction(), Times.Never);
         _dataAccess.Verify(d => d.RollbackTransaction(), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Given_TaskThrows_And_RollbackThrows_When_Run_Then_Throws()
+    {
+        var taskException = new TestException();
+        var rollbackException = new InvalidOperationException("Rollback Failed");
+        Given_Tasks(() => throw taskException);
+        _dataAccess.Setup(x => x.RollbackTransaction())
+            .Throws(rollbackException);
+
+        // because the runner does not throw, the only way to check
+        // that the rollback resulted in an aggregate exception is to check the log.
+        // enable logging of errors so the logger will be invoked
+        // this will allow us to check the aggregate exception was thrown.
+        _log.Setup(x => x.IsEnabled(LogLevel.Error)).Returns(true);
+
+        await When_Run();
+
+        var invocation = _log.Invocations.SingleOrDefault(i =>
+            i.Arguments.Count > 2 &&
+            i.Arguments[1] is EventId eventId &&
+            eventId.Name == "PeachtreeBus_Tasks_Runner_RollbackFailed");
+        Assert.IsNotNull(invocation, "Rollback Failed Not logged.");
+
+        var aggregateException = invocation.Arguments[3] as AggregateException;
+        Assert.IsNotNull(aggregateException);
+        CollectionAssert.Contains(aggregateException.InnerExceptions, taskException);
+        CollectionAssert.Contains(aggregateException.InnerExceptions, rollbackException);
     }
 
     [TestMethod]

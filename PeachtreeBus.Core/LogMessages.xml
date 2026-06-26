@@ -135,10 +135,10 @@
     <Namespace name="PeachtreeBus.Tasks" namespaceId="6">
         <Class name="Runner" classId="1" genericArgs="TBaseTask" genericConstraint="where TBaseTask : IBaseTask">
             <Event name="RollbackFailed" level="Error" exception="true" eventId="1">
-                Failed to rollback transaction.
+                Failed to rollback transaction. This may be because an earlier exception left the database transaction in an unusable state.
             </Event>
             <Event name="TaskException" level="Error" exception="true" eventId="2">
-                The task threw an exception.
+                The task threw an exception. Error handling may not have been performed.
             </Event>
         </Class>
         <Class name="Starters" classId="2">

@@ -48,7 +48,7 @@ public abstract class Runner<TBaseTask>(
                 _log.TaskException(e);
                 try
                 {
-                    _dataAccess.RollbackTransaction();
+                    _dataAccess.RollbackTransactionAfterException(e);
                 }
                 catch (Exception rollbackEx)
                 {

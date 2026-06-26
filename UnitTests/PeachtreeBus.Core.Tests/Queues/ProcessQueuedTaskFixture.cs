@@ -141,7 +141,7 @@ public class ProcessQueuedTaskFixture
     }
 
     [TestMethod]
-    public async Task Given_PipelineThrows_When_DoWork_Then_()
+    public async Task Given_PipelineThrows_When_DoWork_Then_RollbackToSavePoint_And_FailMessage()
     {
         var ex = new TestException();
         _invoker.Setup(i => i.Invoke(_context!))
@@ -158,6 +158,23 @@ public class ProcessQueuedTaskFixture
         _meters.Verify(m => m.FinishMessage(), Times.Once());
         _meters.Verify(m => m.StartMessage(), Times.Once());
         _dataAccess.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task Given_PipelineThrows_And_RollbackThrows_When_DoWork_Then_ThrowsAggregateException()
+    {
+        var ex = new TestException();
+        _invoker.Setup(i => i.Invoke(_context!))
+            .Callback(() => _pipelineInvoked = true)
+            .ThrowsAsync(ex);
+
+        var rollbackException = new InvalidOperationException("Rollback Failed.");
+        _dataAccess.Setup(x => x.RollbackToSavepoint("BeforeMessageHandler"))
+            .Throws(rollbackException);
+
+        var thrown = await Assert.ThrowsExactlyAsync<AggregateException>(_task.RunOne);
+        CollectionAssert.Contains(thrown.InnerExceptions, ex);
+        CollectionAssert.Contains(thrown.InnerExceptions, rollbackException);
     }
 
     [TestMethod]
