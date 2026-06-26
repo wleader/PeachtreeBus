@@ -22,7 +22,7 @@ namespace PeachtreeBus.Data
         void CommitTransaction();
 
         /// <summary>
-        /// Rollboack the current Database Transaction.
+        /// Rollback the current Database Transaction.
         /// </summary>
         void RollbackTransaction();
 

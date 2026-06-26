@@ -14,6 +14,7 @@ public class SharedDatabaseExceptionHandlingFixture
 
     private Exception? TransactionStartedHandlerException = null;
     private Exception? TransactionConsumedHandlerException = null;
+    private bool _transactionConsumed;
 
     [TestInitialize]
     public void Intialize()
@@ -31,6 +32,7 @@ public class SharedDatabaseExceptionHandlingFixture
         _db = new(_connectionFactory.Object);
         _db.TransactionStarted += TransactionStartedEventHandler;
         _db.TransactionConsumed += TransactionConsumedEventHandler;
+        _transactionConsumed = false;
     }
 
     [TestCleanup]
@@ -42,6 +44,7 @@ public class SharedDatabaseExceptionHandlingFixture
 
     private void TransactionConsumedEventHandler(object? sender, EventArgs e)
     {
+        _transactionConsumed = true;
         if (TransactionConsumedHandlerException is not null)
             throw TransactionConsumedHandlerException;
     }
@@ -124,6 +127,15 @@ public class SharedDatabaseExceptionHandlingFixture
         _transaction.Setup(t => t.Rollback()).Throws<Exception>();
         _db.BeginTransaction();
         Assert.ThrowsException<Exception>(_db.RollbackTransaction);
+    }
+
+    [TestMethod]
+    public void Given_TransactionRollbackThrowsInvalidOperation_When_RollbackTransaction_Then_ConsumedAndNoThrow()
+    {
+        _transaction.Setup(t => t.Rollback()).Throws(new InvalidOperationException());
+        _db.BeginTransaction();
+        _db.RollbackTransaction();
+        Assert.IsTrue(_transactionConsumed);
     }
 
     [TestMethod]

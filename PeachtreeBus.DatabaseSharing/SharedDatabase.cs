@@ -190,8 +190,17 @@ namespace PeachtreeBus.DatabaseSharing
                 if (_transaction == null)
                     throw new SharedDatabaseException("There is no transaction to roll back.");
 
-                _transaction.Rollback();
-                _transaction = null;
+                try
+                {
+                    _transaction.Rollback();
+                    _transaction = null;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Trace.TraceWarning("Rollback skipped because the transaction was no longer usable. It may have already completed or the SQL connection may have been closed. Exception: {0}", ex.ToString());
+
+                    _transaction = null;
+                }
             }
             TransactionConsumed?.Invoke(this, EventArgs.Empty);
         }
