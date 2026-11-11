@@ -5,6 +5,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <IsAspireHost>true</IsAspireHost>
+        <AspireUseCliBundle>true</AspireUseCliBundle>
         <UserSecretsId>2e6d8721-2c64-429c-ae20-cf0a2d625265</UserSecretsId>
     </PropertyGroup>
 
