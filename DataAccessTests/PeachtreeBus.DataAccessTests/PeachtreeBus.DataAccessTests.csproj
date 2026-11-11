@@ -14,6 +14,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Data.SqlClient"/>
+        <PackageReference Include="System.Security.Cryptography.Pkcs"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj"/>
