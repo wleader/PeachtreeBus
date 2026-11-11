@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Dapper;
 using PeachtreeBus.DatabaseSharing;
@@ -15,12 +16,13 @@ public interface IDapperMethods
     Task<int> Execute(string statement, DynamicParameters? parameters = null);
 }
 
+[ExcludeFromCodeCoverage(Justification = "Requires a DB Connection. Code is Exercised in DataAccess tests.")]
 public class DapperMethods(
     IDapperTypesHandler configureDapper,
     ISharedDatabase database) : IDapperMethods
 {
     public bool DapperConfigured { get; } = configureDapper.Configure();
-    
+
     private DbConnection Conn => database.NativeConnection;
     private DbTransaction? Tran => database.NativeTransaction;
     
