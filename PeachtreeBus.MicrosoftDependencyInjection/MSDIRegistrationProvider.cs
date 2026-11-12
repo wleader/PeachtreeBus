@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PeachtreeBus.ClassNames;
-using PeachtreeBus.DatabaseSharing;
 using System;
 using System.Collections.Generic;
+using PeachtreeBus.DatabaseSharing;
 
 namespace PeachtreeBus.MicrosoftDependencyInjection;
 
@@ -12,13 +12,9 @@ public class MSDIRegistrationProvider(IServiceCollection services) : IRegistrati
     {
         RegisterSingleton<IScopeFactory, MSDIScopeFactory>();
         RegisterScoped<IServiceProviderAccessor, MSDIServiceProviderAccessor>();
-
-        services.AddScoped(sp =>
-            sp.GetRequiredService<IShareObjectsBetweenScopes>().SharedDatabase ??=
-                sp.GetRequiredService<ISharedDatabase>());
-
         services.AddSingleton<ClassNameService>();
         services.AddSingleton<IClassNameService>(sp => new CachedClassNameService(sp.GetRequiredService<ClassNameService>()));
+        services.AddScoped<ISharedDatabase>(sp => sp.GetRequiredService<ISharedDatabaseFactory>().GetSharedDatabase());
     }
 
     public void RegisterLogging() { }

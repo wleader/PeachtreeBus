@@ -1,7 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PeachtreeBus.DatabaseSharing;
 
-namespace PeachtreeBus.DatabaseSharing.MsSql.Tests;
+namespace PeachtreeBus.MsSql.Tests.DatabaseSharing;
 
 [TestClass]
 public class SqlConnectionFactoryFixture

@@ -8,12 +8,8 @@ namespace PeachtreeBus.DatabaseSharing;
 public interface ISqlConnectionFactory : IDbConnectionFactory<ISqlConnection>;
 
 /// <summary>
-/// Creates a connection to an SQL database using the Dependency injected Connection string provider.
+/// Creates a connection to an SQL database using the Dependency Injected Connection String Provider.
 /// </summary>
-/// <remarks>
-/// Constructor
-/// </remarks>
-/// <param name="provideConnectionString">Provides the connection string.</param>
 public class SqlConnectionFactory(
     IProvideDbConnectionString provideConnectionString)
     : ISqlConnectionFactory

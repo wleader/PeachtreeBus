@@ -1,8 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.Testing;
 
-namespace PeachtreeBus.DatabaseSharing.MsSql.Tests;
+namespace PeachtreeBus.MsSql.Tests.DatabaseSharing;
 
 [TestClass]
 public class ExternallyManagedSqlTransactionFixture

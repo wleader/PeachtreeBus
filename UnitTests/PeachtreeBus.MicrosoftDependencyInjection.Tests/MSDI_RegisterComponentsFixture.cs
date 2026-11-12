@@ -20,8 +20,8 @@ public class MSDI_RegisterComponentsFixture : BaseRegisterComponentsFixture<ISer
         // This will probably change.
         // Assumption, there will be some extension method in 
         // the data access assemblies for adding an IBusDataAccess
-        var busDataAcess = new Mock<IBusDataAccess>();
-        serviceCollection.AddSingleton(busDataAcess.Object);
+        var dataAccess = new Mock<IBusDataAccess>();
+        serviceCollection.AddSingleton(dataAccess.Object);
 
         AddToContainer?.Invoke(serviceCollection);
 

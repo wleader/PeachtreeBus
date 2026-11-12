@@ -53,7 +53,7 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
     {
         using var accessor = BuildAccessor();
 
-        void AssertService<T>() => 
+        void AssertService<T>() =>
             Assert.IsNotNull(accessor.GetService<T>(), $"Type {typeof(T).Name} not registered.");
 
         AssertService<IMessagingSession>();
@@ -161,10 +161,7 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
     private void Given_Mock_Then_ServiceIsMock<TInterface>() where TInterface : class
     {
         var mock = new Mock<TInterface>();
-        AddToContainer = c =>
-        {
-            AddInstance(c, mock.Object);
-        };
+        AddToContainer = c => { AddInstance(c, mock.Object); };
         Then_ServiceIs<TInterface>(mock.Object);
     }
 
@@ -387,7 +384,8 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
         ThenNoTypesReturned<IPublishPipelineStep>();
     }
 
-    protected abstract void Then_GetHandlersReturnsEmpty<THandler>(IServiceProviderAccessor accessor) where THandler : class;
+    protected abstract void Then_GetHandlersReturnsEmpty<THandler>(IServiceProviderAccessor accessor)
+        where THandler : class;
 
     [TestMethod]
     public void Given_NoFindableTypes_When_GetHandlers_Then_NoTypes()
@@ -397,5 +395,23 @@ public abstract class BaseRegisterComponentsFixture<TContainer>
 
         Then_GetHandlersReturnsEmpty<IHandleSubscribedMessage<SubscribedMessage>>(accessor);
         Then_GetHandlersReturnsEmpty<IHandleQueueMessage<QueueMessage>>(accessor);
+    }
+
+    [TestMethod]
+    public void Given_ShareObjectsSharedDbSet_When_GetISharedDB_Then_SharedDBIsSame()
+    {
+        TestAssemblies = [];
+        using var accessor = BuildAccessor();
+
+        var shareObjects = accessor.GetService<IShareObjectsBetweenScopes>();
+        Assert.IsNotNull(shareObjects);
+        Assert.IsNull(shareObjects.SharedDatabase);
+        
+        var mockDb = new Mock<ISharedDatabase>();
+        shareObjects.SharedDatabase = mockDb.Object;
+        
+        var actual = accessor.GetService<ISharedDatabase>();
+
+        Assert.AreSame(shareObjects.SharedDatabase, actual);
     }
 }
