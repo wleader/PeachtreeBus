@@ -3,7 +3,7 @@ using Microsoft.SqlServer.Dac;
 
 namespace PeachtreeBus.DatabaseTesting.MsSql;
 
-public interface IDatabaseManagement
+public interface IMsSqlDatabaseManagement
 {
     bool DbExists(SqlConnection connection, DatabaseName name);
     void CreateDatabase(SqlConnection connection, DatabaseName name);
@@ -11,7 +11,7 @@ public interface IDatabaseManagement
     void ApplyDacPac();
 }
 
-public class DatabaseManagement(IMsSqlTestSettings settings) : IDatabaseManagement
+public class MsSqlDatabaseManagement(IMsSqlTestSettings settings) : IMsSqlDatabaseManagement
 {
     public bool DbExists(SqlConnection connection, DatabaseName name)
     {
