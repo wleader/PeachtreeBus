@@ -2,6 +2,7 @@
     <ItemGroup>
         <PackageReference Include="MSTest"/>
         <PackageReference Include="Microsoft.SqlServer.DacFx"/>
+        <PackageReference Include="Testcontainers.MsSql"/>
     </ItemGroup>
 
     <ItemGroup>

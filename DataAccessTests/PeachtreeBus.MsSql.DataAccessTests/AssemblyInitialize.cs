@@ -38,9 +38,17 @@ public static class AssemblyInitialize
             c.AddSingleton<IInitializeTestDatabase, MsSqlInitializeDatabase>();
             c.AddSingleton<IDatabaseManagement, DatabaseManagement>();
             c.AddSingleton<IMsSqlTestSettings, MsSqlTestSettings>();
+            c.AddTransient<ITestSettings>(sp => sp.GetRequiredService<IMsSqlTestSettings>());
         });
         
         var initializer =  TestServices.GetService<IInitializeTestDatabase>();
         initializer.Initialize();
+    }
+
+    [AssemblyCleanup]
+    public static void Cleanup(TestContext _)
+    {
+        var initializer =  TestServices.GetService<IInitializeTestDatabase>();
+        initializer.Cleanup();
     }
 }

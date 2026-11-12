@@ -1,17 +1,16 @@
-using Microsoft.Extensions.Configuration;
+using System;
 
 namespace PeachtreeBus.DatabaseTesting;
 
 public interface ITestSettings
 {
-    bool RecreateDatabase { get; }
+    string ConnectionString { get; set; }
 }
 
-public class TestSettings(IConfigurationRoot config) : ITestSettings
+public class TestSettings : ITestSettings
 {
-    protected IConfigurationRoot Config => config;
-    
-    public bool RecreateDatabase => Config
-        .GetSection("TestSettings")
-        .GetValue<bool>("RecreateDatabase");
+    public string ConnectionString { get => string.IsNullOrWhiteSpace(field)
+            ? throw new ApplicationException("ConnectionString for the test database has not be set.")
+            : field; 
+        set; }
 }

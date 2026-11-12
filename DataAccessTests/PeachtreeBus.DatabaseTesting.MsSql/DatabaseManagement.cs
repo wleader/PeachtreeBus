@@ -58,7 +58,7 @@ public class DatabaseManagement(IMsSqlTestSettings settings) : IDatabaseManageme
     public void ApplyDacPac()
     {
         var dacpac = DacPackage.Load(settings.DacPacFile);
-        var dacService = new DacServices(settings.TestDatabase.Value);
-        dacService.Deploy(dacpac, settings.TestDatabase.DatabaseName, true);
+        var dacService = new DacServices(settings.ConnectionString);
+        dacService.Deploy(dacpac, settings.DatabaseName, true);
     }
 }

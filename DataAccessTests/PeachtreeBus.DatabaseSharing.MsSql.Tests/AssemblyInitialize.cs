@@ -20,10 +20,18 @@ public static class AssemblyInitialize
             c.AddSingleton<IDatabaseManagement, DatabaseManagement>();
             c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
+            c.AddTransient<ITestSettings>(sp => sp.GetRequiredService<IMsSqlTestSettings>());
             c.AddScoped<MsSqlSharedDatabase>();
         });
         
         var initializer =  TestServices.GetService<IInitializeTestDatabase>();
         initializer.Initialize();
+    }
+
+    [AssemblyCleanup]
+    public static void Cleanup(TestContext _)
+    {
+        var initializer =  TestServices.GetService<IInitializeTestDatabase>();
+        initializer.Cleanup();
     }
 }

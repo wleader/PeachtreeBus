@@ -21,11 +21,14 @@ public static class TestServices
         var configurationRoot = configurationBuilder.Build();
         
         container.AddSingleton(configurationRoot);
-        container.AddTransient<IBusConfiguration>(_ => new BusConfiguration
+        container.AddTransient<IBusConfiguration>(sp =>
         {
-            ConnectionString = configurationRoot.GetConnectionString("TestDatabase")
-                ?? throw new ApplicationException("TestDatabase connection string not found."),
-            Schema = new("PeachtreeBus"),
+            var settings = sp.GetRequiredService<ITestSettings>();
+            return new BusConfiguration
+            {
+                ConnectionString = settings.ConnectionString,
+                Schema = new("PeachtreeBus"),
+            };
         });
 
         addServices?.Invoke(container);

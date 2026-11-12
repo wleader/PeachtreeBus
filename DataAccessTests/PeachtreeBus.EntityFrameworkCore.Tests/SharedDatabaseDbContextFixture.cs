@@ -25,7 +25,7 @@ public class SharedDatabaseDbContextFixture
         
         _connectionFactory = new();
         _connectionFactory.Setup(c => c.GetConnection())
-            .Returns(() => new SqlConnectionProxy(new(_testSettings.TestDatabase.Value)));
+            .Returns(() => new SqlConnectionProxy(new(_testSettings.ConnectionString)));
 
         _msSqlSharedDatabase = new MsSqlSharedDatabase(_connectionFactory.Object);
 
@@ -34,7 +34,7 @@ public class SharedDatabaseDbContextFixture
 
     private void CleanupData()
     {
-        using var connection = new SqlConnection(_testSettings.TestDatabase.Value);
+        using var connection = new SqlConnection(_testSettings.ConnectionString);
         connection.Open();
         using var command = new SqlCommand(
             """

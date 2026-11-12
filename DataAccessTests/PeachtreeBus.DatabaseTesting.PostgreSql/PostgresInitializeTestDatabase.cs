@@ -6,4 +6,9 @@ public class PostgresInitializeTestDatabase : IInitializeTestDatabase
     {
         // todo Check if DB Exists and if not, create it.
     }
+
+    public void Cleanup()
+    {
+        // todo tear down anything that was started.
+    }
 }
