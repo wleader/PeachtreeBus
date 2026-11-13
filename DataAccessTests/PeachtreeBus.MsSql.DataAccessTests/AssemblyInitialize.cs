@@ -36,7 +36,7 @@ public static class AssemblyInitialize
             c.AddTransient<ITestDataAccess, MsSqlTestDataAccess>();
             c.AddSingleton<ITestConfig, TestConfig>();
             c.AddSingleton<IInitializeTestDatabase, MsSqlInitializeDatabase>();
-            c.AddSingleton<IMsSqlDatabaseManagement, MsSqlDatabaseManagement>();
+            c.AddSingleton<IManageTestDatabase, MsSqlDatabaseManagement>();
             c.AddSingleton<IMsSqlTestSettings, MsSqlTestSettings>();
             c.AddTransient<ITestSettings>(sp => sp.GetRequiredService<IMsSqlTestSettings>());
         });

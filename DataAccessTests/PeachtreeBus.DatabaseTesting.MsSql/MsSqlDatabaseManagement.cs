@@ -1,19 +1,20 @@
+using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
 
 namespace PeachtreeBus.DatabaseTesting.MsSql;
 
-public interface IMsSqlDatabaseManagement
+public class MsSqlDatabaseManagement(IMsSqlTestSettings settings) : IManageTestDatabase
 {
-    bool DbExists(SqlConnection connection, DatabaseName name);
-    void CreateDatabase(SqlConnection connection, DatabaseName name);
-    void DropDatabase(SqlConnection connection, DatabaseName name);
-    void ApplyDacPac();
-}
+    private SqlConnection GetServerConnection()
+    {
+        var result = new SqlConnection(settings.ServerConnectionString);
+        result.Open();
+        Assert.AreEqual(ConnectionState.Open , result.State, "Could not connect to SQL Server.");
+        return result;
+    }
 
-public class MsSqlDatabaseManagement(IMsSqlTestSettings settings) : IMsSqlDatabaseManagement
-{
-    public bool DbExists(SqlConnection connection, DatabaseName name)
+    public bool Exists()
     {
         const string statement =
             """
@@ -21,25 +22,29 @@ public class MsSqlDatabaseManagement(IMsSqlTestSettings settings) : IMsSqlDataba
             FROM sys.databases
             WHERE Name = '{0}'
             """;
-        
-        var command = new SqlCommand(string.Format(statement, name), connection);
+
+        using var connection = GetServerConnection();
+        var command = new SqlCommand(string.Format(statement, settings.DatabaseName), connection);
         var result = command.ExecuteScalar();
-        return (result != null);
+        return result != null;
     }
 
-    public void CreateDatabase(SqlConnection connection, DatabaseName name)
+    public void Create()
     {
         const string statement = "CREATE DATABASE {0}";
-        var command = new SqlCommand(string.Format(statement, name), connection);
-        command.ExecuteNonQuery();
 
-        Assert.IsTrue(DbExists(connection, name),
-            $"Could not Create Database '{name}'.");
+        using (var connection = GetServerConnection())
+        {
+            var command = new SqlCommand(string.Format(statement, settings.DatabaseName), connection);
+            command.ExecuteNonQuery();
+        }
+
+        Assert.IsTrue(Exists(), $"Could not Create Database '{settings.DatabaseName}'.");
     }
 
-    public void DropDatabase(SqlConnection connection, DatabaseName name)
+    public void Drop()
     {
-        if (!DbExists(connection, name))
+        if (!Exists())
             return;
 
         const string statement =
@@ -48,14 +53,17 @@ public class MsSqlDatabaseManagement(IMsSqlTestSettings settings) : IMsSqlDataba
             SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
             DROP DATABASE {0}
             """;
-        var command = new SqlCommand(string.Format(statement, name), connection);
-        command.ExecuteNonQuery();
+
+        using (var connection = GetServerConnection())
+        {
+            var command = new SqlCommand(string.Format(statement, settings.DatabaseName), connection);
+            command.ExecuteNonQuery();
+        }
         
-        Assert.IsFalse(DbExists(connection, name),
-            $"Could not Drop Database '{name}'.");
+        Assert.IsFalse(Exists(), $"Could not Drop Database '{settings.DatabaseName}'.");
     }
 
-    public void ApplyDacPac()
+    public void Initialize()
     {
         var dacpac = DacPackage.Load(settings.DacPacFile);
         var dacService = new DacServices(settings.ConnectionString);

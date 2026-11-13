@@ -17,7 +17,7 @@ public static class AssemblyInitialize
             // is something needed here?
             c.AddSingleton<IInitializeTestDatabase, MsSqlInitializeDatabase>();
             c.AddSingleton<IMsSqlTestSettings, MsSqlTestSettings>();
-            c.AddSingleton<IMsSqlDatabaseManagement, MsSqlDatabaseManagement>();
+            c.AddSingleton<IManageTestDatabase, MsSqlDatabaseManagement>();
             c.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
             c.AddTransient<ITestSettings>(sp => sp.GetRequiredService<IMsSqlTestSettings>());

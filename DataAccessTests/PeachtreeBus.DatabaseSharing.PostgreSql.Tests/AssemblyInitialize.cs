@@ -18,6 +18,9 @@ public static class AssemblyInitialize
             c.AddSingleton<IInitializeTestDatabase, PostgresInitializeTestDatabase>();
             c.AddSingleton<INpgSqlConnectionFactory, NpgSqlConnectionFactory>();
             c.AddSingleton<IProvideDbConnectionString, ProvideDbConnectionString>();
+            c.AddSingleton<IPostgreSqlTestSettings, PostgreSqlTestSettings>();
+            c.AddTransient<ITestSettings>(sp => sp.GetRequiredService<IPostgreSqlTestSettings>());
+            c.AddSingleton<IManageTestDatabase, PostgresManageTestDatabase>();
             c.AddScoped<NpgSqlSharedDatabase>();
         });
 

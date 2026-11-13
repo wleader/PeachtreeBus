@@ -36,6 +36,10 @@ public static class AssemblyInitialize
             c.AddTransient<ITestDataAccess, PostgreSqlTestDataAccess>();
             c.AddSingleton<ITestConfig, TestConfig>();
             c.AddSingleton<IInitializeTestDatabase, PostgresInitializeTestDatabase>();
+            c.AddSingleton<IPostgreSqlTestSettings, PostgreSqlTestSettings>();
+            c.AddTransient<ITestSettings>(sp => sp.GetRequiredService<IPostgreSqlTestSettings>());
+            c.AddSingleton<IInitializeTestDatabase, PostgresInitializeTestDatabase>();
+            c.AddSingleton<IManageTestDatabase, PostgresManageTestDatabase>();
         });
 
         var initializer =  TestServices.GetService<IInitializeTestDatabase>();

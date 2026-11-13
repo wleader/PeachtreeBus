@@ -6,6 +6,7 @@ namespace PeachtreeBus.DatabaseTesting;
 public interface ITestSettings
 {
     string ConnectionString { get; set; }
+    string ServerConnectionString { get; set; }
     bool RecreateDatabase { get; }
     bool ReuseContainer { get; }
     bool PersistContainerData { get; }
@@ -20,6 +21,14 @@ public class TestSettings(IConfigurationRoot config) : ITestSettings
             ? throw new ApplicationException("ConnectionString for the test database has not be set.")
             : field; 
         set; }
+
+    public string ServerConnectionString
+    {
+        get => string.IsNullOrWhiteSpace(field)
+            ? throw new ApplicationException("ConnectionString for the database server has not be set.")
+            : field;
+        set;
+    }
 
     public bool RecreateDatabase => Config
         .GetSection("TestSettings")
