@@ -13,15 +13,15 @@ public class CleanQueuedCompletedStarterFixture : StarterFixtureBase<
     IAlwaysOneEstimator,
     IScheduledTaskCounter>
 {
-    public override CleanQueuedCompletedStarter CreateStarter()
+    protected override CleanQueuedCompletedStarter CreateStarter()
     {
         return new(
-            _log.Object,
-            _scopeFactory.Object,
-            _tasks.Object,
-            _tracker.Object,
-            _taskCounter.Object,
-            _estimator.Object,
-            _dataAccess.Object);
+            Log.Object,
+            ScopeFactory.Object,
+            Tasks.Object,
+            Tracker.Object,
+            TaskCounter.Object,
+            Estimator.Object,
+            DataAccess.Object);
     }
 }

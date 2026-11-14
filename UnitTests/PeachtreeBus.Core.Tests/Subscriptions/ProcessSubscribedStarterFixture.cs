@@ -13,15 +13,15 @@ public class ProcessSubscribedStarterFixture : StarterFixtureBase<
     IProcessSubscribedEstimator,
     IMessagingTaskCounter>
 {
-    public override ProcessSubscribedStarter CreateStarter()
+    protected override ProcessSubscribedStarter CreateStarter()
     {
         return new(
-            _log.Object,
-            _scopeFactory.Object,
-            _tasks.Object,
-            _tracker.Object,
-            _taskCounter.Object,
-            _estimator.Object,
-            _dataAccess.Object);
+            Log.Object,
+            ScopeFactory.Object,
+            Tasks.Object,
+            Tracker.Object,
+            TaskCounter.Object,
+            Estimator.Object,
+            DataAccess.Object);
     }
 }
