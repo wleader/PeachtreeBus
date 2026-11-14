@@ -10,8 +10,7 @@ public class ProcessSubscribedStarterFixture : StarterFixtureBase<
     ProcessSubscribedStarter,
     IProcessSubscribedRunner,
     IAlwaysRunTracker,
-    IProcessSubscribedEstimator,
-    IMessagingTaskCounter>
+    IProcessSubscribedEstimator>
 {
     protected override ProcessSubscribedStarter CreateStarter()
     {
@@ -20,7 +19,7 @@ public class ProcessSubscribedStarterFixture : StarterFixtureBase<
             ScopeFactory.Object,
             Tasks.Object,
             Tracker.Object,
-            TaskCounter.Object,
+            TaskCounter,
             Estimator.Object,
             DataAccess.Object);
     }

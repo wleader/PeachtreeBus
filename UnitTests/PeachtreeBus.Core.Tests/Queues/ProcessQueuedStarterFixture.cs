@@ -10,8 +10,7 @@ public class ProcessQueuedStarterFixture : StarterFixtureBase<
     ProcessQueuedStarter,
     IProcessQueuedRunner,
     IAlwaysRunTracker,
-    IProcessQueuedEstimator,
-    IMessagingTaskCounter>
+    IProcessQueuedEstimator>
 {
     protected override ProcessQueuedStarter CreateStarter()
     {
@@ -20,7 +19,7 @@ public class ProcessQueuedStarterFixture : StarterFixtureBase<
             ScopeFactory.Object,
             Tasks.Object,
             Tracker.Object,
-            TaskCounter.Object,
+            TaskCounter,
             Estimator.Object,
             DataAccess.Object);
     }

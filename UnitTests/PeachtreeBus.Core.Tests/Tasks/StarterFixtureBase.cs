@@ -5,18 +5,17 @@ using PeachtreeBus.Data;
 using PeachtreeBus.Tasks;
 using PeachtreeBus.Testing;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using PeachtreeBus.Core.Tests.Fakes;
 
 namespace PeachtreeBus.Core.Tests.Tasks;
 
-public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator, TCounter>
+public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator>
     where TStarter : Starter<TRunner>
     where TRunner : class, IRunner
     where TTracker : class, ITracker
     where TEstimator : class, IEstimator
-    where TCounter : class, ITaskCounter
 {
     private TStarter _starter = null!;
     protected readonly Mock<ILogger<TStarter>> Log = new();
@@ -24,18 +23,17 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     protected readonly Mock<TTracker> Tracker = new();
     private readonly FakeServiceProviderAccessor _accessor = new(new());
     private readonly Mock<TRunner> _runner = new();
-    protected readonly Mock<TCounter> TaskCounter = new();
+    protected readonly FakeTaskCounter TaskCounter = new();
     protected readonly Mock<TEstimator> Estimator = new();
     protected readonly Mock<IBusDataAccess> DataAccess = new();
     protected readonly Mock<ICurrentTasks> Tasks = new();
 
-    private List<Task> _runnerTasks = [];
     private CancellationTokenSource _cts = null!;
     private bool _gotRunnerInstance;
 
-    private int _available;
     private int _estimate;
     private bool _shouldStart;
+    private int _workDone;
 
     [TestInitialize]
     public virtual void Initialize()
@@ -50,7 +48,6 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         DataAccess.Reset();
         Tasks.Reset();
 
-        _runnerTasks = [];
         _cts = new();
         _gotRunnerInstance = false;
 
@@ -63,22 +60,17 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
             .Callback(() => Assert.IsTrue(_gotRunnerInstance));
 
         _runner.Setup(r => r.RunRepeatedly(It.IsAny<CancellationToken>()))
-            .Returns(() =>
-            {
-                var result = Task.FromResult(Guid.NewGuid());
-                _runnerTasks.Add(result);
-                return result;
-            });
-
-        TaskCounter.Setup(x => x.Available())
-            .Returns(() => _available);
+            .Returns(() => Task.FromResult(Guid.NewGuid()));
 
         Estimator.Setup(x => x.EstimateDemand())
             .ReturnsAsync(() => _estimate);
 
         _shouldStart = true;
+        _workDone = 0;
         Tracker.SetupGet(x => x.ShouldStart)
             .Returns(() => _shouldStart);
+        Tracker.Setup(x => x.WorkDone())
+            .Callback(() => _workDone++);
 
         _starter = CreateStarter();
     }
@@ -104,7 +96,8 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         int estimate,
         int expectedRunnerCount)
     {
-        _available = available;
+        TaskCounter.Given_Available(available);
+        TaskCounter.Given_ExpectedTaskCount(expectedRunnerCount);
         _estimate = estimate;
         _shouldStart = shouldStart;
 
@@ -116,7 +109,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     [TestMethod]
     public async Task Given_ZeroAvailability_When_Start_Then_EstimateNotInvoked()
     {
-        _available = 0;
+        TaskCounter.Given_Available(0);
         _estimate = 1;
         _shouldStart = true;
         await When_Start();
@@ -126,7 +119,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     [TestMethod]
     public async Task Given_ShouldStart_And_Available_And_Estimate_When_Start_Then_DataAccessIsResetFirst()
     {
-        _available = 1;
+        TaskCounter.Given_Available(1);
         _estimate = 1;
         _shouldStart = true;
         bool reconnected = false;
@@ -135,9 +128,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         Tracker.SetupGet(x => x.ShouldStart)
             .Callback(() => Assert.IsTrue(reconnected))
             .Returns(true);
-        TaskCounter.Setup(x => x.Available())
-            .Callback(() => Assert.IsTrue(reconnected))
-            .Returns(1);
+        TaskCounter.AvailableCallback = () => Assert.IsTrue(reconnected);
         Estimator.Setup(x => x.EstimateDemand())
             .Callback(() => Assert.IsTrue(reconnected))
             .ReturnsAsync(1);
@@ -150,7 +141,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     [TestMethod]
     public async Task Given_DataAccessThrows_When_Start_Then_ResultIsEmpty()
     {
-        _available = 1;
+        TaskCounter.Given_Available(1);
         _estimate = 1;
         _shouldStart = true;
         DataAccess.Setup(x => x.Reconnect()).Throws<TestException>();
@@ -161,7 +152,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     [TestMethod]
     public async Task Given_TrackerThrows_When_Start_Then_ResultIsEmpty()
     {
-        _available = 1;
+        TaskCounter.Given_Available(1);
         _estimate = 1;
         _shouldStart = true;
         Tracker.SetupGet(x => x.ShouldStart).Throws<TestException>();
@@ -172,10 +163,10 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     [TestMethod]
     public async Task Given_CounterThrows_When_Start_Then_ResultIsEmpty()
     {
-        _available = 1;
+        TaskCounter.Given_Available(1);
         _estimate = 1;
         _shouldStart = true;
-        TaskCounter.Setup(x => x.Available()).Throws<TestException>();
+        TaskCounter.Given_AvailableThrows(new TestException());
         await When_Start();
         _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Never);
     }
@@ -183,7 +174,7 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
     [TestMethod]
     public async Task Given_EstimatorThrows_When_Start_Then_ResultIsEmpty()
     {
-        _available = 1;
+        TaskCounter.Given_Available(1);
         _estimate = 1;
         _shouldStart = true;
         Estimator.Setup(x => x.EstimateDemand()).Throws<TestException>();
@@ -191,23 +182,18 @@ public abstract class StarterFixtureBase<TStarter, TRunner, TTracker, TEstimator
         _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Never);
     }
 
-    private async Task When_Start()
-    {
-        await _starter.Start(_cts.Token);
-        await Task.Delay(10); // give time for continuations
-        Task.WaitAll([.. _runnerTasks]);
-    }
+    private Task When_Start() => _starter.Start(_cts.Token);
 
     private void Then_RunnersAreStarted(int runnerCount)
     {
         Tracker.Verify(t => t.Start(), Times.Exactly(runnerCount));
+        SpinWait.SpinUntil(() => _workDone == runnerCount, TimeSpan.FromSeconds(1));
         Tracker.Verify(t => t.WorkDone(), Times.Exactly(runnerCount));
         ScopeFactory.Verify(f => f.Create(), Times.Exactly(runnerCount));
         _accessor.VerifyGetService<TRunner>(runnerCount);
         _accessor.Mock.Verify(s => s.Dispose(), Times.Exactly(runnerCount));
         _runner.Verify(r => r.RunRepeatedly(_cts.Token), Times.Exactly(runnerCount));
-        TaskCounter.Verify(c => c.Increment(), Times.Exactly(runnerCount));
-        TaskCounter.Verify(c => c.Decrement(), Times.Exactly(runnerCount));
+        TaskCounter.Then_TasksComplete();
         Tasks.Verify(t => t.Add(It.IsAny<Task>()), Times.Exactly(runnerCount));
     }
 }

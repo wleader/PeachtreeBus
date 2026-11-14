@@ -10,8 +10,7 @@ public class CleanSubscriptionsStarterFixture : StarterFixtureBase<
     CleanSubscriptionsStarter,
     ICleanSubscriptionsRunner,
     ICleanSubscriptionsTracker,
-    IAlwaysOneEstimator,
-    IScheduledTaskCounter>
+    IAlwaysOneEstimator>
 {
     protected override CleanSubscriptionsStarter CreateStarter()
     {
@@ -20,7 +19,7 @@ public class CleanSubscriptionsStarterFixture : StarterFixtureBase<
             ScopeFactory.Object,
             Tasks.Object,
             Tracker.Object,
-            TaskCounter.Object,
+            TaskCounter,
             Estimator.Object,
             DataAccess.Object);
     }

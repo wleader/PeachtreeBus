@@ -10,8 +10,7 @@ public class CleanQueuedFailedStarterFixture : StarterFixtureBase<
     CleanQueuedFailedStarter,
     ICleanQueuedFailedRunner,
     ICleanQueuedFailedTracker,
-    IAlwaysOneEstimator,
-    IScheduledTaskCounter>
+    IAlwaysOneEstimator>
 {
     protected override CleanQueuedFailedStarter CreateStarter()
     {
@@ -20,7 +19,7 @@ public class CleanQueuedFailedStarterFixture : StarterFixtureBase<
             ScopeFactory.Object,
             Tasks.Object,
             Tracker.Object,
-            TaskCounter.Object,
+            TaskCounter,
             Estimator.Object,
             DataAccess.Object);
     }

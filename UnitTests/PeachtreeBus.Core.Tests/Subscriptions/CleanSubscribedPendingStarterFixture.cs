@@ -10,8 +10,7 @@ public class CleanSubscribedPendingStarterFixture : StarterFixtureBase<
     CleanSubscribedPendingStarter,
     ICleanSubscribedPendingRunner,
     ICleanSubscribedPendingTracker,
-    IAlwaysOneEstimator,
-    IScheduledTaskCounter>
+    IAlwaysOneEstimator>
 {
     protected override CleanSubscribedPendingStarter CreateStarter()
     {
@@ -20,7 +19,7 @@ public class CleanSubscribedPendingStarterFixture : StarterFixtureBase<
             ScopeFactory.Object,
             Tasks.Object,
             Tracker.Object,
-            TaskCounter.Object,
+            TaskCounter,
             Estimator.Object,
             DataAccess.Object);
     }
