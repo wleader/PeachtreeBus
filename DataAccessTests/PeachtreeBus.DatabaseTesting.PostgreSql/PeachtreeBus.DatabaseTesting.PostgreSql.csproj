@@ -2,6 +2,7 @@
 
     <ItemGroup>
         <PackageReference Include="MSTest" />
+        <PackageReference Include="Npgsql" />
         <PackageReference Include="Testcontainers.PostgreSql" />
     </ItemGroup>
 
@@ -10,7 +11,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing.PostgreSql\PeachtreeBus.DatabaseSharing.PostgreSql.csproj" />
       <ProjectReference Include="..\PeachtreeBus.DatabaseTesting\PeachtreeBus.DatabaseTesting.csproj" />
     </ItemGroup>
 

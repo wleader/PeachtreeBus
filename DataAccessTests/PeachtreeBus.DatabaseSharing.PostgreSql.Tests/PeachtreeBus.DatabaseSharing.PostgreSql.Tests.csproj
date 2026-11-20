@@ -11,6 +11,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\PeachtreeBus.Core\PeachtreeBus.Core.csproj" />
+      <ProjectReference Include="..\..\PeachtreeBus.PostgreSql\PeachtreeBus.PostgreSql.csproj" />
       <ProjectReference Include="..\PeachtreeBus.DatabaseTesting.PostgreSql\PeachtreeBus.DatabaseTesting.PostgreSql.csproj" />
       <ProjectReference Include="..\PeachtreeBus.DatabaseTesting\PeachtreeBus.DatabaseTesting.csproj" />
     </ItemGroup>

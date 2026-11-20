@@ -25,7 +25,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\PeachtreeBus.DatabaseSharing.PostgreSql\PeachtreeBus.DatabaseSharing.PostgreSql.csproj" />
         <ProjectReference Include="..\..\PeachtreeBus.PostgreSql\PeachtreeBus.PostgreSql.csproj" />
         <ProjectReference Include="..\PeachtreeBus.DataAccessTests\PeachtreeBus.DataAccessTests.csproj" />
         <ProjectReference Include="..\PeachtreeBus.DatabaseTesting.PostgreSql\PeachtreeBus.DatabaseTesting.PostgreSql.csproj" />

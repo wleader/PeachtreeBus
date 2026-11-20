@@ -86,8 +86,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.GenerateSql", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.PostgreSql", "PeachtreeBus.PostgreSql\PeachtreeBus.PostgreSql.csproj", "{1683B036-5A40-4BF2-AA92-98B609C4D789}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.DatabaseSharing.PostgreSql", "PeachtreeBus.DatabaseSharing.PostgreSql\PeachtreeBus.DatabaseSharing.PostgreSql.csproj", "{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MsSql", "PeachtreeBus.MsSql\PeachtreeBus.MsSql.csproj", "{274221BB-B9FA-4FCA-8E66-04B38412E725}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MsSql.DataAccessTests", "DataAccessTests\PeachtreeBus.MsSql.DataAccessTests\PeachtreeBus.MsSql.DataAccessTests.csproj", "{9D3C2892-2382-4D96-860B-97EB5B35484C}"
@@ -266,12 +264,6 @@ Global
 		{1683B036-5A40-4BF2-AA92-98B609C4D789}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{1683B036-5A40-4BF2-AA92-98B609C4D789}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1683B036-5A40-4BF2-AA92-98B609C4D789}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
-		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Nuget|Any CPU.Build.0 = Debug|Any CPU
-		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0821E099-E2A9-4DC8-A9AC-0300A6BEA1B5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{274221BB-B9FA-4FCA-8E66-04B38412E725}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
