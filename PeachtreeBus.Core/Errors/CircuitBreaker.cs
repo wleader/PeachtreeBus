@@ -30,7 +30,7 @@ public interface ICircuitBreaker
 /// <remarks>
 /// A breaker has three states: Cleared, Armed, and Faulted.
 /// While in a Cleared state the Guard methods introduce no delay.
-/// While in a Armed or Faulted state, Guard methods introduce a configured delay.
+/// While in an Armed or Faulted state, Guard methods introduce a configured delay.
 /// When in a Cleared state if a Guard method catches an exception,
 /// the breaker changes to the Armed State.
 /// When in the Armed State or Faulted State if a Guard method succeeds
@@ -42,11 +42,11 @@ public class CircuitBreaker(
     IDelayFactory delayFactory,
     ILogger<CircuitBreaker> log,
     ISystemClock clock,
-    CircuitBreakerConfiguraton configuraton) : ICircuitBreaker
+    CircuitBreakerConfiguraton configuration) : ICircuitBreaker
 {
     private DateTime ArmedAt;
 
-    public CircuitBreakerConfiguraton Configuration { get; } = configuraton;
+    public CircuitBreakerConfiguraton Configuration { get; } = configuration;
 
     private volatile CircuitBreakerState _state = CircuitBreakerState.Clear;
     public CircuitBreakerState State => _state;
@@ -128,7 +128,7 @@ public class CircuitBreaker(
         if (ArmedAt.Add(Configuration.TimeToFaulted) > clock.UtcNow)
             return;
 
-        // it is armed, and its been armed long enough to progress to faulted.
+        // it is armed, and it has been armed long enough to progress to the faulted state.
         _state = CircuitBreakerState.Faulted;
         log.Faulted(Configuration.FriendlyName);
     }

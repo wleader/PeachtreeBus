@@ -36,7 +36,7 @@ public abstract class IncomingPipelineInvoker<TInternalContext, TContext, TPipel
         // connection will use the existing one.
 
         // the last piece of the puzzle is that the DI container will try to 
-        // dipose IDisposable things in the scope. We don't want it to dispose the
+        // dispose IDisposable things in the scope. We don't want it to dispose the
         // Shared DB, so we set the Shared DB to ignore the .Dispose call for the
         // duration of the scope.
 

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Queues
 {
     /// <summary>
-    /// Defines an interface for reading and completeing messages,
+    /// Defines an interface for reading and completing messages,
     /// and loading and saving saga data.
     /// </summary>
     public interface IQueueReader
@@ -50,12 +50,12 @@ namespace PeachtreeBus.Queues
         /// and the saga itself.
         /// </summary>
         /// <param name="saga">The saga to load data for.</param>
-        /// <param name="context">The mesage context. SagaKey must be set.</param>
+        /// <param name="context">The message context. SagaKey must be set.</param>
         Task LoadSaga(object saga, QueueContext context);
 
         /// <summary>
         /// Stores the saga data in the database after a message is processed.
-        /// If the saga is compelte, the data is deleted from the database.
+        /// If the saga is complete, the data is deleted from the database.
         /// </summary>
         /// <param name="saga"></param>
         /// <param name="context"></param>
@@ -92,7 +92,7 @@ namespace PeachtreeBus.Queues
         public async Task<QueueContext?> GetNext(QueueName queueName)
         {
             // get a message.
-            // if it returned null there is no message to pocess currently.
+            // if it returned null there is no message to process currently.
             var queueMessage = await _dataAccess.GetPendingQueued(queueName);
             if (queueMessage == null) return null;
 
@@ -109,7 +109,7 @@ namespace PeachtreeBus.Queues
                 // this might not work, The body might deserialize but there won't be an
                 // IHandleMessages<System.Object> so it won't get handled. This really just gives
                 // us a chance to get farther and log more about the bad message.
-                // this message would proably have to be removed from the database by hand?
+                // this message would probably have to be removed from the database by hand?
                 result.Data.Headers = new() { MessageClass = ClassName.Default };
             }
 
@@ -192,11 +192,11 @@ namespace PeachtreeBus.Queues
 
             if (context.SagaBlocked) return;
 
-            // Hypothetically locked could be false, and sagadata could be null if the saga hasn't been started.
+            // Hypothetically locked could be false, and SagaData could be null if the saga hasn't been started.
             // and if two saga starts are processed at the same time, a second insert will occur and 
             // that will fail with a duplicate key constraint.
 
-            // determine the type to deserialze to or create.
+            // determine the type to deserialize to or create.
             var dataProperty = sagaType.GetProperty("Data");
             dataProperty = UnreachableException.ThrowIfNull(dataProperty,
                 message: "Saga<> must have a Data Property.");
@@ -260,7 +260,7 @@ namespace PeachtreeBus.Queues
             // the saga is not complete, serialize it.
             var dataProperty = sagaType.GetProperty("Data");
             dataProperty = UnreachableException.ThrowIfNull(dataProperty,
-                message: "Saga<> implmentations must have a Data property.");
+                message: "Saga<> implementations must have a Data property.");
 
             var dataObject = dataProperty.GetValue(saga);
             dataObject ??= Activator.CreateInstance(dataProperty.PropertyType);
