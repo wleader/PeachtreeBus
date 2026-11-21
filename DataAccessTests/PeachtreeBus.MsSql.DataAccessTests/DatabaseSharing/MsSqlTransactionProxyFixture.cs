@@ -1,10 +1,11 @@
-﻿using Dapper;
-using System;
+﻿using System;
+using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.DatabaseTesting;
 
-namespace PeachtreeBus.DatabaseSharing.MsSql.Tests;
+namespace PeachtreeBus.MsSql.DataAccessTests.DatabaseSharing;
 
 [TestClass]
 public sealed class MsSqlTransactionProxyFixture
@@ -38,6 +39,7 @@ public sealed class MsSqlTransactionProxyFixture
 
         void AssertTransactionCount(int expected)
         {
+            // ReSharper disable once StringLiteralTypo
             var actual = db.Connection.ExecuteScalar<int>("SELECT @@TRANCOUNT", transaction: db.Transaction);
             Assert.AreEqual(expected, actual);
         }
@@ -49,7 +51,7 @@ public sealed class MsSqlTransactionProxyFixture
         var db = _scope.ServiceProvider.GetRequiredService<MsSqlSharedDatabase>();
         db.Reconnect();
 
-        db.Connection.Execute("DELETE FROM [PeachtreeBus].[Subscriptions]");
+        db.Connection.Execute("TRUNCATE TABLE [PeachtreeBus].[Subscriptions]");
 
         db.BeginTransaction();
         db.CreateSavepoint("Savepoint1");
@@ -61,9 +63,11 @@ public sealed class MsSqlTransactionProxyFixture
 
         var count = db.Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM [PeachtreeBus].[Subscriptions]");
         Assert.AreEqual(1, count);
+        return;
 
         void Insert()
         {
+            // ReSharper disable once StringLiteralTypo
             const string statement =
                 """
                 INSERT INTO [PeachtreeBus].[Subscriptions]

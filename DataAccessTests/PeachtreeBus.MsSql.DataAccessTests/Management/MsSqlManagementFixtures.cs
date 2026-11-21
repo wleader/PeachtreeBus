@@ -1,0 +1,35 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.DataAccessTests.BusDataAccess;
+using PeachtreeBus.DataAccessTests.ManagementDataAccess;
+
+namespace PeachtreeBus.MsSql.DataAccessTests.Management;
+
+[TestClass]
+public class MsSqlManagementGetPendingQueueMessagesFixture : ManagementGetPendingQueueMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementCancelQueueMessageFixture : ManagementCancelQueueMessageFixture;
+
+[TestClass]
+public class MsSqlManagementGetCompletedQueueMessagesFixture : ManagementGetCompletedQueueMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementCancelSubscribedMessageFixture : ManagementCancelSubscribedMessageFixture;
+
+[TestClass]
+public class MsSqlManagementGetCompletedSubscribedMessagesFixture : ManagementGetCompletedSubscribedMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementGetFailedQueueMessagesFixture : ManagementGetFailedQueueMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementGetFailedSubscribedMessagesFixture : ManagementGetFailedSubscribedMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementGetPendingSubscribedMessagesFixture : ManagementGetPendingSubscribedMessagesFixture;
+
+[TestClass]
+public class MsSqlManagementRetryQueueMessageFixture : ManagementRetryQueueMessageFixture;
+
+[TestClass]
+public class MsSqlManagementRetrySubscribedMessageFixture : ManagementRetrySubscribedMessageFixture;

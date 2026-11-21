@@ -1,9 +1,10 @@
 using System.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PeachtreeBus.DatabaseSharing;
 using PeachtreeBus.DatabaseTesting;
 
-namespace PeachtreeBus.DatabaseSharing.PostgreSql.Tests;
+namespace PeachtreeBus.PostgreSql.DataAccessTests.DatabaseSharing;
 
 [TestClass]
 public class PostgreSqlExternallyManagedConnectionFixture
