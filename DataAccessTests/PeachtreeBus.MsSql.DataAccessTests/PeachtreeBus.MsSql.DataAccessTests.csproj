@@ -26,7 +26,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PeachtreeBus.DataAccessTests\PeachtreeBus.DataAccessTests.csproj" />
-      <ProjectReference Include="..\PeachtreeBus.DatabaseTesting.MsSql\PeachtreeBus.DatabaseTesting.MsSql.csproj" />
     </ItemGroup>
 
 </Project>

@@ -6,7 +6,11 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.SqlServer.DacFx"/>
+        <PackageReference Include="Npgsql" />
         <PackageReference Include="Testcontainers" />
+        <PackageReference Include="Testcontainers.MsSql"/>
+        <PackageReference Include="Testcontainers.PostgreSql" />
     </ItemGroup>
 
     <ItemGroup>
