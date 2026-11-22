@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.MsSql\PeachtreeBus.PostgreSql.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.PostgreSql\PeachtreeBus.PostgreSql.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="Microsoft.EntityFrameworkCore">
+        <HintPath>..\..\..\..\.nuget\packages\microsoft.entityframeworkcore\10.0.13\lib\net10.0\Microsoft.EntityFrameworkCore.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>
