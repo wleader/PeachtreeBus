@@ -12,9 +12,10 @@ public class AuditLog
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public virtual int Id { get; set; }
-    public virtual DateTime Occured { get; set; }
-    public virtual string Message { get; set; } = string.Empty;
+    public int Id { get; init; }
+    public DateTime Occured { get; init; }
+    // ReSharper disable once EntityFramework.ModelValidation.UnlimitedStringLength
+    public string Message { get; init; } = string.Empty;
 }
 
 public class TestableContext(

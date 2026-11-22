@@ -5,7 +5,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\PeachtreeBus.DatabaseSharing\PeachtreeBus.DatabaseSharing.csproj" />
-        <ProjectReference Include="..\PeachtreeBus.MsSql\PeachtreeBus.PostgreSql.csproj" />
         <ProjectReference Include="..\PeachtreeBus.PostgreSql\PeachtreeBus.PostgreSql.csproj" />
     </ItemGroup>
     <ItemGroup>

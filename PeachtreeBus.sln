@@ -100,6 +100,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.PostgreSql.EfC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.MsSql.EfCore.Tests", "DataAccessTests\PeachtreeBus.MsSql.EfCore.Tests\PeachtreeBus.MsSql.EfCore.Tests.csproj", "{C7168EDE-4986-4CC9-823A-4C0AEEB731C2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.PostgreSql.EfCore.Tests", "DataAccessTests\PeachtreeBus.PostgreSql.EfCore.Tests\PeachtreeBus.PostgreSql.EfCore.Tests.csproj", "{33115B42-3CC9-49E0-8BC0-A2E412719A25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -301,6 +303,12 @@ Global
 		{C7168EDE-4986-4CC9-823A-4C0AEEB731C2}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{C7168EDE-4986-4CC9-823A-4C0AEEB731C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7168EDE-4986-4CC9-823A-4C0AEEB731C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33115B42-3CC9-49E0-8BC0-A2E412719A25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33115B42-3CC9-49E0-8BC0-A2E412719A25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33115B42-3CC9-49E0-8BC0-A2E412719A25}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{33115B42-3CC9-49E0-8BC0-A2E412719A25}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{33115B42-3CC9-49E0-8BC0-A2E412719A25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33115B42-3CC9-49E0-8BC0-A2E412719A25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -329,6 +337,7 @@ Global
 		{AEDEA7F4-7990-46C3-A199-D60B197BA3FE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{645A90BD-B4AB-46B1-A028-D1AFDF3F59F5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{C7168EDE-4986-4CC9-823A-4C0AEEB731C2} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
+		{33115B42-3CC9-49E0-8BC0-A2E412719A25} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {152625A8-2D37-455D-B3A6-DB03D605D21C}
