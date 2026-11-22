@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>latest</LangVersion>
+        <IsPackable>false</IsPackable>
         <Copyright>2025 William Leader</Copyright>
         <Product>PeachtreeBus</Product>
         <Nullable>enable</Nullable>

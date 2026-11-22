@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>PeachtreeBus</RootNamespace>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
 </Project>

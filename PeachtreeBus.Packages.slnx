@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="PeachtreeBus.Abstractions/PeachtreeBus.Abstractions.csproj" />
+  <Project Path="PeachtreeBus.Core/PeachtreeBus.Core.csproj" />
+  <Project Path="PeachtreeBus.DatabaseSharing/PeachtreeBus.DatabaseSharing.csproj" />
+  <Project Path="PeachtreeBus.MessageInterfaces/PeachtreeBus.MessageInterfaces.csproj" />
+  <Project Path="PeachtreeBus.MicrosoftDependencyInjection/PeachtreeBus.MicrosoftDependencyInjection.csproj" />
+  <Project Path="PeachtreeBus.MsSql.EfCore/PeachtreeBus.MsSql.EfCore.csproj" />
+  <Project Path="PeachtreeBus.MsSql/PeachtreeBus.MsSql.csproj" />
+  <Project Path="PeachtreeBus.PostgreSql.EfCore/PeachtreeBus.PostgreSql.EfCore.csproj" />
+  <Project Path="PeachtreeBus.PostgreSql/PeachtreeBus.PostgreSql.csproj" />
+  <Project Path="PeachtreeBus.Testing/PeachtreeBus.Testing.csproj" />
+</Solution>
