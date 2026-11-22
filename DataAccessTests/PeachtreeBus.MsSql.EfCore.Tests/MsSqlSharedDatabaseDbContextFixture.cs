@@ -1,17 +1,17 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System;
+using System.Data;
+using System.Linq;
+using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PeachtreeBus.DatabaseSharing;
-using System;
-using System.Data;
-using System.Linq;
 using PeachtreeBus.DatabaseTesting;
 using PeachtreeBus.DatabaseTesting.MsSql;
 
-namespace PeachtreeBus.EntityFrameworkCore.Tests;
+namespace PeachtreeBus.MsSql.EfCore.Tests;
 
 [TestClass]
-public class SharedDatabaseDbContextFixture
+public class MsSqlSharedDatabaseDbContextFixture
 {
     private MsSqlSharedDatabase _msSqlSharedDatabase = null!;
     private Mock<ISqlConnectionFactory> _connectionFactory = null!;
@@ -38,7 +38,7 @@ public class SharedDatabaseDbContextFixture
         connection.Open();
         using var command = new SqlCommand(
             """
-            DELETE FROM [ExampleApp].[AuditLog]
+            TRUNCATE TABLE [ExampleApp].[AuditLog]
             """, connection, null);
         command.ExecuteNonQuery();
     }
@@ -54,7 +54,7 @@ public class SharedDatabaseDbContextFixture
     {
         var context = new TestableContext(_msSqlSharedDatabase);
         context.Dispose();
-        Assert.IsTrue(context.Disposed);
+        Assert.ThrowsExactly<ObjectDisposedException>(() => _ = context.ChangeTracker);
     }
 
     [TestMethod]

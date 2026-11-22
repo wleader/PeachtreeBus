@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PeachtreeBus.DatabaseSharing;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
+using PeachtreeBus.DatabaseSharing;
 
-namespace PeachtreeBus.EntityFrameworkCore.Tests;
+namespace PeachtreeBus.MsSql.EfCore.Tests;
 
 [ExcludeFromCodeCoverage(Justification = "Non-Shipping Code")]
 public class AuditLog
@@ -19,7 +19,7 @@ public class AuditLog
 
 public class TestableContext(
     ISqlSharedDatabase sharedDatabase) 
-    : SharedDatabaseDbContext(sharedDatabase)
+    : MsSqlSharedDatabaseDbContext(sharedDatabase)
 { 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
