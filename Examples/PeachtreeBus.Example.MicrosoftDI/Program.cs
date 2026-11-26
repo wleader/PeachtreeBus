@@ -15,7 +15,7 @@ using PeachtreeBus;
 
 namespace Peachtreebus.Example.MicrosoftDI;
 
-public class Program
+public static class Program
 {
     public static async Task Main(string[] args)
     {
@@ -23,10 +23,6 @@ public class Program
         configurationBuilder.AddJsonFile("appsettings.json");
         configurationBuilder.AddJsonFile("appsettings.overrides.json", true);
         var configuration = configurationBuilder.Build();
-
-        // read our connection string from the appsettings configuration.
-        var connectionString = configuration.GetConnectionString("PeachtreeBus")
-            ?? throw new ApplicationException("A PeachtreeBus connection string is not configured.");
 
         var builder = Host.CreateApplicationBuilder(args);
         builder.ConfigureContainer(
@@ -39,6 +35,11 @@ public class Program
 
         // get configuration from appsettings.json
         builder.Configuration.AddConfiguration(configuration);
+        builder.Configuration.AddEnvironmentVariables();
+
+        // Aspire supplies the connection string through environment variables.
+        var connectionString = builder.Configuration.GetConnectionString("PeachtreeBus")
+            ?? throw new ApplicationException("A PeachtreeBus connection string is not configured.");
 
         // log to the console window.
         builder.Logging.ClearProviders();
@@ -59,15 +60,15 @@ public class Program
 
 
         // optionally turn on and configure telemetry.
-        using var _ = new PeachtreeBus.Example.Telemetry.OpenTelemetryProviders("PeachtreeBus-Example-MSDI",
+        using var _ = new PeachtreeBus.Example.Telemetry.OpenTelemetryProviders("PeachtreeBus-Example-MsSql",
             tracerSources: [ActivitySources.Messaging.Name],
-            traceExportOptions: options =>
+            traceExportOptions: _ =>
             {
                 //options.Endpoint = new("https://server.domain.com/v1/meters");
                 //options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
             },
             meterSources: [Meters.Messaging.Name],
-            meterExportOptions: options =>
+            meterExportOptions: _ =>
             {
                 //options.Endpoint = new("https://server.domain.com/v1/meters");
                 //options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;

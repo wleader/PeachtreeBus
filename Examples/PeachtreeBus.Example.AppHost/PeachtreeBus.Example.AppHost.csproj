@@ -1,20 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.0" />
-
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <IsAspireHost>true</IsAspireHost>
-        <AspireUseCliBundle>true</AspireUseCliBundle>
         <UserSecretsId>2e6d8721-2c64-429c-ae20-cf0a2d625265</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Aspire.Hosting.AppHost"/>
+        <PackageReference Include="Aspire.Hosting.Dotnet" />
+        <PackageReference Include="Aspire.Hosting.SqlServer" />
+        <PackageReference Include="CommunityToolkit.Aspire.Hosting.SqlDatabaseProjects" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\PeachtreeBus.Example.MicrosoftDI\PeachtreeBus.Example.MicrosoftDI.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.Example.Database\PeachtreeBus.Example.Database.sqlproj"
+                          IsAspireProjectResource="false"
+                          ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
 </Project>

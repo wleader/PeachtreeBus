@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Aspire.Hosting;
-using Projects;
 
 namespace PeachtreeBus.Example.AppHost;
 
@@ -11,8 +10,24 @@ public static class Program
     {
         var builder = DistributedApplication.CreateBuilder(args);
 
-        builder.AddProject<PeachtreeBus_Example_MicrosoftDI>("Example-Endpoint-MicrosoftDI")
-            .WithExplicitStart();
+        var password = builder
+            .AddParameter("sql-password", secret: true);
+
+        var sqlServer = builder
+            .AddSqlServer("mssql", password)
+            .WithDataVolume("peachtreebus-aspire-mssql-data");
+
+        var database = sqlServer
+            .AddDatabase("PeachtreeBus");
+
+        var dacpac = builder.AddSqlProject("peachtreebus-example-database")
+            .WithDacpac("../PeachtreeBus.Example.Database/bin/Debug/PeachtreeBus.Example.Database.dacpac")
+            .WithReference(database);
+
+        builder.AddDotnetProject("example-endpoint-mssql",
+                "../PeachtreeBus.Example.MicrosoftDI/PeachtreeBus.Example.MicrosoftDI.csproj")
+             .WithReference(database)
+             .WaitFor(dacpac);
 
         builder.Build().Run();
     }

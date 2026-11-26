@@ -8,6 +8,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.SqlServer.DacFx"/>
         <PackageReference Include="Npgsql" />
+        <PackageReference Include="System.Security.Cryptography.Pkcs" />
         <PackageReference Include="Testcontainers" />
         <PackageReference Include="Testcontainers.MsSql"/>
         <PackageReference Include="Testcontainers.PostgreSql" />

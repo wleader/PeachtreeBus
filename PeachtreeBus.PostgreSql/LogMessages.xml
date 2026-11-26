@@ -17,5 +17,5 @@
                 There was an exception interacting with the database. Method: {Method:string}.
             </Event>
         </Class>
-    </Namespace>    
+    </Namespace>
 </Assembly>
