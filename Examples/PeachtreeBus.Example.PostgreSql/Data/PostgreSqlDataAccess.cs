@@ -5,23 +5,17 @@ using System.Threading.Tasks;
 namespace PeachtreeBus.Example.Data
 {
     /// <summary>
-    /// An interface for the example application data access.
+    /// A Data Access example that shares the database connection and transaction object
+    /// with PeachtreeBus.
     /// </summary>
-    public interface IExampleDataAccess
-    {
-        Task Audit(string message);
-    }
-
-    /// <summary>
-    /// A Data Access example that share the database connection and transaction object with PeachtreeBus.
-    /// </summary>
-    public class ExampleDataAccess(
+    public class PostgreSqlDataAccess(
         ISharedDatabase database)
         : IExampleDataAccess
     {
         public Task Audit(string message)
         {
-            const string statement = "INSERT INTO[ExampleApp].[AuditLog] ([Occured],[Message]) VALUES(SYSUTCDATETIME(),@Message)";
+            // This is in PostgreSQL dialect
+            const string statement = "INSERT INTO example_app.audit_log (occured, message) VALUES(NOW(),@Message)";
             var p = new DynamicParameters();
             p.Add("@Message", message);
             return database.NativeConnection.ExecuteAsync(statement, p, database.NativeTransaction);

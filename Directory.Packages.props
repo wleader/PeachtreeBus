@@ -6,6 +6,7 @@
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="17.0.0" />
     <PackageVersion Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSql" Version="17.0.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.SqlDatabaseProjects" Version="17.0.0" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />

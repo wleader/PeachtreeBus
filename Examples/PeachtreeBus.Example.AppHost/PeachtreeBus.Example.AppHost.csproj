@@ -10,14 +10,16 @@
         <PackageReference Include="Aspire.Hosting.AppHost"/>
         <PackageReference Include="Aspire.Hosting.Dotnet" />
         <PackageReference Include="Aspire.Hosting.SqlServer" />
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" />
         <PackageReference Include="CommunityToolkit.Aspire.Hosting.SqlDatabaseProjects" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PeachtreeBus.Example.MicrosoftDI\PeachtreeBus.Example.MicrosoftDI.csproj" />
         <ProjectReference Include="..\PeachtreeBus.Example.Database\PeachtreeBus.Example.Database.sqlproj"
                           IsAspireProjectResource="false"
                           ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\PeachtreeBus.Example.MsSql\PeachtreeBus.Example.MsSql.csproj" />
+        <ProjectReference Include="..\PeachtreeBus.Example.PostgreSql\PeachtreeBus.Example.PostgreSql.csproj" />
     </ItemGroup>
 
 </Project>
