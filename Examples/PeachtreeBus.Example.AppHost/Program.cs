@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Aspire.Hosting;
 
 namespace PeachtreeBus.Example.AppHost;
@@ -20,14 +21,21 @@ public static class Program
         var msSqlDatabase = msSqlServer
             .AddDatabase("PeachtreeBusMsSql");
 
-        var dacpac = builder.AddSqlProject("peachtreebus-example-database")
-            .WithDacpac("../PeachtreeBus.Example.Database/bin/Debug/PeachtreeBus.Example.Database.dacpac")
-            .WithReference(msSqlDatabase);
+        // because the AppHost project references the .SqlProj the .dacpac will have
+        // been built before the AppHost, so we can assume the .dacpac is ready.
+        var dacpacPath = Path.Combine(builder.AppHostDirectory,
+            "../PeachtreeBus.Example.Database/bin/Debug/PeachtreeBus.Example.Database.dacpac");
+        dacpacPath = Path.GetFullPath(dacpacPath);
+        
+        var applyDacPac = builder.AddDotnetProject("example-apply-dacpac",
+                "../PeachtreeBus.Example.InitMsSql/PeachtreeBus.Example.InitMsSql.csproj")
+            .WithReference(msSqlDatabase)
+            .WithEnvironment("DacPacFile", dacpacPath);
 
         builder.AddDotnetProject("example-endpoint-mssql",
                 "../PeachtreeBus.Example.MsSql/PeachtreeBus.Example.MsSql.csproj")
             .WithReference(msSqlDatabase)
-            .WaitFor(dacpac);
+            .WaitForCompletion(applyDacPac);
 
         var postgresServer = builder
             .AddPostgres("postgres")

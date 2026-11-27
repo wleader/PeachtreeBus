@@ -104,6 +104,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.MsSql"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.PostgreSql", "Examples\PeachtreeBus.Example.PostgreSql\PeachtreeBus.Example.PostgreSql.csproj", "{32E22AD0-9FCF-475F-ABB2-19732679EBF0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeachtreeBus.Example.InitMsSql", "Examples\PeachtreeBus.Example.InitMsSql\PeachtreeBus.Example.InitMsSql.csproj", "{9C5682D8-0B55-4B20-92B3-BBEB1D149F0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -318,6 +320,12 @@ Global
 		{32E22AD0-9FCF-475F-ABB2-19732679EBF0}.Nuget|Any CPU.Build.0 = Debug|Any CPU
 		{32E22AD0-9FCF-475F-ABB2-19732679EBF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32E22AD0-9FCF-475F-ABB2-19732679EBF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C5682D8-0B55-4B20-92B3-BBEB1D149F0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C5682D8-0B55-4B20-92B3-BBEB1D149F0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C5682D8-0B55-4B20-92B3-BBEB1D149F0A}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C5682D8-0B55-4B20-92B3-BBEB1D149F0A}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{9C5682D8-0B55-4B20-92B3-BBEB1D149F0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C5682D8-0B55-4B20-92B3-BBEB1D149F0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -348,6 +356,7 @@ Global
 		{33115B42-3CC9-49E0-8BC0-A2E412719A25} = {821DFAE3-818D-4D12-938A-D3408AFF5830}
 		{FCB1179E-F246-41C8-AAEB-EB3363BD4BC4} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
 		{32E22AD0-9FCF-475F-ABB2-19732679EBF0} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
+		{9C5682D8-0B55-4B20-92B3-BBEB1D149F0A} = {795DFFDC-C559-47D1-B43B-B025DE7B9D81}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {152625A8-2D37-455D-B3A6-DB03D605D21C}
