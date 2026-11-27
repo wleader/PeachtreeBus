@@ -24,7 +24,7 @@ CREATE INDEX idx_queuename_pending_getnext
     INCLUDE (not_before);
 
 -- this index is useful for the management tools.
-CREATE INDEX idx_qeuename_pending_enqueued
+CREATE INDEX idx_queuename_pending_enqueued
     ON peachtreebus.queuename_pending (enqueued DESC);
 
 -- reference definition of a completed queue messages table.
@@ -64,7 +64,7 @@ CREATE TABLE peachtreebus.queuename_failed
 );
 
 -- this index is useful for management tools.
-CREATE INDEX idx_queueame_failed_enqueued
+CREATE INDEX idx_queuename_failed_enqueued
     ON peachtreebus.queuename_failed (enqueued DESC);
 
 -- reference definition of a saga data table. A specifically named table
